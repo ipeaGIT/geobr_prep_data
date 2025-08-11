@@ -4,6 +4,9 @@ suppressPackageStartupMessages({
   library(tarchetypes)
   library(data.table)
   library(future)
+  library(readxl)
+  library(openxlsx)
+  library(geobr)
   future::plan(future::multisession)
 })
 
@@ -43,35 +46,45 @@ tar_option_set(
 
 # Run the R scripts in the R/ folder with your custom functions:
 # tar_source()
-source('./R/support_fun.R')
+source('./R/', encoding = "UTF-8")
 
-
-# 1. Municipios
-source("./R/muni_download.R", encoding = "UTF-8")
-source("./R/muni_clean.R", encoding = "UTF-8")
-
-# 2. Estados
-source("./R/state_download.R", encoding = "UTF-8")
 
 list(
+  
+  #1. Semiarido ----------------------------------------------------------
 
+    # year input
+    tar_target(years_semiarid, c(2005, 2017, 2021, 2022)),
+    
+    # download
+    tar_target(name = download_semiarid,
+               command = download_semiarid(years_semiarid),
+               pattern = map(years_semiarid)),
+
+    # clean (aprox 14870.86 sec)
+    tar_target(name = clean_semiarid,
+               command = clean_semiarid(download_semiarid),
+               pattern = map(download_semiarid)
+               )
+  
+  
 # 1. Municipios ----------------------------------------------------------
-
-  # year input
-  tar_target(years_muni, c(2000, 2001, 2005, 2007, 2010,
-                           2013, 2014,  2015, 2016, 2017,
-                           2018, 2019, 2020, 2021, 2022,
-                           2023, 2024)),
-  # download
-  tar_target(name = download_municipios,
-             command = download_muni(years_muni),
-             pattern = map(years_muni)),
-
-  # clean (aprox 14870.86 sec)
-  tar_target(name = clean_municipios,
-             command = clean_muni(download_municipios)
-             , pattern = map(download_municipios)
-             )
+# 
+#   # year input
+#   tar_target(years_muni, c(2000, 2001, 2005, 2007, 2010,
+#                            2013, 2014,  2015, 2016, 2017,
+#                            2018, 2019, 2020, 2021, 2022,
+#                            2023, 2024)),
+#   # download
+#   tar_target(name = download_municipios,
+#              command = download_muni(years_muni),
+#              pattern = map(years_muni)),
+# 
+#   # clean (aprox 14870.86 sec)
+#   tar_target(name = clean_municipios,
+#              command = clean_muni(download_municipios)
+#              , pattern = map(download_municipios)
+#              )
 
 # # 2. Estados ----------------------------------------------------------
 #

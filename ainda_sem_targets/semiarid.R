@@ -19,25 +19,14 @@
 # Informacao do Sistema de Referencia: SIRGAS 2000
 
 
-####### Load Support functions to use in the preprocessing of the data
-
-source("./R/support_fun.R")
-
-#### 0. Create Root folder to save the data -----------------
-
-# Directory to keep raw zipped files and cleaned files
-dir.create("./data_raw/semiarid")
-dir.create("./data/semiarid")
-
-# Packages necessary
-library(readxl)
-library(openxlsx)
-library(geobr)
 
 ##### Download the data  -----------------
 download_semiarid <- function(year){ # year = 2022
 
   #### 0. Create file directory  -----------------
+  # Directory to keep raw zipped files and cleaned files
+  dir.create("./data_raw/semiarid")
+  dir.create("./data/semiarid")
   dir_raw <- paste0("./data_raw/semiarid/", year)
   dir.create(dir_raw, recursive = T)
   
@@ -71,12 +60,8 @@ download_semiarid <- function(year){ # year = 2022
 
 
   # directions to download file
-  file_raw <- paste0(dir_raw,"/", year, "_lista_municipios_semiarido.xlsx")
+  file_raw <- paste0(dir_raw,"/", year, basename(ftp))
 
-  # fix file extension
-  if (year %in% c(2005, 2021)){
-    file_raw <- gsub( '.xlsx', '.xls', file_raw)
-    }
 
   #### 2. Download  -----------------
 

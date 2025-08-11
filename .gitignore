@@ -9,3 +9,6 @@
 .httr-oauth
 .DS_Store
 .quarto
+/data/*
+/data_raw/*
+/_targets/*
