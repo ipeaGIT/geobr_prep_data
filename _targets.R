@@ -53,13 +53,12 @@ list(
     # download
     tar_target(name = semiarid_raw,
                command = download_semiarid(years_semiarid),
-               pattern = map(years_semiarid),
-               format = 'file'),
+               pattern = map(years_semiarid)),
 
     # clean (aprox 14870.86 sec)
     tar_target(name = semiarid_clean,
-               command = clean_semiarid(semiarid_raw),
-               pattern = map(semiarid_raw),
+               command = clean_semiarid(semiarid_raw, years_semiarid),
+               pattern = map(semiarid_raw, years_semiarid),
                format = 'file')
 
   
