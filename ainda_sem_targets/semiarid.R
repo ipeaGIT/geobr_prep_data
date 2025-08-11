@@ -1,50 +1,55 @@
 #> DATASET: Brazilian semi-arid
 #> Source: IBGE - https://www.ibge.gov.br/geociencias/cartas-e-mapas/mapas-regionais/15974-semiarido-brasileiro.html?=&t=downloads
 #> Metadata:
-# Titulo: Semiarido brasileiro
+# Titulo: Semiárido brasileiro
 # Titulo alternativo: Semiarido brasileiro
-# Frequencia de atualizacao: ?
+# Frequencia de atualizacao: Ocasional
 #
 # Forma de apresentacao: Shape
 # Linguagem: Pt-BR
-# Character set: Utf-8
+# Character set: UTF-8
 #
-# Resumo: Poligonos e Pontos do semiarido brasileiro.
+# Resumo: Poligonos e Pontos do semiárido brasileiro.
 # Informacoes adicionais: Dados produzidos pelo IBGE com base em decretos administrativos do Ministério da Integração Nacional.
 # -"Resolução nº 115 do Ministério da Integração Nacional, de 23 de novembro de 2017"
 # -"Portaria N°89 de 16 de março de 2005, do Ministério da Integração Nacional"
-# Proposito: Identificao do semiarido brasileiro.
+# Proposito: Identificao do clima semiárido brasileiro.
 
 # Estado: Em desenvolvimento
 # Informacao do Sistema de Referencia: SIRGAS 2000
-
-
 
 
 ####### Load Support functions to use in the preprocessing of the data
 
 source("./R/support_fun.R")
 
+#### 0. Create Root folder to save the data -----------------
 
+# Directory to keep raw zipped files and cleaned files
+dir.create("./data_raw/semiarid")
+dir.create("./data/semiarid")
 
-prep_semiarid <- function(year){ # year = 2022
+# Packages necessary
+library(readxl)
+library(openxlsx)
+library(geobr)
 
+##### Download the data  -----------------
+download_semiarid <- function(year){ # year = 2022
 
-  ###### 0. Create Root folder to save the data -----------------
-
-  # Directory to keep raw zipped files
-  dir.create("./semiarid")
+  #### 0. Create file directory  -----------------
   dir_raw <- paste0("./data_raw/semiarid/", year)
   dir.create(dir_raw, recursive = T)
+  
+  # directions to save the file
+  file_raw <- paste0(dir_raw,"/", year, "_lista_municipios_semiarido.xlsx")
+  
+  # fix file extension
+  if (year %in% c(2005, 2021)){
+    file_raw <- gsub( '.xlsx', '.xls', file_raw)
+  }
 
-
-  # Create folders to save clean sf.rds files
-  dir_clean <- paste0("./data/semiarid/", year)
-  dir.create(dir_clean, recursive = T)
-
-
-
-  #### 2. Download original data sets from source website -----------------
+  #### 1. Download original data sets from source website -----------------
 
   # get correct ftp url link
 
@@ -65,9 +70,7 @@ prep_semiarid <- function(year){ # year = 2022
   }
 
 
-
-
-  # download file
+  # directions to download file
   file_raw <- paste0(dir_raw,"/", year, "_lista_municipios_semiarido.xlsx")
 
   # fix file extension
@@ -75,19 +78,46 @@ prep_semiarid <- function(year){ # year = 2022
     file_raw <- gsub( '.xlsx', '.xls', file_raw)
     }
 
-
+  #### 2. Download  -----------------
 
   httr::GET(url = ftp,
             httr::progress(),
             httr::write_disk(path = file_raw,
                              overwrite = T))
 
+}
+
+# Dowloand every semiarid database  -----------------
+download_semiarid(2005)
+download_semiarid(2017)
+download_semiarid(2021)
+download_semiarid(2022)
 
 
 
-  #### 3. Clean data set -----------------
 
-  if (year==2005){
+
+
+##### Clean the data   -----------------
+clean_semiarid <- function(year) { # year = 2022
+
+  #### 0. Create folders to save clean sf.rds files  -----------------
+  dir_raw <- paste0("./data_raw/semiarid/", year)
+  file_raw <- paste0(dir_raw,"/", year, "_lista_municipios_semiarido.xlsx")
+  dir_clean <- paste0("./data/semiarid/", year)
+  dir.create(dir_clean, recursive = T)
+  
+  # directions to find the file
+  file_clean <- paste0(dir_clean,"/", year, "_lista_municipios_semiarido.xlsx")
+  
+  # fix file extension of file_raw
+  if (year %in% c(2005, 2021)){
+    file_raw <- gsub( '.xlsx', '.xls', file_raw)
+  }
+  
+  #### 1. Set the year -----------------
+
+  if (year == 2005){
   # read IBGE data frame
   munis_semiarid <- readxl::read_xls(path = file_raw,
                                        skip = 1, n_max = 1133)
@@ -97,9 +127,7 @@ prep_semiarid <- function(year){ # year = 2022
                                   name_muni = `Nome do Município`)
   }
 
-
-
-  if (year==2017){
+  if (year == 2017){
     # read IBGE data frame
     munis_semiarid <- readxl::read_xlsx(path = file_raw,
                                          skip = 1, n_max = 1262)
@@ -110,10 +138,7 @@ prep_semiarid <- function(year){ # year = 2022
                                     name_muni = `Nome do Município`)
     }
 
-
-
-
-  if (year==2021) {
+  if (year == 2021) {
     # read IBGE data frame
     munis_semiarid <- readxl::read_xls(path = file_raw,
                                          n_max = 1263)
@@ -123,9 +148,7 @@ prep_semiarid <- function(year){ # year = 2022
                                     name_muni = NM_MUN)
     }
 
-
-
-  if (year==2022) {
+  if (year == 2022) {
     # read IBGE data frame
     munis_semiarid <- readxl::read_xlsx(path = file_raw,
                                        n_max = 1477)
@@ -136,8 +159,7 @@ prep_semiarid <- function(year){ # year = 2022
   }
 
 
-
-  #### 3. Clean data set -----------------
+  #### 2. Clean data set -----------------
 
   # load all munis sf
   all_munis <- geobr::read_municipality(code_muni = 'all',
@@ -158,16 +180,15 @@ prep_semiarid <- function(year){ # year = 2022
 
 
 
-  #### save data set -----------------
+  #### 3. Save data set -----------------
 
   sf::st_write(temp_sf, dsn= paste0(dir_clean,"/semiarid_", year, ".gpkg"), delete_dsn=TRUE)
   sf::st_write(temp_sf_simplified, dsn= paste0(dir_clean,"/semiarid_", year, "_simplified.gpkg"), delete_dsn=TRUE )
 
   }
 
-
-
-prep_semiarid(2005)
-prep_semiarid(2017)
-prep_semiarid(2021)
-prep_semiarid(2022)
+# Clean every semiarid database  -----------------
+clean_semiarid(2005)
+clean_semiarid(2017)
+clean_semiarid(2021)
+clean_semiarid(2022)

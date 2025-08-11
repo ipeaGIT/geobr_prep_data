@@ -5,3 +5,7 @@
 /data_prep/data/*
 /data_prep/data_raw/*
 /data_prep/_targets/*
+.Rdata
+.httr-oauth
+.DS_Store
+.quarto
