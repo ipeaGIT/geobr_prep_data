@@ -1,0 +1,33 @@
+name|type|data|command|depend|seed|path|time|size|bytes|format|repository|iteration|parent|children|seconds|warnings|error
+.Random.seed|object|f1947fdb9c1f02ae
+years_semiarid|stem|3bddeb6fcf047ba1|cbd42de486c43a65|2c530c1562a7fbd1|-292283846||t20311.6540708002s|s63b|63|rds|local|vector||years_semiarid_d5ecf0bb33dfbcbe*years_semiarid_a009eba4833e4540*years_semiarid_d7731f103501508d*years_semiarid_43a1223249ea92a6|1.61|package 'data.table' was built under R version 4.4.3. package 'openxlsx' was built under R version 4.4.3. package 'readxl' was built under R version 4.4.3. package 'dplyr' was built under R version 4.4.3. package 'httr' was built under R version 4.4.3. package 'lwgeom' was built under R version 4.4.3. package 'RCurl' was built under R version 4.4.3. package 'sp' was built under R version 4.4.3. package 'sfheaders' was built under R version 4.4.3. package 'stringr' was built under R version 4.4.3. package 'stringi' was built under R version 4.4.3. package 'future' was built under R version 4.4.3. package 'furrr' was built under R version 4.4.3. package 'geobr' was built under R version 4.4.3. package 'pbapply' was built under R version 4.4.3. package 'rvest' was built under R version 4.4.3. package 'sf' was built under R version 4.4.3|
+semiarid_clean_1824849b6153ef7b|branch||cb617dc08fb1d4d3|2f3b7ed017ab692f|692143089||t20311.662997847s||0|file|local|vector|semiarid_clean||0.02||unused argument (semiarid_raw)
+download_file|function|3a6b6c7673db47dd
+fix_topoly|function|dd326057bc8670bb
+list_folders|function|bcfbf4f7465afa51
+snake_case_names|function|39b13c29bd266031
+%nin%|function|5c849418054c52ef
+harmonize_projection|function|91bb9d922009f51d
+detect_year_from_string|function|7e1010acf860e4c3
+%nlike%|function|5c849418054c52ef
+to_multipolygon|function|f9fb28bdb97ac472
+add_state_info|function|dc769a19f7442ca1
+download_semiarid|function|c9237dbbe32fc0c0
+use_encoding_utf8|function|4f174428ce87a762
+remove_state_repetition|function|f651de43bfd2d54b
+add_region_info|function|52f8962884fe316a
+remove_z_dimension|function|72499f0edfc83003
+simplify_temp_sf|function|705c96209836d26c
+muni_saveraw|function|027c21b5678a4e03
+dissolve_polygons|function|3f40b4ecbb23c8e2
+clean_semiarid|function|8a37cf7411240eb2
+semiarid_raw_7e251a50d0b5c323|branch|d86dbbf7892a8575|f265bdb75af9ce4d|8dab6e1736a2404c|-125168616|./data_raw/semiarid/2005/2005_lista_municipios_semiarido.xls|t20311.6660854428s|s143360b|143360|file|local|vector|semiarid_raw||0.53||
+semiarid_raw_bc236c3b9cd0db99|branch|2d8f50d7b85f3c75|f265bdb75af9ce4d|8dab6e1736a2404c|995572689|./data_raw/semiarid/2017/2017_lista_municipios_Semiarido_2017_11_23.xlsx|t20311.6660892854s|s56815b|56815|file|local|vector|semiarid_raw||0.08||
+semiarid_raw_618a6b411254e613|branch|4777d486d4651182|f265bdb75af9ce4d|8dab6e1736a2404c|-1668525160|./data_raw/semiarid/2021/2021_lista_municipios_Semiarido_2021.xls|t20311.6660927573s|s154112b|154112|file|local|vector|semiarid_raw||0.08||
+semiarid_raw_16ee2c04099d24c9|branch|b80258873c0efe88|f265bdb75af9ce4d|8dab6e1736a2404c|1435868002|./data_raw/semiarid/2022/2022_lista_municipios_Semiarido_2022.xlsx|t20311.6660965129s|s51813b|51813|file|local|vector|semiarid_raw||0.09||
+semiarid_raw|pattern|108b6e193ff55043|f265bdb75af9ce4d||-558780657||||406100|file|local|vector||semiarid_raw_7e251a50d0b5c323*semiarid_raw_bc236c3b9cd0db99*semiarid_raw_618a6b411254e613*semiarid_raw_16ee2c04099d24c9|0.78||
+semiarid_clean_c72fd21a794a3e5c|branch|4605a19bf90a8594|0855ecadb4961891|c6bdc7755bd80211|438593837|./data/semiarid/2005|t20311.6661499841s|s3493888b|3493888|file|local|vector|semiarid_clean||4.33||
+semiarid_clean_0d74aa2b530128b2|branch|a07c2b04e1bfb735|0855ecadb4961891|53d05b9d90fd29d5|1463412491|./data/semiarid/2017|t20311.666323936s|s26042368b|26042368|file|local|vector|semiarid_clean||14.73||
+semiarid_clean_2fe436d18abc96b0|branch|014ebb048863880a|0855ecadb4961891|abe1f7b40b2fe9a7|-982479216|./data/semiarid/2021|t20311.6665603879s|s34541568b|34541568|file|local|vector|semiarid_clean||20.05||
+semiarid_clean_1f6949182225a007|branch|6b2a00655f019690|0855ecadb4961891|2922d7675f6d099f|-886167794|./data/semiarid/2022|t20311.6668019509s|s43503616b|43503616|file|local|vector|semiarid_clean||20.43||
+semiarid_clean|pattern|b021f4fec5b34bf0|0855ecadb4961891||561303988||||107581440|file|local|vector||semiarid_clean_c72fd21a794a3e5c*semiarid_clean_0d74aa2b530128b2*semiarid_clean_2fe436d18abc96b0*semiarid_clean_1f6949182225a007|59.54||

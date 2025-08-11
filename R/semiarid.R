@@ -25,18 +25,11 @@ download_semiarid <- function(year){ # year = 2022
 
   #### 0. Create file directory  -----------------
   # Directory to keep raw zipped files and cleaned files
-  dir.create("./data_raw/semiarid")
-  dir.create("./data/semiarid")
+  dir.create("./data_raw/semiarid", showWarnings = FALSE)
+  dir.create("./data/semiarid", showWarnings = FALSE)
   dir_raw <- paste0("./data_raw/semiarid/", year)
-  dir.create(dir_raw, recursive = T)
+  dir.create(dir_raw, recursive = T, , showWarnings = FALSE)
   
-  # directions to save the file
-  file_raw <- paste0(dir_raw,"/", year, "_lista_municipios_semiarido.xlsx")
-  
-  # fix file extension
-  if (year %in% c(2005, 2021)){
-    file_raw <- gsub( '.xlsx', '.xls', file_raw)
-  }
 
   #### 1. Download original data sets from source website -----------------
 
@@ -60,45 +53,31 @@ download_semiarid <- function(year){ # year = 2022
 
 
   # directions to download file
-  file_raw <- paste0(dir_raw,"/", year, basename(ftp))
+  file_raw <- paste0(dir_raw,"/", year, "_", basename(ftp))
 
 
   #### 2. Download  -----------------
-
   httr::GET(url = ftp,
             httr::progress(),
             httr::write_disk(path = file_raw,
                              overwrite = T))
 
+  return(file_raw)
 }
-
-# Dowloand every semiarid database  -----------------
-download_semiarid(2005)
-download_semiarid(2017)
-download_semiarid(2021)
-download_semiarid(2022)
-
-
-
-
 
 
 ##### Clean the data   -----------------
-clean_semiarid <- function(year) { # year = 2022
+clean_semiarid <- function(file_raw) { # year = 2005
 
+  year <- detect_year_from_string(file_raw)
+  
   #### 0. Create folders to save clean sf.rds files  -----------------
-  dir_raw <- paste0("./data_raw/semiarid/", year)
-  file_raw <- paste0(dir_raw,"/", year, "_lista_municipios_semiarido.xlsx")
   dir_clean <- paste0("./data/semiarid/", year)
-  dir.create(dir_clean, recursive = T)
+  dir.create(dir_clean, recursive = T, showWarnings = FALSE)
   
   # directions to find the file
-  file_clean <- paste0(dir_clean,"/", year, "_lista_municipios_semiarido.xlsx")
+  file_clean <- paste0(dir_clean,"/", basename(file_raw))
   
-  # fix file extension of file_raw
-  if (year %in% c(2005, 2021)){
-    file_raw <- gsub( '.xlsx', '.xls', file_raw)
-  }
   
   #### 1. Set the year -----------------
 
@@ -169,11 +148,9 @@ clean_semiarid <- function(year) { # year = 2022
 
   sf::st_write(temp_sf, dsn= paste0(dir_clean,"/semiarid_", year, ".gpkg"), delete_dsn=TRUE)
   sf::st_write(temp_sf_simplified, dsn= paste0(dir_clean,"/semiarid_", year, "_simplified.gpkg"), delete_dsn=TRUE )
-
+  return(dir_clean)
   }
 
 # Clean every semiarid database  -----------------
-clean_semiarid(2005)
-clean_semiarid(2017)
-clean_semiarid(2021)
-clean_semiarid(2022)
+ # clean_semiarid( download_semiarid(2005) )
+#  clean_semiarid( download_semiarid(2017) )

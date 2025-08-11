@@ -1,12 +1,7 @@
 #### Support functions to use in the preprocessing of the data
 
-library(dplyr)
-library(data.table)
-# library(mapview)
-# mapviewOptions(platform = 'deckgl')
 
 
-options(encoding = "UTF-8")
 
 `%nlike%` <- Negate(data.table::`%like%`)
 `%nin%` <- Negate(`%in%`)
@@ -230,13 +225,15 @@ snake_case_names <- function(temp_sf, colname){
 
 harmonize_projection <- function(temp_sf){
 
-  temp_sf <- if( is.na(sf::st_crs(temp_sf)) ){ sf::st_set_crs(temp_sf, 4674)
+  temp_sf <- if (is.na(sf::st_crs(temp_sf))) {
+    sf::st_set_crs(temp_sf, 4674)
   } else {
-    sf::st_transform(temp_sf, 4674) }
+    sf::st_transform(temp_sf, 4674)
+  }
   sf::st_crs(temp_sf) <- 4674
 
   return(temp_sf)
-  }
+}
 
 
 

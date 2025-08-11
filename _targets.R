@@ -1,14 +1,5 @@
-# Load packages required to define the pipeline:
-suppressPackageStartupMessages({
-  library(targets)
-  library(tarchetypes)
-  library(data.table)
-  library(future)
-  library(readxl)
-  library(openxlsx)
-  library(geobr)
-  future::plan(future::multisession)
-})
+library(targets)
+
 
 # Set target options:
 tar_option_set(
@@ -17,6 +8,8 @@ tar_option_set(
   garbage_collection = TRUE,
   packages = c(
                'data.table',
+               'openxlsx',
+               'readxl',
                'dplyr',
                'httr',
                'lwgeom',
@@ -46,7 +39,7 @@ tar_option_set(
 
 # Run the R scripts in the R/ folder with your custom functions:
 # tar_source()
-source('./R/', encoding = "UTF-8")
+targets::tar_source('./R')
 
 
 list(
@@ -54,19 +47,21 @@ list(
   #1. Semiarido ----------------------------------------------------------
 
     # year input
-    tar_target(years_semiarid, c(2005, 2017, 2021, 2022)),
+    tar_target(name = years_semiarid, 
+               command = c(2005, 2017, 2021, 2022)),
     
     # download
-    tar_target(name = download_semiarid,
+    tar_target(name = semiarid_raw,
                command = download_semiarid(years_semiarid),
-               pattern = map(years_semiarid)),
+               pattern = map(years_semiarid),
+               format = 'file'),
 
     # clean (aprox 14870.86 sec)
-    tar_target(name = clean_semiarid,
-               command = clean_semiarid(download_semiarid),
-               pattern = map(download_semiarid)
-               )
-  
+    tar_target(name = semiarid_clean,
+               command = clean_semiarid(semiarid_raw),
+               pattern = map(semiarid_raw),
+               format = 'file')
+
   
 # 1. Municipios ----------------------------------------------------------
 # 
@@ -115,39 +110,3 @@ list(
 
 # Metadata ----------------------------------------------------------
 
-# Github assets ----------------------------------------------------------
-
-
-
-
-
-# list(
-#   tar_target(municipios, c("rio", "spo", "bho", "cur", "bel")),
-#   tar_target(anos, c(2017, 2018, 2019)),
-#   tar_target(printa, print(paste0(municipios, "_", anos)), pattern = cross(anos, municipios))
-# )
-
-
-# targets::tar_make()
-
-# targets::tar_visnetwork(label='branches')
-# targets::tar_progress_branches()
-
-# targets::tar_meta(fields = error, complete_only = TRUE)
-
-
-#
-# saving 26municipality_2000.gpkg
-# saving 27municipality_2000.gpkg
-# saving 28municipality_2000.gpkg
-# ✖ error branch clean_municipios_35345f30
-# ▶ end pipeline [3.968 minutes]
-# There were 31 warnings (use warnings() to see them)
-# Error:
-#   ! Error running targets::tar_make()
-# Error messages: targets::tar_meta(fields = error, complete_only = TRUE)
-# Debugging guide: https://books.ropensci.org/targets/debugging.html
-# How to ask for help: https://books.ropensci.org/targets/help.html
-# Last error: ℹ In index: 2.
-# Caused by error in `wk_handle.wk_wkb()`:
-#   ! Loop 0 is not valid: Edge 2 has duplicate vertex with edge 4
