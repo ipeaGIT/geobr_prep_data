@@ -1,3 +1,0 @@
-
-
-** Testando o git extensions

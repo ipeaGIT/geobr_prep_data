@@ -1,6 +1,5 @@
 library(targets)
 
-
 # Set target options:
 tar_option_set(
   format = "rds", # default storage format "rds" "feather"
@@ -8,25 +7,27 @@ tar_option_set(
   garbage_collection = TRUE,
   packages = c(
                'data.table',
-               'openxlsx',
-               'readxl',
                'dplyr',
+               'furrr',
+               'future',
+               'geobr',
                'httr',
                'lwgeom',
-               'RCurl',
-               'sp',
-               # 'rgeos',    # removed from cran
+               'magrittr',
                # 'maptools', # removed from cran
-               'sfheaders',
-               'stringr',
-               'stringi',
-               'future',
-               'furrr',
-               'geobr',
-               'utils',
+               'openxlsx',
                'pbapply',
+               'RCurl',
+               'readr',
+               'readxl',
+               # 'rgeos',    # removed from cran
                'rvest',
+               'sfheaders',
                'sf'
+               'sp',
+               'stringi',
+               'stringr',
+               'utils',
                )
   )
 # invisible(lapply(packages, library, character.only = TRUE))
@@ -41,10 +42,10 @@ tar_option_set(
 # tar_source()
 targets::tar_source('./R')
 
+############# The Targets List #########
 
 list(
-  
-  #1. Semiarido ----------------------------------------------------------
+  #1. Semiárido ----------------------------------------------------------
 
     # year input
     tar_target(name = years_semiarid, 
@@ -61,6 +62,30 @@ list(
                pattern = map(semiarid_raw, years_semiarid),
                format = 'file')
 
+  
+  
+  #2. Amazônia Legal ----------------------------------------------------------
+  
+  # year input
+  tar_target(name = years_amazonialegal, 
+             command = c(2012)),
+  
+  # download
+  tar_target(name = amazonialegal_raw,
+             command = download_amazonialegal(years_amazonialegal),
+             pattern = map(years_amazonialegal)),
+  
+  # clean (aprox 14870.86 sec)
+  tar_target(name = semiarid_clean,
+             command = clean_amazonialegal(amazonialegal_raw, years_amazonialegal),
+             pattern = map(amazonialegal_raw, years_amazonialegal),
+             format = 'file')
+  
+  
+
+  
+  
+  
   
 # 1. Municipios ----------------------------------------------------------
 # 
