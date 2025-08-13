@@ -23,7 +23,7 @@ tar_option_set(
                # 'rgeos',    # removed from cran
                'rvest',
                'sfheaders',
-               'sf'
+               'sf',
                'sp',
                'stringi',
                'stringr',
