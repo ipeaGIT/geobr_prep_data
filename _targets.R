@@ -47,22 +47,22 @@ targets::tar_source('./R')
 list(
   #1. Semiárido ----------------------------------------------------------
 
-    # year input
-    tar_target(name = years_semiarid, 
-               command = c(2005, 2017, 2021, 2022)),
-    
-    # download
-    tar_target(name = semiarid_raw,
-               command = download_semiarid(years_semiarid),
-               pattern = map(years_semiarid)),
-
-    # clean (aprox 14870.86 sec)
-    tar_target(name = semiarid_clean,
-               command = clean_semiarid(semiarid_raw, years_semiarid),
-               pattern = map(semiarid_raw, years_semiarid),
-               format = 'file')
-
-  
+    # # year input
+    # tar_target(name = years_semiarid, 
+    #            command = c(2005, 2017, 2021, 2022)),
+    # 
+    # # download
+    # tar_target(name = semiarid_raw,
+    #            command = download_semiarid(years_semiarid),
+    #            pattern = map(years_semiarid)),
+    # 
+    # # clean (aprox 14870.86 sec)
+    # tar_target(name = semiarid_clean,
+    #            command = clean_semiarid(semiarid_raw, years_semiarid),
+    #            pattern = map(semiarid_raw, years_semiarid),
+    #            format = 'file')
+    # 
+    # 
   
   #2. Amazônia Legal ----------------------------------------------------------
   

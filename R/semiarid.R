@@ -120,7 +120,6 @@ download_semiarid <- function(year){ # year = 2022
 ##### Clean the data   -----------------
 clean_semiarid <- function(munis_semiarid, year) { 
   
-  2+2
   
   #### 0. Create folders to save clean sf.rds files  -----------------
   dir_clean <- paste0("./data/semiarid/", year)

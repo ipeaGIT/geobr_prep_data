@@ -3,7 +3,7 @@
 #> Metadata:
 # Título: Amazônia Legal
 # Título alternativo: Amazonia legal
-# Frequência de atualização: ?
+# Frequência de atualização: Nunca
 #
 # Forma de apresentação: Shape
 # Linguagem: Pt-BR
@@ -19,71 +19,62 @@
 
 
 ##### Download the data  -----------------
-download_amazonialegal <- function(year){ # year = 2022
+download_amazonialegal <- function(){ # i've removed the year argument,
+  # because the file is atomic. Only have had one update.
 
-# If the data set is updated regularly, you should create a function that will have
-# a `date` argument download the data
-
-year <- 2012
-
-###### 0. Create directories to downlod and save the data -----------------
-
-# Directory to keep raw zipped files and cleaned files
-
-dir.create("./data_raw/amazonia_legal", showWarnings = FALSE)
-dir.create("./data/amazonia_legal", showWarnings = FALSE)
-dir_raw <- paste0("./data_raw/amazonia_legal/", year)
-dir.create(dir_raw, recursive = T, , showWarnings = FALSE)
-
-
-###### 1. download the raw data from the original website source -----------------
 
 # Download and read into CSV at the same time
 ftp_shp <- 'http://mapas.mma.gov.br/ms_tmp/amazlegal.shp'
 ftp_shx <- 'http://mapas.mma.gov.br/ms_tmp/amazlegal.shx'
 ftp_dbf <- 'http://mapas.mma.gov.br/ms_tmp/amazlegal.dbf'
 ftp <- c(ftp_shp,ftp_shx,ftp_dbf)
-aux_ft <- c("shp","shx","dbf")
+
 
 # Directions do download the file
-file_raw <-fs::file_temp(ext = fs::path_ext(ftp))
-
+temp_dir <- fs::path_temp()
 
 for(i in 1:length(ftp)){
+
+  file_name <- basename(ftp[i])
   
-  # download.file(url = ftp[i],
-  #               destfile = paste0(destdir_raw,"/","amazonia_legal.",aux_ft[i]) )
-  httr::GET(url=ftp[i],
-            httr::write_disk(path=paste0(file_raw,"/","amazonia_legal.",aux_ft[i]), overwrite = F))
-  
+  temp_download <-  httr::GET(
+    url = ftp[i], 
+    httr::write_disk(path = paste0(temp_dir,"/",file_name), overwrite = T)
+  )
+ }
+
+
+
+shp_file <- basename(ftp_shp)
+shp_file <- paste0(temp_dir,"/",shp_file)
+
+# read data
+temp_sf <- sf::st_read(
+  shp_file, 
+  quiet = F, 
+  stringsAsFactors=F
+  )
+
+return(temp_sf)
+
 }
 
 
-#oldversion
-# for(i in 1:length(ftp)){
-# 
-#     # download.file(url = ftp[i],
-#     #               destfile = paste0(destdir_raw,"/","amazonia_legal.",aux_ft[i]) )
-#   httr::GET(url=ftp[i],
-#             httr::write_disk(path=paste0(destdir_raw,"/","amazonia_legal.",aux_ft[i]), overwrite = F))
-# 
-#   }
+##### Clean the data
 
-
-
-
+###### 1. create clean directory -----------------
+clean_amazonialegal <- function(temp_sf){
+ 
+   dir_clean <- "./data/amazonia_legal/"
+   dir.create(dir_clean, showWarnings = FALSE)
+   
 
 ###### 2. rename column names -----------------
-setwd(file_raw)
-
-# read data
-temp_sf <- sf::st_read("./amazonia_legal.shp", quiet = F, stringsAsFactors=F)
 
 
 # Rename columns
 temp_sf$GID0 <- NULL
 temp_sf$ID1 <- NULL
-
 
 
 ###### 3. ensure the data uses spatial projection SIRGAS 2000 epsg (SRID): 4674-----------------
@@ -134,10 +125,18 @@ head(temp_sf7)
 
 
 ###### 8. Clean data set and save it in geopackage format-----------------
-setwd(root_dir)
 
 # save original and simplified datasets
-sf::st_write(temp_sf6, dsn= paste0(destdir_clean, "/amazonia_legal_", update, ".gpkg") )
-sf::st_write(temp_sf7, dsn= paste0(destdir_clean, "/amazonia_legal_", update," _simplified", ".gpkg"))
+sf::st_write(temp_sf6, dsn= paste0(dir_clean, update, ".gpkg") )
+sf::st_write(temp_sf7, dsn= paste0(dir_clean, update," _simplified", ".gpkg"))
+
+}
+
+
+
+
+
+
+
 
 
