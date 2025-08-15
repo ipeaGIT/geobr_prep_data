@@ -11,11 +11,7 @@ semiarid_raw_7e251a50d0b5c323|branch|0b882aefc0b4e05c|f265bdb75af9ce4d|c5a1554c7
 semiarid_raw_bc236c3b9cd0db99|branch|b2a877e7a0ff24a2|f265bdb75af9ce4d|c5a1554c71fc3575|995572689||t20311.7232044163s|s13225b|13225|rds|local|vector|semiarid_raw||0.19||
 semiarid_raw_618a6b411254e613|branch|766e258514a79ac3|f265bdb75af9ce4d|c5a1554c71fc3575|-1668525160||t20311.7232084905s|s13213b|13213|rds|local|vector|semiarid_raw||0.1||
 semiarid_raw_16ee2c04099d24c9|branch|adef8f8966a79714|f265bdb75af9ce4d|c5a1554c71fc3575|1435868002||t20311.7232132149s|s16082b|16082|rds|local|vector|semiarid_raw||0.17||
-semiarid_clean_128a3f22808da7f3|branch|eb88b08e7dc67c35|9037b1bdf7aaf37d|65d88b4a78231833|-956107927|./data/semiarid/2005|t20311.7288846777s|s3493888b|3493888|file|local|vector|semiarid_clean||4.35||
-semiarid_clean_d917dfa6ab062da9|branch|64ec92c7ebeb36c6|9037b1bdf7aaf37d|9b475914f0e16560|910039653|./data/semiarid/2017|t20311.7290666184s|s26042368b|26042368|file|local|vector|semiarid_clean||15.39||
-semiarid_clean_9112b5af9ff3e22d|branch|aea400843e4a5b1b|9037b1bdf7aaf37d|84962780c7d0f72d|263222990|./data/semiarid/2021|t20311.7297372374s|s34541568b|34541568|file|local|vector|semiarid_clean||23.69||
-semiarid_clean_572604ff74155e91|branch|47d52f2caa96cd39|9037b1bdf7aaf37d|a7c85e628b9e4311|741912371|./data/semiarid/2022|t20311.7299954741s|s43503616b|43503616|file|local|vector|semiarid_clean||21.86||
-semiarid_clean|pattern|04c14bba079b440f|9037b1bdf7aaf37d||561303988||||78045184|file|local|vector||semiarid_clean_128a3f22808da7f3*semiarid_clean_d917dfa6ab062da9*semiarid_clean_9112b5af9ff3e22d*semiarid_clean_572604ff74155e91|45.55||
+amazonialegal_raw|stem|da0a485fe36a8224|c7db07574161f53e|f385543d3a582df9|-1787579839||t20315.7060996182s|s177156b|177156|rds|local|vector|||2.31|package 'data.table' was built under R version 4.4.3. package 'dplyr' was built under R version 4.4.3. package 'furrr' was built under R version 4.4.3. package 'future' was built under R version 4.4.3. package 'geobr' was built under R version 4.4.3. package 'httr' was built under R version 4.4.3. package 'lwgeom' was built under R version 4.4.3. package 'magrittr' was built under R version 4.4.3. package 'openxlsx' was built under R version 4.4.3. package 'pbapply' was built under R version 4.4.3. package 'RCurl' was built under R version 4.4.3. package 'readr' was built under R version 4.4.3. package 'readxl' was built under R version 4.4.3. package 'rvest' was built under R version 4.4.3. package 'sfheaders' was built under R version 4.4.3. package 'sf' was built under R version 4.4.3. package 'sp' was built under R version 4.4.3. package 'stringi' was built under R version 4.4.3. package 'stringr' was built under R version 4.4.3|
 download_file|function|3a6b6c7673db47dd
 fix_topoly|function|dd326057bc8670bb
 list_folders|function|bcfbf4f7465afa51
@@ -29,9 +25,17 @@ download_semiarid|function|552664a16d0fc1d0
 use_encoding_utf8|function|4f174428ce87a762
 remove_state_repetition|function|f651de43bfd2d54b
 detect_year_from_string|function|7e1010acf860e4c3
+download_amazonialegal|function|d496fec48e302f0a
 add_region_info|function|52f8962884fe316a
 remove_z_dimension|function|72499f0edfc83003
 simplify_temp_sf|function|705c96209836d26c
 dissolve_polygons|function|3f40b4ecbb23c8e2
 muni_saveraw|function|027c21b5678a4e03
-clean_semiarid|function|431723bdd0f8286d
+clean_semiarid|function|9c0d8ed897291cce
+clean_amazonialegal|function|b2e91cab13332a8c
+amazonialegal_clean|stem|a7b5a10e25f81c29|95159e5d240411f4|bac23e444dd1055d|-1296395540|./data/amazonia_legal/|t20315.7284374302s|s1290240b|1290240|file|local|vector|||1.91||
+semiarid_clean_128a3f22808da7f3|branch|b44f2f56febc2a22|9037b1bdf7aaf37d|7876e5b67acd3a88|-956107927|./data/semiarid/2005|t20315.7284968607s|s3493888b|3493888|file|local|vector|semiarid_clean||4.64||
+semiarid_clean_d917dfa6ab062da9|branch|4d7c9480da1dccc7|9037b1bdf7aaf37d|97019b6decf382dc|910039653|./data/semiarid/2017|t20315.7287332873s|s26042368b|26042368|file|local|vector|semiarid_clean||20.1||
+semiarid_clean_9112b5af9ff3e22d|branch|38afaa387ed2abfe|9037b1bdf7aaf37d|24234136d1253540|263222990|./data/semiarid/2021|t20315.7290451053s|s34541568b|34541568|file|local|vector|semiarid_clean||26.47||
+semiarid_clean_572604ff74155e91|branch|9a5333deacb8554a|9037b1bdf7aaf37d|f08cc25ec3d291c8|741912371|./data/semiarid/2022|t20315.729312055s|s43503616b|43503616|file|local|vector|semiarid_clean||22.58||
+semiarid_clean|pattern|9b951ecf961a3e18|9037b1bdf7aaf37d||561303988||||107581440|file|local|vector||semiarid_clean_128a3f22808da7f3*semiarid_clean_d917dfa6ab062da9*semiarid_clean_9112b5af9ff3e22d*semiarid_clean_572604ff74155e91|73.79||

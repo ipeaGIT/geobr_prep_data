@@ -1,12 +1,13 @@
 library(targets)
 
-# Set target options:
+  # Set target options: ----
 tar_option_set(
   format = "rds", # default storage format "rds" "feather"
   memory = "transient",
   garbage_collection = TRUE,
-  packages = c(
-               'data.table',
+  
+  # Packages ----
+  packages = c('data.table',
                'dplyr',
                'furrr',
                'future',
@@ -23,11 +24,11 @@ tar_option_set(
                # 'rgeos',    # removed from cran
                'rvest',
                'sfheaders',
-               'sf'
+               'sf',
                'sp',
                'stringi',
                'stringr',
-               'utils',
+               'utils'
                )
   )
 # invisible(lapply(packages, library, character.only = TRUE))
@@ -42,44 +43,41 @@ tar_option_set(
 # tar_source()
 targets::tar_source('./R')
 
+
 ############# The Targets List #########
 
 list(
   #1. Semiárido ----------------------------------------------------------
 
-    # # year input
-    # tar_target(name = years_semiarid, 
-    #            command = c(2005, 2017, 2021, 2022)),
-    # 
-    # # download
-    # tar_target(name = semiarid_raw,
-    #            command = download_semiarid(years_semiarid),
-    #            pattern = map(years_semiarid)),
-    # 
-    # # clean (aprox 14870.86 sec)
-    # tar_target(name = semiarid_clean,
-    #            command = clean_semiarid(semiarid_raw, years_semiarid),
-    #            pattern = map(semiarid_raw, years_semiarid),
-    #            format = 'file')
-    # 
-    # 
+    # year input
+    tar_target(name = years_semiarid,
+               command = c(2005, 2017, 2021, 2022)),
+
+    # download
+    tar_target(name = semiarid_raw,
+               command = download_semiarid(years_semiarid),
+               pattern = map(years_semiarid)),
+
+    # clean (aprox 14870.86 sec)
+    tar_target(name = semiarid_clean,
+               command = clean_semiarid(semiarid_raw, years_semiarid),
+               pattern = map(semiarid_raw, years_semiarid),
+               format = 'file'),
+  
+
   
   #2. Amazônia Legal ----------------------------------------------------------
   
-  # year input
-  tar_target(name = years_amazonialegal, 
-             command = c(2012)),
-  
+ 
   # download
   tar_target(name = amazonialegal_raw,
-             command = download_amazonialegal(years_amazonialegal),
-             pattern = map(years_amazonialegal)),
-  
+             command = download_amazonialegal()),
+
   # clean (aprox 14870.86 sec)
-  tar_target(name = semiarid_clean,
-             command = clean_amazonialegal(amazonialegal_raw, years_amazonialegal),
-             pattern = map(amazonialegal_raw, years_amazonialegal),
+  tar_target(name = amazonialegal_clean,
+             command = clean_amazonialegal(amazonialegal_raw),
              format = 'file')
+  )
   
   
 
@@ -87,7 +85,7 @@ list(
   
   
   
-# 1. Municipios ----------------------------------------------------------
+# # 3. Municipios ----------------------------------------------------------
 # 
 #   # year input
 #   tar_target(years_muni, c(2000, 2001, 2005, 2007, 2010,
@@ -105,7 +103,7 @@ list(
 #              , pattern = map(download_municipios)
 #              )
 
-# # 2. Estados ----------------------------------------------------------
+# # 4. Estados ----------------------------------------------------------
 #
 # # year input
 #   tar_target(years_states, c(2000, 2001, 2010, 2013, 2014,  2015,
@@ -116,7 +114,7 @@ list(
 #              pattern = map(years_states)),
 #
 
-# # 3. Pais ----------------------------------------------------------
+# # 5. Pais ----------------------------------------------------------
 #
 # # year input
 # tar_target(years_country, c(1872, 1900, 1911, 1920, 1933, 1940, 1950, 1960, 1970,
@@ -128,7 +126,7 @@ list(
 #            command = get_country(years_country),
 #            pattern = map(years_country))
 #
-)
+#)
 
 
 
