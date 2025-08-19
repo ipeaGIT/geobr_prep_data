@@ -2,13 +2,13 @@
 #> Source: IBGE - https://geoftp.ibge.gov.br/informacoes_ambientais/estudos_ambientais/biomas/
 #: scale 1:5.000.000
 #> Metadata:
-# Titulo: Biomas
-# Titulo alternativo: Biomas 2004
-# Frequencia de atualizacao: ?
+# Título: Biomas
+# Título alternativo: Biomes
+# Frequência de atualização: Ocasional
 #
 # Forma de apresentação: Shape
 # Linguagem: Pt-BR
-# Character set: Utf-8
+# Character set: UTF-8
 #
 # Resumo: Poligonos e Pontos do biomas brasileiros.
 # Informações adicionais: Dados produzidos pelo IBGE, e utilizados na elaboracao do shape de biomas com a melhor base oficial disponivel.
@@ -18,63 +18,26 @@
 # Palavras chaves descritivas:****
 # Informacao do Sistema de Referencia: SIRGAS 2000
 
-### Libraries (use any library as necessary)
 
-library(RCurl)
-library(stringr)
-library(collapse)
-library(sf)
-library(dplyr)
-library(readr)
-library(data.table)
-library(magrittr)
-library(lwgeom)
-library(stringi)
-library(geos)
-library(s2)
+###### Download the data  -----------------
+download_biomes <- function(year){ # year = 2019
 
-####### Load Support functions to use in the preprocessing of the data
-
-source("./R/support_fun.R")
-
-
-
-
-# If the data set is updated regularly, you should create a function that will have
-# a `date` argument download the data
-
-year <- 2019
-
-
-
-
-###### 0. Create Root folder to save the data -----------------
-# Root directory
-
-# create dir if it has not been created already
-destdir_raw <- paste0('./data_raw/biomes/', year)
-if (isFALSE(dir.exists(destdir_raw))) { dir.create(destdir_raw,
-                                                recursive = T,
-                                                showWarnings = FALSE) }
-
-
-
-
-# Create folders to save clean sf.rds files  -----------------
-destdir_clean <- paste0('./data/biomes/', year)
-if (isFALSE(dir.exists(destdir_clean))) { dir.create(destdir_clean,
-                                                recursive = T,
-                                                showWarnings = FALSE) }
-
-
-
+#### 0. Get the correct ftp link (UPDATE HERE IN CASE OF NEW YEAR IN THIS DATA):  ----
+  
+  if(year == 2004) {
+    ftp <- 'https://geoftp.ibge.gov.br/informacoes_ambientais/estudos_ambientais/biomas/vetores/Biomas_5000mil.zip'
+  }
+  
+  if(year == 2019) {
+    ftp <- 'https://geoftp.ibge.gov.br/informacoes_ambientais/estudos_ambientais/biomas/vetores/Biomas_250mil.zip'
+  }
+  
+file_raw <-fs::file_temp(ext = fs::path_ext(ftp))
 
 
 #### 1. Download original data sets from source website -----------------
 
-if ( update == 2004){
-# Download and read into CSV at the same time
-ftp <- 'https://geoftp.ibge.gov.br/informacoes_ambientais/estudos_ambientais/biomas/vetores/Biomas_5000mil.zip'
+if (year == 2004){
 
 download.file(url = ftp,
               destfile = paste0(destdir_raw,"/","Biomas_5000mil.zip"))
@@ -82,7 +45,7 @@ download.file(url = ftp,
 }
 
 
-if ( update == 2019){
+if ( year == 2019){
 
 ftp <- 'https://geoftp.ibge.gov.br/informacoes_ambientais/estudos_ambientais/biomas/vetores/Biomas_250mil.zip'
 ftp_costeiro <- 'https://geoftp.ibge.gov.br/informacoes_ambientais/estudos_ambientais/biomas/vetores/Sistema_Costeiro_Marinho_250mil.zip'
@@ -92,21 +55,27 @@ download.file(url = ftp_costeiro, destfile = paste0(destdir_raw,"/","Biomas_250m
 
 }
 
+return(raw_biomes)
+
+}
 
 
-#### 2. Unzip shape files -----------------
-
-# list and unzip zipped files
-zipfiles <- list.files(path = destdir_raw, pattern = ".zip", full.names = T)
-lapply(zipfiles, unzip, exdir = destdir_raw)
-
-
-
+# 
+# #### 2. Unzip shape files -----------------
+# 
+# # list and unzip zipped files
+# zipfiles <- list.files(path = destdir_raw, pattern = ".zip", full.names = T)
+# lapply(zipfiles, unzip, exdir = destdir_raw)
 
 
 
 
-#### 3. Clean data set and save it in compact .rds format-----------------
+######## Clean the data ----
+
+clean_biomes <- function(raw_biomes) {
+  
+
+#### 1. Clean data set and save it in compact .rds format-----------------
 
 # list all csv files
 shape <- list.files(path=destdir_raw,
@@ -234,7 +203,6 @@ readr::write_rds(temp_sf, path= paste0("./shapes_in_sf_cleaned/",year,"/biomes_"
 sf::st_write(temp_sf, dsn= paste0("./shapes_in_sf_cleaned/",year,"/biomes_", year,".gpkg"), year = TRUE)
 sf::st_write(temp_sf_simplified, dsn= paste0("./shapes_in_sf_cleaned/",year,"/biomes_", year," _simplified", ".gpkg"), update = TRUE)
 
-
-
+}
 
 

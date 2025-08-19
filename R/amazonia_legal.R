@@ -1,4 +1,4 @@
-#> DATASET: legal amazon
+#> DATASET: Brazilian legal amazon
 #> Source: MMA - http://mapas.mma.gov.br/i3geo/datadownload.htm
 #> Metadata:
 # Título: Amazônia Legal

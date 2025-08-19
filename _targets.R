@@ -7,11 +7,13 @@ tar_option_set(
   garbage_collection = TRUE,
   
   # Packages ----
-  packages = c('data.table',
+  packages = c('collapse',
+               'data.table',
                'dplyr',
                'furrr',
                'future',
                'geobr',
+               'geos',
                'httr',
                'lwgeom',
                'magrittr',
@@ -24,6 +26,7 @@ tar_option_set(
                # 'rgeos',    # removed from cran
                'rvest',
                'sfheaders',
+               's2',
                'sf',
                'sp',
                'stringi',
@@ -42,7 +45,6 @@ tar_option_set(
 # Run the R scripts in the R/ folder with your custom functions:
 # tar_source()
 targets::tar_source('./R')
-
 
 ############# The Targets List #########
 
@@ -64,27 +66,40 @@ list(
                pattern = map(semiarid_raw, years_semiarid),
                format = 'file'),
   
-
   
-  #2. Amazônia Legal ----------------------------------------------------------
+  #2. Amazônia Legal ----
   
  
   # download
   tar_target(name = amazonialegal_raw,
              command = download_amazonialegal()),
 
-  # clean (aprox 14870.86 sec)
+  # clean 
   tar_target(name = amazonialegal_clean,
              command = clean_amazonialegal(amazonialegal_raw),
-             format = 'file')
-  )
-  
+             format = 'file'),
   
 
+  #3. Biomas ----
+
+  # year input
+  tar_target(name = years_biomes,
+             command = c(2004, 2019)),
   
-  
-  
-  
+  # download
+  tar_target(name = biomes_raw,
+             command = download_biomes(years_biomes),
+             pattern = map(years_biomes)),
+
+  # clean
+  tar_target(name = biomes_clean,
+             command = clean_biomes(biomes_raw, years_biomes),
+             pattern = map(biomes_raw, years_biomes),
+             format = 'file')
+)
+
+
+
 # # 3. Municipios ----------------------------------------------------------
 # 
 #   # year input
