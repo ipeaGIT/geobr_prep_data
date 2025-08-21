@@ -19,14 +19,20 @@ semiarid_clean_9112b5af9ff3e22d|branch|38afaa387ed2abfe|9037b1bdf7aaf37d|2423413
 semiarid_clean_572604ff74155e91|branch|9a5333deacb8554a|9037b1bdf7aaf37d|f08cc25ec3d291c8|741912371|./data/semiarid/2022|t20315.729312055s|s43503616b|43503616|file|local|vector|semiarid_clean||22.58||
 semiarid_clean|pattern|9b951ecf961a3e18|9037b1bdf7aaf37d||561303988||||107581440|file|local|vector||semiarid_clean_128a3f22808da7f3*semiarid_clean_d917dfa6ab062da9*semiarid_clean_9112b5af9ff3e22d*semiarid_clean_572604ff74155e91|73.79||
 years_biomas|stem||3c89b2c04fdb6025|2c530c1562a7fbd1|753475739||t20315.8444840504s||0|rds|local|vector|||1.53|package 'data.table' was built under R version 4.4.3. package 'dplyr' was built under R version 4.4.3. package 'furrr' was built under R version 4.4.3. package 'future' was built under R version 4.4.3. package 'geobr' was built under R version 4.4.3. package 'httr' was built under R version 4.4.3. package 'lwgeom' was built under R version 4.4.3. package 'magrittr' was built under R version 4.4.3. package 'openxlsx' was built under R version 4.4.3. package 'pbapply' was built under R version 4.4.3. package 'RCurl' was built under R version 4.4.3. package 'readr' was built under R version 4.4.3. package 'readxl' was built under R version 4.4.3. package 'rvest' was built under R version 4.4.3. package 'sfheaders' was built under R version 4.4.3. package 's2' was built under R version 4.4.3. package 'sf' was built under R version 4.4.3. package 'sp' was built under R version 4.4.3. package 'stringi' was built under R version 4.4.3. package 'stringr' was built under R version 4.4.3. no non-missing arguments to max; returning -Inf|could not find packages collapse, geos in library paths
-harmonize_projection|function|91bb9d922009f51d
-to_multipolygon|function|f9fb28bdb97ac472
+years_biomes|stem|540f9890e6bf6b8c|3c89b2c04fdb6025|2c530c1562a7fbd1|-1714303944||t20319.7336302914s|s57b|57|rds|local|vector||years_biomes_60f03065b2341407*years_biomes_1d0440b850242374|3.86|package 'collapse' was built under R version 4.4.3. package 'data.table' was built under R version 4.4.3. package 'dplyr' was built under R version 4.4.3. package 'furrr' was built under R version 4.4.3. package 'future' was built under R version 4.4.3. package 'geobr' was built under R version 4.4.3. package 'geos' was built under R version 4.4.3. package 'httr' was built under R version 4.4.3. package 'lwgeom' was built under R version 4.4.3. package 'magrittr' was built under R version 4.4.3. package 'openxlsx' was built under R version 4.4.3. package 'pbapply' was built under R version 4.4.3. package 'RCurl' was built under R version 4.4.3. package 'readr' was built under R version 4.4.3. package 'readxl' was built under R version 4.4.3. package 'rvest' was built under R version 4.4.3. package 'sfheaders' was built under R version 4.4.3. package 's2' was built under R version 4.4.3. package 'sf' was built under R version 4.4.3. package 'sp' was built under R version 4.4.3. package 'stringi' was built under R version 4.4.3. package 'stringr' was built under R version 4.4.3|
+biomes_raw_a9bdde2db9f33d76|branch|c3b12ac100e2b6f0|307da075f25315b3|59d0613311868a05|898302848||t20321.9547512774s|s445298b|445298|rds|local|vector|biomes_raw||0.92||
+biomes_raw_ba45801899fd74e8|branch|2be6cde04430be5e|307da075f25315b3|59d0613311868a05|-965964818||t20321.9548135989s|s15989255b|15989255|rds|local|vector|biomes_raw||0.95||
+biomes_raw|pattern|34d2aec95155fb07|307da075f25315b3||1440923412||||16434553|rds|local|vector||biomes_raw_a9bdde2db9f33d76*biomes_raw_ba45801899fd74e8|1.87||
+biomes_clean_e12a14eb015c6d79|branch||143ca876c44d3d90|0637a3941897ab29|989655298||t20321.9548193595s||0|file|local|vector|biomes_clean||0.02||unused argument (years_biomes)
+download_biomes|function|8913c0af81c9f07a
 download_file|function|3a6b6c7673db47dd
 fix_topoly|function|dd326057bc8670bb
 list_folders|function|bcfbf4f7465afa51
 snake_case_names|function|39b13c29bd266031
 %nin%|function|5c849418054c52ef
+harmonize_projection|function|91bb9d922009f51d
 %nlike%|function|5c849418054c52ef
+to_multipolygon|function|f9fb28bdb97ac472
 add_state_info|function|dc769a19f7442ca1
 download_semiarid|function|552664a16d0fc1d0
 use_encoding_utf8|function|4f174428ce87a762
@@ -35,11 +41,9 @@ detect_year_from_string|function|7e1010acf860e4c3
 download_amazonialegal|function|d496fec48e302f0a
 add_region_info|function|52f8962884fe316a
 remove_z_dimension|function|72499f0edfc83003
-download_biomes|function|aa1d8209f306919b
 simplify_temp_sf|function|705c96209836d26c
 dissolve_polygons|function|3f40b4ecbb23c8e2
+clean_biomes|function|df84494dbacca61d
 muni_saveraw|function|027c21b5678a4e03
 clean_semiarid|function|9c0d8ed897291cce
 clean_amazonialegal|function|b2e91cab13332a8c
-years_biomes|stem|540f9890e6bf6b8c|3c89b2c04fdb6025|2c530c1562a7fbd1|-1714303944||t20319.7336302914s|s57b|57|rds|local|vector||years_biomes_60f03065b2341407*years_biomes_1d0440b850242374|3.86|package 'collapse' was built under R version 4.4.3. package 'data.table' was built under R version 4.4.3. package 'dplyr' was built under R version 4.4.3. package 'furrr' was built under R version 4.4.3. package 'future' was built under R version 4.4.3. package 'geobr' was built under R version 4.4.3. package 'geos' was built under R version 4.4.3. package 'httr' was built under R version 4.4.3. package 'lwgeom' was built under R version 4.4.3. package 'magrittr' was built under R version 4.4.3. package 'openxlsx' was built under R version 4.4.3. package 'pbapply' was built under R version 4.4.3. package 'RCurl' was built under R version 4.4.3. package 'readr' was built under R version 4.4.3. package 'readxl' was built under R version 4.4.3. package 'rvest' was built under R version 4.4.3. package 'sfheaders' was built under R version 4.4.3. package 's2' was built under R version 4.4.3. package 'sf' was built under R version 4.4.3. package 'sp' was built under R version 4.4.3. package 'stringi' was built under R version 4.4.3. package 'stringr' was built under R version 4.4.3|
-biomes_raw_a9bdde2db9f33d76|branch||307da075f25315b3|f55da96511683572|898302848||t20319.7336367002s||0|rds|local|vector|biomes_raw||0.08||comparison (==) is possible only for atomic and list types

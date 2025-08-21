@@ -19,6 +19,7 @@
 # Informacao do Sistema de Referencia: SIRGAS 2000
 
 
+
 ###### Download the data  -----------------
 download_biomes <- function(year){ # year = 2019
 
@@ -32,41 +33,56 @@ download_biomes <- function(year){ # year = 2019
     ftp <- 'https://geoftp.ibge.gov.br/informacoes_ambientais/estudos_ambientais/biomas/vetores/Biomas_250mil.zip'
   }
   
-file_raw <-fs::file_temp(ext = fs::path_ext(ftp))
-
+file_raw <- fs::file_temp(ext = fs::path_ext(ftp))
+tmp_dir <- tempdir()
 
 #### 1. Download original data sets from source website -----------------
 
+download.file(url = ftp,
+              destfile = file_raw)
+
+#### 2. Unzip shape files -----------------
+
+zipfiles <- list.files(path = tmp_dir, pattern = basename(file_raw), full.names = T)
+lapply(zipfiles, unzip, exdir = tmp_dir)
+
+#Outras opções de montar o zip                
+#paste0(dest,"/","Biomas_250mil_costeiro.zip")))
+
+
+#### 3. Read shapefile -----------------
+
 if (year == 2004){
 
-download.file(url = ftp,
-              destfile = paste0(destdir_raw,"/","Biomas_5000mil.zip"))
-
+  raw_biomes <- st_read(dsn = tmp_dir, layer = "Biomas5000",
+                      options = "ENCODING = latin1",
+                      stringsAsFactors = F, quiet = TRUE) %>% 
+  mutate(across(where(is.character),
+                ~ iconv (.x, from = "latin1", to = "UTF-8")))
 }
 
+if (year == 2019){
 
-if ( year == 2019){
+  raw_biomes <- st_read(dsn = tmp_dir, layer = "lm_bioma_250",
+                        options = "ENCODING = latin1",
+                        stringsAsFactors = F, quiet = TRUE) %>% 
+    mutate(across(where(is.character),
+                  ~ iconv (.x, from = "latin1", to = "UTF-8")))
+  }
 
-ftp <- 'https://geoftp.ibge.gov.br/informacoes_ambientais/estudos_ambientais/biomas/vetores/Biomas_250mil.zip'
-ftp_costeiro <- 'https://geoftp.ibge.gov.br/informacoes_ambientais/estudos_ambientais/biomas/vetores/Sistema_Costeiro_Marinho_250mil.zip'
+#### 4. Deliver the raw_biomes (LIMPAR AQUI) -----------------
 
-download.file(url = ftp, destfile = paste0(destdir_raw,"/","Biomas_250mil.zip"))
-download.file(url = ftp_costeiro, destfile = paste0(destdir_raw,"/","Biomas_250mil_costeiro.zip"))
+# # O que fazer com o shape costeiro?
+# ftp_costeiro <- 'https://geoftp.ibge.gov.br/informacoes_ambientais/estudos_ambientais/biomas/vetores/Sistema_Costeiro_Marinho_250mil.zip'
 
-}
+ 
+# download.file(url = ftp_costeiro,
+#               destfile = paste0(destdir_raw,
+#                                 "/","Biomas_250mil_costeiro.zip"))
 
 return(raw_biomes)
 
 }
-
-
-# 
-# #### 2. Unzip shape files -----------------
-# 
-# # list and unzip zipped files
-# zipfiles <- list.files(path = destdir_raw, pattern = ".zip", full.names = T)
-# lapply(zipfiles, unzip, exdir = destdir_raw)
-
 
 
 
@@ -78,13 +94,16 @@ clean_biomes <- function(raw_biomes) {
 #### 1. Clean data set and save it in compact .rds format-----------------
 
 # list all csv files
-shape <- list.files(path=destdir_raw,
+shape <- list.files(path = tmp_dir,
                     full.names = T,
                     pattern = ".shp$")
 
 # read data
 if ( year == 2004){
-  temp_sf <- st_read(shape, quiet = F, stringsAsFactors=F, options = "ENCODING=latin1") #Encoding usado pelo IBGE (ISO-8859-1) usa-se latin1 para ler acentos
+  
+  
+  
+  temp_sf <- st_read(shape, quiet = F, stringsAsFactors=F, options = "ENCODING = latin1") #Encoding usado pelo IBGE (ISO-8859-1) usa-se latin1 para ler acentos
   }
 
 if ( year == 2019){
