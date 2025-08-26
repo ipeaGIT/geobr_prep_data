@@ -10,6 +10,7 @@ harmonize_geobr <- function(temp_sf,
                             topology_fix = TRUE,
                             remove_z_dimension = TRUE,
                             use_multipolygon = TRUE
+                            # dissolve
                             ){
   
   # add state colum
@@ -208,11 +209,13 @@ snake_case_names <- function(temp_sf, colname){
   temp_sf[[ colname ]] <- stringr::str_to_title( temp_sf[[ colname ]] )
   
   # prepositions to lower
-  temp_sf[[ colname ]] <- gsub(' Do ', ' do ',   temp_sf[[ colname ]] )
-  temp_sf[[ colname ]] <- gsub(' Dos ', ' dos ', temp_sf[[ colname ]] )
-  temp_sf[[ colname ]] <- gsub(' Da ', ' da ',   temp_sf[[ colname ]] )
-  temp_sf[[ colname ]] <- gsub(' Das ', ' das ', temp_sf[[ colname ]] )
-  temp_sf[[ colname ]] <- gsub(' De ', ' de ',   temp_sf[[ colname ]] )
+  temp_sf[[ colname ]] <- gsub(" Do ",  " do ",   temp_sf[[ colname ]] )
+  temp_sf[[ colname ]] <- gsub(" Dos ", " dos ", temp_sf[[ colname ]] )
+  temp_sf[[ colname ]] <- gsub(" Da ",  " da ",   temp_sf[[ colname ]] )
+  temp_sf[[ colname ]] <- gsub(" Das ", " das ", temp_sf[[ colname ]] )
+  temp_sf[[ colname ]] <- gsub(" De ",  " de ",   temp_sf[[ colname ]] )
+  temp_sf[[ colname ]] <- gsub(" Del ", " del ",   temp_sf[[ colname ]] )
+  temp_sf[[ colname ]] <- gsub(" D'",   " d'",   temp_sf[[ colname ]] )
   
   return(temp_sf)
 }

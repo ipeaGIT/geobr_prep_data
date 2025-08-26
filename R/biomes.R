@@ -23,15 +23,6 @@
 
 
 
-#### Para testar
-
-source("./R/support_fun.R")
-library(tidyverse)
-library(data.table)
-library(sf)
-
-
-
 ###### Download the data  -----------------
 download_biomes <- function(year){ # year = 2019
 
@@ -49,68 +40,66 @@ download_biomes <- function(year){ # year = 2019
     
   }
   
-file_raw <- fs::file_temp(ext = fs::path_ext(ftp))
-tmp_dir <- tempdir()
-
-#### 1. Download original data sets from source website -----------------
-
-download.file(url = ftp,
-              destfile = file_raw)
-
-if(year == 2019) {
-  download.file(url = ftp_costeiro,
-                destfile = file_raw_costeiro)
-}
-
-
-#### 2. Unzip shape files -----------------
-
-zipfiles <- list.files(path = tmp_dir, pattern = basename(file_raw), full.names = T)
-lapply(zipfiles, unzip, exdir = tmp_dir)
-
-if(year == 2019) {
-  zipfiles_costeiro <- list.files(path = tmp_dir, pattern = basename(file_raw_costeiro), full.names = T)
-  lapply(zipfiles_costeiro, unzip, exdir = tmp_dir)
-}
+  file_raw <- fs::file_temp(ext = fs::path_ext(ftp))
+  tmp_dir <- tempdir()
+  
+  #### 1. Download original data sets from source website -----------------
+  
+  download.file(url = ftp,
+                destfile = file_raw)
+  
+  if(year == 2019) {
+    download.file(url = ftp_costeiro,
+                  destfile = file_raw_costeiro)
+  }
 
 
-#### 3. Read shapefile -----------------
-
-if (year == 2004){
-
-  raw_biomes <- st_read(dsn = tmp_dir, layer = "Biomas5000",
-                      options = "ENCODING = latin1",
-                      stringsAsFactors = F, quiet = TRUE) %>% 
-  mutate(across(where(is.character),
-                ~ iconv (.x, from = "latin1", to = "UTF-8")))
-}
-
+  #### 2. Unzip shape files -----------------
+  
+  zipfiles <- list.files(path = tmp_dir, pattern = basename(file_raw), full.names = T)
+  lapply(zipfiles, unzip, exdir = tmp_dir)
+  
+  if(year == 2019) {
+    zipfiles_costeiro <- list.files(path = tmp_dir, pattern = basename(file_raw_costeiro), full.names = T)
+    lapply(zipfiles_costeiro, unzip, exdir = tmp_dir)
+  }
 
 
-# For 2019, must join earth biomes with coastal system
-if (year == 2019){
+  #### 3. Read shapefile -----------------
+  
+  if (year == 2004){
+  
+    raw_biomes <- st_read(dsn = tmp_dir, layer = "Biomas5000",
+                        options = "ENCODING = latin1",
+                        stringsAsFactors = F, quiet = TRUE) %>% 
+    mutate(across(where(is.character),
+                  ~ iconv (.x, from = "latin1", to = "UTF-8")))
+  }
 
-  raw_costeiro <- st_read(dsn = tmp_dir, layer = "Sistema_Costeiro_Marinho",
+
+
+  # For 2019, must join earth biomes with coastal system
+  if (year == 2019){
+  
+    raw_costeiro <- st_read(dsn = tmp_dir, layer = "Sistema_Costeiro_Marinho",
+                            options = "ENCODING = latin1",
+                            stringsAsFactors = F, quiet = TRUE)
+
+    
+    raw_terrestre <- st_read(dsn = tmp_dir, layer = "lm_bioma_250",
                           options = "ENCODING = latin1",
                           stringsAsFactors = F, quiet = TRUE)
-  #make it valid
-  st_is_valid(raw_costeiro, reason = TRUE)
+    
+    raw_costeiro <- raw_costeiro %>%
+      mutate(Bioma = "Sistema Costeiro", CD_Bioma = NA) %>%
+      select(-S_COSTEIRO)
   
+    raw_biomes <- rbind(raw_terrestre, raw_costeiro)
+    }
+    
+  return(raw_biomes)
   
-  raw_terrestre <- st_read(dsn = tmp_dir, layer = "lm_bioma_250",
-                        options = "ENCODING = latin1",
-                        stringsAsFactors = F, quiet = TRUE)
-  
-  raw_costeiro <- raw_costeiro %>%
-    mutate(Bioma = "Sistema Costeiro", CD_Bioma = NA) %>%
-    select(-S_COSTEIRO)
-
-  raw_biomes <- rbind(raw_terrestre, raw_costeiro)
   }
-  
-return(raw_biomes)
-
-}
 
 
 
@@ -129,6 +118,10 @@ clean_biomes <- function(raw_biomes, year) {
 st_is_valid(raw_biomes)
 st_is_valid(raw_biomes, reason = TRUE)
   
+raw_biomes <- sf::st_make_valid(raw_biomes)
+
+st_is_valid(raw_biomes, reason = TRUE)
+
 
 # save to open in mapshaper to check if the file is working
 sf::st_write(raw_biomes, dsn = paste0(dir_clean, "/", "biomes_", year, ".kml"), year = TRUE)
