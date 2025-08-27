@@ -1,5 +1,35 @@
 # prep data used in geobr
 
+Data sets currenly implemented in the targets pipeline:
+
+- [ ] country
+- [ ] region
+- [ ] state
+- [ ] meso_region
+- [ ] micro_region
+- [ ] intermediate_region
+- [ ] immediate_region
+- [ ] municipality
+- [ ] municipal_seat
+- [ ] weighting_area
+- [ ] census_tract
+- [ ] statistical_grid
+- [ ] metro_area
+- [ ] urban_area
+- [x] amazon
+- [x] biomes
+- [ ] conservation_units
+- [ ] disaster_risk_area
+- [ ] indigenous_land
+- [x] semiarid
+- [ ] health_facilities
+- [ ] health_region
+- [ ] neighborhood
+- [ ] schools
+- [ ] comparable_areas
+- [ ] urban_concentrations
+- [ ] pop_arrangements
+
 
 Data structure of project
 

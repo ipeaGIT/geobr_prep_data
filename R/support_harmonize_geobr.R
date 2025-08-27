@@ -324,6 +324,13 @@ fix_topology <- function(temp_sf){
     return(temp_sf)
   }
   
+  # # detect problematic edges
+  # poly_invalid <- temp_sf[bad_ix, ]
+  # problem_edges <- st_is_valid(poly_invalid, reason=TRUE)
+  # problem_edges <- sub(".*:\\D*(\\d+).*", "\\1", problem_edges) |> as.numeric()
+  # all_edges <- sf::st_cast(poly_invalid, "POINT") |> suppressWarnings()
+  # problem_edges <- all_edges[problem_edges, ]
+  # mapview::mapview(poly_invalid) + problem_edges
   
   ### Attempt 2
   
