@@ -73,49 +73,6 @@ download_file <- function(file_url,
 
 
 
-###### Dissolve borders temp_sf -----------------
-
-## Function to clean and dissolve the borders of polygons by groups
-dissolve_polygons <- function(mysf, group_column){
-  
-  
-  # a) make sure we have valid geometries
-  mysf <- fix_topoly(mysf)
-  
-  # b) make sure we have sf MULTIPOLYGON
-  #temp_sf1 <- temp_sf |> st_cast("MULTIPOLYGON")
-  temp_sf1 <- to_multipolygon(mysf)
-  
-  # c) long but complete dissolve function
-  dissolvefun <- function(grp){
-    
-    # c.1) subset region
-    temp_region <- subset(mysf, get(group_column, mysf)== grp )
-    
-    
-    temp_region <- summarise(temp_region, .by = group_column)
-    # plot(temp_region)
-    
-    temp_region <- sfheaders::sf_remove_holes(temp_region)
-    temp_region <- fix_topoly(temp_region)
-    
-    return(temp_region)
-  }
-  
-  
-  # Apply sub-function
-  groups_sf <- pbapply::pblapply(X = unique(get(group_column, mysf)), FUN = dissolvefun )
-  
-  # rbind results
-  temp_sf <- do.call('rbind', groups_sf)
-  return(temp_sf)
-}
-
-
-# # test
-# states <- geobr::read_state(year=2000)
-# a <- dissolve_polygons(states, group_column='code_region')
-# plot(a)
 
 
 # remove state repetition ----------------------
@@ -181,4 +138,29 @@ muni_saveraw <- function(tempf, temp_dir, dest_dir) {
   # # return path to raw file
   # muni_raw_path <- paste0(dest_dir,"/", file_name)
   # return(muni_raw_path)
+}
+
+
+
+
+
+###### Simplify temp_sf -----------------
+
+simplify_temp_sf <- function(temp_sf, tolerance=100){
+  
+  # reproject to utm
+  temp_gpkg_simplified <- sf::st_transform(temp_sf, crs=3857)
+  
+  # simplify with tolerance
+  temp_gpkg_simplified <- sf::st_simplify(temp_gpkg_simplified,
+                                          preserveTopology = T,
+                                          dTolerance = tolerance)
+  
+  # reproject to utm
+  temp_gpkg_simplified <- sf::st_transform(temp_gpkg_simplified, crs=4674)
+  
+  # Make any invalid geometry valid # st_is_valid( sf)
+  temp_gpkg_simplified <- fix_topology(temp_gpkg_simplified)
+  
+  return(temp_gpkg_simplified)
 }

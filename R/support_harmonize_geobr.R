@@ -307,35 +307,114 @@ to_multipolygon <- function(temp_sf){
 }
 
 
+
+
 ###### Make valid topology -----------------
 
-fix_topoly <- function(temp_sf){
+fix_topology <- function(temp_sf){
   
+  ### Attempt 1
+  sf::sf_use_s2(TRUE)
   temp_sf <- sf::st_make_valid(temp_sf)
-  # temp_sf <- sf::st_buffer(temp_sf, dist = 0)
   
+  # 1) Find the offending feature(s)
+  bad_ix <- which(!st_is_valid(temp_sf))
+  
+  if (length(bad_ix) == 0) {
+    return(temp_sf)
+  }
+  
+  
+  ### Attempt 2
+  
+  # 2) Try lwgeom’s make_valid first (sometimes succeeds where sf:: does not)
+  geom <- st_geometry(temp_sf)
+  geom[bad_ix] <- lwgeom::lwgeom_make_valid(geom[bad_ix])
+  
+  st_geometry(temp_sf) <- geom
+  
+  # 3) Find the offending feature(s)
+  still_bad <- which(!st_is_valid(temp_sf))
+  
+  if (length(still_bad) == 0) {
+    return(temp_sf)
+  }
+  
+  ### Attempt 3 - rebuild polygon: if still invalid, rebuild via node + polygonize
+  
+  fix_one <- function(g) {
+    b  <- sf::st_boundary(g)
+    b  <- sf::st_cast(b, "MULTILINESTRING")
+    b <- sf::st_transform(b, crs = 5880)
+    bN <- sf::st_node(b)                   # split at crossings
+    p  <- sf::st_polygonize(bN) |> sf::st_collection_extract("POLYGON")
+    p <- sf::st_union(p)                                # merge back to a multipolygon
+    p <- sf::st_transform(p, crs = sf::st_crs(g))
+  } 
+  
+  if (length(still_bad)) {
+    for (i in still_bad) {
+      st_geometry(temp_sf)[i] <- fix_one(st_geometry(temp_sf)[i])
+    }
+  }  
+  
+  # 3) Find the offending feature(s)
+  still_bad <- which(!st_is_valid(temp_sf))
+  
+  if (length(still_bad) == 0) {
+    return(temp_sf)
+  } else(stop("Topology errors could not be fixed."))
+  
+}
+
+
+
+###### Dissolve borders temp_sf -----------------
+
+## Function to clean and dissolve the borders of polygons by groups
+dissolve_polygons <- function(mysf, group_column){
+  
+  
+  # a) make sure we have valid geometries
+  mysf <- fix_topoly(mysf)
+  
+  # b) make sure we have sf MULTIPOLYGON
+  #temp_sf1 <- temp_sf |> st_cast("MULTIPOLYGON")
+  temp_sf1 <- to_multipolygon(mysf)
+  
+  # c) long but complete dissolve function
+  dissolvefun <- function(grp){
+    
+    # c.1) subset region
+    temp_region <- subset(mysf, get(group_column, mysf)== grp )
+    
+    
+    temp_region <- summarise(temp_region, .by = group_column)
+    # plot(temp_region)
+    
+    # temp_sf3 <- temp_sf |>
+    #   mutate(geometry = s2::as_s2_geography(geometry)) |>
+    #   group_by(Bioma, CD_Bioma) |>
+    #   summarise(geometry = s2::s2_union_agg(geometry)) |>
+    #   mutate(geometry = st_as_sfc(geometry))
+    
+    temp_region <- sfheaders::sf_remove_holes(temp_region)
+    temp_region <- fix_topoly(temp_region)
+    
+    return(temp_region)
+  }
+  
+  
+  # Apply sub-function
+  groups_sf <- pbapply::pblapply(X = unique(get(group_column, mysf)), FUN = dissolvefun )
+  
+  # rbind results
+  temp_sf <- do.call('rbind', groups_sf)
   return(temp_sf)
 }
 
 
-###### Simplify temp_sf -----------------
-
-simplify_temp_sf <- function(temp_sf, tolerance=100){
-  
-  # reproject to utm
-  temp_gpkg_simplified <- sf::st_transform(temp_sf, crs=3857)
-  
-  # simplify with tolerance
-  temp_gpkg_simplified <- sf::st_simplify(temp_gpkg_simplified,
-                                          preserveTopology = T,
-                                          dTolerance = tolerance)
-  
-  # reproject to utm
-  temp_gpkg_simplified <- sf::st_transform(temp_gpkg_simplified, crs=4674)
-  
-  # Make any invalid geometry valid # st_is_valid( sf)
-  temp_gpkg_simplified <- fix_topoly(temp_gpkg_simplified)
-  
-  return(temp_gpkg_simplified)
-}
-
+# # test
+# states <- geobr::read_state(year=2000)
+# a <- dissolve_polygons(states, group_column='code_region')
+# plot(a)

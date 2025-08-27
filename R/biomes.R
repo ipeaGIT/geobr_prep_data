@@ -26,7 +26,7 @@
 ###### Download the data  -----------------
 download_biomes <- function(year){ # year = 2019
 
-#### 0. Get the correct ftp link (UPDATE HERE IN CASE OF NEW YEAR IN THE DATA):  ----
+  #### 0. Get the correct ftp link (UPDATE HERE IN CASE OF NEW YEAR IN THE DATA)
   
   if(year == 2004) {
     ftp <- 'https://geoftp.ibge.gov.br/informacoes_ambientais/estudos_ambientais/biomas/vetores/Biomas_5000mil.zip'
@@ -43,8 +43,8 @@ download_biomes <- function(year){ # year = 2019
   file_raw <- fs::file_temp(ext = fs::path_ext(ftp))
   tmp_dir <- tempdir()
   
-  #### 1. Download original data sets from source website -----------------
   
+  #### 1. Download original data sets from source website
   download.file(url = ftp,
                 destfile = file_raw)
   
@@ -54,7 +54,7 @@ download_biomes <- function(year){ # year = 2019
   }
 
 
-  #### 2. Unzip shape files -----------------
+  #### 2. Unzip shape files
   
   zipfiles <- list.files(path = tmp_dir, pattern = basename(file_raw), full.names = T)
   lapply(zipfiles, unzip, exdir = tmp_dir)
@@ -65,11 +65,11 @@ download_biomes <- function(year){ # year = 2019
   }
 
 
-  #### 3. Read shapefile -----------------
+  #### 3. Read shapefile
   
   if (year == 2004){
   
-    raw_biomes <- st_read(dsn = tmp_dir, layer = "Biomas5000",
+    biomes_raw <- st_read(dsn = tmp_dir, layer = "Biomas5000",
                         options = "ENCODING = latin1",
                         stringsAsFactors = F, quiet = TRUE) %>% 
     mutate(across(where(is.character),
@@ -94,152 +94,74 @@ download_biomes <- function(year){ # year = 2019
       mutate(Bioma = "Sistema Costeiro", CD_Bioma = NA) %>%
       select(-S_COSTEIRO)
   
-    raw_biomes <- rbind(raw_terrestre, raw_costeiro)
-    }
+    biomes_raw <- rbind(raw_terrestre, raw_costeiro)
+  }
+  
+  biomes_raw$year <- year
     
-  return(raw_biomes)
+  return(biomes_raw)
   
   }
 
 
 
-######## Clean the data ----
+# Clean the data ----------------------------------
+# biomes_raw <- tar_read(biomes_raw, branches = 2)
+# year <- tar_read(years_biomes, branches = 1)
 
-clean_biomes <- function(raw_biomes, year) {
+clean_biomes <- function(biomes_raw, year) {
   
-#### 0. Create folder to save clean sf.rds files -----------------
+  # 0. Create folder to save clean data
 
   dir_clean <- paste0("./data/biomes/", year)
   dir.create(dir_clean, recursive = T, showWarnings = FALSE)
   
 
-#### 1. Check geometry and make valid -----------------
-
-st_is_valid(raw_biomes)
-st_is_valid(raw_biomes, reason = TRUE)
+  # define colnames
+  snake_colname <- switch(
+    as.character(year),
+    "2004" = "NOM_BIOMA",
+    "2019" = "Bioma",
+    NA_character_
+  )
   
-raw_biomes <- sf::st_make_valid(raw_biomes)
+  id_colname <- switch(
+    as.character(year),
+    "2004" = "ID1",
+    "2019" = "CD_Bioma",
+    NA_character_
+  )
+  
+  # 1. harmonize geobr data
+  temp_sf <- harmonize_geobr(
+    temp_sf = biomes_raw, 
+    add_state = F, 
+    add_region = F, 
+    add_snake_case = T, 
+    snake_colname = snake_colname,
+    projection_fix = T, 
+    encoding_utf8 = T, 
+    topology_fix = T,
+    remove_z_dimension = T, 
+    use_multipolygon = T
+    )
 
-st_is_valid(raw_biomes, reason = TRUE)
+  # 2. Rename and reorder columns
+  temp_sf <- temp_sf |>
+    select('name_biome' = snake_colname, 'code_biome' = id_colname, year, geometry)
+    
+    
+  # 3. generate a lighter version of the dataset with simplified borders
+  # skip this step if the dataset is made of points, regular spatial grids or rater data
 
-
-# save to open in mapshaper to check if the file is working
-sf::st_write(raw_biomes, dsn = paste0(dir_clean, "/", "biomes_", year, ".kml"), year = TRUE)
+    temp_sf_simplified <- simplify_temp_sf(temp_sf)
   
   
-temp_sf <- st_make_valid(raw_biomes)
+  # 4. Save file
+  sf::st_write(temp_sf, dsn = paste0(dir_clean, "/", "biomes_", year, ".gpkg"), append=FALSE)
+  sf::st_write(temp_sf_simplified, dsn = paste0(dir_clean, "/", "biomes_", year, "_simplified", ".gpkg"), append=FALSE)
 
-st_is_valid(temp_sf)
-
-####### Se for diferente de tudo TRUE, criar função para mostrar ERROR
-
-
-
-#### 2. CORRECT SHAPE And Make valid geometry -----------------
-  
-temp_sf2 <- dissolve_polygons(temp_sf, 'Bioma')
-
-#### 3. Rename columns an reorder -------------------------
-
-if ( year == 2004){
-names(temp_sf) <- c('code_biome', 'name_biome', 'n_biome' , 'geometry', "year")
-}
-
-if ( year == 2019){
-names(temp_sf) <- c('name_biome', 'code_biome', 'geometry', "year")
-}
-
-#########################
-
-temp_sf2 <- temp_sf |>
-  group_by(Bioma, CD_Bioma) |>
-  summarise(geometry = st_union(geometry))
-
-temp_sf3 <- temp_sf |>
-  mutate(geometry = s2::as_s2_geography(geometry)) |>
-  group_by(Bioma, CD_Bioma) |>
-  summarise(geometry = s2::s2_union_agg(geometry)) |>
-  mutate(geometry = st_as_sfc(geometry))
-
-
-
-
-
-##### 4. Rename columns -------------------------
-# 
-# if ( year == 2004){
-#   temp_sf <- dplyr::rename(temp_sf, code_biome = COD_BIOMA, name_biome = NOM_BIOMA)
-# 
-#   
-# }
-# 
-# 
-# if ( year == 2019){
-# 
-#   # rename columns and pile files up
-#   temp_sf <- dplyr::rename(temp_sf, code_biome = CD_Bioma, name_biome = Bioma)
-#   temp_sf$year <- year
-# 
-# 
-#   temp_sf_costeiro$name_biome <- "Sistema Costeiro"
-#   temp_sf_costeiro$code_biome <- NA
-#   temp_sf_costeiro$year <- year
-#   temp_sf_costeiro$S_COSTEIRO <- NULL
-# 
-# # reorder columns
-# setcolorder(temp_sf, neworder= c('name_biome', 'code_biome', 'year', 'geometry'))
-# setcolorder(temp_sf_costeiro, neworder= c('name_biome', 'code_biome', 'year', 'geometry'))
-# 
-# 
-# }
-# 
-
-# make valid geometry
-temp_sf <- st_make_valid(temp_sf)
-st_is_valid(temp_sf, reason = TRUE)
-
-
-
-##### 5. Check projection, UTF, topology, etc -------------------------
-
-
-# Harmonize spatial projection CRS, using SIRGAS 2000 epsg (SRID): 4674
-temp_sf <- harmonize_projection(temp_sf)
-st_is_valid(temp_sf)
-
-
-# 
-# # Use UTF-8 encoding in all character columns
-# temp_sf <- temp_sf %>%
-#   mutate_if(is.factor, function(x){ x %>% as.character() %>%
-#       stringi::stri_encode("UTF-8") } )
-# temp_sf <- temp_sf %>%
-#   mutate_if(is.factor, function(x){ x %>% as.character() %>%
-#       stringi::stri_encode("UTF-8") } )
-
-
-###### convert to MULTIPOLYGON -----------------
-temp_sf <- to_multipolygon(temp_sf)
-
-###### 6. generate a lighter version of the dataset with simplified borders -----------------
-# skip this step if the dataset is made of points, regular spatial grids or rater data
-
-# simplify
-temp_sf_simplified <- st_transform(temp_sf, crs = 3857) %>%
-  sf::st_simplify(preserveTopology = T, dTolerance = 100) %>%
-  st_transform(crs = 4674)
-head(temp_sf_simplified)
-
-
-###### 8. Clean data set and save it in geopackage format-----------------
-
-##### Save file -------------------------
-
-# Save original and simplified datasets
-saveRDS(temp_sf, file = paste0(dir_clean, "/", "biomes_", year, ".rds"))
-sf::st_write(temp_sf, dsn = paste0(dir_clean, "/", "biomes_", year, ".gpkg"), year = TRUE)
-sf::st_write(temp_sf_simplified, dsn = paste0(dir_clean, "/", "biomes_", year, "_simplified", ".gpkg"), append = TRUE)
-
+  return(dir_clean)
 }
 
 

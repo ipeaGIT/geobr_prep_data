@@ -140,7 +140,7 @@ clean_semiarid <- function(munis_semiarid, year) {
   temp_sf <- harmonize_projection(temp_sf)
   
   # Make any invalid geometry valid # st_is_valid( sf)
-  temp_sf <- fix_topoly(temp_sf)
+  temp_sf <- fix_topology(temp_sf)
   
   # 4 lighter version
   temp_sf_simplified <- simplify_temp_sf(temp_sf, tolerance = 100)

@@ -2,7 +2,7 @@ library(targets)
 
   # Set target options: ----
 tar_option_set(
-  format = "rds", # default storage format "rds" "feather"
+  format = "rds",
   memory = "transient",
   garbage_collection = TRUE,
   
@@ -65,20 +65,20 @@ list(
                command = clean_semiarid(semiarid_raw, years_semiarid),
                pattern = map(semiarid_raw, years_semiarid),
                format = 'file'),
-  
-  
-  #2. Amazônia Legal ----
-  
- 
+
+
+  #2. Amazonia Legal ----
+
+
   # download
   tar_target(name = amazonialegal_raw,
              command = download_amazonialegal()),
 
-  # clean 
+  # clean
   tar_target(name = amazonialegal_clean,
              command = clean_amazonialegal(amazonialegal_raw),
              format = 'file'),
-  
+
 
   #3. Biomas ----
 
