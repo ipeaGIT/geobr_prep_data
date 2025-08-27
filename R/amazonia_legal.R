@@ -83,30 +83,10 @@ clean_amazonialegal <- function(amazonialegal_raw){
 
 temp_sf3 <- harmonize_projection(amazonialegal_raw)
 
-# Harmonize spatial projection CRS, using SIRGAS 2000 epsg (SRID): 4674
-
-st_crs(temp_sf3)$epsg
-st_crs(temp_sf3)$input
-st_crs(temp_sf3)$proj4string
-st_crs(st_crs(temp_sf3)$wkt) == st_crs(temp_sf3)
-
-
-
-
-###### 4. ensure every string column is as.character with UTF-8 encoding -----------------
-
-# not necessary here
-
-
-
-###### 5. remove Z dimension of spatial data-----------------
 
 # remove Z dimension of spatial data
 temp_sf5 <- temp_sf3 %>% st_sf() %>% st_zm( drop = T, what = "ZM")
 
-
-
-###### 6. fix eventual topology issues in the data-----------------
 
 ##### Make any invalid geometry valid # st_is_valid( sf)
 temp_sf6 <- fix_topology(temp_sf5)

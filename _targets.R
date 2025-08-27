@@ -95,9 +95,25 @@ list(
   tar_target(name = biomes_clean,
              command = clean_biomes(biomes_raw, years_biomes),
              pattern = map(biomes_raw, years_biomes),
-             format = 'file')
-)
+             format = 'file'),
 
+#4. Grade estatística ----
+
+# # year input
+# tar_target(name = years_biomes,
+#            command = c(2004, 2019)),
+# 
+# # download
+# tar_target(name = biomes_raw,
+#            command = download_biomes(years_biomes),
+#            pattern = map(years_biomes)),
+# 
+# # clean
+# tar_target(name = biomes_clean,
+#            command = clean_biomes(biomes_raw, years_biomes),
+#            pattern = map(biomes_raw, years_biomes),
+#            format = 'file')
+)
 
 
 # # 3. Municipios ----------------------------------------------------------

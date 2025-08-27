@@ -148,7 +148,11 @@ clean_biomes <- function(biomes_raw, year) {
 
   # 2. Rename and reorder columns
   temp_sf <- temp_sf |>
-    select('name_biome' = snake_colname, 'code_biome' = id_colname, year, geometry)
+    select('name_biome' = snake_colname, 
+           'code_biome' = id_colname, 
+           year, 
+           geometry
+           )
     
     
   # 3. generate a lighter version of the dataset with simplified borders
