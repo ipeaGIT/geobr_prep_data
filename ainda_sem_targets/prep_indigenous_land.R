@@ -38,19 +38,6 @@ library(magrittr)
 library(lwgeom)
 library(stringi)
 
-####### Load Support functions to use in the preprocessing of the data
-
-source("./prep_data/prep_functions.R")
-
-###### 0. Create Root folder to save the data -----------------
-# Root directory
-root_dir <- "L:////# DIRUR #//ASMEQ//geobr//data-raw"
-setwd(root_dir)
-
-# Directory to keep raw zipped files
-  dir.create("./indigenous_land")
-  destdir_raw <- paste0("./indigenous_land/",update)
-  dir.create(destdir_raw)
 
 
 # Create folders to save clean sf.rds files  -----------------
@@ -65,15 +52,17 @@ setwd(root_dir)
 #### 1. Download original data sets from FUNAI website -----------------
 
 # Download and read into CSV at the same time
-  ftp <- "http://mapas2.funai.gov.br/portal_mapas/shapes/ti_sirgas.zip"
-
-  download.file(url = ftp,
-                destfile = paste0(destdir_raw,"/","indigenous_land.zip"))
+  # ftp <- "http://mapas2.funai.gov.br/portal_mapas/shapes/ti_sirgas.zip"
+  # download.file(url = ftp,
+  #               destfile = paste0(destdir_raw,"/","indigenous_land.zip"))
+  ftp <-  "https://mapas2.funai.gov.br/portal_mapas/"
+  # ver arquvos antigos
 
 # pelo menos desde 202103, download parece q tem q ser manual
   #: https://www.gov.br/funai/pt-br/atuacao/terras-indigenas/geoprocessamento-e-mapas
 
 
+  d <- list_folders(ftp)
 
 #### 2. Unzipe shape files -----------------
   setwd(destdir_raw)
@@ -90,10 +79,6 @@ setwd(root_dir)
 
 
 #### 3. Clean data set and save it in compact .rds format-----------------
-
-# Root directory
-  root_dir <- "L:////# DIRUR #//ASMEQ//geobr//data-raw//indigenous_land"
-  setwd(root_dir)
 
 
 # list all csv files
@@ -118,36 +103,6 @@ setwd(root_dir)
   setDT(temp_sf)[, date := update]
 
 # Create column with state abbreviations
-  temp_sf[ abbrev_state=="RO", code_state :=	11 ]
-  temp_sf[ abbrev_state=="AC", code_state :=	12 ]
-  temp_sf[ abbrev_state=="AM", code_state :=	13 ]
-  temp_sf[ abbrev_state=="RR", code_state :=	14 ]
-  temp_sf[ abbrev_state=="PA", code_state :=	15 ]
-  temp_sf[ abbrev_state=="AP", code_state :=	16 ]
-  temp_sf[ abbrev_state=="TO", code_state :=	17 ]
-  temp_sf[ abbrev_state=="MA", code_state :=	21 ]
-  temp_sf[ abbrev_state=="PI", code_state :=	22 ]
-  temp_sf[ abbrev_state=="CE", code_state :=	23 ]
-  temp_sf[ abbrev_state=="RN", code_state :=	24 ]
-  temp_sf[ abbrev_state=="PB", code_state :=	25 ]
-  temp_sf[ abbrev_state=="PE", code_state :=	26 ]
-  temp_sf[ abbrev_state=="AL", code_state :=	27 ]
-  temp_sf[ abbrev_state=="SE", code_state :=	28 ]
-  temp_sf[ abbrev_state=="BA", code_state :=	29 ]
-  temp_sf[ abbrev_state=="MG", code_state :=	31 ]
-  temp_sf[ abbrev_state=="ES", code_state :=	32 ]
-  temp_sf[ abbrev_state=="RJ", code_state :=	33 ]
-  temp_sf[ abbrev_state=="SP", code_state :=	35 ]
-  temp_sf[ abbrev_state=="PR", code_state :=	41 ]
-  temp_sf[ abbrev_state=="SC", code_state :=	42 ]
-  temp_sf[ abbrev_state=="RS", code_state :=	43 ]
-  temp_sf[ abbrev_state=="MS", code_state :=	50 ]
-  temp_sf[ abbrev_state=="MT", code_state :=	51 ]
-  temp_sf[ abbrev_state=="GO", code_state :=	52 ]
-  temp_sf[ abbrev_state=="DF", code_state :=	53 ]
-  head(temp_sf)
-
-
 
 # Use UTF-8 encoding
   temp_sf <- use_encoding_utf8(temp_sf)
