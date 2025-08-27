@@ -309,7 +309,7 @@ to_multipolygon <- function(temp_sf){
 
 
 
-###### Make valid topology -----------------
+###### Fix topology -----------------
 
 fix_topology <- function(temp_sf){
   

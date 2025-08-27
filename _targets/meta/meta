@@ -1,49 +1,53 @@
 name|type|data|command|depend|seed|path|time|size|bytes|format|repository|iteration|parent|children|seconds|warnings|error
 .Random.seed|object|f1947fdb9c1f02ae
-years_semiarid|stem|3bddeb6fcf047ba1|cbd42de486c43a65|2c530c1562a7fbd1|-292283846||t20311.6540708002s|s63b|63|rds|local|vector||years_semiarid_d5ecf0bb33dfbcbe*years_semiarid_a009eba4833e4540*years_semiarid_d7731f103501508d*years_semiarid_43a1223249ea92a6|1.61|package 'data.table' was built under R version 4.4.3. package 'openxlsx' was built under R version 4.4.3. package 'readxl' was built under R version 4.4.3. package 'dplyr' was built under R version 4.4.3. package 'httr' was built under R version 4.4.3. package 'lwgeom' was built under R version 4.4.3. package 'RCurl' was built under R version 4.4.3. package 'sp' was built under R version 4.4.3. package 'sfheaders' was built under R version 4.4.3. package 'stringr' was built under R version 4.4.3. package 'stringi' was built under R version 4.4.3. package 'future' was built under R version 4.4.3. package 'furrr' was built under R version 4.4.3. package 'geobr' was built under R version 4.4.3. package 'pbapply' was built under R version 4.4.3. package 'rvest' was built under R version 4.4.3. package 'sf' was built under R version 4.4.3|
 semiarid_clean_1824849b6153ef7b|branch||cb617dc08fb1d4d3|2f3b7ed017ab692f|692143089||t20311.662997847s||0|file|local|vector|semiarid_clean||0.02||unused argument (semiarid_raw)
 semiarid_clean_c72fd21a794a3e5c|branch|4605a19bf90a8594|0855ecadb4961891|c6bdc7755bd80211|438593837|./data/semiarid/2005|t20311.6661499841s|s3493888b|3493888|file|local|vector|semiarid_clean||4.33||
 semiarid_clean_0d74aa2b530128b2|branch|a07c2b04e1bfb735|0855ecadb4961891|53d05b9d90fd29d5|1463412491|./data/semiarid/2017|t20311.666323936s|s26042368b|26042368|file|local|vector|semiarid_clean||14.73||
 semiarid_clean_2fe436d18abc96b0|branch|014ebb048863880a|0855ecadb4961891|abe1f7b40b2fe9a7|-982479216|./data/semiarid/2021|t20311.6665603879s|s34541568b|34541568|file|local|vector|semiarid_clean||20.05||
 semiarid_clean_1f6949182225a007|branch|6b2a00655f019690|0855ecadb4961891|2922d7675f6d099f|-886167794|./data/semiarid/2022|t20311.6668019509s|s43503616b|43503616|file|local|vector|semiarid_clean||20.43||
-semiarid_raw|pattern|d232a3821da29890|f265bdb75af9ce4d||-558780657||||54522|rds|local|vector||semiarid_raw_7e251a50d0b5c323*semiarid_raw_bc236c3b9cd0db99*semiarid_raw_618a6b411254e613*semiarid_raw_16ee2c04099d24c9|1.02||
-semiarid_raw_7e251a50d0b5c323|branch|0b882aefc0b4e05c|f265bdb75af9ce4d|c5a1554c71fc3575|-125168616||t20311.723199101s|s12002b|12002|rds|local|vector|semiarid_raw||0.64||
-semiarid_raw_bc236c3b9cd0db99|branch|b2a877e7a0ff24a2|f265bdb75af9ce4d|c5a1554c71fc3575|995572689||t20311.7232044163s|s13225b|13225|rds|local|vector|semiarid_raw||0.19||
-semiarid_raw_618a6b411254e613|branch|766e258514a79ac3|f265bdb75af9ce4d|c5a1554c71fc3575|-1668525160||t20311.7232084905s|s13213b|13213|rds|local|vector|semiarid_raw||0.1||
-semiarid_raw_16ee2c04099d24c9|branch|adef8f8966a79714|f265bdb75af9ce4d|c5a1554c71fc3575|1435868002||t20311.7232132149s|s16082b|16082|rds|local|vector|semiarid_raw||0.17||
-amazonialegal_raw|stem|da0a485fe36a8224|c7db07574161f53e|f385543d3a582df9|-1787579839||t20315.7060996182s|s177156b|177156|rds|local|vector|||2.31|package 'data.table' was built under R version 4.4.3. package 'dplyr' was built under R version 4.4.3. package 'furrr' was built under R version 4.4.3. package 'future' was built under R version 4.4.3. package 'geobr' was built under R version 4.4.3. package 'httr' was built under R version 4.4.3. package 'lwgeom' was built under R version 4.4.3. package 'magrittr' was built under R version 4.4.3. package 'openxlsx' was built under R version 4.4.3. package 'pbapply' was built under R version 4.4.3. package 'RCurl' was built under R version 4.4.3. package 'readr' was built under R version 4.4.3. package 'readxl' was built under R version 4.4.3. package 'rvest' was built under R version 4.4.3. package 'sfheaders' was built under R version 4.4.3. package 'sf' was built under R version 4.4.3. package 'sp' was built under R version 4.4.3. package 'stringi' was built under R version 4.4.3. package 'stringr' was built under R version 4.4.3|
-amazonialegal_clean|stem|a7b5a10e25f81c29|95159e5d240411f4|bac23e444dd1055d|-1296395540|./data/amazonia_legal/|t20315.7284374302s|s1290240b|1290240|file|local|vector|||1.91||
-semiarid_clean_128a3f22808da7f3|branch|b44f2f56febc2a22|9037b1bdf7aaf37d|7876e5b67acd3a88|-956107927|./data/semiarid/2005|t20315.7284968607s|s3493888b|3493888|file|local|vector|semiarid_clean||4.64||
-semiarid_clean_d917dfa6ab062da9|branch|4d7c9480da1dccc7|9037b1bdf7aaf37d|97019b6decf382dc|910039653|./data/semiarid/2017|t20315.7287332873s|s26042368b|26042368|file|local|vector|semiarid_clean||20.1||
-semiarid_clean_9112b5af9ff3e22d|branch|38afaa387ed2abfe|9037b1bdf7aaf37d|24234136d1253540|263222990|./data/semiarid/2021|t20315.7290451053s|s34541568b|34541568|file|local|vector|semiarid_clean||26.47||
-semiarid_clean_572604ff74155e91|branch|9a5333deacb8554a|9037b1bdf7aaf37d|f08cc25ec3d291c8|741912371|./data/semiarid/2022|t20315.729312055s|s43503616b|43503616|file|local|vector|semiarid_clean||22.58||
-semiarid_clean|pattern|9b951ecf961a3e18|9037b1bdf7aaf37d||561303988||||107581440|file|local|vector||semiarid_clean_128a3f22808da7f3*semiarid_clean_d917dfa6ab062da9*semiarid_clean_9112b5af9ff3e22d*semiarid_clean_572604ff74155e91|73.79||
 years_biomas|stem||3c89b2c04fdb6025|2c530c1562a7fbd1|753475739||t20315.8444840504s||0|rds|local|vector|||1.53|package 'data.table' was built under R version 4.4.3. package 'dplyr' was built under R version 4.4.3. package 'furrr' was built under R version 4.4.3. package 'future' was built under R version 4.4.3. package 'geobr' was built under R version 4.4.3. package 'httr' was built under R version 4.4.3. package 'lwgeom' was built under R version 4.4.3. package 'magrittr' was built under R version 4.4.3. package 'openxlsx' was built under R version 4.4.3. package 'pbapply' was built under R version 4.4.3. package 'RCurl' was built under R version 4.4.3. package 'readr' was built under R version 4.4.3. package 'readxl' was built under R version 4.4.3. package 'rvest' was built under R version 4.4.3. package 'sfheaders' was built under R version 4.4.3. package 's2' was built under R version 4.4.3. package 'sf' was built under R version 4.4.3. package 'sp' was built under R version 4.4.3. package 'stringi' was built under R version 4.4.3. package 'stringr' was built under R version 4.4.3. no non-missing arguments to max; returning -Inf|could not find packages collapse, geos in library paths
-years_biomes|stem|540f9890e6bf6b8c|3c89b2c04fdb6025|2c530c1562a7fbd1|-1714303944||t20319.7336302914s|s57b|57|rds|local|vector||years_biomes_60f03065b2341407*years_biomes_1d0440b850242374|3.86|package 'collapse' was built under R version 4.4.3. package 'data.table' was built under R version 4.4.3. package 'dplyr' was built under R version 4.4.3. package 'furrr' was built under R version 4.4.3. package 'future' was built under R version 4.4.3. package 'geobr' was built under R version 4.4.3. package 'geos' was built under R version 4.4.3. package 'httr' was built under R version 4.4.3. package 'lwgeom' was built under R version 4.4.3. package 'magrittr' was built under R version 4.4.3. package 'openxlsx' was built under R version 4.4.3. package 'pbapply' was built under R version 4.4.3. package 'RCurl' was built under R version 4.4.3. package 'readr' was built under R version 4.4.3. package 'readxl' was built under R version 4.4.3. package 'rvest' was built under R version 4.4.3. package 'sfheaders' was built under R version 4.4.3. package 's2' was built under R version 4.4.3. package 'sf' was built under R version 4.4.3. package 'sp' was built under R version 4.4.3. package 'stringi' was built under R version 4.4.3. package 'stringr' was built under R version 4.4.3|
-biomes_raw|pattern|85287540d2ed9d05|307da075f25315b3||1440923412||||18921756|rds|local|vector||biomes_raw_a9bdde2db9f33d76*biomes_raw_ba45801899fd74e8|3.7||
-download_biomes|function|7523151676774d64
-download_file|function|3a6b6c7673db47dd
 fix_topoly|function|dd326057bc8670bb
-list_folders|function|bcfbf4f7465afa51
-snake_case_names|function|39b13c29bd266031
 %nin%|function|5c849418054c52ef
-harmonize_projection|function|91bb9d922009f51d
 %nlike%|function|5c849418054c52ef
-to_multipolygon|function|f9fb28bdb97ac472
+remove_z_dimension|function|72499f0edfc83003
+years_biomes|stem|0a2fb745421175e4|3c89b2c04fdb6025|2c530c1562a7fbd1|-1714303944||t20326.9765078274s|s57b|57|rds|local|vector||years_biomes_60f03065b2341407*years_biomes_1d0440b850242374|1.33|package 'collapse' was built under R version 4.3.3. package 'furrr' was built under R version 4.3.3. package 'geobr' was built under R version 4.3.3. package 'geos' was built under R version 4.3.3. package 'httr' was built under R version 4.3.3. package 'lwgeom' was built under R version 4.3.3. package 'openxlsx' was built under R version 4.3.3. package 'RCurl' was built under R version 4.3.3. package 'readr' was built under R version 4.3.3. package 'readxl' was built under R version 4.3.3. package 'rvest' was built under R version 4.3.3. package 'sfheaders' was built under R version 4.3.3. package 'sf' was built under R version 4.3.3. package 'sp' was built under R version 4.3.3. package 'stringi' was built under R version 4.3.3|
+biomes_raw|pattern|61793bd637c31ecf|307da075f25315b3||1440923412||||18921800|rds|local|vector||biomes_raw_a9bdde2db9f33d76*biomes_raw_ba45801899fd74e8|1.58||
+biomes_raw_a9bdde2db9f33d76|branch|e6dd1605e4a6b14e|307da075f25315b3|0799c6301a8deff2|898302848||t20326.9909531215s|s445320b|445320|rds|local|vector|biomes_raw||0.52||
+biomes_raw_ba45801899fd74e8|branch|ba121a5f49f5c021|307da075f25315b3|0799c6301a8deff2|-965964818||t20326.9910271609s|s18476480b|18476480|rds|local|vector|biomes_raw||1.03||
+biomes_clean_e12a14eb015c6d79|branch|e4e121ad0dee3ca6|143ca876c44d3d90|5bf956c052082bbb|989655298|./data/biomes/2004|t20326.9984821695s|s1916928b|1916928|file|local|vector|biomes_clean||2.98|Using an external vector in selections was deprecated in tidyselect 1.1.0. ℹ Please use `all_of()` or `any_of()` instead.   # Was:   data %>% select(snake_colname)    # Now:   data %>% select(all_of(snake_colname))  See <https://tidyselect.r-lib.org/reference/faq-external-vector.html>.. Using an external vector in selections was deprecated in tidyselect 1.1.0. ℹ Please use `all_of()` or `any_of()` instead.   # Was:   data %>% select(id_colname)    # Now:   data %>% select(all_of(id_colname))  See <https://tidyselect.r-lib.org/reference/faq-external-vector.html>.|
+biomes_clean_6310261c1b7c75fb|branch|92b22cbfcc6ed148|143ca876c44d3d90|5a81de25e177591d|-428005352|./data/biomes/2019|t20326.9988551886s|s26128384b|26128384|file|local|vector|biomes_clean||31.72||
+biomes_clean|pattern|d788c8e124c98fdf|143ca876c44d3d90||120468115||||28045312|file|local|vector||biomes_clean_e12a14eb015c6d79*biomes_clean_6310261c1b7c75fb|34.7||
+years_semiarid|stem|3f32d4682901f4d6|cbd42de486c43a65|2c530c1562a7fbd1|-292283846||t20327.0384337597s|s63b|63|rds|local|vector||years_semiarid_d5ecf0bb33dfbcbe*years_semiarid_a009eba4833e4540*years_semiarid_d7731f103501508d*years_semiarid_43a1223249ea92a6|1.25|package 'collapse' was built under R version 4.3.3. package 'furrr' was built under R version 4.3.3. package 'geobr' was built under R version 4.3.3. package 'geos' was built under R version 4.3.3. package 'httr' was built under R version 4.3.3. package 'lwgeom' was built under R version 4.3.3. package 'openxlsx' was built under R version 4.3.3. package 'RCurl' was built under R version 4.3.3. package 'readr' was built under R version 4.3.3. package 'readxl' was built under R version 4.3.3. package 'rvest' was built under R version 4.3.3. package 'sfheaders' was built under R version 4.3.3. package 'sf' was built under R version 4.3.3. package 'sp' was built under R version 4.3.3. package 'stringi' was built under R version 4.3.3|
+semiarid_raw_7e251a50d0b5c323|branch|622d3d4cceb64a8d|f265bdb75af9ce4d|c5a1554c71fc3575|-125168616||t20327.0384417841s|s12002b|12002|rds|local|vector|semiarid_raw||0.3||
+semiarid_raw_bc236c3b9cd0db99|branch|9926a10ff1ecb6b2|f265bdb75af9ce4d|c5a1554c71fc3575|995572689||t20327.038445156s|s13226b|13226|rds|local|vector|semiarid_raw||0.06||
+semiarid_raw_618a6b411254e613|branch|efc4abe9862cf353|f265bdb75af9ce4d|c5a1554c71fc3575|-1668525160||t20327.0384484741s|s13213b|13213|rds|local|vector|semiarid_raw||0.08||
+semiarid_raw_16ee2c04099d24c9|branch|4943d31092890902|f265bdb75af9ce4d|c5a1554c71fc3575|1435868002||t20327.0384515598s|s16082b|16082|rds|local|vector|semiarid_raw||0.05||
+semiarid_raw|pattern|e67974db9920d06b|f265bdb75af9ce4d||-558780657||||54523|rds|local|vector||semiarid_raw_7e251a50d0b5c323*semiarid_raw_bc236c3b9cd0db99*semiarid_raw_618a6b411254e613*semiarid_raw_16ee2c04099d24c9|0.49||
+semiarid_clean_128a3f22808da7f3|branch|2541d9ebf278f76c|9037b1bdf7aaf37d|a3dd8be4c2cbb9eb|-956107927|./data/semiarid/2005|t20327.0387778858s|s3493888b|3493888|file|local|vector|semiarid_clean||2.8||
+semiarid_clean_d917dfa6ab062da9|branch|c805702462375df3|9037b1bdf7aaf37d|8d8bc8e52a288aa9|910039653|./data/semiarid/2017|t20327.0390059262s|s26038272b|26038272|file|local|vector|semiarid_clean||19.41||
+semiarid_clean_9112b5af9ff3e22d|branch|68a5ef9140e0f436|9037b1bdf7aaf37d|b9962a9922f4b236|263222990|./data/semiarid/2021|t20327.0392264214s|s34549760b|34549760|file|local|vector|semiarid_clean||18.61||
+semiarid_clean_572604ff74155e91|branch|e74d23b933084175|9037b1bdf7aaf37d|492835f84e94998a|741912371|./data/semiarid/2022|t20327.0395162576s|s43515904b|43515904|file|local|vector|semiarid_clean||24.54||
+semiarid_clean|pattern|4e5135b5ff1ececa|9037b1bdf7aaf37d||561303988||||107597824|file|local|vector||semiarid_clean_128a3f22808da7f3*semiarid_clean_d917dfa6ab062da9*semiarid_clean_9112b5af9ff3e22d*semiarid_clean_572604ff74155e91|65.36||
+download_biomes|function|760d98128957ea8a
+download_file|function|3a6b6c7673db47dd
+add_region_info|function|52f8962884fe316a
 add_state_info|function|dc769a19f7442ca1
-download_semiarid|function|552664a16d0fc1d0
+fix_topology|function|33a8777624a368eb
+harmonize_projection|function|91bb9d922009f51d
+snake_case_names|function|690ec5dbb9cbb374
+to_multipolygon|function|f9fb28bdb97ac472
 use_encoding_utf8|function|4f174428ce87a762
+list_folders|function|bcfbf4f7465afa51
+download_semiarid|function|552664a16d0fc1d0
 remove_state_repetition|function|f651de43bfd2d54b
 detect_year_from_string|function|7e1010acf860e4c3
 download_amazonialegal|function|d496fec48e302f0a
-add_region_info|function|52f8962884fe316a
-remove_z_dimension|function|72499f0edfc83003
-simplify_temp_sf|function|705c96209836d26c
-dissolve_polygons|function|3f40b4ecbb23c8e2
-clean_biomes|function|be6272a4f2ece93a
+simplify_temp_sf|function|02880e2aae8b4a7f
+dissolve_polygons|function|b4285f1f2b992921
+harmonize_geobr|function|df8dba216e5d7157
 muni_saveraw|function|027c21b5678a4e03
-clean_semiarid|function|9c0d8ed897291cce
-clean_amazonialegal|function|b2e91cab13332a8c
-biomes_raw_a9bdde2db9f33d76|branch|c3b12ac100e2b6f0|307da075f25315b3|84ee1a41836b3b5e|898302848||t20325.5513579869s|s445298b|445298|rds|local|vector|biomes_raw||1.78||
-biomes_raw_ba45801899fd74e8|branch|23a790b4d6e50483|307da075f25315b3|84ee1a41836b3b5e|-965964818||t20325.5514458112s|s18476458b|18476458|rds|local|vector|biomes_raw||2.69||
-biomes_clean_e12a14eb015c6d79|branch||143ca876c44d3d90|e96efb7ea1745fa9|989655298||t20321.9548193595s||0|file|local|vector|biomes_clean||0.83||object 'Bioma' not found
+clean_semiarid|function|e721cecf85732403
+clean_amazonialegal|function|f509899cd13f3871
+clean_biomes|function|fcfe8008d6021f7f
+amazonialegal_raw|stem|0d615512d9434b92|c7db07574161f53e|f385543d3a582df9|-1787579839||t20327.0406406378s|s177157b|177157|rds|local|vector|||1.51|package 'collapse' was built under R version 4.3.3. package 'furrr' was built under R version 4.3.3. package 'geobr' was built under R version 4.3.3. package 'geos' was built under R version 4.3.3. package 'httr' was built under R version 4.3.3. package 'lwgeom' was built under R version 4.3.3. package 'openxlsx' was built under R version 4.3.3. package 'RCurl' was built under R version 4.3.3. package 'readr' was built under R version 4.3.3. package 'readxl' was built under R version 4.3.3. package 'rvest' was built under R version 4.3.3. package 'sfheaders' was built under R version 4.3.3. package 'sf' was built under R version 4.3.3. package 'sp' was built under R version 4.3.3. package 'stringi' was built under R version 4.3.3|
+amazonialegal_clean|stem|fb463f04f2c87fbf|95159e5d240411f4|e4998c2a415af63c|-1296395540|./data/amazonia_legal/|t20327.0406575871s|s897024b|897024|file|local|vector|||1.16||

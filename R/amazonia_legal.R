@@ -109,7 +109,7 @@ temp_sf5 <- temp_sf3 %>% st_sf() %>% st_zm( drop = T, what = "ZM")
 ###### 6. fix eventual topology issues in the data-----------------
 
 ##### Make any invalid geometry valid # st_is_valid( sf)
-temp_sf6 <- sf::st_make_valid(temp_sf5)
+temp_sf6 <- fix_topology(temp_sf5)
 
 
 ###### convert to MULTIPOLYGON -----------------
