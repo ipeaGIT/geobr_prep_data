@@ -48,6 +48,6 @@ dissolve_polygons|function|b4285f1f2b992921
 harmonize_geobr|function|df8dba216e5d7157
 muni_saveraw|function|027c21b5678a4e03
 clean_semiarid|function|e721cecf85732403
-clean_amazonialegal|function|1d3dc9d5c531b4dc
+clean_amazonialegal|function|aa66cfacbf5e02d4
 clean_biomes|function|fcfe8008d6021f7f
-amazonialegal_clean|stem|db4549a32dd07dde|95159e5d240411f4|fc09388a157849a3|-1296395540|./data/amazonia_legal/|t20327.9275170675s|s897024b|897024|file|local|vector|||1.21||
+amazonialegal_clean|stem|f6c63de1c89ce3f9|95159e5d240411f4|f07034ad60d9f1a3|-1296395540|./data/amazonia_legal/|t20328.7439569551s|s897024b|897024|file|local|vector|||1.8||

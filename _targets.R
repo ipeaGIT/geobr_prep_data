@@ -95,7 +95,7 @@ list(
   tar_target(name = biomes_clean,
              command = clean_biomes(biomes_raw, years_biomes),
              pattern = map(biomes_raw, years_biomes),
-             format = 'file'),
+             format = 'file')
 
 #4. Grade estatística ----
 

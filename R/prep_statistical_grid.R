@@ -1,35 +1,35 @@
-#> DATASET: statistical grid ###ano, ano
-#> Source: IBGE - https://geoftp.ibge.gov.br/informacoes_ambientais/estudos_ambientais/biomas/
-#: scale 1:5.000.000
-#> Metadata:
-# Título: Biomas
-# Título alternativo: Biomes
-# Frequência de atualização: Ocasional
+#> DATASET: statistical grid 2010
+#> Source: ###### IBGE - ftp://geoftp.ibge.gov.br/recortes_para_fins_estatisticos/grade_estatistica/censo_2010/
+#########: scale 1:5.000.000
+#> Metadata: #####
+# Título: Grade Estatística
+# Título alternativo: Statistical Grid 2010 Census
+# Frequência de atualização: Ocasionalmente
 #
-# Forma de apresentação: Shape
+# Forma de apresentação: #####Shape
 # Linguagem: Pt-BR
 # Character set: UTF-8
 #
-# Resumo: Poligonos e Pontos do biomas brasileiros.
-# Informações adicionais: Dados produzidos pelo IBGE, e utilizados na elaboracao do shape de biomas com a melhor base oficial disponivel.
-# Proposito: Identificao dos biomas brasileiros.
+# Resumo: ##### Poligonos e Pontos do biomas brasileiros.
+# Informações adicionais: Dados produzidos pelo IBGE, e utilizados na elaboracao do shape da base estatística com a melhor base oficial disponível.
+# Propósito: Disponibilização da grade estatística do Brasil.
 #
 # Estado: Em desenvolvimento
-# Palavras chaves descritivas:****
-# Informacao do Sistema de Referencia: SIRGAS 2000
+# Palavras chaves descritivas: ****
+# Informação do Sistema de Referência: #####SIRGAS 2000
 #
-# Observações: Anos disponíveis: 2004 e 2019*
-# *O ano de 2019 é referente aos biomas terrestres do IBGE do sistema costeiro de 2024
+# Observações: 
+# Anos disponíveis: 2010
 
 
-
-###### Download the data  -----------------
-download_statsgrid <- function(year){ # year = 2019
-
-
-
-
-
+# 
+# ###### Download the data  -----------------
+# download_statsgrid <- function(year){ # year = 2010
+# 
+# 
+# 
+# 
+# 
 
 # 
 # ###### 0. Create folders to save the data -----------------

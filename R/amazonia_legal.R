@@ -78,37 +78,37 @@ clean_amazonialegal <- function(amazonialegal_raw){
    amazonialegal_raw$GID0 <- NULL
    amazonialegal_raw$ID1 <- NULL
 
+   
+###### 3. Apply geobr cleaning -----------------
 
-###### 3. ensure the data uses spatial projection SIRGAS 2000 epsg (SRID): 4674-----------------
+   temp_sf <- harmonize_geobr(
+     temp_sf = amazonialegal_raw, 
+     add_state = F, 
+     add_region = F, 
+     add_snake_case = F, 
+     #snake_colname = snake_colname,
+     projection_fix = T, # OK
+     encoding_utf8 = F, 
+     topology_fix = T, #OK
+     remove_z_dimension = T, # OK
+     use_multipolygon = T #OK
+   )
 
-temp_sf3 <- harmonize_projection(amazonialegal_raw)
-
-
-# remove Z dimension of spatial data
-temp_sf5 <- temp_sf3 %>% st_sf() %>% st_zm( drop = T, what = "ZM")
-
-
-##### Make any invalid geometry valid # st_is_valid( sf)
-temp_sf6 <- fix_topology(temp_sf5)
-
-
-###### convert to MULTIPOLYGON -----------------
-temp_sf6 <- to_multipolygon(temp_sf6)
-
-
-###### 7. generate a lighter version of the dataset with simplified borders -----------------
+glimpse(temp_sf)
+   
+###### 4. generate a lighter version of the dataset with simplified borders -----------------
 # skip this step if the dataset is made of points, regular spatial grids or rater data
 
 # simplify
-temp_sf7 <- simplify_temp_sf(temp_sf6)
-head(temp_sf7)
+temp_sf2 <- simplify_temp_sf(temp_sf)
+head(temp_sf2)
 
 
-###### 8. Clean data set and save it in geopackage format-----------------
+###### 5. Clean data set and save it in geopackage format-----------------
 
 #save original and simplified datasets
-sf::st_write(temp_sf6, append = FALSE, dsn = paste0(dir_clean, "amazonialegal", ".gpkg") )
-sf::st_write(temp_sf7, append = FALSE, dsn = paste0(dir_clean, "amazonialegal","_simplified", ".gpkg"))
+sf::st_write(temp_sf, append = FALSE, dsn = paste0(dir_clean, "amazonialegal", ".gpkg") )
+sf::st_write(temp_sf2, append = FALSE, dsn = paste0(dir_clean, "amazonialegal","_simplified", ".gpkg"))
 
 return(dir_clean)
 }
