@@ -1,23 +1,23 @@
 #> DATASET: Brazilian semi-arid
 #> Source: IBGE - https://www.ibge.gov.br/geociencias/cartas-e-mapas/mapas-regionais/15974-semiarido-brasileiro.html?=&t=downloads
 #> Metadata:
-# Titulo: Semiárido brasileiro
-# Titulo alternativo: Semiarido brasileiro
-# Frequencia de atualizacao: Ocasional
+# Título: Semiárido brasileiro
+# Título alternativo: Semiarido brasileiro
+# Frequência de atualização: Ocasional
 #
-# Forma de apresentacao: Shape
+# Forma de apresentação: Shape
 # Linguagem: Pt-BR
 # Character set: UTF-8
 #
 # Resumo: Polígonos e Pontos do semiárido brasileiro.
-# Informacoes adicionais: Dados produzidos pelo IBGE com base em decretos administrativos do Ministério da Integração Nacional.
+# Informações adicionais: Dados produzidos pelo IBGE com base em decretos administrativos do Ministério da Integração Nacional.
 # -"Resolução nº 115 do Ministério da Integração Nacional, de 23 de novembro de 2017"
 # -"Portaria N°89 de 16 de março de 2005, do Ministério da Integração Nacional"
-# Proposito: Identificação do clima semiárido brasileiro.
+# Propósito: Identificação do clima semiárido brasileiro.
 
 # Estado: Em desenvolvimento
-# Palavras chaves descritivas:****
-# Informacao do Sistema de Referencia: SIRGAS 2000
+# Palavras-chaves descritivas:****
+# Informação do Sistema de Referência: SIRGAS 2000
 
 
 

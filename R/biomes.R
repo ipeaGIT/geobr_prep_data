@@ -12,11 +12,11 @@
 #
 # Resumo: Poligonos e Pontos do biomas brasileiros.
 # Informações adicionais: Dados produzidos pelo IBGE, e utilizados na elaboracao do shape de biomas com a melhor base oficial disponivel.
-# Proposito: Identificao dos biomas brasileiros.
+# Propósito: Identifição dos biomas brasileiros.
 #
 # Estado: Em desenvolvimento
-# Palavras chaves descritivas:****
-# Informacao do Sistema de Referencia: SIRGAS 2000
+# Palavras-chaves descritivas:****
+# Informação do Sistema de Referência: SIRGAS 2000
 #
 # Observações: Anos disponíveis: 2004 e 2019*
 # *O ano de 2019 é referente aos biomas terrestres do IBGE do sistema costeiro de 2024
@@ -106,8 +106,6 @@ download_biomes <- function(year){ # year = 2019
 
 
 # Clean the data ----------------------------------
-# biomes_raw <- tar_read(biomes_raw, branches = 2)
-# year <- tar_read(years_biomes, branches = 1)
 
 clean_biomes <- function(biomes_raw, year) {
   

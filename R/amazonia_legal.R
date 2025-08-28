@@ -14,7 +14,7 @@
 # Propósito: Identificaçãao da Amazônia legal.
 #
 # Estado: Em desenvolvimento
-# Palavras chaves descritivas:****
+# Palavras-chaves descritivas:****
 # Informação do Sistema de Referência: SIRGAS 2000
 
 

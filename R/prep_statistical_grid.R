@@ -15,29 +15,47 @@
 # Propósito: Disponibilização da grade estatística do Brasil.
 #
 # Estado: Em desenvolvimento
-# Palavras chaves descritivas: ****
+# Palavras-chaves descritivas: ****
 # Informação do Sistema de Referência: #####SIRGAS 2000
 #
 # Observações: 
 # Anos disponíveis: 2010
 
 
-# 
-# ###### Download the data  -----------------
-# download_statsgrid <- function(year){ # year = 2010
-# 
-# 
-# 
-# 
-# 
+####### Download the data  -----------------
+ download_statsgrid <- function(){ # year = 2010
 
+   #### 0. Get the correct ftp link (UPDATE HERE IN CASE OF NEW YEAR IN THE DATA)
+   
+   # if(year == 2004) {
+   #   ftp <- 'https://geoftp.ibge.gov.br/informacoes_ambientais/estudos_ambientais/biomas/vetores/Biomas_5000mil.zip'
+   # }
+   # 
+   # if(year == 2019) {
+   #   ftp <- 'https://geoftp.ibge.gov.br/informacoes_ambientais/estudos_ambientais/biomas/vetores/Biomas_250mil.zip'
+   #   ftp_costeiro <- 'https://geoftp.ibge.gov.br/informacoes_ambientais/estudos_ambientais/biomas/vetores/Sistema_Costeiro_Marinho_250mil.zip'
+   #   
+   #   file_raw_costeiro <- fs::file_temp(ext = fs::path_ext(ftp_costeiro))
+   #   
+   # }
+   
+   
+   file_raw <- fs::file_temp(ext = fs::path_ext(ftp))
+   tmp_dir <- tempdir()
+   
+   
+   
+   
+   return(statsgrid_raw)
+   
+   }
+   
+###### 0. Create folders to save the data -----------------
 # 
-# ###### 0. Create folders to save the data -----------------
-# 
-# # Directory to keep raw zipped files
+# Directory to keep raw zipped files
 #   dir.create("L:////# DIRUR #//ASMEQ//geobr//data-raw//grade_estatistica")
 #   dir.create("L:////# DIRUR #//ASMEQ//geobr//data-raw//grade_estatistica//2010")
-# 
+
 # # Directory to keep raw sf files
 #   dir.create("L:////# DIRUR #//ASMEQ//geobr//data-raw//grade_estatistica//shapes_in_sf_all_years_original")
 #   dir.create("L:////# DIRUR #//ASMEQ//geobr//data-raw//grade_estatistica//shapes_in_sf_all_years_original//2010")
@@ -89,11 +107,22 @@
 # # nah
 # 
 # ###### 3. Save cleaned data sets downloaded from IBGE in compact .rds format-----------------
-# 
-# # Root directory
-#   root_dir <- "L:////# DIRUR #//ASMEQ//geobr//data-raw//grade_estatistica//2010"
-#   setwd(root_dir)
-# 
+
+
+# Clean the data ----------------------------------
+  clean_statsgrid <- function(statsgrid_raw) {
+
+  # 0. Create folder to save clean data
+    
+  dir_clean <- paste0("./data/statistical_grid/")
+  dir.create(dir_clean, recursive = T, showWarnings = FALSE)
+  
+  # 1. harmonize geobr data
+  # 4. Save file
+  
+  return(dir_clean)
+  }
+
 # 
 # # list all shape files
 #   all_shapes <- list.files(full.names = T, recursive = T, pattern = ".shp")
