@@ -112,11 +112,6 @@ download_semiarid <- function(year){ # year = 2022
 }
 
 
-# tar_load(names = munis_semiarid, branches = 1)
-# tar_load(names = years_semiarid, branches = 1)
-
-
-
 ##### Clean the data   -----------------
 clean_semiarid <- function(munis_semiarid, year) { 
   
@@ -133,16 +128,28 @@ clean_semiarid <- function(munis_semiarid, year) {
                                         year = year,
                                         simplified = FALSE)
   
+  #### 3. Apply geobr cleaning -----------------
+  
+  temp_sf <- harmonize_geobr(
+    temp_sf = all_munis, 
+    add_state = F, 
+    add_region = F, 
+    add_snake_case = F, 
+    #snake_colname = snake_colname,
+    projection_fix = T, 
+    encoding_utf8 = F, 
+    topology_fix = T, 
+    remove_z_dimension = F,
+    use_multipolygon = F
+  )
+  
+  glimpse(temp_sf)
+  
   # subset municipalities
-  temp_sf <- subset(all_munis, code_muni %in% munis_semiarid$code_muni)
-  
-  # Harmonize spatial projection CRS, using SIRGAS 2000 epsg (SRID): 4674
-  temp_sf <- harmonize_projection(temp_sf)
-  
-  # Make any invalid geometry valid # st_is_valid( sf)
-  temp_sf <- fix_topology(temp_sf)
-  
-  # 4 lighter version
+  temp_sf <- subset(temp_sf, code_muni %in% munis_semiarid$code_muni)
+
+
+  #### 4. lighter version --------------- 
   temp_sf_simplified <- simplify_temp_sf(temp_sf, tolerance = 100)
   
   #### 3. Save data set -----------------
@@ -150,7 +157,3 @@ clean_semiarid <- function(munis_semiarid, year) {
   sf::st_write(temp_sf_simplified, dsn= paste0(dir_clean,"/semiarid_", year, "_simplified.gpkg"), delete_dsn=TRUE )
   return(dir_clean)
 }
-
-# Clean every semiarid database  -----------------
-# clean_semiarid( download_semiarid(2005), 2005 )
-#  clean_semiarid( download_semiarid(2017) )

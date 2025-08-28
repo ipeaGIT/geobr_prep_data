@@ -21,14 +21,10 @@ semiarid_raw|pattern|d232a3821da29890|f265bdb75af9ce4d||-558780657||||54522|rds|
 biomes_raw_a9bdde2db9f33d76|branch|fd37f3b0f502c51d|307da075f25315b3|0799c6301a8deff2|898302848||t20327.8116568185s|s445320b|445320|rds|local|vector|biomes_raw||0.61||
 biomes_raw_ba45801899fd74e8|branch|bc2b42cc6b6d7eba|307da075f25315b3|0799c6301a8deff2|-965964818||t20327.8117536691s|s18476480b|18476480|rds|local|vector|biomes_raw||1.56||
 biomes_raw|pattern|7f1b64b0ab68819a|307da075f25315b3||1440923412||||18921800|rds|local|vector||biomes_raw_a9bdde2db9f33d76*biomes_raw_ba45801899fd74e8|2.17||
-semiarid_clean_128a3f22808da7f3|branch|df3368b9aee96b78|9037b1bdf7aaf37d|8523b551486f7569|-956107927|./data/semiarid/2005|t20327.8118308441s|s3493888b|3493888|file|local|vector|semiarid_clean||6.35||
-semiarid_clean_d917dfa6ab062da9|branch|a3a5b3f7de932782|9037b1bdf7aaf37d|1d439283460a52e9|910039653|./data/semiarid/2017|t20327.8120217413s|s26042368b|26042368|file|local|vector|semiarid_clean||16.14||
-semiarid_clean_9112b5af9ff3e22d|branch|75c5f7c4292978ff|9037b1bdf7aaf37d|ed572817039b7a90|263222990|./data/semiarid/2021|t20327.8122677147s|s34541568b|34541568|file|local|vector|semiarid_clean||20.8||
-semiarid_clean_572604ff74155e91|branch|034720d6c5f9c7c4|9037b1bdf7aaf37d|ea601a3f80a85b19|741912371|./data/semiarid/2022|t20327.8125695048s|s43503616b|43503616|file|local|vector|semiarid_clean||25.56||
-semiarid_clean|pattern|8cef66a3124a44dd|9037b1bdf7aaf37d||561303988||||107581440|file|local|vector||semiarid_clean_128a3f22808da7f3*semiarid_clean_d917dfa6ab062da9*semiarid_clean_9112b5af9ff3e22d*semiarid_clean_572604ff74155e91|68.85||
 biomes_clean_e12a14eb015c6d79|branch|f509bf592866b8bb|143ca876c44d3d90|f4e4aead4ca40c55|989655298|./data/biomes/2004|t20327.8126049106s|s1916928b|1916928|file|local|vector|biomes_clean||2.39|Using an external vector in selections was deprecated in tidyselect 1.1.0. ℹ Please use `all_of()` or `any_of()` instead.   # Was:   data %>% select(snake_colname)    # Now:   data %>% select(all_of(snake_colname))  See <https://tidyselect.r-lib.org/reference/faq-external-vector.html>.. Using an external vector in selections was deprecated in tidyselect 1.1.0. ℹ Please use `all_of()` or `any_of()` instead.   # Was:   data %>% select(id_colname)    # Now:   data %>% select(all_of(id_colname))  See <https://tidyselect.r-lib.org/reference/faq-external-vector.html>.|
 biomes_clean_6310261c1b7c75fb|branch|7e82e294828d20bd|143ca876c44d3d90|46ab1cfb853c9d0e|-428005352|./data/biomes/2019|t20327.8129906369s|s26124288b|26124288|file|local|vector|biomes_clean||32.87||
 biomes_clean|pattern|31c4bb5e26446b8c|143ca876c44d3d90||120468115||||28041216|file|local|vector||biomes_clean_e12a14eb015c6d79*biomes_clean_6310261c1b7c75fb|35.26||
+amazonialegal_clean|stem|f6c63de1c89ce3f9|95159e5d240411f4|f07034ad60d9f1a3|-1296395540|./data/amazonia_legal/|t20328.7439569551s|s897024b|897024|file|local|vector|||1.8||
 download_biomes|function|760d98128957ea8a
 download_file|function|3a6b6c7673db47dd
 add_region_info|function|52f8962884fe316a
@@ -47,7 +43,11 @@ simplify_temp_sf|function|02880e2aae8b4a7f
 dissolve_polygons|function|b4285f1f2b992921
 harmonize_geobr|function|df8dba216e5d7157
 muni_saveraw|function|027c21b5678a4e03
-clean_semiarid|function|e721cecf85732403
+clean_semiarid|function|e74b6046fc52b10f
 clean_amazonialegal|function|aa66cfacbf5e02d4
 clean_biomes|function|fcfe8008d6021f7f
-amazonialegal_clean|stem|f6c63de1c89ce3f9|95159e5d240411f4|f07034ad60d9f1a3|-1296395540|./data/amazonia_legal/|t20328.7439569551s|s897024b|897024|file|local|vector|||1.8||
+semiarid_clean_128a3f22808da7f3|branch|1915ba4fb500d070|9037b1bdf7aaf37d|0cc8d715ac2453df|-956107927|./data/semiarid/2005|t20328.8311902762s|s3502080b|3502080|file|local|vector|semiarid_clean||8.24||
+semiarid_clean_d917dfa6ab062da9|branch|c9bbbbb556162717|9037b1bdf7aaf37d|2045369c6bd8e9d0|910039653|./data/semiarid/2017|t20328.8317406217s|s26042368b|26042368|file|local|vector|semiarid_clean||47.21||
+semiarid_clean_9112b5af9ff3e22d|branch|3087bd926ca6072a|9037b1bdf7aaf37d|fd732c83b9b3c7bb|263222990|./data/semiarid/2021|t20328.8325666635s|s34541568b|34541568|file|local|vector|semiarid_clean||70.89||
+semiarid_clean_572604ff74155e91|branch|ce0c0933a3438760|9037b1bdf7aaf37d|288879f9cf487cef|741912371|./data/semiarid/2022|t20328.8335997067s|s43503616b|43503616|file|local|vector|semiarid_clean||88.59||
+semiarid_clean|pattern|f5f3a0a078aea55e|9037b1bdf7aaf37d||561303988||||107589632|file|local|vector||semiarid_clean_128a3f22808da7f3*semiarid_clean_d917dfa6ab062da9*semiarid_clean_9112b5af9ff3e22d*semiarid_clean_572604ff74155e91|214.93||

@@ -87,17 +87,16 @@ clean_amazonialegal <- function(amazonialegal_raw){
      add_region = F, 
      add_snake_case = F, 
      #snake_colname = snake_colname,
-     projection_fix = T, # OK
+     projection_fix = T,
      encoding_utf8 = F, 
-     topology_fix = T, #OK
-     remove_z_dimension = T, # OK
-     use_multipolygon = T #OK
+     topology_fix = T,
+     remove_z_dimension = T,
+     use_multipolygon = T
    )
 
 glimpse(temp_sf)
    
 ###### 4. generate a lighter version of the dataset with simplified borders -----------------
-# skip this step if the dataset is made of points, regular spatial grids or rater data
 
 # simplify
 temp_sf2 <- simplify_temp_sf(temp_sf)
