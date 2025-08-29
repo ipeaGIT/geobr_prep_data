@@ -97,20 +97,22 @@ list(
              pattern = map(biomes_raw, years_biomes),
              format = 'file'),
 
-#4. Grade estatística ----
+  #4. Grade estatística ----
 
-# # year input
-# tar_target(name = years_biomes,
-#            command = c(2004, 2019)),
+# year input
+tar_target(name = years_statsgrid,
+           command = c(2010, 2022))
+
+# # download
+# tar_target(name = statsgrid_raw,
+#            command = download_statsgrid(years_statsgrid),
+#            pattern = map(years_statsgrid)),
 # 
-  # download
-tar_target(name = statsgrid_raw,
-           command = download_statsgrid()),
-
-  # clean
-tar_target(name = statsgrid_clean,
-           command = clean_statsgrid(statsgrid_raw),
-           format = 'file')
+#   # clean
+# tar_target(name = statsgrid_clean,
+#            command = clean_statsgrid(statsgrid_raw),
+#            pattern = map(statsgrid_raw, years_statsgrid)),
+#            format = 'file')
 )
 
 

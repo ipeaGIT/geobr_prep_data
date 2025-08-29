@@ -25,6 +25,18 @@
 ####### Download the data  -----------------
  download_statsgrid <- function(){ # year = 2010
 
+   ftp_url <- 'https://geoftp.ibge.gov.br/informacoes_ambientais/estudos_ambientais/biomas/vetores/Biomas_5000mil.zip'
+   
+   # Get the directory listing as a character string
+   listing <- getURL(ftp_url, dirlistonly = TRUE)
+   
+   # Split the string into individual file/directory names
+   files <- strsplit(listing, "\n")[[1]]
+   
+   # Print the list of files
+   print(files)
+   
+   
    #### 0. Get the correct ftp link (UPDATE HERE IN CASE OF NEW YEAR IN THE DATA)
    
    # if(year == 2004) {
@@ -76,11 +88,13 @@
 # 
 # ###### 1. Download 2010 Raw data -----------------
 # 
-# url = "ftp://geoftp.ibge.gov.br/recortes_para_fins_estatisticos/grade_estatistica/censo_2010/"
-# filenames = getURL(url, ftp.use.epsv = FALSE, dirlistonly = TRUE)
-# filenames <- strsplit(filenames, "\r\n")
-# filenames = unlist(filenames)
-# 
+url = "ftp://geoftp.ibge.gov.br/recortes_para_fins_estatisticos/grade_estatistica/censo_2010/"
+filenames = getURL(url, ftp.use.epsv = FALSE, dirlistonly = TRUE)
+filenames <- strsplit(filenames, "\r\n")
+filenames = unlist(filenames)
+
+list_folders(url)
+
 # 
 # # Download zipped files
 #   for (filename in filenames) {
