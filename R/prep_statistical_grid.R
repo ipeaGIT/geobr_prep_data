@@ -1,9 +1,9 @@
-#> DATASET: statistical grid 2010
+#> DATASET: statistical grid 2010, 2022
 #> Source: ###### IBGE - ftp://geoftp.ibge.gov.br/recortes_para_fins_estatisticos/grade_estatistica/censo_2010/
 #########: scale 1:5.000.000
 #> Metadata: #####
 # Título: Grade Estatística
-# Título alternativo: Statistical Grid 2010 Census
+# Título alternativo: #####Statistical Grid 2010 Census
 # Frequência de atualização: Ocasionalmente
 #
 # Forma de apresentação: #####Shape
@@ -19,88 +19,73 @@
 # Informação do Sistema de Referência: #####SIRGAS 2000
 #
 # Observações: 
-# Anos disponíveis: 2010
+# Anos disponíveis: 2010, 2022
 
 
 ####### Download the data  -----------------
  download_statsgrid <- function(){ # year = 2010
 
-   ftp_url <- 'https://geoftp.ibge.gov.br/informacoes_ambientais/estudos_ambientais/biomas/vetores/Biomas_5000mil.zip'
+### USE temporariamente
+   library(targets)
+   library(tidyverse)
+   library(data.table)
+   library(RCurl)
+   source("./R/support_harmonize_geobr.R")
+   source("./R/support_fun.R")
+
+###### 0. Get the correct url and file names -----------------
    
-   # Get the directory listing as a character string
-   listing <- getURL(ftp_url, dirlistonly = TRUE)
+   if(year == 2010) {
+     url = "ftp://geoftp.ibge.gov.br/recortes_para_fins_estatisticos/grade_estatistica/censo_2010/"
+   }
    
-   # Split the string into individual file/directory names
-   files <- strsplit(listing, "\n")[[1]]
-   
-   # Print the list of files
-   print(files)
-   
-   
-   #### 0. Get the correct ftp link (UPDATE HERE IN CASE OF NEW YEAR IN THE DATA)
-   
-   # if(year == 2004) {
-   #   ftp <- 'https://geoftp.ibge.gov.br/informacoes_ambientais/estudos_ambientais/biomas/vetores/Biomas_5000mil.zip'
-   # }
-   # 
-   # if(year == 2019) {
-   #   ftp <- 'https://geoftp.ibge.gov.br/informacoes_ambientais/estudos_ambientais/biomas/vetores/Biomas_250mil.zip'
-   #   ftp_costeiro <- 'https://geoftp.ibge.gov.br/informacoes_ambientais/estudos_ambientais/biomas/vetores/Sistema_Costeiro_Marinho_250mil.zip'
-   #   
-   #   file_raw_costeiro <- fs::file_temp(ext = fs::path_ext(ftp_costeiro))
-   #   
-   # }
+   if(year == 2022) {
+     url = "https://geoftp.ibge.gov.br/recortes_para_fins_estatisticos/grade_estatistica/censo_2022/grade_estatistica/"
+   }
    
    
-   file_raw <- fs::file_temp(ext = fs::path_ext(ftp))
+###### 1. Create temp folder -----------------
+   
+   file_raw <- fs::file_temp(ext = fs::path_ext(url))
    tmp_dir <- tempdir()
    
+#### Generate file names
+   filenames = getURL(url, ftp.use.epsv = FALSE, dirlistonly = TRUE)
+   filenames <- strsplit(filenames, "\r\n")
+   filenames = unlist(filenames)
    
+   filenames <- subset(filenames, grepl(filenames, pattern = ".zip"), value = TRUE)
+   
+   
+   #list_folders(url) #não funciona
+   
+#### Create direction for each download
+   
+list_files_download <- paste0(url, filenames)
+
+###### 2. Download Raw data -----------------
+
+# Download zipped files
+  for (name_file in filenames) {
+    download.file(paste(url, name_file, sep = ""), paste(tmp_dir, name_file, sep = "\\"))
+
+  }
+
+###
+
+
+
    
    
    return(statsgrid_raw)
    
    }
    
-###### 0. Create folders to save the data -----------------
-# 
-# Directory to keep raw zipped files
-#   dir.create("L:////# DIRUR #//ASMEQ//geobr//data-raw//grade_estatistica")
-#   dir.create("L:////# DIRUR #//ASMEQ//geobr//data-raw//grade_estatistica//2010")
 
-# # Directory to keep raw sf files
-#   dir.create("L:////# DIRUR #//ASMEQ//geobr//data-raw//grade_estatistica//shapes_in_sf_all_years_original")
-#   dir.create("L:////# DIRUR #//ASMEQ//geobr//data-raw//grade_estatistica//shapes_in_sf_all_years_original//2010")
-# 
-# # Directory to keep cleaned sf files
-#   dir.create("L:////# DIRUR #//ASMEQ//geobr//data-raw//grade_estatistica//shapes_in_sf_all_years_cleaned")
-#   dir.create("L:////# DIRUR #//ASMEQ//geobr//data-raw//grade_estatistica//shapes_in_sf_all_years_cleaned//2010")
-# 
-# 
-# 
-# # Root directory
-# root_dir <- "L:////# DIRUR #//ASMEQ//geobr//data-raw//grade_estatistica//2010"
-# setwd(root_dir)
-# 
-# 
-# 
-# 
-# 
-# ###### 1. Download 2010 Raw data -----------------
-# 
-url = "ftp://geoftp.ibge.gov.br/recortes_para_fins_estatisticos/grade_estatistica/censo_2010/"
-filenames = getURL(url, ftp.use.epsv = FALSE, dirlistonly = TRUE)
-filenames <- strsplit(filenames, "\r\n")
-filenames = unlist(filenames)
+ 
+ 
+ 
 
-list_folders(url)
-
-# 
-# # Download zipped files
-#   for (filename in filenames) {
-#     download.file(paste(url, filename, sep = ""), paste(filename))
-#   }
-# 
 # 
 # 
 # 
