@@ -31,6 +31,7 @@ tar_option_set(
                'sp',
                'stringi',
                'stringr',
+               'tidyverse',
                'utils'
                )
   )
@@ -101,7 +102,7 @@ list(
 
 # year input
 tar_target(name = years_statsgrid,
-           command = c(2010, 2022))
+           command = c(2010, 2022)),
 
 # # download
 # tar_target(name = statsgrid_raw,
@@ -113,8 +114,20 @@ tar_target(name = years_statsgrid,
 #            command = clean_statsgrid(statsgrid_raw),
 #            pattern = map(statsgrid_raw, years_statsgrid)),
 #            format = 'file')
+
+  #5. Estabelecimentos de saúde ----
+
+# download
+tar_target(name = healthfacilities_raw,
+           command = download_healthfacilities())
+
+#   # clean
+# tar_target(name = healthfacilities_clean,
+#            command = clean_healthfacilities(healthfacilities_raw),
+#            format = 'file')
 )
 
+##################### UNTIL HERE UPDATED ---------------------
 
 # # 3. Municipios ----------------------------------------------------------
 # 

@@ -29,11 +29,12 @@
    library(targets)
    library(tidyverse)
    library(data.table)
+   library(mirai)
    library(RCurl)
    source("./R/support_harmonize_geobr.R")
    source("./R/support_fun.R")
 
-###### 0. Get the correct url and file names -----------------
+  ###### 0. Get the correct url and file names -----------------
    
    if(year == 2010) {
      url = "ftp://geoftp.ibge.gov.br/recortes_para_fins_estatisticos/grade_estatistica/censo_2010/"
@@ -44,76 +45,91 @@
    }
    
    
-###### 1. Create temp folder -----------------
+  ###### 1. Create temp folder -----------------
    
    file_raw <- fs::file_temp(ext = fs::path_ext(url))
    tmp_dir <- tempdir()
    
-#### Generate file names
+  #### Generate file names
    filenames = getURL(url, ftp.use.epsv = FALSE, dirlistonly = TRUE)
    filenames <- strsplit(filenames, "\r\n")
    filenames = unlist(filenames)
    
+   # Filter only the zip ones
    filenames <- subset(filenames, grepl(filenames, pattern = ".zip"), value = TRUE)
    
    
    #list_folders(url) #não funciona
    
-#### Create direction for each download
+  #### Create direction for each download
+     
+  list_files_download <- paste0(url, filenames)
+  
+  ###### 2. Download Raw data -----------------
+  
+  # Download zipped files
+    for (name_file in filenames) {
+      download.file(paste(url, name_file, sep = ""), paste(tmp_dir, name_file, sep = "\\"))
+   print("Done")
+    }
+
+  ###### 3. Unzip Raw data -----------------
+  
+  # directory of zips
+  zip_names <- list.files(tmp_dir, pattern = "\\.zip", full.names = TRUE)
+  
+  # zip folder
+  out_zip <- paste0(tmp_dir, "/unzipped")
+  dir.create(out_zip, showWarnings = FALSE, recursive = TRUE)
+  dir.exists(out_zip)
+
+  pbapply::pblapply(
+    X = zip_names, 
+    FUN = function(x){ unzip(zipfile = x, exdir = out_zip) }
+      )
+  
+  # #### 666666 paralelizacao
+  # # numero de cores
+  # mirai::daemons(28)
+  # 
+  # mirai::mirai_map(
+  #   .x = zip_names, 
+  #   .f = function(x){ unzip(zipfile = x, exdir = out_zip) },
+  #   .progress = T
+  # )
+  # mirai::daemons(0)
+  
+
+
+
+
+  ###### 4. Bind Raw data together -----------------
+  
+  shp_names <- list.files(out_zip, pattern = "\\.shp$", full.names = TRUE)
+  # shp_names <- shp_names[1:2]
+  
+  # paralelizar ?
+  statsgrid_list <- pbapply::pblapply(
+    X = shp_names, 
+    FUN = function(x){ sf::st_read(x, quiet = T, stringsAsFactors=F) }
+    )
+  
+  statsgrid_raw <- data.table::rbindlist(statsgrid_list)
+  data.table::setDF(statsgrid_raw)
+  statsgrid_raw <- sf::st_as_sf(statsgrid_raw)
+
+
+  return(statsgrid_raw)
+}
    
-list_files_download <- paste0(url, filenames)
-
-###### 2. Download Raw data -----------------
-
-# Download zipped files
-  for (name_file in filenames) {
-    download.file(paste(url, name_file, sep = ""), paste(tmp_dir, name_file, sep = "\\"))
-
-  }
-
-###
-
-
-
-   
-   
-   return(statsgrid_raw)
-   
-   }
-   
-
- 
- 
- 
-
-# 
-# 
-# 
-# 
-# 
-# 
-# 
-# 
-# 
-# ###### 2. Unzip Raw data -----------------
-# 
-# for (filename in filenames[-c(1,2)]) {
-#   unzip(paste(filename))
-# }
-# 
-# ###### 3. Save original data sets downloaded from IBGE in compact .rds format-----------------
-# 
-# # nah
-# 
-# ###### 3. Save cleaned data sets downloaded from IBGE in compact .rds format-----------------
 
 
 # Clean the data ----------------------------------
-  clean_statsgrid <- function(statsgrid_raw) {
+  clean_statsgrid <- function(year, statsgrid_raw) {
 
   # 0. Create folder to save clean data
     
-  dir_clean <- paste0("./data/statistical_grid/")
+  dir_clean <- paste0("./data/statistical_grid/", year)
   dir.create(dir_clean, recursive = T, showWarnings = FALSE)
   
   # 1. harmonize geobr data
@@ -131,13 +147,8 @@ list_files_download <- paste0(url, filenames)
 # 
 # shp_to_sf_rds <- function(x){
 # 
-# # select file
-#   # x <- "./grade_id15.shp"
-# 
-# 
-# # read shape as sf file
-#   shape <- st_read(x, quiet = T, stringsAsFactors=F)
-# 
+
+  
 # # drop unecessary columns
 #   shape$Shape_Leng <- NULL
 #   shape$Shape_Area <- NULL
