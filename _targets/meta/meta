@@ -10,21 +10,29 @@ fix_topoly|function|dd326057bc8670bb
 %nin%|function|5c849418054c52ef
 %nlike%|function|5c849418054c52ef
 remove_z_dimension|function|72499f0edfc83003
-amazonialegal_raw|stem|da0a485fe36a8224|c7db07574161f53e|f385543d3a582df9|-1787579839||t20327.8115934067s|s177156b|177156|rds|local|vector|||2.61|package 'collapse' was built under R version 4.4.3. package 'data.table' was built under R version 4.4.3. package 'dplyr' was built under R version 4.4.3. package 'furrr' was built under R version 4.4.3. package 'future' was built under R version 4.4.3. package 'geobr' was built under R version 4.4.3. package 'geos' was built under R version 4.4.3. package 'httr' was built under R version 4.4.3. package 'lwgeom' was built under R version 4.4.3. package 'magrittr' was built under R version 4.4.3. package 'openxlsx' was built under R version 4.4.3. package 'pbapply' was built under R version 4.4.3. package 'RCurl' was built under R version 4.4.3. package 'readr' was built under R version 4.4.3. package 'readxl' was built under R version 4.4.3. package 'rvest' was built under R version 4.4.3. package 'sfheaders' was built under R version 4.4.3. package 's2' was built under R version 4.4.3. package 'sf' was built under R version 4.4.3. package 'sp' was built under R version 4.4.3. package 'stringi' was built under R version 4.4.3. package 'stringr' was built under R version 4.4.3|
-years_semiarid|stem|3bddeb6fcf047ba1|cbd42de486c43a65|2c530c1562a7fbd1|-292283846||t20327.8115968725s|s63b|63|rds|local|vector||years_semiarid_d5ecf0bb33dfbcbe*years_semiarid_a009eba4833e4540*years_semiarid_d7731f103501508d*years_semiarid_43a1223249ea92a6|0||
-years_biomes|stem|540f9890e6bf6b8c|3c89b2c04fdb6025|2c530c1562a7fbd1|-1714303944||t20327.8116002291s|s57b|57|rds|local|vector||years_biomes_60f03065b2341407*years_biomes_1d0440b850242374|0||
-semiarid_raw_7e251a50d0b5c323|branch|0b882aefc0b4e05c|f265bdb75af9ce4d|c5a1554c71fc3575|-125168616||t20327.81163128s|s12002b|12002|rds|local|vector|semiarid_raw||0.56||
-semiarid_raw_bc236c3b9cd0db99|branch|b2a877e7a0ff24a2|f265bdb75af9ce4d|c5a1554c71fc3575|995572689||t20327.8116361617s|s13225b|13225|rds|local|vector|semiarid_raw||0.15||
-semiarid_raw_618a6b411254e613|branch|766e258514a79ac3|f265bdb75af9ce4d|c5a1554c71fc3575|-1668525160||t20327.811640259s|s13213b|13213|rds|local|vector|semiarid_raw||0.11||
-semiarid_raw_16ee2c04099d24c9|branch|adef8f8966a79714|f265bdb75af9ce4d|c5a1554c71fc3575|1435868002||t20327.8116449004s|s16082b|16082|rds|local|vector|semiarid_raw||0.14||
 semiarid_raw|pattern|d232a3821da29890|f265bdb75af9ce4d||-558780657||||54522|rds|local|vector||semiarid_raw_7e251a50d0b5c323*semiarid_raw_bc236c3b9cd0db99*semiarid_raw_618a6b411254e613*semiarid_raw_16ee2c04099d24c9|0.96||
-biomes_raw_a9bdde2db9f33d76|branch|fd37f3b0f502c51d|307da075f25315b3|0799c6301a8deff2|898302848||t20327.8116568185s|s445320b|445320|rds|local|vector|biomes_raw||0.61||
-biomes_raw_ba45801899fd74e8|branch|bc2b42cc6b6d7eba|307da075f25315b3|0799c6301a8deff2|-965964818||t20327.8117536691s|s18476480b|18476480|rds|local|vector|biomes_raw||1.56||
 biomes_raw|pattern|7f1b64b0ab68819a|307da075f25315b3||1440923412||||18921800|rds|local|vector||biomes_raw_a9bdde2db9f33d76*biomes_raw_ba45801899fd74e8|2.17||
-biomes_clean_e12a14eb015c6d79|branch|f509bf592866b8bb|143ca876c44d3d90|f4e4aead4ca40c55|989655298|./data/biomes/2004|t20327.8126049106s|s1916928b|1916928|file|local|vector|biomes_clean||2.39|Using an external vector in selections was deprecated in tidyselect 1.1.0. ℹ Please use `all_of()` or `any_of()` instead.   # Was:   data %>% select(snake_colname)    # Now:   data %>% select(all_of(snake_colname))  See <https://tidyselect.r-lib.org/reference/faq-external-vector.html>.. Using an external vector in selections was deprecated in tidyselect 1.1.0. ℹ Please use `all_of()` or `any_of()` instead.   # Was:   data %>% select(id_colname)    # Now:   data %>% select(all_of(id_colname))  See <https://tidyselect.r-lib.org/reference/faq-external-vector.html>.|
-biomes_clean_6310261c1b7c75fb|branch|7e82e294828d20bd|143ca876c44d3d90|46ab1cfb853c9d0e|-428005352|./data/biomes/2019|t20327.8129906369s|s26124288b|26124288|file|local|vector|biomes_clean||32.87||
-biomes_clean|pattern|31c4bb5e26446b8c|143ca876c44d3d90||120468115||||28041216|file|local|vector||biomes_clean_e12a14eb015c6d79*biomes_clean_6310261c1b7c75fb|35.26||
-amazonialegal_clean|stem|f6c63de1c89ce3f9|95159e5d240411f4|f07034ad60d9f1a3|-1296395540|./data/amazonia_legal/|t20328.7439569551s|s897024b|897024|file|local|vector|||1.8||
+amazonialegal_raw|stem|da0a485fe36a8224|c7db07574161f53e|f385543d3a582df9|-1787579839||t20339.903393799s|s177156b|177156|rds|local|vector|||9.563|package 'collapse' was built under R version 4.4.3. package 'data.table' was built under R version 4.4.3. package 'dplyr' was built under R version 4.4.3. package 'furrr' was built under R version 4.4.3. package 'future' was built under R version 4.4.3. package 'geobr' was built under R version 4.4.3. package 'geos' was built under R version 4.4.3. package 'httr' was built under R version 4.4.3. package 'lwgeom' was built under R version 4.4.3. package 'magrittr' was built under R version 4.4.3. package 'mirai' was built under R version 4.4.3. package 'openxlsx' was built under R version 4.4.3. package 'pbapply' was built under R version 4.4.3. package 'RCurl' was built under R version 4.4.3. package 'readr' was built under R version 4.4.3. package 'readxl' was built under R version 4.4.3. package 'rvest' was built under R version 4.4.3. package 'sfheaders' was built under R version 4.4.3. package 's2' was built under R version 4.4.3. package 'sf' was built under R version 4.4.3. package 'sp' was built under R version 4.4.3. package 'stringi' was built under R version 4.4.3. package 'stringr' was built under R version 4.4.3. package 'tidyverse' was built under R version 4.4.3. package 'ggplot2' was built under R version 4.4.3. package 'tibble' was built under R version 4.4.3. package 'tidyr' was built under R version 4.4.3. package 'purrr' was built under R version 4.4.3. package 'forcats' was built under R version 4.4.3. package 'lubridate' was built under R version 4.4.3|
+years_semiarid|stem|3bddeb6fcf047ba1|cbd42de486c43a65|2c530c1562a7fbd1|-292283846||t20339.9033970624s|s63b|63|rds|local|vector||years_semiarid_d5ecf0bb33dfbcbe*years_semiarid_a009eba4833e4540*years_semiarid_d7731f103501508d*years_semiarid_43a1223249ea92a6|0||
+healthfacilities_raw|stem|e9ee3140a9c4f353|29f7dbc4c53eeefe|1180f4ac5ec9e61b|1762140248||t20339.9034097141s|s50b|50|rds|local|vector|||0.813||
+years_biomes|stem|540f9890e6bf6b8c|3c89b2c04fdb6025|2c530c1562a7fbd1|-1714303944||t20339.9034123895s|s57b|57|rds|local|vector||years_biomes_60f03065b2341407*years_biomes_1d0440b850242374|0||
+years_statsgrid|stem|f37492c7ea5308fb|b81f4578b7f4abb7|2c530c1562a7fbd1|-529948889||t20339.9034151717s|s58b|58|rds|local|vector|||0||
+amazonialegal_clean|stem|514d42b025eb5bd6|95159e5d240411f4|f07034ad60d9f1a3|-1296395540|./data/amazonia_legal/|t20339.9034331132s|s897024b|897024|file|local|vector|||1.328||
+semiarid_raw_7e251a50d0b5c323|branch|0b882aefc0b4e05c|f265bdb75af9ce4d|c5a1554c71fc3575|-125168616||t20339.90344469s|s12002b|12002|rds|local|vector|semiarid_raw||0.671||
+semiarid_raw_bc236c3b9cd0db99|branch|b2a877e7a0ff24a2|f265bdb75af9ce4d|c5a1554c71fc3575|995572689||t20339.9034490521s|s13225b|13225|rds|local|vector|semiarid_raw||0.14||
+semiarid_raw_618a6b411254e613|branch|766e258514a79ac3|f265bdb75af9ce4d|c5a1554c71fc3575|-1668525160||t20339.903452753s|s13213b|13213|rds|local|vector|semiarid_raw||0.094||
+semiarid_raw_16ee2c04099d24c9|branch|adef8f8966a79714|f265bdb75af9ce4d|c5a1554c71fc3575|1435868002||t20339.903457098s|s16082b|16082|rds|local|vector|semiarid_raw||0.141||
+biomes_raw_a9bdde2db9f33d76|branch|fd37f3b0f502c51d|307da075f25315b3|0799c6301a8deff2|898302848||t20339.9034964163s|s445320b|445320|rds|local|vector|biomes_raw||3.094||
+biomes_raw_ba45801899fd74e8|branch|bc2b42cc6b6d7eba|307da075f25315b3|0799c6301a8deff2|-965964818||t20339.9035395486s|s18476480b|18476480|rds|local|vector|biomes_raw||1.313||
+semiarid_clean_128a3f22808da7f3|branch|7a17c94afdb8a133|9037b1bdf7aaf37d|0cc8d715ac2453df|-956107927|./data/semiarid/2005|t20339.9036276296s|s3502080b|3502080|file|local|vector|semiarid_clean||7.281||
+semiarid_clean_d917dfa6ab062da9|branch|c192a049c9213625|9037b1bdf7aaf37d|2045369c6bd8e9d0|910039653|./data/semiarid/2017|t20339.9041372665s|s26042368b|26042368|file|local|vector|semiarid_clean||43.734||
+semiarid_clean_9112b5af9ff3e22d|branch|7e45df92e42db981|9037b1bdf7aaf37d|fd732c83b9b3c7bb|263222990|./data/semiarid/2021|t20339.9050221827s|s34541568b|34541568|file|local|vector|semiarid_clean||76.031||
+semiarid_clean_572604ff74155e91|branch|03abec0bbf226290|9037b1bdf7aaf37d|288879f9cf487cef|741912371|./data/semiarid/2022|t20339.9058727285s|s43503616b|43503616|file|local|vector|semiarid_clean||72.984||
+semiarid_clean|pattern|8dff45cce54cf8b2|9037b1bdf7aaf37d||561303988||||107589632|file|local|vector||semiarid_clean_128a3f22808da7f3*semiarid_clean_d917dfa6ab062da9*semiarid_clean_9112b5af9ff3e22d*semiarid_clean_572604ff74155e91|200.03||
+biomes_clean_e12a14eb015c6d79|branch|81e8aa520e25141c|143ca876c44d3d90|f4e4aead4ca40c55|989655298|./data/biomes/2004|t20339.9059009781s|s1916928b|1916928|file|local|vector|biomes_clean||1.86|Using an external vector in selections was deprecated in tidyselect 1.1.0. ℹ Please use `all_of()` or `any_of()` instead.   # Was:   data %>% select(snake_colname)    # Now:   data %>% select(all_of(snake_colname))  See <https://tidyselect.r-lib.org/reference/faq-external-vector.html>.. Using an external vector in selections was deprecated in tidyselect 1.1.0. ℹ Please use `all_of()` or `any_of()` instead.   # Was:   data %>% select(id_colname)    # Now:   data %>% select(all_of(id_colname))  See <https://tidyselect.r-lib.org/reference/faq-external-vector.html>.|
+biomes_clean_6310261c1b7c75fb|branch|b28ab638a1f34325|143ca876c44d3d90|46ab1cfb853c9d0e|-428005352|./data/biomes/2019|t20339.9062513444s|s26124288b|26124288|file|local|vector|biomes_clean||29.671||
+biomes_clean|pattern|c23d1be664da0ed3|143ca876c44d3d90||120468115||||28041216|file|local|vector||biomes_clean_e12a14eb015c6d79*biomes_clean_6310261c1b7c75fb|31.531||
+download_healthfacilities|function|df68581cc900c50a
 download_biomes|function|760d98128957ea8a
 download_file|function|3a6b6c7673db47dd
 add_region_info|function|52f8962884fe316a
@@ -38,16 +46,17 @@ list_folders|function|bcfbf4f7465afa51
 download_semiarid|function|552664a16d0fc1d0
 remove_state_repetition|function|f651de43bfd2d54b
 detect_year_from_string|function|7e1010acf860e4c3
+download_statsgrid|function|6d7fcd546a73bf7c
 download_amazonialegal|function|d496fec48e302f0a
 simplify_temp_sf|function|02880e2aae8b4a7f
 dissolve_polygons|function|b4285f1f2b992921
 harmonize_geobr|function|df8dba216e5d7157
 muni_saveraw|function|027c21b5678a4e03
 clean_semiarid|function|e74b6046fc52b10f
+clean_statsgrid|function|77c24527aa38e8d1
 clean_amazonialegal|function|aa66cfacbf5e02d4
 clean_biomes|function|fcfe8008d6021f7f
-semiarid_clean_128a3f22808da7f3|branch|1915ba4fb500d070|9037b1bdf7aaf37d|0cc8d715ac2453df|-956107927|./data/semiarid/2005|t20328.8311902762s|s3502080b|3502080|file|local|vector|semiarid_clean||8.24||
-semiarid_clean_d917dfa6ab062da9|branch|c9bbbbb556162717|9037b1bdf7aaf37d|2045369c6bd8e9d0|910039653|./data/semiarid/2017|t20328.8317406217s|s26042368b|26042368|file|local|vector|semiarid_clean||47.21||
-semiarid_clean_9112b5af9ff3e22d|branch|3087bd926ca6072a|9037b1bdf7aaf37d|fd732c83b9b3c7bb|263222990|./data/semiarid/2021|t20328.8325666635s|s34541568b|34541568|file|local|vector|semiarid_clean||70.89||
-semiarid_clean_572604ff74155e91|branch|ce0c0933a3438760|9037b1bdf7aaf37d|288879f9cf487cef|741912371|./data/semiarid/2022|t20328.8335997067s|s43503616b|43503616|file|local|vector|semiarid_clean||88.59||
-semiarid_clean|pattern|f5f3a0a078aea55e|9037b1bdf7aaf37d||561303988||||107589632|file|local|vector||semiarid_clean_128a3f22808da7f3*semiarid_clean_d917dfa6ab062da9*semiarid_clean_9112b5af9ff3e22d*semiarid_clean_572604ff74155e91|214.93||
+statsgrid_raw_9a5000d9921c11e0|branch|2721bf55d201d4dd|1d6b42049afbef94|cf815c88de7080dc|-1656974575||t20340.6338242964s|s4951994b|4951994|rds|local|vector|statsgrid_raw||67.781||
+statsgrid_raw_d21ec0dbbc0b6775|branch|5099be92ca760c82|1d6b42049afbef94|cf815c88de7080dc|2059299793||t20340.6344846901s|s3611585b|3611585|rds|local|vector|statsgrid_raw||55.546||
+statsgrid_raw|pattern|bd878e33a78a3a30|1d6b42049afbef94||-306683327||||8563579|rds|local|vector||statsgrid_raw_9a5000d9921c11e0*statsgrid_raw_d21ec0dbbc0b6775|123.327||
+statsgrid_clean_2f3df92dbe7170e5|branch||1f4d432a4eeb8eb8|c9165f9626b76bdd|1392961096||t20340.6353559426s||0|file|local|vector|statsgrid_clean||73.547||invalid 'path' argument

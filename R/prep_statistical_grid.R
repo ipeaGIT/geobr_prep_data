@@ -23,18 +23,19 @@
 
 
 ####### Download the data  -----------------
- download_statsgrid <- function(){ # year = 2010
+ download_statsgrid <- function(year){ # year = 2010
 
-### USE temporariamente
+######## USE temporariamente ------
    library(targets)
    library(tidyverse)
    library(data.table)
    library(mirai)
    library(RCurl)
+   library(rvest)
    source("./R/support_harmonize_geobr.R")
    source("./R/support_fun.R")
 
-  ###### 0. Get the correct url and file names -----------------
+  ###### 0. Get the correct url and file names (UPDATE YEAR) -----------------
    
    if(year == 2010) {
      url = "ftp://geoftp.ibge.gov.br/recortes_para_fins_estatisticos/grade_estatistica/censo_2010/"
@@ -50,43 +51,59 @@
    file_raw <- fs::file_temp(ext = fs::path_ext(url))
    tmp_dir <- tempdir()
    
-  #### Generate file names
-   filenames = getURL(url, ftp.use.epsv = FALSE, dirlistonly = TRUE)
-   filenames <- strsplit(filenames, "\r\n")
-   filenames = unlist(filenames)
+  ###### 2. Generate file names for both cases (UPDATE YEAR) ------
    
-   # Filter only the zip ones
-   filenames <- subset(filenames, grepl(filenames, pattern = ".zip"), value = TRUE)
-   
-   
-   #list_folders(url) #não funciona
-   
+   # If the year is 2010
+   if(year == 2010) {
+     filenames = getURL(url, ftp.use.epsv = FALSE, dirlistonly = TRUE)
+     filenames <- strsplit(filenames, "\r\n")
+     filenames = unlist(filenames)
+     
+     # Filter only the zip ones
+     filenames <- subset(filenames, grepl(filenames, pattern = ".zip"), value = TRUE)
+     }
+ 
+   # If the year is 2022
+   if(year == 2022) {
+     page <- read_html(url)
+     filenames <- page %>%
+       html_nodes("a") %>%
+       html_attr("href") %>%
+       grep("\\.zip$", ., value = TRUE)
+     #filenames <- paste0(url, filenames)
+      }
+     
   #### Create direction for each download
      
   list_files_download <- paste0(url, filenames)
   
   ###### 2. Download Raw data -----------------
   
+  # zip folder
+  in_zip <- paste0(tmp_dir, "/zipped/", year)
+  dir.create(in_zip, showWarnings = FALSE, recursive = TRUE)
+  dir.exists(in_zip)
+  
   # Download zipped files
-    for (name_file in filenames) {
-      download.file(paste(url, name_file, sep = ""), paste(tmp_dir, name_file, sep = "\\"))
-   print("Done")
+  for (name_file in filenames) {
+    download.file(paste(url, name_file, sep = ""),
+                  paste(in_zip, name_file, sep = "\\"))
     }
 
   ###### 3. Unzip Raw data -----------------
   
   # directory of zips
-  zip_names <- list.files(tmp_dir, pattern = "\\.zip", full.names = TRUE)
+  zip_names <- list.files(in_zip, pattern = "\\.zip", full.names = TRUE)
   
-  # zip folder
-  out_zip <- paste0(tmp_dir, "/unzipped")
+  # unzip folder
+  out_zip <- paste0(tmp_dir, "/unzipped/", year)
   dir.create(out_zip, showWarnings = FALSE, recursive = TRUE)
   dir.exists(out_zip)
-
+  
   pbapply::pblapply(
     X = zip_names, 
     FUN = function(x){ unzip(zipfile = x, exdir = out_zip) }
-      )
+  )
   
   # #### 666666 paralelizacao
   # # numero de cores
@@ -99,14 +116,13 @@
   # )
   # mirai::daemons(0)
   
-
-
-
-
   ###### 4. Bind Raw data together -----------------
   
   shp_names <- list.files(out_zip, pattern = "\\.shp$", full.names = TRUE)
-  # shp_names <- shp_names[1:2]
+  
+  ###### USE TEMPORARIAMENTE
+  
+  shp_names <- shp_names[1:2]
   
   # paralelizar ?
   statsgrid_list <- pbapply::pblapply(
@@ -118,27 +134,49 @@
   data.table::setDF(statsgrid_raw)
   statsgrid_raw <- sf::st_as_sf(statsgrid_raw)
 
-
   return(statsgrid_raw)
 }
    
-
-
 # Clean the data ----------------------------------
   clean_statsgrid <- function(year, statsgrid_raw) {
 
-  # 0. Create folder to save clean data
-    
+  ###### 0. Create folder to save clean data -----
+
   dir_clean <- paste0("./data/statistical_grid/", year)
   dir.create(dir_clean, recursive = T, showWarnings = FALSE)
+  dir.exists(dir_clean)
+
+  ###### 1. Preparation -----------------
   
-  # 1. harmonize geobr data
-  # 4. Save file
+  # drop unecessary columns
+    shape$Shape_Leng <- NULL
+    shape$Shape_Area <- NULL
+  
+  ###### 2. Apply harmonize geobr cleaning -----------------
+  
+  temp_sf <- harmonize_geobr(
+    temp_sf = statsgrid_raw, 
+    add_state = F, 
+    add_region = F, 
+    add_snake_case = F, 
+    #snake_colname = snake_colname,
+    projection_fix = T,
+    encoding_utf8 = T, 
+    topology_fix = F,
+    remove_z_dimension = F,
+    use_multipolygon = T
+  )
+  
+  glimpse(temp_sf)
+  
+  ###### 2. Save results  -----------------
+
+  sf::st_write(temp_sf, dsn= paste0(dir_clean,"/statsgrid_", year, ".gpkg"), delete_dsn=TRUE)
   
   return(dir_clean)
   }
-
-# 
+  
+  
 # # list all shape files
 #   all_shapes <- list.files(full.names = T, recursive = T, pattern = ".shp")
 #   all_shapes <- all_shapes[ !(all_shapes %like% ".xml")]
@@ -148,19 +186,8 @@
 # shp_to_sf_rds <- function(x){
 # 
 
-  
-# # drop unecessary columns
-#   shape$Shape_Leng <- NULL
-#   shape$Shape_Area <- NULL
 # 
-# 
-#   ###### convert to MULTIPOLYGON -----------------
-#   temp_sf <- to_multipolygon(temp_sf)
-# 
-# 
-#   ###### 6. generate a lighter version of the dataset with simplified borders -----------------
-#   # skip this step if the dataset is made of points, regular spatial grids or rater data
-# 
+
 #   # # simplify
 #   # shape_simplified <- st_transform(shape, crs=3857) %>%
 #   #   sf::st_simplify(preserveTopology = T, dTolerance = 100) %>%

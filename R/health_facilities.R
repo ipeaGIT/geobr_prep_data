@@ -39,20 +39,21 @@ download_healthfacilities <- function(){
         tibble::as_tibble() |>
         dplyr::filter(format == "ZIP")
   
+  healthfacilities_raw <- 1+1
 
   return(healthfacilities_raw)
 
 }  
 
 ###### Clean the data  -----------------
-download_healthfacilities <- function(){ 
-  
-  
-  
-  
-  return()
-  
-}  
+# download_healthfacilities <- function(){ 
+#   
+#   
+#   
+#   
+#   return()
+#   
+# }  
 
 
 # 0. Download Raw zipped  ---------------------------------

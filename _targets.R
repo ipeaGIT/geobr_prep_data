@@ -18,6 +18,7 @@ tar_option_set(
                'lwgeom',
                'magrittr',
                # 'maptools', # removed from cran
+               'mirai',
                'openxlsx',
                'pbapply',
                'RCurl',
@@ -100,25 +101,25 @@ list(
 
   #4. Grade estatística ----
 
-# year input
-tar_target(name = years_statsgrid,
+  # year input
+  tar_target(name = years_statsgrid,
            command = c(2010, 2022)),
 
-# # download
-# tar_target(name = statsgrid_raw,
-#            command = download_statsgrid(years_statsgrid),
-#            pattern = map(years_statsgrid)),
-# 
-#   # clean
-# tar_target(name = statsgrid_clean,
-#            command = clean_statsgrid(statsgrid_raw),
-#            pattern = map(statsgrid_raw, years_statsgrid)),
-#            format = 'file')
+  # download
+  tar_target(name = statsgrid_raw,
+           command = download_statsgrid(years_statsgrid),
+           pattern = map(years_statsgrid)),
+
+  # clean
+  tar_target(name = statsgrid_clean,
+           command = clean_statsgrid(statsgrid_raw, years_statsgrid),
+           pattern = map(statsgrid_raw, years_statsgrid),
+           format = 'file'),
 
   #5. Estabelecimentos de saúde ----
 
-# download
-tar_target(name = healthfacilities_raw,
+  # download
+  tar_target(name = healthfacilities_raw,
            command = download_healthfacilities())
 
 #   # clean
