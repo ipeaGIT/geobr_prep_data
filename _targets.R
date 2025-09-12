@@ -62,7 +62,7 @@ list(
                command = download_semiarid(years_semiarid),
                pattern = map(years_semiarid)),
 
-    # clean (aprox 14870.86 sec)
+    # clean 
     tar_target(name = semiarid_clean,
                command = clean_semiarid(semiarid_raw, years_semiarid),
                pattern = map(semiarid_raw, years_semiarid),
@@ -114,19 +114,19 @@ list(
   tar_target(name = statsgrid_clean,
            command = clean_statsgrid(statsgrid_raw, years_statsgrid),
            pattern = map(statsgrid_raw, years_statsgrid),
-           format = 'file'),
+           format = 'file')
+)
 
   #5. Estabelecimentos de saúde ----
 
-  # download
-  tar_target(name = healthfacilities_raw,
-           command = download_healthfacilities())
+  # # download
+  # tar_target(name = healthfacilities_raw,
+  #          command = download_healthfacilities())
 
 #   # clean
 # tar_target(name = healthfacilities_clean,
 #            command = clean_healthfacilities(healthfacilities_raw),
 #            format = 'file')
-)
 
 ##################### UNTIL HERE UPDATED ---------------------
 

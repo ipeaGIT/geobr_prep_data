@@ -26,14 +26,14 @@
  download_statsgrid <- function(year){ # year = 2010
 
 ######## USE temporariamente ------
-   library(targets)
-   library(tidyverse)
-   library(data.table)
-   library(mirai)
-   library(RCurl)
-   library(rvest)
-   source("./R/support_harmonize_geobr.R")
-   source("./R/support_fun.R")
+   # library(targets)
+   # library(tidyverse)
+   # library(data.table)
+   # library(mirai)
+   # library(RCurl)
+   # library(rvest)
+   # source("./R/support_harmonize_geobr.R")
+   # source("./R/support_fun.R")
 
   ###### 0. Get the correct url and file names (UPDATE YEAR) -----------------
    
@@ -84,6 +84,7 @@
   dir.create(in_zip, showWarnings = FALSE, recursive = TRUE)
   dir.exists(in_zip)
   
+  ### make it paralle with curl::multidownload ?
   # Download zipped files
   for (name_file in filenames) {
     download.file(paste(url, name_file, sep = ""),
@@ -120,9 +121,7 @@
   
   shp_names <- list.files(out_zip, pattern = "\\.shp$", full.names = TRUE)
   
-  ###### USE TEMPORARIAMENTE
-  
-  shp_names <- shp_names[1:2]
+  shp_names <- shp_names
   
   # paralelizar ?
   statsgrid_list <- pbapply::pblapply(
@@ -138,7 +137,7 @@
 }
    
 # Clean the data ----------------------------------
-  clean_statsgrid <- function(year, statsgrid_raw) {
+  clean_statsgrid <- function(statsgrid_raw, year) {
 
   ###### 0. Create folder to save clean data -----
 
@@ -151,32 +150,48 @@
   if(year == 2010) {
     
   # drop unecessary columns
-    shape$Shape_Leng <- NULL
-    shape$Shape_Area <- NULL
+    statsgrid_raw$Shape_Leng <- NULL
+    statsgrid_raw$Shape_Area <- NULL
   }
   
   nomes_colunas <- names(statsgrid_raw)
+  
+  ###### 2. Standarize the collum names and order ???? -----------------
+  
+  if(year == 2010) {
+    # "ID_UNICO"   "nome_1KM"   "nome_5KM"   "nome_10KM"  "nome_50KM"  "nome_100KM" "nome_500KM"
+    # "QUADRANTE"  "MASC"       "FEM"        "POP"        "DOM_OCU"    "geometry"
+  }
+
+  if(year == 2022) {
+   #"ID_UNICO"   "nome_1km"   "nome_5KM"   "nome_10KM"  "nome_50KM"  "nome_100KM" "nome_500KM"
+   # "QUADRANTE"  "TOTAL"      "TOTAL_DOM"  "geometry" 
     
-  ###### 2. Apply harmonize geobr cleaning -----------------
+  }
+  
+  statsgrid_raw <- janitor::clean_names(statsgrid_raw)    
+  
+  ###### 3. Apply harmonize geobr cleaning ***SLOW**** -----------------
   
   temp_sf <- harmonize_geobr(
-    temp_sf = statsgrid_raw, 
-    add_state = F, 
-    add_region = F, 
-    add_snake_case = F, 
+    temp_sf = statsgrid_raw,
+    add_state = F,
+    add_region = F,
+    add_snake_case = F,
     #snake_colname = snake_colname,
     projection_fix = T,
-    encoding_utf8 = T, 
+    encoding_utf8 = T,
     topology_fix = F,
-    remove_z_dimension = F,
-    use_multipolygon = T
+    remove_z_dimension = T,
+    use_multipolygon = F
   )
   
-  glimpse(temp_sf)
+  # glimpse(temp_sf)
   
-  ###### 2. Save results  -----------------
+  ###### 4. Save results  -----------------
 
   sf::st_write(temp_sf, dsn= paste0(dir_clean,"/statsgrid_", year, ".gpkg"), delete_dsn=TRUE)
+  glimpse(temp_sf)
   
   return(dir_clean)
   }
