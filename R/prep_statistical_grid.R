@@ -148,10 +148,15 @@
 
   ###### 1. Preparation -----------------
   
+  if(year == 2010) {
+    
   # drop unecessary columns
     shape$Shape_Leng <- NULL
     shape$Shape_Area <- NULL
+  }
   
+  nomes_colunas <- names(statsgrid_raw)
+    
   ###### 2. Apply harmonize geobr cleaning -----------------
   
   temp_sf <- harmonize_geobr(
