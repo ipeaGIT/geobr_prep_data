@@ -153,7 +153,23 @@ clean_semiarid <- function(munis_semiarid, year) {
   temp_sf_simplified <- simplify_temp_sf(temp_sf, tolerance = 100)
   
   #### 3. Save data set -----------------
-  sf::st_write(temp_sf, dsn= paste0(dir_clean,"/semiarid_", year, ".gpkg"), delete_dsn=TRUE)
-  sf::st_write(temp_sf_simplified, dsn= paste0(dir_clean,"/semiarid_", year, "_simplified.gpkg"), delete_dsn=TRUE )
+  # sf::st_write(temp_sf, dsn= paste0(dir_clean,"/semiarid_", year, ".gpkg"), delete_dsn=TRUE)
+  # sf::st_write(temp_sf_simplified, dsn= paste0(dir_clean,"/semiarid_", year, "_simplified.gpkg"), delete_dsn=TRUE )
+  
+  arrow::write_parquet(
+    x = temp_sf, 
+    sink = paste0(dir_clean,"/semiarid_", year, ".parquet"),
+    compression='zstd',
+    compression_level = 22
+  )
+  
+  arrow::write_parquet(
+    x = temp_sf_simplified, 
+    sink = paste0(dir_clean,"/semiarid_", year, "_simplified", ".parquet"),
+    compression='zstd',
+    compression_level = 22
+  )
+  
+  
   return(dir_clean)
 }
