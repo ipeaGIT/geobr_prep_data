@@ -7,7 +7,7 @@ tar_option_set(
   format = "rds",
   memory = "transient",
   garbage_collection = TRUE,
-  controller = crew_controller_local(workers = 2),
+  controller = crew_controller_local(workers = 1),
   
   
   # Packages ----

@@ -111,6 +111,8 @@ download_semiarid <- function(year){ # year = 2022
   return(munis_semiarid)
 }
 
+# munis_semiarid <- tar_read("semiarid_raw", branches = 3)
+# year <- tar_read("years_semiarid")[3]
 
 ##### Clean the data   -----------------
 clean_semiarid <- function(munis_semiarid, year) { 
@@ -122,16 +124,27 @@ clean_semiarid <- function(munis_semiarid, year) {
   
   
   #### 2. Clean data set -----------------
-  
+
   # load all munis sf
   all_munis <- geobr::read_municipality(code_muni = 'all',
                                         year = year,
                                         simplified = FALSE)
   
+  # if download fails, try again
+  if(is.null(all_munis)){
+    all_munis <- geobr::read_municipality(code_muni = 'all',
+                                          year = year,
+                                          simplified = FALSE)
+  }
+  
+  
+  # subset municipalities
+  temp_sf <- subset(all_munis, code_muni %in% munis_semiarid$code_muni)
+  
   #### 3. Apply geobr cleaning -----------------
   
   temp_sf <- harmonize_geobr(
-    temp_sf = all_munis, 
+    temp_sf = temp_sf, 
     add_state = F, 
     add_region = F, 
     add_snake_case = F, 
@@ -143,10 +156,8 @@ clean_semiarid <- function(munis_semiarid, year) {
     use_multipolygon = F
   )
   
-  glimpse(temp_sf)
+  # glimpse(temp_sf)
   
-  # subset municipalities
-  temp_sf <- subset(temp_sf, code_muni %in% munis_semiarid$code_muni)
 
 
   #### 4. lighter version --------------- 
