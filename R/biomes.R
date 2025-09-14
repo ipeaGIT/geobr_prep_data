@@ -160,9 +160,23 @@ clean_biomes <- function(biomes_raw, year) {
   
   
   # 4. Save file
-  sf::st_write(temp_sf, dsn = paste0(dir_clean, "/", "biomes_", year, ".gpkg"), append=FALSE)
-  sf::st_write(temp_sf_simplified, dsn = paste0(dir_clean, "/", "biomes_", year, "_simplified", ".gpkg"), append=FALSE)
+  # sf::st_write(temp_sf, dsn = paste0(dir_clean, "/", "biomes_", year, ".gpkg"), append=FALSE)
+  # sf::st_write(temp_sf_simplified, dsn = paste0(dir_clean, "/", "biomes_", year, "_simplified", ".gpkg"), append=FALSE)
 
+  arrow::write_parquet(
+    x = temp_sf, 
+    sink = paste0(dir_clean, "/", "biomes_", year, ".parquet"),
+    compression='zstd',
+    compression_level = 22
+  )
+  
+  arrow::write_parquet(
+    x = temp_sf_simplified, 
+    sink = paste0(dir_clean, "/", "biomes_", year, "_simplified", ".parquet"),
+    compression='zstd',
+    compression_level = 22
+  )
+  
   return(dir_clean)
 }
 
