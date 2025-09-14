@@ -121,7 +121,7 @@ arrow::write_parquet(
   sink = paste0(dir_clean, "amazonialegal","_simplified", ".parquet"),
   compression='zstd',
   compression_level = 22
-)
+  )
 
 return(dir_clean)
 }

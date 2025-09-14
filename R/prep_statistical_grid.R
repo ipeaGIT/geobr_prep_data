@@ -191,7 +191,14 @@
   ###### 4. Save results  -----------------
 
   sf::st_write(temp_sf, dsn= paste0(dir_clean,"/statsgrid_", year, ".gpkg"), delete_dsn=TRUE)
-  glimpse(temp_sf)
+  
+  arrow::write_parquet(
+    x = temp_sf, 
+    sink = paste0(dir_clean,"/statsgrid_", year, ".parquet"),
+    compression='zstd',
+    compression_level = 22
+  )
+  
   
   return(dir_clean)
   }
