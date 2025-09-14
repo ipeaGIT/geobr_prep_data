@@ -40,6 +40,8 @@ dir.create(file.path("sf_all_years_cleaned"), showWarnings = FALSE)
 
 ###### 1. download the raw data from the original website source -----------------
 
+# https://geoftp.ibge.gov.br/recortes_para_fins_estatisticos/malha_de_areas_de_ponderacao/
+
 download.file("https://opendata.arcgis.com/datasets/ffc3ef46614d4a7987ef122c53fd621e_6.zip" ,
               destfile = paste0(destdir_raw,".zip"))
 
