@@ -1,10 +1,14 @@
 library(targets)
+library(tarchetypes)
+library(crew)
 
   # Set target options: ----
 tar_option_set(
   format = "rds",
   memory = "transient",
   garbage_collection = TRUE,
+  controller = crew_controller_local(workers = 2),
+  
   
   # Packages ----
   packages = c('collapse',
