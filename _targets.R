@@ -11,13 +11,15 @@ tar_option_set(
   
   
   # Packages ----
-  packages = c('collapse',
+  packages = c('arrow',
+               'collapse',
                'data.table',
                'dplyr',
                'furrr',
                'future',
                'geobr',
                'geos',
+               'geoarrow',
                'httr',
                'lwgeom',
                'magrittr',

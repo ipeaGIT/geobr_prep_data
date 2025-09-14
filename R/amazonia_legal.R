@@ -106,17 +106,23 @@ head(temp_sf2)
 ###### 5. Clean data set and save it in geopackage format-----------------
 
 #save original and simplified datasets
-sf::st_write(temp_sf, append = FALSE, dsn = paste0(dir_clean, "amazonialegal", ".gpkg") )
-sf::st_write(temp_sf2, append = FALSE, dsn = paste0(dir_clean, "amazonialegal","_simplified", ".gpkg"))
+# sf::st_write(temp_sf, append = FALSE, dsn = paste0(dir_clean, "amazonialegal", ".gpkg") )
+# sf::st_write(temp_sf2, append = FALSE, dsn = paste0(dir_clean, "amazonialegal","_simplified", ".gpkg"))
+
+arrow::write_parquet(
+  x = temp_sf, 
+  sink = paste0(dir_clean, "amazonialegal", ".parquet"),
+  compression='zstd',
+  compression_level = 22
+  )
+
+arrow::write_parquet(
+  x = temp_sf2, 
+  sink = paste0(dir_clean, "amazonialegal","_simplified", ".parquet"),
+  compression='zstd',
+  compression_level = 22
+)
 
 return(dir_clean)
 }
-
-
-
-
-
-
-
-
 
