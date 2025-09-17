@@ -2,6 +2,9 @@ library(targets)
 library(tarchetypes)
 library(crew)
 
+# In case of error, run:
+# test_errors <- targets::tar_meta(fields = warnings, complete_only = TRUE)
+
   # Set target options: ----
 tar_option_set(
   format = "rds",
@@ -13,6 +16,7 @@ tar_option_set(
   # Packages ----
   packages = c('arrow',
                'collapse',
+               'crew',
                'data.table',
                'dplyr',
                'furrr',
@@ -21,16 +25,22 @@ tar_option_set(
                'geos',
                'geoarrow',
                'httr',
+               'igraph',
+               'janitor',
+               'knitr',
+               'lubridate',
                'lwgeom',
                'magrittr',
                # 'maptools', # removed from cran
                'mirai',
+               'nanonext',
                'openxlsx',
                'pbapply',
                'RCurl',
                'readr',
                'readxl',
                # 'rgeos',    # removed from cran
+               'rland', # not available for 4.5.1 R version
                'rvest',
                'sfheaders',
                's2',
@@ -38,8 +48,11 @@ tar_option_set(
                'sp',
                'stringi',
                'stringr',
+               'tarchetypes',
+               'tibble',
                'tidyverse',
-               'utils'
+               'utils',
+               'visNetwork'
                )
   )
 # invisible(lapply(packages, library, character.only = TRUE))
