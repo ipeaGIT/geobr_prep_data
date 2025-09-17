@@ -29,8 +29,6 @@ semiarid_clean|pattern|8dff45cce54cf8b2|9037b1bdf7aaf37d||561303988||||107589632
 biomes_clean_e12a14eb015c6d79|branch|81e8aa520e25141c|143ca876c44d3d90|f4e4aead4ca40c55|989655298|./data/biomes/2004|t20339.9059009781s|s1916928b|1916928|file|local|vector|biomes_clean||1.86|Using an external vector in selections was deprecated in tidyselect 1.1.0. ℹ Please use `all_of()` or `any_of()` instead.   # Was:   data %>% select(snake_colname)    # Now:   data %>% select(all_of(snake_colname))  See <https://tidyselect.r-lib.org/reference/faq-external-vector.html>.. Using an external vector in selections was deprecated in tidyselect 1.1.0. ℹ Please use `all_of()` or `any_of()` instead.   # Was:   data %>% select(id_colname)    # Now:   data %>% select(all_of(id_colname))  See <https://tidyselect.r-lib.org/reference/faq-external-vector.html>.|
 biomes_clean_6310261c1b7c75fb|branch|b28ab638a1f34325|143ca876c44d3d90|46ab1cfb853c9d0e|-428005352|./data/biomes/2019|t20339.9062513444s|s26124288b|26124288|file|local|vector|biomes_clean||29.671||
 biomes_clean|pattern|c23d1be664da0ed3|143ca876c44d3d90||120468115||||28041216|file|local|vector||biomes_clean_e12a14eb015c6d79*biomes_clean_6310261c1b7c75fb|31.531||
-statsgrid_raw_9a5000d9921c11e0|branch|2721bf55d201d4dd|1d6b42049afbef94|f1118e41e1f868c7|-1656974575||t20343.7406459108s|s4951994b|4951994|rds|local|vector|statsgrid_raw||87.313||
-statsgrid_raw_d21ec0dbbc0b6775|branch|5099be92ca760c82|1d6b42049afbef94|f1118e41e1f868c7|2059299793||t20343.7415080557s|s3611585b|3611585|rds|local|vector|statsgrid_raw||73.297||
 year|object|cd8caaabc45b5c4a
 out_zip|object|ed8075f3a58e674c
 temp_sf|object|187cd8b664933ccc
@@ -56,6 +54,7 @@ statsgrid_clean_2f3df92dbe7170e5|branch|dec8b2397f9e54a2|1f4d432a4eeb8eb8|49908c
 statsgrid_clean_6a524a955f906ca8|branch|957e7a7a487ef5a0|1f4d432a4eeb8eb8|840b5495f89fc6f2|1894558227|./data/statistical_grid/2022|t20343.8205891289s|s33353728b|33353728|file|local|vector|statsgrid_clean||2.563||
 statsgrid_clean|pattern|ad157b9db92c4cf5|1f4d432a4eeb8eb8||-355250693||||65953792|file|local|vector||statsgrid_clean_2f3df92dbe7170e5*statsgrid_clean_6a524a955f906ca8|4.594||
 download_healthfacilities|function|df68581cc900c50a
+statsgrid_raw_d21ec0dbbc0b6775|branch|b70254809fcd0d51|1d6b42049afbef94|e089510da7692cbd|2059299793||t20348.7918779896s|s544616878b|544616878|rds|local|vector|statsgrid_raw||562.172|package 'arrow' was built under R version 4.4.3. package 'collapse' was built under R version 4.4.3. package 'data.table' was built under R version 4.4.3. package 'dplyr' was built under R version 4.4.3. package 'furrr' was built under R version 4.4.3. package 'future' was built under R version 4.4.3. package 'geobr' was built under R version 4.4.3. package 'geos' was built under R version 4.4.3. package 'geoarrow' was built under R version 4.4.3. package 'httr' was built under R version 4.4.3. package 'lwgeom' was built under R version 4.4.3. package 'magrittr' was built under R version 4.4.3. package 'mirai' was built under R version 4.4.3. package 'openxlsx' was built under R version 4.4.3. package 'pbapply' was built under R version 4.4.3. package 'RCurl' was built under R version 4.4.3. package 'readr' was built under R version 4.4.3. package 'readxl' was built under R version 4.4.3. package 'rvest' was built under R version 4.4.3. package 'sfheaders' was built under R version 4.4.3. package 's2' was built under R version 4.4.3. package 'sf' was built under R version 4.4.3. package 'sp' was built under R version 4.4.3. package 'stringi' was built under R version 4.4.3. package 'stringr' was built under R version 4.4.3. package 'tidyverse' was built under R version 4.4.3. package 'ggplot2' was built under R version 4.4.3. package 'tibble' was built under R version 4.4.3. package 'tidyr' was built under R version 4.4.3. package 'purrr' was built under R version 4.4.3. package 'forcats' was built under R version 4.4.3. package 'lubridate' was built under R version 4.4.3|
 download_biomes|function|760d98128957ea8a
 download_file|function|3a6b6c7673db47dd
 add_region_info|function|52f8962884fe316a
@@ -69,13 +68,14 @@ list_folders|function|bcfbf4f7465afa51
 download_semiarid|function|552664a16d0fc1d0
 remove_state_repetition|function|f651de43bfd2d54b
 detect_year_from_string|function|7e1010acf860e4c3
-download_statsgrid|function|b4c1bd11522bfd7a
+download_statsgrid|function|543e9f3ec9e1d7bb
 download_amazonialegal|function|d496fec48e302f0a
 simplify_temp_sf|function|02880e2aae8b4a7f
 dissolve_polygons|function|b4285f1f2b992921
 harmonize_geobr|function|df8dba216e5d7157
 muni_saveraw|function|027c21b5678a4e03
-clean_semiarid|function|e74b6046fc52b10f
-clean_statsgrid|function|c0c4e57f6d5691c4
-clean_amazonialegal|function|aa66cfacbf5e02d4
-clean_biomes|function|fcfe8008d6021f7f
+clean_semiarid|function|b55bd50b224d83d8
+clean_statsgrid|function|4d91dc208dd10ae5
+clean_amazonialegal|function|b9207cb3c349af66
+clean_biomes|function|3d792686b0da7948
+statsgrid_raw_9a5000d9921c11e0|branch|961fdd9010b08895|1d6b42049afbef94|e089510da7692cbd|-1656974575||t20348.8093227488s|s698659549b|698659549|rds|local|vector|statsgrid_raw||539.703|package 'arrow' was built under R version 4.4.3. package 'collapse' was built under R version 4.4.3. package 'data.table' was built under R version 4.4.3. package 'dplyr' was built under R version 4.4.3. package 'furrr' was built under R version 4.4.3. package 'future' was built under R version 4.4.3. package 'geobr' was built under R version 4.4.3. package 'geos' was built under R version 4.4.3. package 'geoarrow' was built under R version 4.4.3. package 'httr' was built under R version 4.4.3. package 'lwgeom' was built under R version 4.4.3. package 'magrittr' was built under R version 4.4.3. package 'mirai' was built under R version 4.4.3. package 'openxlsx' was built under R version 4.4.3. package 'pbapply' was built under R version 4.4.3. package 'RCurl' was built under R version 4.4.3. package 'readr' was built under R version 4.4.3. package 'readxl' was built under R version 4.4.3. package 'rvest' was built under R version 4.4.3. package 'sfheaders' was built under R version 4.4.3. package 's2' was built under R version 4.4.3. package 'sf' was built under R version 4.4.3. package 'sp' was built under R version 4.4.3. package 'stringi' was built under R version 4.4.3. package 'stringr' was built under R version 4.4.3. package 'tidyverse' was built under R version 4.4.3. package 'ggplot2' was built under R version 4.4.3. package 'tibble' was built under R version 4.4.3. package 'tidyr' was built under R version 4.4.3. package 'purrr' was built under R version 4.4.3. package 'forcats' was built under R version 4.4.3. package 'lubridate' was built under R version 4.4.3|

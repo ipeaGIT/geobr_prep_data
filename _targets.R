@@ -77,7 +77,6 @@ list(
 
   #2. Amazonia Legal ----
 
-
   # download
   tar_target(name = amazonialegal_raw,
              command = download_amazonialegal()),
@@ -86,7 +85,6 @@ list(
   tar_target(name = amazonialegal_clean,
              command = clean_amazonialegal(amazonialegal_raw),
              format = 'file'),
-
 
   #3. Biomas ----
 
@@ -121,18 +119,66 @@ list(
            command = clean_statsgrid(statsgrid_raw, years_statsgrid),
            pattern = map(statsgrid_raw, years_statsgrid),
            format = 'file')
-)
 
-  #5. Estabelecimentos de saúde ----
-
+  #5. Regiões Imediatas ----
+  
   # # download
-  # tar_target(name = healthfacilities_raw,
-  #          command = download_healthfacilities())
+  # tar_target(name = immediateregion_raw,
+  #            command = download_immediateregion()),
+  # 
+  # # clean
+  # tar_target(name = immediateregion_clean,
+  #            command = clean_immediateregion(immediateregion_raw),
+  #            format = 'file')
 
-#   # clean
-# tar_target(name = healthfacilities_clean,
-#            command = clean_healthfacilities(healthfacilities_raw),
+  #6. Regiões intermediária ----
+  # # year input
+  # tar_target(name = years_statsgrid,
+  #            command = c(2010, 2022)),
+  # 
+  # # download
+  # tar_target(name = statsgrid_raw,
+  #            command = download_statsgrid(years_statsgrid),
+  #            pattern = map(years_statsgrid)),
+  # 
+  # # clean
+  # tar_target(name = statsgrid_clean,
+  #            command = clean_statsgrid(statsgrid_raw, years_statsgrid),
+  #            pattern = map(statsgrid_raw, years_statsgrid),
+  #            format = 'file'),
+
+  #7. Terras Indígenas ----
+  # # year input
+  # tar_target(name = years_statsgrid,
+  #            command = c(2010, 2022)),
+  # 
+  # # download
+  # tar_target(name = statsgrid_raw,
+  #            command = download_statsgrid(years_statsgrid),
+  #            pattern = map(years_statsgrid)),
+  # 
+  # # clean
+  # tar_target(name = statsgrid_clean,
+  #            command = clean_statsgrid(statsgrid_raw, years_statsgrid),
+  #            pattern = map(statsgrid_raw, years_statsgrid),
+  #            format = 'file')
+
+  #8. Estabelecimentos de saúde ----
+# # year input
+# tar_target(name = years_statsgrid,
+#            command = c(2010, 2022)),
+# 
+# # download
+# tar_target(name = statsgrid_raw,
+#            command = download_statsgrid(years_statsgrid),
+#            pattern = map(years_statsgrid)),
+# 
+# # clean
+# tar_target(name = statsgrid_clean,
+#            command = clean_statsgrid(statsgrid_raw, years_statsgrid),
+#            pattern = map(statsgrid_raw, years_statsgrid),
 #            format = 'file')
+)
 
 ##################### UNTIL HERE UPDATED ---------------------
 
