@@ -166,21 +166,21 @@ clean_semiarid <- function(munis_semiarid, year) {
   #### 3. Save data set -----------------
   # sf::st_write(temp_sf, dsn= paste0(dir_clean,"/semiarid_", year, ".gpkg"), delete_dsn=TRUE)
   # sf::st_write(temp_sf_simplified, dsn= paste0(dir_clean,"/semiarid_", year, "_simplified.gpkg"), delete_dsn=TRUE )
-  
+  # 
+  # Save in parquet
   arrow::write_parquet(
-    x = temp_sf, 
+    x = temp_sf,
     sink = paste0(dir_clean,"/semiarid_", year, ".parquet"),
     compression='zstd',
     compression_level = 22
   )
-  
+
   arrow::write_parquet(
-    x = temp_sf_simplified, 
+    x = temp_sf_simplified,
     sink = paste0(dir_clean,"/semiarid_", year, "_simplified", ".parquet"),
     compression='zstd',
     compression_level = 22
   )
-  
   
   return(dir_clean)
 }

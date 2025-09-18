@@ -16,6 +16,9 @@
 # Palavras chaves descritivas:****
 # Informacao do Sistema de Referencia: SIRGAS 2000
 
+# Observações: 
+# Anos disponíveis: ****************
+
 ### Libraries (use any library as necessary)
 # 
 # library(RCurl)
@@ -24,44 +27,77 @@
 # library(janitor)
 # library(dplyr)
 # library(readr)
-# library(parallel)
+# library(parallel) # não existe no cran
 # library(data.table)
 # library(xlsx)
 # library(magrittr)
 # library(devtools)
 # library(lwgeom)
 # library(stringi)
-# 
+# library(targets)
+# library(tidyverse)
+# library(mirai)
+# library(RCurl)
+# library(rvest)
+# source("./R/support_harmonize_geobr.R")
+# source("./R/support_fun.R")
+
+
+####### Download the data  -----------------
+download_immediateregions <- function(year){ # year = 2024
+
+  ###### 0. Get the correct url and file names (UPDATE YEAR) -----------------
+  
+  
+  ###### 1. Generate the correct ftp link
+  
+  
+  
+  if(year == 2000) {
+    url = "ftp://geoftp.ibge.gov.br/organizacao_do_territorio/malhas_territoriais/malhas_municipais/municipio_2019/Brasil/BR/br_regioes_geograficas_imediatas.zip"
+  }
+  
+  if(year == 2024) {
+    url = "https://geoftp.ibge.gov.br/recortes_para_fins_estatisticos/grade_estatistica/censo_2022/grade_estatistica/"
+  }
+  
+  
+  ###### 2. Create temp folder -----------------
+  
+  zip_dir <- paste0(tempdir(), "/immediate_regions/", year)
+  dir.create(zip_dir, showWarnings = FALSE, recursive = TRUE)
+  dir.exists(zip_dir)
+  
+  file_raw <- fs::file_temp(tmp_dir = zip_dir,
+                            ext = fs::path_ext(url))
+
+  immediateregions_raw <-  1+year
+
+return(immediateregions_raw)
+
+}
+
+####### Clean the data  -----------------
+clean_immediateregions <- function(immediateregions_raw, year){ # year = 2024
+
+  ###### 0. Create folder to save clean data -----
+  
+  dir_clean <- paste0("./data/immediate_regions/", year)
+  dir.create(dir_clean, recursive = T, showWarnings = FALSE)
+  dir.exists(dir_clean)
+
+  return(dir_clean)
+
+}
+
+
+########################## OLD FILE BELOW HERE ##########
 # 
 # ####### Load Support functions to use in the preprocessing of the data -----------------
 # source("./prep_data/prep_functions.R")
 # source('./prep_data/download_malhas_municipais_function.R')
 # 
-# 
-# # If the data set is updated regularly, you should create a function that will have
-# # a `date` argument download the data
-# 
-# update <- 2020
-# 
-# 
-# ###### 0. Create directories to download and save the data -----------------
-# 
-# # Root directory
-# root_dir <- "L:////# DIRUR #//ASMEQ//geobr//data-raw"
-# setwd(root_dir)
-# 
-# 
-# # Directory to keep raw zipped files
-# setwd(root_dir)
-# dir.create("./immediate_regions")
-# setwd("./immediate_regions")
-# 
-# 
-# # Create folders to save clean sf.rds files
-# destdir_clean <- paste0("./shapes_in_sf_cleaned/",update)
-# dir.create( destdir_clean , showWarnings = FALSE)
-# 
-# 
+
 # 
 # 
 # ###### 1. download the raw data from the original website source -----------------

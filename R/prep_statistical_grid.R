@@ -48,9 +48,13 @@
    
   ###### 1. Create temp folder -----------------
    
-   file_raw <- fs::file_temp(ext = fs::path_ext(url))
-   tmp_dir <- tempdir()
+   zip_dir <- paste0(tempdir(), "/statsgrid/", year)
+   dir.create(zip_dir, showWarnings = FALSE, recursive = TRUE)
+   dir.exists(zip_dir)
    
+   file_raw <- fs::file_temp(tmp_dir = zip_dir,
+                             ext = fs::path_ext(url))
+
   ###### 2. Generate file names for both cases (UPDATE YEAR) ------
    
    # If the year is 2010
@@ -80,7 +84,7 @@
   ###### 2. Download Raw data -----------------
   
   # zip folder
-  in_zip <- paste0(tmp_dir, "/zipped/", year)
+  in_zip <- paste0(zip_dir, "/zipped/")
   dir.create(in_zip, showWarnings = FALSE, recursive = TRUE)
   dir.exists(in_zip)
   
@@ -97,7 +101,7 @@
   zip_names <- list.files(in_zip, pattern = "\\.zip", full.names = TRUE)
   
   # unzip folder
-  out_zip <- paste0(tmp_dir, "/unzipped/", year)
+  out_zip <- paste0(zip_dir, "/unzipped/")
   dir.create(out_zip, showWarnings = FALSE, recursive = TRUE)
   dir.exists(out_zip)
   
@@ -121,7 +125,7 @@
   
   shp_names <- list.files(out_zip, pattern = "\\.shp$", full.names = TRUE)
   
-  shp_names <- shp_names
+  shp_names <- shp_names[c(1,2)] # 666 para testar, reduzir aqui o número de shp juntados
   
   # paralelizar ?
   statsgrid_list <- pbapply::pblapply(
@@ -186,19 +190,19 @@
     use_multipolygon = F
   )
   
-  # glimpse(temp_sf)
+  glimpse(temp_sf)
   
   ###### 4. Save results  -----------------
 
-  sf::st_write(temp_sf, dsn= paste0(dir_clean,"/statsgrid_", year, ".gpkg"), delete_dsn=TRUE)
+  #sf::st_write(temp_sf, dsn= paste0(dir_clean,"/statsgrid_", year, ".gpkg"), delete_dsn=TRUE)
   
+  # Save in parquet
   arrow::write_parquet(
-    x = temp_sf, 
+    x = temp_sf,
     sink = paste0(dir_clean,"/statsgrid_", year, ".parquet"),
     compression='zstd',
     compression_level = 22
   )
-  
   
   return(dir_clean)
   }

@@ -10,7 +10,7 @@ tar_option_set(
   format = "rds",
   memory = "transient",
   garbage_collection = TRUE,
-  controller = crew_controller_local(workers = 1),
+  controller = crew_controller_local(workers = 2),
   
   
   # Packages ----
@@ -18,6 +18,7 @@ tar_option_set(
                'collapse',
                'crew',
                'data.table',
+               'devtools',
                'dplyr',
                'furrr',
                'future',
@@ -35,12 +36,15 @@ tar_option_set(
                'mirai',
                'nanonext',
                'openxlsx',
+               'parallel',
                'pbapply',
                'RCurl',
                'readr',
                'readxl',
-               # 'rgeos',    # removed from cran
-               'rland', # not available for 4.5.1 R version
+               #'rgeos',    # removed from cran
+               #'rJava',
+               #'rland', # not available for 4.5.1 R version
+               #'rlang',
                'rvest',
                'sfheaders',
                's2',
@@ -53,6 +57,7 @@ tar_option_set(
                'tidyverse',
                'utils',
                'visNetwork'
+               #'xlsx'
                )
   )
 # invisible(lapply(packages, library, character.only = TRUE))
@@ -131,18 +136,25 @@ list(
   tar_target(name = statsgrid_clean,
            command = clean_statsgrid(statsgrid_raw, years_statsgrid),
            pattern = map(statsgrid_raw, years_statsgrid),
-           format = 'file')
+           format = 'file'),
 
   #5. Regiões Imediatas ----
-  
-  # # download
-  # tar_target(name = immediateregion_raw,
-  #            command = download_immediateregion()),
-  # 
-  # # clean
-  # tar_target(name = immediateregion_clean,
-  #            command = clean_immediateregion(immediateregion_raw),
-  #            format = 'file')
+  # SEM PARQUET
+
+  # year input
+  tar_target(name = years_immediateregions,
+           command = c(2000, 2024)),
+
+  # download
+  tar_target(name = immediateregions_raw,
+           command = download_immediateregions(years_immediateregions),
+           pattern = map(years_immediateregions)),
+
+  # clean
+  tar_target(name = immediateregions_clean,
+           command = clean_immediateregions(immediateregions_raw, years_immediateregions),
+           pattern = map(immediateregions_raw, years_immediateregions),
+           format = 'file')
 
   #6. Regiões intermediária ----
   # # year input

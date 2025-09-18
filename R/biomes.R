@@ -27,6 +27,9 @@
 download_biomes <- function(year){ # year = 2019
 
   #### 0. Get the correct ftp link (UPDATE HERE IN CASE OF NEW YEAR IN THE DATA)
+  zip_dir <- paste0(tempdir(), "/biomes/", year)
+  dir.create(zip_dir, showWarnings = FALSE, recursive = TRUE)
+  dir.exists(zip_dir)
   
   if(year == 2004) {
     ftp <- 'https://geoftp.ibge.gov.br/informacoes_ambientais/estudos_ambientais/biomas/vetores/Biomas_5000mil.zip'
@@ -36,13 +39,13 @@ download_biomes <- function(year){ # year = 2019
     ftp <- 'https://geoftp.ibge.gov.br/informacoes_ambientais/estudos_ambientais/biomas/vetores/Biomas_250mil.zip'
     ftp_costeiro <- 'https://geoftp.ibge.gov.br/informacoes_ambientais/estudos_ambientais/biomas/vetores/Sistema_Costeiro_Marinho_250mil.zip'
     
-    file_raw_costeiro <- fs::file_temp(ext = fs::path_ext(ftp_costeiro))
+    file_raw_costeiro <- fs::file_temp(tmp_dir = zip_dir,
+                                       ext = fs::path_ext(ftp_costeiro))
     
   }
   
-  file_raw <- fs::file_temp(ext = fs::path_ext(ftp))
-  tmp_dir <- tempdir()
-  
+  file_raw <- fs::file_temp(tmp_dir = zip_dir,
+                            ext = fs::path_ext(ftp))
   
   #### 1. Download original data sets from source website
   download.file(url = ftp,
@@ -56,12 +59,12 @@ download_biomes <- function(year){ # year = 2019
 
   #### 2. Unzip shape files
   
-  zipfiles <- list.files(path = tmp_dir, pattern = basename(file_raw), full.names = T)
-  lapply(zipfiles, unzip, exdir = tmp_dir)
+  zipfiles <- list.files(path = zip_dir, pattern = basename(file_raw), full.names = T)
+  lapply(zipfiles, unzip, exdir = zip_dir)
   
   if(year == 2019) {
-    zipfiles_costeiro <- list.files(path = tmp_dir, pattern = basename(file_raw_costeiro), full.names = T)
-    lapply(zipfiles_costeiro, unzip, exdir = tmp_dir)
+    zipfiles_costeiro <- list.files(path = zip_dir, pattern = basename(file_raw_costeiro), full.names = T)
+    lapply(zipfiles_costeiro, unzip, exdir = zip_dir)
   }
 
 
@@ -69,7 +72,7 @@ download_biomes <- function(year){ # year = 2019
   
   if (year == 2004){
   
-    biomes_raw <- st_read(dsn = tmp_dir, layer = "Biomas5000",
+    biomes_raw <- st_read(dsn = zip_dir, layer = "Biomas5000",
                         options = "ENCODING = latin1",
                         stringsAsFactors = F, quiet = TRUE) %>% 
     mutate(across(where(is.character),
@@ -81,12 +84,12 @@ download_biomes <- function(year){ # year = 2019
   # For 2019, must join earth biomes with coastal system
   if (year == 2019){
   
-    raw_costeiro <- st_read(dsn = tmp_dir, layer = "Sistema_Costeiro_Marinho",
+    raw_costeiro <- st_read(dsn = zip_dir, layer = "Sistema_Costeiro_Marinho",
                             options = "ENCODING = latin1",
                             stringsAsFactors = F, quiet = TRUE)
 
     
-    raw_terrestre <- st_read(dsn = tmp_dir, layer = "lm_bioma_250",
+    raw_terrestre <- st_read(dsn = zip_dir, layer = "lm_bioma_250",
                           options = "ENCODING = latin1",
                           stringsAsFactors = F, quiet = TRUE)
     
@@ -146,8 +149,8 @@ clean_biomes <- function(biomes_raw, year) {
 
   # 2. Rename and reorder columns
   temp_sf <- temp_sf |>
-    select('name_biome' = snake_colname, 
-           'code_biome' = id_colname, 
+    select('name_biome' = all_of(snake_colname), # 666 tidyselect pedindo pra mudar: tem que vir all_of() ou any_of() antes de snake selection
+           'code_biome' = all_of(id_colname), # 666 tidyselect pedindo pra mudar: ""
            year, 
            geometry
            )
@@ -163,15 +166,16 @@ clean_biomes <- function(biomes_raw, year) {
   # sf::st_write(temp_sf, dsn = paste0(dir_clean, "/", "biomes_", year, ".gpkg"), append=FALSE)
   # sf::st_write(temp_sf_simplified, dsn = paste0(dir_clean, "/", "biomes_", year, "_simplified", ".gpkg"), append=FALSE)
 
+  # Save in parquet
   arrow::write_parquet(
-    x = temp_sf, 
+    x = temp_sf,
     sink = paste0(dir_clean, "/", "biomes_", year, ".parquet"),
     compression='zstd',
     compression_level = 22
   )
-  
+
   arrow::write_parquet(
-    x = temp_sf_simplified, 
+    x = temp_sf_simplified,
     sink = paste0(dir_clean, "/", "biomes_", year, "_simplified", ".parquet"),
     compression='zstd',
     compression_level = 22
