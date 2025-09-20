@@ -160,7 +160,8 @@ list(
 
   # # year input
   tar_target(name = years_intermediateregions,
-             command = c(2000, 2024))
+             command = c(#2000,
+                         2024))
 
   # # download
   # tar_target(name = intermediateregions_raw,

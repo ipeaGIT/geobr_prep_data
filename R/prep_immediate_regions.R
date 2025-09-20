@@ -73,7 +73,7 @@ download_immediateregions <- function(year){ # year = 2024
   # }
   # 
   
-#2000 ----
+  #2000 ----
   
   if(year == 2000) {
     
@@ -127,7 +127,7 @@ download_immediateregions <- function(year){ # year = 2024
   
   #filenames <- basename(ftp_link)
   
-  ###### 2. Download Raw data -----------------
+  ###### 3. Download Raw data -----------------
   
   # Download zipped files
   httr::GET(url = ftp_link,
@@ -135,7 +135,7 @@ download_immediateregions <- function(year){ # year = 2024
             httr::write_disk(path = file_raw,
                              overwrite = T))
   
-  ###### 3. Unzip Raw data -----------------
+  ###### 4. Unzip Raw data -----------------
   
   # directory of zips
   zip_names <- list.files(in_zip, pattern = "\\.zip", full.names = TRUE)
@@ -150,7 +150,7 @@ download_immediateregions <- function(year){ # year = 2024
     FUN = function(x){ unzip(zipfile = x, exdir = out_zip) }
   )
   
-  ###### 4. Bind Raw data together -----------------
+  ###### 5. Bind Raw data together -----------------
   
   shp_names <- list.files(out_zip, pattern = "\\.shp$", full.names = TRUE)
   
@@ -161,7 +161,7 @@ download_immediateregions <- function(year){ # year = 2024
   
   immediateregions_raw <- data.table::rbindlist(immediateregions_list)
   
-  ###### 5. Show result -----------------
+  ###### 6. Show result -----------------
   
   data.table::setDF(immediateregions_raw)
   immediateregions_raw <- sf::st_as_sf(immediateregions_raw) %>% 
@@ -183,7 +183,7 @@ clean_immediateregions <- function(immediateregions_raw, year){ # year = 2024
   ###### 0. Rename collumns names -----
   
   
-  ###### 2. Apply harmonize geobr cleaning -----------------
+  ###### 1. Apply harmonize geobr cleaning -----------------
   
   temp_sf <- harmonize_geobr(
     temp_sf = immediateregions_raw,
@@ -193,27 +193,40 @@ clean_immediateregions <- function(immediateregions_raw, year){ # year = 2024
     #snake_colname = snake_colname,
     projection_fix = T,
     encoding_utf8 = T,
-    topology_fix = F,
+    topology_fix = T,
     remove_z_dimension = T,
     use_multipolygon = T
   )
   
   glimpse(temp_sf)
   
-  ###### 3. Save results  -----------------
+  ###### 3. lighter version --------------- 
+  temp_sf_simplified <- simplify_temp_sf(temp_sf, tolerance = 100)
   
-  #sf::st_write(temp_sf, dsn= paste0(dir_clean,"/immediateregions_", year, ".gpkg"), delete_dsn=TRUE)
+  ###### 4. Save datasets  -----------------
   
+  sf::st_write(temp_sf, dsn = paste0(dir_clean, "/immediateregions_",  year,
+                                    ".gpkg"), delete_dsn = TRUE)
+  sf::st_write(temp_sf_simplified, dsn = paste0(dir_clean, "/immediateregions_",
+                                                year, "_simplified.gpkg"),
+               delete_dsn = TRUE )
+
   # Save in parquet
   arrow::write_parquet(
     x = temp_sf,
-    sink = paste0(dir_clean,"/immediateregions_", year, ".parquet"),
+    sink = paste0(dir_clean, "/immediateregions_", year, ".parquet"),
+    compression = 'zstd',
+    compression_level = 22
+  )
+  
+  arrow::write_parquet(
+    x = temp_sf_simplified,
+    sink = paste0(dir_clean,"/immediateregions_", year, "_simplified", ".parquet"),
     compression='zstd',
     compression_level = 22
   )
   
   return(dir_clean)
-
 }
 
 
