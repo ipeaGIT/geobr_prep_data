@@ -142,8 +142,8 @@ list(
 
   # year input
   tar_target(name = years_immediateregions,
-             command = c(#2000, #2001, 2005, 2007, 2010, #2013:2023,
-               2024)),
+             command = c(#2000, #2001, 2005, 2007, 2010, 2013:2023,
+                         2024)),
   
   # download
   tar_target(name = immediateregions_raw,
@@ -160,8 +160,8 @@ list(
 
   # # year input
   tar_target(name = years_intermediateregions,
-             command = c(#2000,
-                         2024)),
+             command = c(#2000, #2001, 2005, 2007, 2010, 2013:2022,
+                         2023:2024)),
 
   # download
   tar_target(name = intermediateregions_raw,

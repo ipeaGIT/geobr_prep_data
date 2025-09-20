@@ -96,7 +96,8 @@ download_immediateregions <- function(year){ # year = 2024
   #2024 ----
     if(year == 2024) {
     ftp_link <- "https://geoftp.ibge.gov.br/organizacao_do_territorio/malhas_territoriais/malhas_municipais/municipio_2024/Brasil/BR_RG_Imediatas_2024.zip"
-  }
+    }
+
     
   #   # Url final----
   #   url <- "https://geoftp.ibge.gov.br/organizacao_do_territorio/malhas_territoriais/malhas_municipais/municipio_2000/ac/ac_microrregioes.zip"
@@ -205,11 +206,11 @@ clean_immediateregions <- function(immediateregions_raw, year){ # year = 2024
   
   ###### 4. Save datasets  -----------------
   
-  sf::st_write(temp_sf, dsn = paste0(dir_clean, "/immediateregions_",  year,
-                                    ".gpkg"), delete_dsn = TRUE)
-  sf::st_write(temp_sf_simplified, dsn = paste0(dir_clean, "/immediateregions_",
-                                                year, "_simplified.gpkg"),
-               delete_dsn = TRUE )
+  # sf::st_write(temp_sf, dsn = paste0(dir_clean, "/immediateregions_",  year,
+  #                                   ".gpkg"), delete_dsn = TRUE)
+  # sf::st_write(temp_sf_simplified, dsn = paste0(dir_clean, "/immediateregions_",
+  #                                               year, "_simplified.gpkg"),
+  #              delete_dsn = TRUE )
 
   # Save in parquet
   arrow::write_parquet(

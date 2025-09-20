@@ -85,9 +85,10 @@ download_intermediateregions <- function(year){ # year = 2024
     
   }
   
-  #2024 ----
-  if(year == 2024) {
-    ftp_link <- "https://geoftp.ibge.gov.br/organizacao_do_territorio/malhas_territoriais/malhas_municipais/municipio_2024/Brasil/BR_RG_Imediatas_2024.zip"
+  # Years after 2020 ----
+  if(year >= 2020) {
+    url_start <- "https://geoftp.ibge.gov.br/organizacao_do_territorio/malhas_territoriais/malhas_municipais/municipio_"
+    ftp_link <- paste0(url_start, year, "/Brasil/BR_RG_Intermediarias_", year, ".zip")
   }
   
   #   # Url final----
@@ -197,12 +198,12 @@ clean_intermediateregions <- function(intermediateregions_raw, year){ # year = 2
   
   ###### 4. Save datasets  -----------------
   
-  sf::st_write(temp_sf, dsn = paste0(dir_clean, "/intermediateregions_",  year,
-                                     ".gpkg"), delete_dsn = TRUE)
-  sf::st_write(temp_sf_simplified, dsn = paste0(dir_clean,
-                                                "/intermediateregions_",
-                                                year, "_simplified.gpkg"),
-               delete_dsn = TRUE )
+  # sf::st_write(temp_sf, dsn = paste0(dir_clean, "/intermediateregions_",  year,
+  #                                    ".gpkg"), delete_dsn = TRUE)
+  # sf::st_write(temp_sf_simplified, dsn = paste0(dir_clean,
+  #                                               "/intermediateregions_",
+  #                                               year, "_simplified.gpkg"),
+  #              delete_dsn = TRUE )
   
   # Save in parquet
   arrow::write_parquet(
