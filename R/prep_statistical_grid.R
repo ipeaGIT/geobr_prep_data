@@ -78,17 +78,15 @@
       }
      
   #### Create direction for each download
-     
-  list_files_download <- paste0(url, filenames)
-  
+
+   # zip folder
+   in_zip <- paste0(zip_dir, "/zipped/")
+   dir.create(in_zip, showWarnings = FALSE, recursive = TRUE)
+   dir.exists(in_zip)
+   
   ###### 2. Download Raw data -----------------
   
-  # zip folder
-  in_zip <- paste0(zip_dir, "/zipped/")
-  dir.create(in_zip, showWarnings = FALSE, recursive = TRUE)
-  dir.exists(in_zip)
-  
-  ### make it paralle with curl::multidownload ?
+  ### make it paralle with curl::multidownload ? 666
   # Download zipped files
   for (name_file in filenames) {
     download.file(paste(url, name_file, sep = ""),
@@ -110,7 +108,7 @@
     FUN = function(x){ unzip(zipfile = x, exdir = out_zip) }
   )
   
-  # #### 666666 paralelizacao
+  # #### 666 paralelizacao
   # # numero de cores
   # mirai::daemons(28)
   # 
@@ -125,7 +123,7 @@
   
   shp_names <- list.files(out_zip, pattern = "\\.shp$", full.names = TRUE)
   
-  shp_names <- shp_names[c(1,2)] # 666 para testar, reduzir aqui o número de shp juntados
+  shp_names <- shp_names[c(1:2)] # 666 para testar, reduzir aqui o número de shp juntados
   
   # paralelizar ?
   statsgrid_list <- pbapply::pblapply(
@@ -175,7 +173,7 @@
   
   statsgrid_raw <- janitor::clean_names(statsgrid_raw)    
   
-  ###### 3. Apply harmonize geobr cleaning ***SLOW**** -----------------
+  ###### 3. Apply harmonize geobr cleaning -----------------
   
   temp_sf <- harmonize_geobr(
     temp_sf = statsgrid_raw,
@@ -207,7 +205,7 @@
   return(dir_clean)
   }
   
-  
+############### OLD CODE BELOW HERE #############
 # # list all shape files
 #   all_shapes <- list.files(full.names = T, recursive = T, pattern = ".shp")
 #   all_shapes <- all_shapes[ !(all_shapes %like% ".xml")]

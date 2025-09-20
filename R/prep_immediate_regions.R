@@ -1,16 +1,16 @@
-#> DATASET: Immediate Geographic Regions - 2019
+#> DATASET: Immediate Geographic Regions - 2024
 #> Source: IBGE - https://www.ibge.gov.br/geociencias/organizacao-do-territorio/malhas-territoriais/15774-malhas.html?=&t=o-que-e
 #> scale 1:250.000
 #> Metadata:
-# Titulo: Regioes Geograficas Imediatas
-# Titulo alternativo:
-# Frequencia de atualizacao: decenal
+# Título: Regiões Geográficas Imediatas
+# Título alternativo:
+# Frequência de atualização: decenal
 #
-# Forma de apresentacao: Shape
+# Forma de apresentação: Shape
 # Linguagem: Pt-BR
 # Character set: Utf-8
 #
-# Resumo: Regioes Geograficas Imediadas foram criadas pelo IBGE em 2017 para substituir a micro-regioes
+# Resumo: Regiões Geográficas Imediatas foram criadas pelo IBGE em 2017 para substituir as micro-regiões
 #
 # Estado: Em desenvolvimento
 # Palavras chaves descritivas:****
@@ -19,7 +19,7 @@
 # Observações: 
 # Anos disponíveis: ****************
 
-### Libraries (use any library as necessary)
+### Libraries (use any library as necessary) --------
 # 
 # library(RCurl)
 # library(stringr)
@@ -41,62 +41,183 @@
 # library(rvest)
 # source("./R/support_harmonize_geobr.R")
 # source("./R/support_fun.R")
-
-
-####### Download the data  -----------------
+# 
+# 
+# ####### Download the data  -----------------
 download_immediateregions <- function(year){ # year = 2024
 
-  ###### 0. Get the correct url and file names (UPDATE YEAR) -----------------
+  ###### 0. Get the correct url and file names -----------------
+  
+  # Year before 2016 ----
+  # If the year is pre 2016, we don't have BR files
   
   
-  ###### 1. Generate the correct ftp link
+  # Year after 2016 ----
+  # If the year is post 2016, we have BR files
   
+  # if(year >= 2016) {
+  # 
+  # inicio_url <- "ftp://geoftp.ibge.gov.br/organizacao_do_territorio/malhas_territoriais/malhas_municipais/municipio_"
+  # url <- paste0(inicio_url, year, "/Brasil/BR/br_regioes_geograficas_imediatas.zip")
+  # }
   
+  ###### 1. Generate the correct ftp link ----
+  #
+  # tesstint -----
+  # if(year <= 2017) {
+  #   url = "ftp://geoftp.ibge.gov.br/organizacao_do_territorio/malhas_territoriais/malhas_municipais/municipio_2019/Brasil/BR/br_regioes_geograficas_imediatas.zip"
+  # }
+  # 
+  # if(year == 2024) {
+  #   url = "https://geoftp.ibge.gov.br/recortes_para_fins_estatisticos/grade_estatistica/censo_2022/grade_estatistica/"
+  # }
+  # 
+  
+#2000 ----
   
   if(year == 2000) {
-    url = "ftp://geoftp.ibge.gov.br/organizacao_do_territorio/malhas_territoriais/malhas_municipais/municipio_2019/Brasil/BR/br_regioes_geograficas_imediatas.zip"
+    
+    # create states tibble
+    states <- tibble(cod_states = c(11, 12, 13, 14, 15, 16, 17, 21, 22, 23, 24,
+                                    25, 26, 27, 28, 29, 31, 32, 33, 35, 41, 42,
+                                    43, 50, 51, 52, 53),
+                     sg_state = c("RO", "AC", "AM", "RR", "PA", "AP", "TO", 
+                                  "MA", "PI", "CE", "RN", "PB", "PE", "AL",
+                                  "SE", "BA", "MG", "ES", "RJ", "SP", "PR",
+                                  "SC", "RS", "MS", "MT", "GO", "DF"),
+                     sgm_state = str_to_lower(sg_state))
+    
+    # parts of url
+    url_start <- "https://geoftp.ibge.gov.br/organizacao_do_territorio/malhas_territoriais/malhas_municipais/municipio_"
+    ftp_link <- paste0(url_start, year, "/", states$sgm_state, "/", states$sgm_state, "_microrregioes.zip")
+    
   }
   
-  if(year == 2024) {
-    url = "https://geoftp.ibge.gov.br/recortes_para_fins_estatisticos/grade_estatistica/censo_2022/grade_estatistica/"
+  #2024 ----
+    if(year == 2024) {
+    ftp_link <- "https://geoftp.ibge.gov.br/organizacao_do_territorio/malhas_territoriais/malhas_municipais/municipio_2024/Brasil/BR_RG_Imediatas_2024.zip"
   }
-  
+    
+  #   # Url final----
+  #   url <- "https://geoftp.ibge.gov.br/organizacao_do_territorio/malhas_territoriais/malhas_municipais/municipio_2000/ac/ac_microrregioes.zip"
+  #   
+  #   
+  #   url <- "https://geoftp.ibge.gov.br/organizacao_do_territorio/malhas_territoriais/malhas_municipais/municipio_2024/Brasil/BR_RG_Imediatas_2024.zip"
+  # }
+  # 
+  # if(year == 2024) {
+  # url <- "https://geoftp.ibge.gov.br/organizacao_do_territorio/malhas_territoriais/malhas_municipais/municipio_2024/Brasil/BR_RG_Imediatas_2024.zip"
+  # }
   
   ###### 2. Create temp folder -----------------
-  
+
   zip_dir <- paste0(tempdir(), "/immediate_regions/", year)
   dir.create(zip_dir, showWarnings = FALSE, recursive = TRUE)
   dir.exists(zip_dir)
+
+  ###### 3. Create direction for each download
   
-  file_raw <- fs::file_temp(tmp_dir = zip_dir,
-                            ext = fs::path_ext(url))
+  # zip folder
+  in_zip <- paste0(zip_dir, "/zipped/")
+  dir.create(in_zip, showWarnings = FALSE, recursive = TRUE)
+  dir.exists(in_zip)
+  
+  file_raw <- fs::file_temp(tmp_dir = in_zip,
+                            ext = fs::path_ext(ftp_link))
+  
+  #filenames <- basename(ftp_link)
+  
+  ###### 2. Download Raw data -----------------
+  
+  # Download zipped files
+  httr::GET(url = ftp_link,
+            httr::progress(),
+            httr::write_disk(path = file_raw,
+                             overwrite = T))
+  
+  ###### 3. Unzip Raw data -----------------
+  
+  # directory of zips
+  zip_names <- list.files(in_zip, pattern = "\\.zip", full.names = TRUE)
 
-  immediateregions_raw <-  1+year
+  # unzip folder
+  out_zip <- paste0(zip_dir, "/unzipped/")
+  dir.create(out_zip, showWarnings = FALSE, recursive = TRUE)
+  dir.exists(out_zip)
 
-return(immediateregions_raw)
+  pbapply::pblapply(
+    X = zip_names,
+    FUN = function(x){ unzip(zipfile = x, exdir = out_zip) }
+  )
+  
+  ###### 4. Bind Raw data together -----------------
+  
+  shp_names <- list.files(out_zip, pattern = "\\.shp$", full.names = TRUE)
+  
+  immediateregions_list <- pbapply::pblapply(
+    X = shp_names, 
+    FUN = function(x){ sf::st_read(x, quiet = T, stringsAsFactors=F) }
+  )
+  
+  immediateregions_raw <- data.table::rbindlist(immediateregions_list)
+  
+  ###### 5. Show result -----------------
+  
+  data.table::setDF(immediateregions_raw)
+  immediateregions_raw <- sf::st_as_sf(immediateregions_raw) %>% 
+    clean_names()
+
+  return(immediateregions_raw)
 
 }
 
-####### Clean the data  -----------------
+# ####### Clean the data  -----------------
 clean_immediateregions <- function(immediateregions_raw, year){ # year = 2024
 
   ###### 0. Create folder to save clean data -----
-  
+
   dir_clean <- paste0("./data/immediate_regions/", year)
   dir.create(dir_clean, recursive = T, showWarnings = FALSE)
   dir.exists(dir_clean)
-
+  
+  ###### 0. Rename collumns names -----
+  
+  
+  ###### 2. Apply harmonize geobr cleaning -----------------
+  
+  temp_sf <- harmonize_geobr(
+    temp_sf = immediateregions_raw,
+    add_state = F,
+    add_region = F,
+    add_snake_case = F,
+    #snake_colname = snake_colname,
+    projection_fix = T,
+    encoding_utf8 = T,
+    topology_fix = F,
+    remove_z_dimension = T,
+    use_multipolygon = T
+  )
+  
+  glimpse(temp_sf)
+  
+  ###### 3. Save results  -----------------
+  
+  #sf::st_write(temp_sf, dsn= paste0(dir_clean,"/immediateregions_", year, ".gpkg"), delete_dsn=TRUE)
+  
+  # Save in parquet
+  arrow::write_parquet(
+    x = temp_sf,
+    sink = paste0(dir_clean,"/immediateregions_", year, ".parquet"),
+    compression='zstd',
+    compression_level = 22
+  )
+  
   return(dir_clean)
 
 }
 
 
 ########################## OLD FILE BELOW HERE ##########
-# 
-# ####### Load Support functions to use in the preprocessing of the data -----------------
-# source("./prep_data/prep_functions.R")
-# source('./prep_data/download_malhas_municipais_function.R')
-# 
 
 # 
 # 

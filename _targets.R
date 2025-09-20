@@ -10,7 +10,7 @@ tar_option_set(
   format = "rds",
   memory = "transient",
   garbage_collection = TRUE,
-  controller = crew_controller_local(workers = 2),
+  controller = crew_controller_local(workers = 4),
   
   
   # Packages ----
@@ -139,38 +139,39 @@ list(
            format = 'file'),
 
   #5. Regiões Imediatas ----
-  # SEM PARQUET
 
   # year input
   tar_target(name = years_immediateregions,
-           command = c(2000, 2024)),
-
+             command = c(#2000, #2001, 2005, 2007, 2010, #2013:2023,
+               2024)),
+  
   # download
   tar_target(name = immediateregions_raw,
-           command = download_immediateregions(years_immediateregions),
-           pattern = map(years_immediateregions)),
-
-  # clean
+             command = download_immediateregions(years_immediateregions),
+             pattern = map(years_immediateregions)),
+  
+  # # clean
   tar_target(name = immediateregions_clean,
-           command = clean_immediateregions(immediateregions_raw, years_immediateregions),
-           pattern = map(immediateregions_raw, years_immediateregions),
-           format = 'file')
+             command = clean_immediateregions(immediateregions_raw, years_immediateregions),
+             pattern = map(immediateregions_raw, years_immediateregions),
+             format = 'file'),
 
   #6. Regiões intermediária ----
+
   # # year input
-  # tar_target(name = years_statsgrid,
-  #            command = c(2010, 2022)),
-  # 
+  tar_target(name = years_intermediateregions,
+             command = c(2000, 2024))
+
   # # download
-  # tar_target(name = statsgrid_raw,
-  #            command = download_statsgrid(years_statsgrid),
-  #            pattern = map(years_statsgrid)),
-  # 
+  # tar_target(name = intermediateregions_raw,
+  #            command = download_intermediateregions(years_intermediateregions),
+  #            pattern = map(years_intermediateregions))
+
   # # clean
   # tar_target(name = statsgrid_clean,
   #            command = clean_statsgrid(statsgrid_raw, years_statsgrid),
   #            pattern = map(statsgrid_raw, years_statsgrid),
-  #            format = 'file'),
+  #            format = 'file')
 
   #7. Terras Indígenas ----
   # # year input

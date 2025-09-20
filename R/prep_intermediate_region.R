@@ -1,4 +1,4 @@
-#> DATASET: Intermediate Geographic Regions - 2019
+#> DATASET: Intermediate Geographic Regions
 #> Source: IBGE - https://www.ibge.gov.br/geociencias/organizacao-do-territorio/malhas-territoriais/15774-malhas.html?=&t=o-que-e
 #> scale 1:250.000 ?????????????
 #> Metadata:
@@ -16,22 +16,62 @@
 # Palavras chaves descritivas:****
 # Informacao do Sistema de Referencia: SIRGAS 2000
 
-# ### Libraries (use any library as necessary)
+# ### Libraries (use any library as necessary) ----
+# # 
+# # library(RCurl)
+# # library(stringr)
+# # library(sf)
+# # library(janitor)
+# # library(dplyr)
+# # library(readr)
+# # library(parallel)
+# # library(data.table)
+# # library(xlsx)
+# # library(magrittr)
+# # library(devtools)
+# # library(lwgeom)
+# # library(stringi)
 # 
-# library(RCurl)
-# library(stringr)
-# library(sf)
-# library(janitor)
-# library(dplyr)
-# library(readr)
-# library(parallel)
-# library(data.table)
-# library(xlsx)
-# library(magrittr)
-# library(devtools)
-# library(lwgeom)
-# library(stringi)
 # 
+# ####### Download the data  -----------------
+# download_intermediateregions <- function(year){ # year = 2024
+#   
+#   ###### 0. Create temp folder -----------------
+#   
+#   zip_dir <- paste0(tempdir(), "/intermediate_regions/", year)
+#   dir.create(zip_dir, showWarnings = FALSE, recursive = TRUE)
+#   dir.exists(zip_dir)
+#   
+#   file_raw <- fs::file_temp(tmp_dir = zip_dir,
+#                             ext = fs::path_ext(url))
+#   
+#   ###### 0. Get the correct url and file names -----------------
+#   
+#   inicio_url <- "ftp://geoftp.ibge.gov.br/organizacao_do_territorio/malhas_territoriais/malhas_municipais/municipio_"
+#   url <- paste0(inicio_url, year, "/Brasil/BR/br_regioes_geograficas_imediatas.zip")
+#                 
+#   ###### 1. Generate the correct ftp link
+#   
+#   # if(year == 2000) {
+#   #   url = "ftp://geoftp.ibge.gov.br/organizacao_do_territorio/malhas_territoriais/malhas_municipais/municipio_2019/Brasil/BR/br_regioes_geograficas_imediatas.zip"
+#   # }
+#   # 
+#   # if(year == 2024) {
+#   #   url = "https://geoftp.ibge.gov.br/recortes_para_fins_estatisticos/grade_estatistica/censo_2022/grade_estatistica/"
+#   # }
+#   #
+#   #
+#   ##
+#   #
+#   
+#   intermediateregions_raw <- 1+year
+# 
+#   return(intermediateregions_raw)
+# 
+# }
+
+################ OLD CODE BELOW HERE #############
+
 # ####### Load Support functions to use in the preprocessing of the data -----------------
 # source("./prep_data/prep_functions.R")
 # source('./prep_data/download_malhas_municipais_function.R')
