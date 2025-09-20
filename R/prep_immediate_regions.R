@@ -41,9 +41,9 @@
 # library(rvest)
 # source("./R/support_harmonize_geobr.R")
 # source("./R/support_fun.R")
-# 
-# 
-# ####### Download the data  -----------------
+
+
+####### Download the data  -----------------
 download_immediateregions <- function(year){ # year = 2024
 
   ###### 0. Get the correct url and file names -----------------
@@ -180,10 +180,10 @@ clean_immediateregions <- function(immediateregions_raw, year){ # year = 2024
   dir.create(dir_clean, recursive = T, showWarnings = FALSE)
   dir.exists(dir_clean)
   
-  ###### 0. Rename collumns names -----
+  ###### 1. Rename collumns names -----
   
   
-  ###### 1. Apply harmonize geobr cleaning -----------------
+  ###### 2. Apply harmonize geobr cleaning -----------------
   
   temp_sf <- harmonize_geobr(
     temp_sf = immediateregions_raw,

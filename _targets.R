@@ -156,23 +156,24 @@ list(
              pattern = map(immediateregions_raw, years_immediateregions),
              format = 'file'),
 
-  #6. Regiões intermediária ----
+  #6. Regiões Intermediárias ----
 
   # # year input
   tar_target(name = years_intermediateregions,
              command = c(#2000,
-                         2024))
+                         2024)),
 
-  # # download
-  # tar_target(name = intermediateregions_raw,
-  #            command = download_intermediateregions(years_intermediateregions),
-  #            pattern = map(years_intermediateregions))
+  # download
+  tar_target(name = intermediateregions_raw,
+             command = download_intermediateregions(years_intermediateregions),
+             pattern = map(years_intermediateregions)),
 
-  # # clean
-  # tar_target(name = statsgrid_clean,
-  #            command = clean_statsgrid(statsgrid_raw, years_statsgrid),
-  #            pattern = map(statsgrid_raw, years_statsgrid),
-  #            format = 'file')
+  # clean
+  tar_target(name = intermediateregions_clean,
+             command = clean_intermediateregions(intermediateregions_raw,
+                                                 years_intermediateregions),
+             pattern = map(intermediateregions_raw, years_intermediateregions),
+             format = 'file')
 
   #7. Terras Indígenas ----
   # # year input

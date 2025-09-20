@@ -104,7 +104,6 @@ immediateregions_clean_a27e7b4e9f24a893|branch|08d5f59e833de599|8e97c72e333a7ec8
 statsgrid_raw|pattern|12ef9b8f1dd537b0|1d6b42049afbef94||-306683327||||8563579|rds|local|vector||statsgrid_raw_9a5000d9921c11e0*statsgrid_raw_d21ec0dbbc0b6775|108.97||
 statsgrid_clean_6a524a955f906ca8|branch|fa0a4d9a204c35f3|1f4d432a4eeb8eb8|7a7519dc8120b494|1894558227|./data/statistical_grid/2022|t20350.622528873s|s3445476b|3445476|file|local|vector|statsgrid_clean||9.594||
 statsgrid_clean|pattern|45f315e3787b1591|1f4d432a4eeb8eb8||-355250693||||6607001|file|local|vector||statsgrid_clean_2f3df92dbe7170e5*statsgrid_clean_6a524a955f906ca8|18.344||
-download_intermediateregions|function|b4fc29d25e8882bc
 statsgrid_clean_2f3df92dbe7170e5|branch|28fa3ab5f957bf1a|1f4d432a4eeb8eb8|41d976f68dab8e19|1392961096|./data/statistical_grid/2010|t20350.8717454944s|s3161525b|3161525|file|local|vector|statsgrid_clean||12.125||
 immediateregions_raw_342d3fb701b10fd7|branch|df04c77730b82816|628a5ecadc6c6fcb|26d451c0b42092e2|113087411||t20350.9559050558s||53|rds|local|vector|immediateregions_raw||3.422||length(url) == 1 não é TRUE
 years_immediateregions|stem|5f282b27887a70f7|0fd9d3a6225633ee|2c530c1562a7fbd1|1829493587||t20351.0481083802s|s53b|53|rds|local|vector||years_immediateregions_1f9b22175ab58c3c|3.296||
@@ -113,6 +112,8 @@ statsgrid_raw_9a5000d9921c11e0|branch|5e27e0098a770b81|1d6b42049afbef94|9bd8278d
 immediateregions_raw_24af6079b6c3674a|branch|5730597b38bb8558|628a5ecadc6c6fcb|dd6d04f6dc7453ab|-637816829||t20351.136837733s|s79327857b|79327857|rds|local|vector|immediateregions_raw||7.687||
 immediateregions_raw|pattern|8d33b809641ade09|628a5ecadc6c6fcb||340824362||||79327857|rds|local|vector||immediateregions_raw_24af6079b6c3674a|7.687||
 years_intermediateregions|stem|5f282b27887a70f7|0fd9d3a6225633ee|2c530c1562a7fbd1|-465247075||t20351.1463841407s|s53b|53|rds|local|vector|||3.516||
+immediateregions_clean_66a8a0cf4e4b9832|branch|9a140b686df0dc74|8e97c72e333a7ec8|7b6eded568050671|-681049124|./data/immediate_regions/2024|t20351.1603711488s|s168295280b|168295280|file|local|vector|immediateregions_clean||134.328||
+immediateregions_clean|pattern|352a4c239b04ebb9|8e97c72e333a7ec8||165723008||||168295280|file|local|vector||immediateregions_clean_66a8a0cf4e4b9832|134.328||
 download_immediateregions|function|6429d9fba057c024
 detect_year_from_string|function|7e1010acf860e4c3
 fix_topology|function|33a8777624a368eb
@@ -123,6 +124,7 @@ add_region_info|function|52f8962884fe316a
 harmonize_projection|function|91bb9d922009f51d
 snake_case_names|function|690ec5dbb9cbb374
 use_encoding_utf8|function|4f174428ce87a762
+download_intermediateregions|function|471338c3e3279254
 download_biomes|function|2c666f2aa96f78f3
 download_statsgrid|function|ee64c1fae5f72da5
 remove_state_repetition|function|f651de43bfd2d54b
@@ -137,6 +139,9 @@ clean_amazonialegal|function|b9207cb3c349af66
 clean_statsgrid|function|f463c8b561b31a2f
 clean_immediateregions|function|5d99a5e4641f16b3
 clean_semiarid|function|b55bd50b224d83d8
+clean_intermediateregions|function|8d852cfc83e046ee
 clean_biomes|function|876df16b2a575403
-immediateregions_clean_66a8a0cf4e4b9832|branch|9a140b686df0dc74|8e97c72e333a7ec8|7b6eded568050671|-681049124|./data/immediate_regions/2024|t20351.1603711488s|s168295280b|168295280|file|local|vector|immediateregions_clean||134.328||
-immediateregions_clean|pattern|352a4c239b04ebb9|8e97c72e333a7ec8||165723008||||168295280|file|local|vector||immediateregions_clean_66a8a0cf4e4b9832|134.328||
+intermediateregions_raw_6de50431269e37bc|branch|5730597b38bb8558|85a1e3609bedebea|9dc0db642153d75e|914860087||t20351.1740734872s|s79327857b|79327857|rds|local|vector|intermediateregions_raw||7.984||
+intermediateregions_raw|pattern|e92abbe8e7ccae6b|85a1e3609bedebea||-1998557575||||79327857|rds|local|vector||intermediateregions_raw_6de50431269e37bc|7.984||
+intermediateregions_clean_a1b841f19d882e8d|branch|4693d4da480bb26d|2622fb8132163659|881d2eabddb47d76|-1983417430|./data/intermediateregions_regions/2024|t20351.1755160332s|s168299376b|168299376|file|local|vector|intermediateregions_clean||121.656||
+intermediateregions_clean|pattern|7a2b1cd97a4d1369|2622fb8132163659||1109634719||||168299376|file|local|vector||intermediateregions_clean_a1b841f19d882e8d|121.656||
