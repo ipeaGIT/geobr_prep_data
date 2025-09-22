@@ -7,13 +7,13 @@ Data sets currenly implemented in the targets pipeline:
 - [ ] state
 - [ ] meso_region
 - [ ] micro_region
-- [ ] intermediate_region
-- [ ] immediate_region
+- [X] intermediate_region
+- [X] immediate_region
 - [ ] municipality
 - [ ] municipal_seat
 - [ ] weighting_area
 - [ ] census_tract
-- [ ] statistical_grid
+- [X] statistical_grid
 - [ ] metro_area
 - [ ] urban_area
 - [x] amazon

@@ -159,7 +159,7 @@ list(
 
   #6. Regiões Intermediárias ----
 
-  # # year input
+  # year input
   tar_target(name = years_intermediateregions,
              command = c(#2000, #2001, 2005, 2007, 2010, 2013:2022,
                          2022, #2023,
@@ -178,19 +178,25 @@ list(
              format = 'file')
 
   #7. Terras Indígenas ----
-  # # year input
-  # tar_target(name = years_statsgrid,
-  #            command = c(2010, 2022)),
+  
+  # date imput
+  # tar_target(name = indigenousland_date,
+  #            command = dates_indigenousland()),
   # 
+  # # year input
+  # tar_target(name = indigenousland_years,
+  #            command = years_indigenousland(month_indigenousland,
+  #                                           year_indigenousland)),
+
   # # download
-  # tar_target(name = statsgrid_raw,
-  #            command = download_statsgrid(years_statsgrid),
-  #            pattern = map(years_statsgrid)),
+  # tar_target(name = indigenousland_raw,
+  #            command = download_indigenousland(indigenousland_years),
+  #            pattern = map(indigenousland_years)),
   # 
   # # clean
-  # tar_target(name = statsgrid_clean,
-  #            command = clean_statsgrid(statsgrid_raw, years_statsgrid),
-  #            pattern = map(statsgrid_raw, years_statsgrid),
+  # tar_target(name = indigenousland_clean,
+  #            command = clean_indigenousland(indigenousland_raw, indigenousland_years),
+  #            pattern = map(indigenousland_raw, indigenousland_years),
   #            format = 'file')
 
   #8. Estabelecimentos de saúde ----

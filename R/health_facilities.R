@@ -21,41 +21,44 @@
 
 
 
-#' ###### Download the data  -----------------
-#' download_healthfacilities <- function(){ 
-#' 
-#'   
-#'   
-#'   
-#'   # Source: 
-#'   # "https://dados.gov.br/dados/conjuntos-dados/cnes-cadastro-nacional-de-estabelecimentos-de-saude"
-#'   file_url = 'https://s3.sa-east-1.amazonaws.com/ckan.saude.gov.br/CNES/cnes_estabelecimentos.zip'
-#'   
-#'   # determine date of last update
-#'     caminho_api <- "https://dados.gov.br/api/publico/conjuntos-dados/cnes-cadastro-nacional-de-estabelecimentos-de-saude"
-#' 
-#'     meta <- jsonlite::read_json(caminho_api, simplifyVector = TRUE) |>
-#'         purrr::pluck("resources")  |>
-#'         tibble::as_tibble() |>
-#'         dplyr::filter(format == "ZIP")
-#'   
-#'   healthfacilities_raw <- 1+1
-#' 
-#'   return(healthfacilities_raw)
-#' 
-#' }  
-#' 
-#' ###### Clean the data  -----------------
-#' # download_healthfacilities <- function(){ 
-#' #   
-#' #   
-#' #   
-#' #   
-#' #   return()
-#' #   
-#' # }  
-#' 
-#' 
+###### Download the data  -----------------
+# download_healthfacilities <- function(){
+# 
+# 
+# 
+# 
+#   # Source:
+#   # "https://dados.gov.br/dados/conjuntos-dados/cnes-cadastro-nacional-de-estabelecimentos-de-saude"
+#   file_url = 'https://s3.sa-east-1.amazonaws.com/ckan.saude.gov.br/CNES/cnes_estabelecimentos.zip'
+# 
+#   # determine date of last update
+#     caminho_api <- "https://dados.gov.br/api/publico/conjuntos-dados/cnes-cadastro-nacional-de-estabelecimentos-de-saude"
+# 
+#     meta <- jsonlite::read_json(caminho_api, simplifyVector = TRUE) |>
+#         purrr::pluck("resources")  |>
+#         tibble::as_tibble() |>
+#         dplyr::filter(format == "ZIP")
+# 
+#   healthfacilities_raw <- 1+1
+# 
+#   return(healthfacilities_raw)
+# 
+# }
+# 
+# ##### Clean the data  -----------------
+# download_healthfacilities <- function(){
+# 
+# 
+# 
+# 
+#   return()
+# 
+# }
+
+
+
+# RAPHAEL OLD CODE BELOW HERE
+
 #' # 0. Download Raw zipped  ---------------------------------
 #' 
 #' 
