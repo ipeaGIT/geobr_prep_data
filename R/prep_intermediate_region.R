@@ -33,7 +33,6 @@
 # library(stringi)
 
 
-####### Download the data  -----------------
 
 ####### Download the data  -----------------
 download_intermediateregions <- function(year){ # year = 2024
@@ -68,23 +67,23 @@ download_intermediateregions <- function(year){ # year = 2024
   #2000 ----
   
   # if(year == 2000) {
-  #   
+  # 
   #   # create states tibble
   #   states <- tibble(cod_states = c(11, 12, 13, 14, 15, 16, 17, 21, 22, 23, 24,
   #                                   25, 26, 27, 28, 29, 31, 32, 33, 35, 41, 42,
   #                                   43, 50, 51, 52, 53),
-  #                    sg_state = c("RO", "AC", "AM", "RR", "PA", "AP", "TO", 
+  #                    sg_state = c("RO", "AC", "AM", "RR", "PA", "AP", "TO",
   #                                 "MA", "PI", "CE", "RN", "PB", "PE", "AL",
   #                                 "SE", "BA", "MG", "ES", "RJ", "SP", "PR",
   #                                 "SC", "RS", "MS", "MT", "GO", "DF"),
   #                    sgm_state = str_to_lower(sg_state))
-  #   
+  # 
   #   # parts of url
   #   url_start <- "https://geoftp.ibge.gov.br/organizacao_do_territorio/malhas_territoriais/malhas_municipais/municipio_"
   #   ftp_link <- paste0(url_start, year, "/", states$sgm_state, "/", states$sgm_state, "_microrregioes.zip")
-  #   
   # }
-  # 
+  
+  
   # # Years after 2020 ----
   # if(year %in% c(2023, 2024)) {
   #   url_start <- "https://geoftp.ibge.gov.br/organizacao_do_territorio/malhas_territoriais/malhas_municipais/municipio_"
@@ -101,11 +100,10 @@ download_intermediateregions <- function(year){ # year = 2024
   # "malhas_municipais/municipio_2020/Brasil/BR_RG_Intermediarias_2020.zip"
   
   
-  
   # Url final----
-  if(year == 2000) {
-  ftp_link <- "https://geoftp.ibge.gov.br/organizacao_do_territorio/malhas_territoriais/malhas_municipais/municipio_2000/ac/ac_microrregioes.zip"
-  }
+  # if(year == 2000) {
+  # ftp_link <- "https://geoftp.ibge.gov.br/organizacao_do_territorio/malhas_territoriais/malhas_municipais/municipio_2000/ac/ac_microrregioes.zip"
+  # }
 
   if(year == 2022) {
     ftp_link <- "https://geoftp.ibge.gov.br/organizacao_do_territorio/malhas_territoriais/malhas_municipais/municipio_2022/Brasil/BR/BR_RG_Intermediarias_2022.zip"
@@ -135,9 +133,27 @@ download_intermediateregions <- function(year){ # year = 2024
   file_raw <- fs::file_temp(tmp_dir = in_zip,
                             ext = fs::path_ext(ftp_link))
   
-  #filenames <- basename(ftp_link)
+  filenames <- basename(ftp_link)
   
   ###### 3. Download Raw data -----------------
+  
+  # if(year == 2000) {
+  #   # # Download zipped files
+  #   # for (name_file in filenames) {
+  #   #   download.file(paste(url, name_file, sep = ""),
+  #   #                 paste(in_zip, name_file, sep = "\\"))
+  #   # }
+  #   
+  #   #2a tentativa
+  #   for (namefile in filenames) {
+  #   httr::GET(url = ftp_link[namefile],
+  #             httr::progress(),
+  #             httr::write_disk(path = file_raw[i],
+  #                              overwrite = T))
+  #   }
+  #   
+  # }
+  
   
   # Download zipped files
   httr::GET(url = ftp_link,
@@ -159,7 +175,6 @@ download_intermediateregions <- function(year){ # year = 2024
     unzip(zipfile = zip_names,
           exdir = out_zip)
     
-    unzip(zipfile = zip_names, exdir = out_zip)
   }
   
   if (length(zip_names) > 1) {

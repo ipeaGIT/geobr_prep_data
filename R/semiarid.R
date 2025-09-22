@@ -140,7 +140,6 @@ clean_semiarid <- function(munis_semiarid, year) {
                                           simplified = FALSE)
   }
   
-  
   # subset municipalities
   temp_sf <- subset(all_munis, code_muni %in% munis_semiarid$code_muni)
   

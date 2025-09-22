@@ -73,24 +73,34 @@ download_immediateregions <- function(year){ # year = 2024
   # }
   # 
   
-  #2000 ----
+  # #2000 ----
+  # 
+  # if(year == 2000) {
+  #   
+  #   # create states tibble
+  #   states <- tibble(cod_states = c(11, 12, 13, 14, 15, 16, 17, 21, 22, 23, 24,
+  #                                   25, 26, 27, 28, 29, 31, 32, 33, 35, 41, 42,
+  #                                   43, 50, 51, 52, 53),
+  #                    sg_state = c("RO", "AC", "AM", "RR", "PA", "AP", "TO", 
+  #                                 "MA", "PI", "CE", "RN", "PB", "PE", "AL",
+  #                                 "SE", "BA", "MG", "ES", "RJ", "SP", "PR",
+  #                                 "SC", "RS", "MS", "MT", "GO", "DF"),
+  #                    sgm_state = str_to_lower(sg_state))
+  #   
+  #   # parts of url
+  #   url_start <- "https://geoftp.ibge.gov.br/organizacao_do_territorio/malhas_territoriais/malhas_municipais/municipio_"
+  #   ftp_link <- paste0(url_start, year, "/", states$sgm_state, "/", states$sgm_state, "_microrregioes.zip")
+  #   
+  # }
   
-  if(year == 2000) {
-    
-    # create states tibble
-    states <- tibble(cod_states = c(11, 12, 13, 14, 15, 16, 17, 21, 22, 23, 24,
-                                    25, 26, 27, 28, 29, 31, 32, 33, 35, 41, 42,
-                                    43, 50, 51, 52, 53),
-                     sg_state = c("RO", "AC", "AM", "RR", "PA", "AP", "TO", 
-                                  "MA", "PI", "CE", "RN", "PB", "PE", "AL",
-                                  "SE", "BA", "MG", "ES", "RJ", "SP", "PR",
-                                  "SC", "RS", "MS", "MT", "GO", "DF"),
-                     sgm_state = str_to_lower(sg_state))
-    
-    # parts of url
-    url_start <- "https://geoftp.ibge.gov.br/organizacao_do_territorio/malhas_territoriais/malhas_municipais/municipio_"
-    ftp_link <- paste0(url_start, year, "/", states$sgm_state, "/", states$sgm_state, "_microrregioes.zip")
-    
+  #2022 ----
+  if(year == 2022) {
+    ftp_link <- "https://geoftp.ibge.gov.br/organizacao_do_territorio/malhas_territoriais/malhas_municipais/municipio_2022/Brasil/BR/BR_RG_Imediatas_2022.zip"
+  }
+  
+  #2023 ----
+  if(year == 2023) {
+    ftp_link <- "https://geoftp.ibge.gov.br/organizacao_do_territorio/malhas_territoriais/malhas_municipais/municipio_2023/Brasil/BR_RG_Imediatas_2023.zip"
   }
   
   #2024 ----
@@ -140,16 +150,24 @@ download_immediateregions <- function(year){ # year = 2024
   
   # directory of zips
   zip_names <- list.files(in_zip, pattern = "\\.zip", full.names = TRUE)
-
+  
   # unzip folder
   out_zip <- paste0(zip_dir, "/unzipped/")
   dir.create(out_zip, showWarnings = FALSE, recursive = TRUE)
   dir.exists(out_zip)
-
-  pbapply::pblapply(
-    X = zip_names,
-    FUN = function(x){ unzip(zipfile = x, exdir = out_zip) }
-  )
+  
+  if (length(zip_names) == 1) {
+    unzip(zipfile = zip_names,
+          exdir = out_zip)
+    
+  }
+  
+  if (length(zip_names) > 1) {
+    pbapply::pblapply(
+      X = zip_names,
+      FUN = function(x){ unzip(zipfile = x, exdir = out_zip) }
+    )
+  }
   
   ###### 5. Bind Raw data together -----------------
   
@@ -167,9 +185,8 @@ download_immediateregions <- function(year){ # year = 2024
   data.table::setDF(immediateregions_raw)
   immediateregions_raw <- sf::st_as_sf(immediateregions_raw) %>% 
     clean_names()
-
+  
   return(immediateregions_raw)
-
 }
 
 # ####### Clean the data  -----------------

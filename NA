@@ -1,0 +1,147 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html><head>
+<meta type="copyright" content="Copyright (C) 1996-2021 The Squid Software Foundation and contributors">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>ERROR: The requested URL could not be retrieved</title>
+<style type="text/css"><!-- 
+ /*
+ * Copyright (C) 1996-2023 The Squid Software Foundation and contributors
+ *
+ * Squid software is distributed under GPLv2+ license and includes
+ * contributions from numerous individuals and organizations.
+ * Please see the COPYING and CONTRIBUTORS files for details.
+ */
+
+/*
+ Stylesheet for Squid Error pages
+ Adapted from design by Free CSS Templates
+ http://www.freecsstemplates.org
+ Released for free under a Creative Commons Attribution 2.5 License
+*/
+
+/* Page basics */
+* {
+	font-family: verdana, sans-serif;
+}
+
+html body {
+	margin: 0;
+	padding: 0;
+	background: #efefef;
+	font-size: 12px;
+	color: #1e1e1e;
+}
+
+/* Page displayed title area */
+#titles {
+	margin-left: 15px;
+	padding: 10px;
+	padding-left: 100px;
+	background: url('/squid-internal-static/icons/SN.png') no-repeat left;
+}
+
+/* initial title */
+#titles h1 {
+	color: #000000;
+}
+#titles h2 {
+	color: #000000;
+}
+
+/* special event: FTP success page titles */
+#titles ftpsuccess {
+	background-color:#00ff00;
+	width:100%;
+}
+
+/* Page displayed body content area */
+#content {
+	padding: 10px;
+	background: #ffffff;
+}
+
+/* General text */
+p {
+}
+
+/* error brief description */
+#error p {
+}
+
+/* some data which may have caused the problem */
+#data {
+}
+
+/* the error message received from the system or other software */
+#sysmsg {
+}
+
+pre {
+}
+
+/* special event: FTP directory listing */
+#dirmsg {
+    font-family: courier, monospace;
+    color: black;
+    font-size: 10pt;
+}
+#dirlisting {
+    margin-left: 2%;
+    margin-right: 2%;
+}
+#dirlisting tr.entry td.icon,td.filename,td.size,td.date {
+    border-bottom: groove;
+}
+#dirlisting td.size {
+    width: 50px;
+    text-align: right;
+    padding-right: 5px;
+}
+
+/* horizontal lines */
+hr {
+	margin: 0;
+}
+
+/* page displayed footer area */
+#footer {
+	font-size: 9px;
+	padding-left: 10px;
+}
+
+
+body
+:lang(fa) { direction: rtl; font-size: 100%; font-family: Tahoma, Roya, sans-serif; float: right; }
+:lang(he) { direction: rtl; }
+ --></style>
+</head><body id=ERR_DNS_FAIL>
+<div id="titles">
+<h1>ERROR</h1>
+<h2>The requested URL could not be retrieved</h2>
+</div>
+<hr>
+
+<div id="content">
+<p>The following error was encountered while trying to retrieve the URL: <a href="http://na/">http://na/</a></p>
+
+<blockquote id="error">
+<p><b>Unable to determine IP address from host name <q>na</q></b></p>
+</blockquote>
+
+<p>The DNS server returned:</p>
+<blockquote id="data">
+<pre>Server Failure: The name server was unable to process this query.</pre>
+</blockquote>
+
+<p>This means that the cache was not able to resolve the hostname presented in the URL. Check if the address is correct.</p>
+
+<p>Your cache administrator is <a href="mailto:webmaster?subject=CacheErrorInfo%20-%20ERR_DNS_FAIL&amp;body=CacheHost%3A%20svdflg201077.ipea.gov.br%0D%0AErrPage%3A%20ERR_DNS_FAIL%0D%0AErr%3A%20%5Bnone%5D%0D%0ADNS%20ErrMsg%3A%20Server%20Failure%3A%20The%20name%20server%20was%20unable%20to%20process%20this%20query.%0D%0ATimeStamp%3A%20Mon,%2022%20Sep%202025%2018%3A31%3A15%20GMT%0D%0A%0D%0AClientIP%3A%2010.1.1.92%0D%0A%0D%0AHTTP%20Request%3A%0D%0AGET%20%2F%20HTTP%2F1.1%0AHost%3A%20na%0D%0AUser-Agent%3A%20libcurl%2F8.14.1%20r-curl%2F7.0.0%20httr%2F1.4.7%0D%0AAccept-Encoding%3A%20deflate,%20gzip%0D%0AProxy-Connection%3A%20Keep-Alive%0D%0AAccept%3A%20application%2Fjson,%20text%2Fxml,%20application%2Fxml,%20*%2F*%0D%0A%0D%0A%0D%0A">webmaster</a>.</p>
+<br>
+</div>
+
+<hr>
+<div id="footer">
+<p>Generated Mon, 22 Sep 2025 18:31:15 GMT by svdflg201077.ipea.gov.br (squid/6.6)</p>
+<!-- ERR_DNS_FAIL -->
+</div>
+</body></html>
