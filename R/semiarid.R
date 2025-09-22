@@ -24,15 +24,7 @@
 ##### Download the data  -----------------
 download_semiarid <- function(year){ # year = 2022
 
-  # #### 0. Create file directory  -----------------
-  # # Directory to keep raw zipped files and cleaned files
-  # dir.create("./data_raw/semiarid", showWarnings = FALSE)
-  # dir.create("./data/semiarid", showWarnings = FALSE)
-  # dir_raw <- paste0("./data_raw/semiarid/", year)
-  # dir.create(dir_raw, recursive = T, , showWarnings = FALSE)
-  
-
-  #### 1. Download original data sets from source website -----------------
+  #### 0. Get ftp link from source website -----------------
 
   # get correct ftp url link
 
@@ -52,10 +44,21 @@ download_semiarid <- function(year){ # year = 2022
     ftp <- 'https://geoftp.ibge.gov.br/organizacao_do_territorio/estrutura_territorial/semiarido_brasileiro/Situacao_2022/lista_municipios_Semiarido_2022.xlsx'
   }
 
-
+  #### 1. Create temp folder -----------------
+  
+  zip_dir <- paste0(tempdir(), "/semiarid/", year)
+  dir.create(zip_dir, showWarnings = FALSE, recursive = TRUE)
+  dir.exists(zip_dir)
+  
+  # zip folder
+  in_zip <- paste0(zip_dir, "/zipped/")
+  dir.create(in_zip, showWarnings = FALSE, recursive = TRUE)
+  dir.exists(in_zip)
+  
   # directions to download file
   # file_raw <- paste0(dir_raw,"/", year, "_", basename(ftp))
-  file_raw <-fs::file_temp(ext = fs::path_ext(ftp))
+  file_raw <-fs::file_temp(tmp_dir = in_zip,
+                           ext = fs::path_ext(ftp))
 
   #### 2. Download  -----------------
   httr::GET(url = ftp,
@@ -118,7 +121,7 @@ download_semiarid <- function(year){ # year = 2022
 clean_semiarid <- function(munis_semiarid, year) { 
   
   
-  #### 0. Create folders to save clean sf.rds files  -----------------
+  #### 0. Create folders to save clean sf files  -----------------
   dir_clean <- paste0("./data/semiarid/", year)
   dir.create(dir_clean, recursive = T, showWarnings = FALSE)
   
