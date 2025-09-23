@@ -145,12 +145,12 @@ list(
              command = c(#2000, #2001, 2005, 2007, 2010, 2013:2022,
                2022, #2023,
                2024)),
-  
+
   # download
   tar_target(name = immediateregions_raw,
              command = download_immediateregions(years_immediateregions),
              pattern = map(years_immediateregions)),
-  
+
   # # clean
   tar_target(name = immediateregions_clean,
              command = clean_immediateregions(immediateregions_raw, years_immediateregions),
@@ -197,7 +197,7 @@ list(
   # tar_target(name = indigenousland_clean,
   #            command = clean_indigenousland(indigenousland_raw, indigenousland_years),
   #            pattern = map(indigenousland_raw, indigenousland_years),
-  #            format = 'file')
+  #            format = 'file'),
 
   #8. Estabelecimentos de saúde ----
 # # year input

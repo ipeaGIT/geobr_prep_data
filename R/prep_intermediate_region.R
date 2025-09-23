@@ -65,7 +65,6 @@ download_intermediateregions <- function(year){ # year = 2024
   # 
   
   #2000 ----
-  
   # if(year == 2000) {
   # 
   #   # create states tibble
@@ -89,16 +88,7 @@ download_intermediateregions <- function(year){ # year = 2024
   #   url_start <- "https://geoftp.ibge.gov.br/organizacao_do_territorio/malhas_territoriais/malhas_municipais/municipio_"
   #   ftp_link <- paste0(url_start, year, "/Brasil/BR_RG_Intermediarias_", year, ".zip")
   # }
-  
-  # "https://geoftp.ibge.gov.br/organizacao_do_territorio/malhas_territoriais/"
-  # "malhas_municipais/municipio_2024/Brasil/BR_RG_Intermediarias_2024.zip"
-  # 
-  # "https://geoftp.ibge.gov.br/organizacao_do_territorio/malhas_territoriais/"
-  # "malhas_municipais/municipio_2023/Brasil/BR_RG_Intermediarias_2023.zip"
-  # 
-  # "https://geoftp.ibge.gov.br/organizacao_do_territorio/malhas_territoriais/"
-  # "malhas_municipais/municipio_2020/Brasil/BR_RG_Intermediarias_2020.zip"
-  
+
   
   # Url final----
   # if(year == 2000) {
@@ -107,14 +97,14 @@ download_intermediateregions <- function(year){ # year = 2024
 
   if(year == 2022) {
     ftp_link <- "https://geoftp.ibge.gov.br/organizacao_do_territorio/malhas_territoriais/malhas_municipais/municipio_2022/Brasil/BR/BR_RG_Intermediarias_2022.zip"
-      }
-  
-  if(year == 2023) {
-  ftp_link <- "https://geoftp.ibge.gov.br/organizacao_do_territorio/malhas_territoriais/malhas_municipais/municipio_2023/Brasil/BR_RG_Intermediarias_2023.zip"
   }
   
+  # if(year == 2023) {
+  #   ftp_link <- "https://geoftp.ibge.gov.br/organizacao_do_territorio/malhas_territoriais/malhas_municipais/municipio_2023/Brasil/BR_RG_Intermediarias_2023.zip"
+  # }
+  
   if(year == 2024) {
-  ftp_link <- "https://geoftp.ibge.gov.br/organizacao_do_territorio/malhas_territoriais/malhas_municipais/municipio_2024/Brasil/BR_RG_Intermediarias_2024.zip"
+    ftp_link <- "https://geoftp.ibge.gov.br/organizacao_do_territorio/malhas_territoriais/malhas_municipais/municipio_2024/Brasil/BR_RG_Intermediarias_2024.zip"
   }
   
   ###### 2. Create temp folder -----------------
@@ -135,14 +125,15 @@ download_intermediateregions <- function(year){ # year = 2024
   
   filenames <- basename(ftp_link)
   
-  ###### 3. Download Raw data -----------------
+  ###### 4. Download Raw data -----------------
   
   # if(year == 2000) {
-  #   # # Download zipped files
-  #   # for (name_file in filenames) {
-  #   #   download.file(paste(url, name_file, sep = ""),
-  #   #                 paste(in_zip, name_file, sep = "\\"))
-  #   # }
+  #   # Download zipped files
+  #   for (name_file in filenames) {
+  #     download.file(paste(url, name_file, sep = ""),
+  #                   paste(in_zip, name_file, sep = "\\"))
+  #   }
+  # }  
   #   
   #   #2a tentativa
   #   for (namefile in filenames) {
@@ -154,12 +145,13 @@ download_intermediateregions <- function(year){ # year = 2024
   #   
   # }
   
-  
-  # Download zipped files
-  httr::GET(url = ftp_link,
-            httr::progress(),
-            httr::write_disk(path = file_raw,
-                             overwrite = T))
+  if(year != 2000) {
+    # Download zipped files
+    httr::GET(url = ftp_link,
+              httr::progress(),
+              httr::write_disk(path = file_raw,
+                               overwrite = T))
+  }
   
   ###### 4. Unzip Raw data -----------------
   
@@ -210,7 +202,7 @@ clean_intermediateregions <- function(intermediateregions_raw, year){ # year = 2
   
   ###### 0. Create folder to save clean data -----
   
-  dir_clean <- paste0("./data/intermediateregions_regions/", year)
+  dir_clean <- paste0("./data/intermediate_regions/", year)
   dir.create(dir_clean, recursive = T, showWarnings = FALSE)
   dir.exists(dir_clean)
   

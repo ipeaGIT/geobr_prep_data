@@ -45,8 +45,8 @@ library(geoarrow)
 ####### Set the date  -----------------
 
 # format year+month YYYYMM
-date <- paste0(year, month)
-date <- 202509
+# date <- paste0(year, month)
+# date <- 202509
 
 
 ####### Download the data  -----------------
