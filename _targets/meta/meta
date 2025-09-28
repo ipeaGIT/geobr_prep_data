@@ -123,13 +123,30 @@ immediateregions_clean|pattern|12415cf888533e40|8e97c72e333a7ec8||165723008||||5
 intermediateregions_clean_d22d83bc568b2cbc|branch|577a26fa4a186318|2622fb8132163659|2225d94a4c3544fa|-2040080661|./data/intermediate_regions/2022|t20354.4997459274s|s30767662b|30767662|file|local|vector|intermediateregions_clean||64.593||
 intermediateregions_clean_a1b841f19d882e8d|branch|b47386dc4d517277|2622fb8132163659|5927231887926ad0|-1983417430|./data/intermediate_regions/2024|t20354.4998339942s|s33039897b|33039897|file|local|vector|intermediateregions_clean||72.016||
 intermediateregions_raw_cf31b6e946d9458f|branch|0208f32ca2ed2855|85a1e3609bedebea|097114d9e780cba9|671690074||t20353.7320729092s||77561|rds|local|vector|intermediateregions_raw||3.563||cannot coerce type 'closure' to vector of type 'character'
-.Random.seed|object|94ab11aaa8a04aef
+years_intermediateregions|stem|6c6866b64c30c138|0bf236684b95e414|2c530c1562a7fbd1|-465247075||t20354.5091867401s|s58b|58|rds|local|vector||years_intermediateregions_43a1223249ea92a6*years_intermediateregions_1f9b22175ab58c3c|3.781||
+intermediateregions_raw_5299b771d567f0e5|branch|a46c745ac4eb1f4e|85a1e3609bedebea|0d3a3266c6a9c9c6|1785052184||t20354.509263566s|s41672207b|41672207|rds|local|vector|intermediateregions_raw||2.437||
+intermediateregions_raw_6de50431269e37bc|branch|d9a92cb7ce7bda66|85a1e3609bedebea|0d3a3266c6a9c9c6|914860087||t20354.5093306322s|s43304428b|43304428|rds|local|vector|intermediateregions_raw||6.922||
+indigenousland_dates_b2e03873f4e1a694|branch|c05e15cfb95eb213|4dec34c4e5aa6292|eae0b59dd12cd303|205703051||t20354.8529605111s|s58b|58|rds|local|vector|indigenousland_dates||3.328||
+indigenousland_dates_5d7278a440c2adf4|branch|af8f0ae9e1e449ce|4dec34c4e5aa6292|eae0b59dd12cd303|-1491473662||t20354.8529605111s|s59b|59|rds|local|vector|indigenousland_dates||3.282||
+indigenousland_dates|pattern|a8c36ec0daa0f40c|4dec34c4e5aa6292||1755658812||||117|rds|local|vector||indigenousland_dates_b2e03873f4e1a694*indigenousland_dates_5d7278a440c2adf4|6.61||
+indigenousland_month|stem|c93c88644f9402be|32c1bff9aeb5701a|2c530c1562a7fbd1|790532534||t20356.7763142979s|s59b|59|rds|local|vector||indigenousland_month_d25c52ea66bb4e57*indigenousland_month_3df3ce83bb8dc484*indigenousland_month_2c530c1562a7fbd1|3.562||
+indigenousland_year|stem|1d64ce56d43f8bf1|1da6f3bc49e23f0e|2c530c1562a7fbd1|-311169840||t20356.781731642s|s60b|60|rds|local|vector||indigenousland_year_664e20f2cf9d5df1*indigenousland_year_1f9b22175ab58c3c*indigenousland_year_bc7018bec7ff711e|3.39||
+indigenousland_raw_5cce9c3b0e364256|branch||02f44e8bf2469d3e|7857c821b7e02fd9|2036248534||t20356.7817365815s||0|rds|local|vector|indigenousland_raw||0.047||cannot coerce type 'closure' to vector of type 'character'
+indigenousland_raw_10f1858c86fc5068|branch||02f44e8bf2469d3e|8aa4472abfaa259e|-900832235||t20356.7829914257s||0|rds|local|vector|indigenousland_raw||3.625||objeto 'indigenous_years' não encontrado
+years_healthfacilities|stem|0dbc651895d930ea|b81f4578b7f4abb7|2c530c1562a7fbd1|-1117875811||t20356.9486840253s|s58b|58|rds|local|vector|||3.203||
+.Random.seed|object|a631f5f63709c670
+indigenousland_years|function|8626d9e4327dae17
+indigenousland_raw|pattern|93a915f6e8fb9eb9|0a1a03faca53b7d7||463144712||||21982888|rds|local|vector||indigenousland_raw_ac4438b3782a845e*indigenousland_raw_8200dd0139b45759|2.266||
+indigenousland_clean_60e960335fe00e40|branch|883f41e7b108215d|7c0ff9f35a50bf95|168f4663958d808f|346580914|./data/indigenous_land/2024|t20359.6802866474s|s16125083b|16125083|file|local|vector|indigenousland_clean||43.609||
+indigenousland_clean_6661c78d823b42e1|branch|fe33284b67803c29|7c0ff9f35a50bf95|9f038f6c1e5201fb|-1813920577|./data/indigenous_land/2025|t20359.6803157853s|s16169131b|16169131|file|local|vector|indigenousland_clean||46.079||
+indigenousland_clean|pattern|9cc68b9bdb1f69b9|7c0ff9f35a50bf95||1015854568||||32294214|file|local|vector||indigenousland_clean_60e960335fe00e40*indigenousland_clean_6661c78d823b42e1|89.688||
+indigenousland_raw_f099656e8572eb33|branch||0a1a03faca53b7d7|f9f3991fd27fb2fc|-1849988779||t20357.6372912602s||0|rds|local|vector|indigenousland_raw||3.359|GDAL Error 4: Record count in .shx header is -9, which seems unreasonable.  Assuming header is corrupt.|Cannot open 'D:\Users\B36596398854\AppData\Local\Temp\4\RtmpgTz6iY\indigenous_lands\2000\unzipped\ti_sirgas2000.shp'; The source could be corrupt or not supported. See `st_drivers()` for a list of supported formats.
 download_immediateregions|function|b5d63c94a21e53a8
 detect_year_from_string|function|7e1010acf860e4c3
 fix_topology|function|33a8777624a368eb
 add_state_info|function|dc769a19f7442ca1
 to_multipolygon|function|f9fb28bdb97ac472
-download_indigenousland|function|d8f5e5943c6292f7
+download_indigenousland|function|8830da5847a1f5b6
 download_file|function|3a6b6c7673db47dd
 add_region_info|function|52f8962884fe316a
 harmonize_projection|function|91bb9d922009f51d
@@ -148,10 +165,11 @@ dissolve_polygons|function|b4285f1f2b992921
 harmonize_geobr|function|df8dba216e5d7157
 clean_amazonialegal|function|b9207cb3c349af66
 clean_statsgrid|function|f463c8b561b31a2f
+clean_indigenousland|function|4124a6c3d902f3e7
 clean_immediateregions|function|2b671480b6001c85
 clean_semiarid|function|b55bd50b224d83d8
 clean_intermediateregions|function|1ca73420362ae1e5
 clean_biomes|function|876df16b2a575403
-years_intermediateregions|stem|6c6866b64c30c138|0bf236684b95e414|2c530c1562a7fbd1|-465247075||t20354.5091867401s|s58b|58|rds|local|vector||years_intermediateregions_43a1223249ea92a6*years_intermediateregions_1f9b22175ab58c3c|3.781||
-intermediateregions_raw_5299b771d567f0e5|branch|a46c745ac4eb1f4e|85a1e3609bedebea|0d3a3266c6a9c9c6|1785052184||t20354.509263566s|s41672207b|41672207|rds|local|vector|intermediateregions_raw||2.437||
-intermediateregions_raw_6de50431269e37bc|branch|d9a92cb7ce7bda66|85a1e3609bedebea|0d3a3266c6a9c9c6|914860087||t20354.5093306322s|s43304428b|43304428|rds|local|vector|intermediateregions_raw||6.922||
+years_indigenousland|stem|4e4a8ee30b0a8e98|79c91c143e41439f|2c530c1562a7fbd1|1849464248||t20359.7041878978s|s58b|58|rds|local|vector||years_indigenousland_1f9b22175ab58c3c*years_indigenousland_bc7018bec7ff711e|2.984||
+indigenousland_raw_ac4438b3782a845e|branch|8b25792082768078|0a1a03faca53b7d7|2669e5ff6297ce13|1150452873||t20359.7042411763s|s21882203b|21882203|rds|local|vector|indigenousland_raw||2.281|GDAL Message 1: D:\Users\B36596398854\AppData\Local\Temp\4\Rtmp8yQqeP\indigenous_lands\2024\unzipped\ti_sirgas2000.shp contains polygon(s) with rings with invalid winding order. Autocorrecting them, but that shapefile should be corrected using ogr2ogr for example.|
+indigenousland_raw_8200dd0139b45759|branch|589e26b708a554e3|0a1a03faca53b7d7|2669e5ff6297ce13|300493855||t20359.7042830751s|s21982888b|21982888|rds|local|vector|indigenousland_raw||4.828|GDAL Message 1: D:\Users\B36596398854\AppData\Local\Temp\4\RtmpemM9L4\indigenous_lands\2025\unzipped\ti_sirgas2000.shp contains polygon(s) with rings with invalid winding order. Autocorrecting them, but that shapefile should be corrected using ogr2ogr for example.|

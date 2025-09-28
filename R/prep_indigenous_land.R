@@ -1,6 +1,7 @@
 #> DATASET: indigenous Lands
 #> Source: FUNAI - http://www.funai.gov.br/index.php/shape #not working
-#> Source: "https://www.gov.br/funai/pt-br/atuacao/terras-indigenas/geoprocessamento-e-mapas
+#> Source: "https://www.gov.br/funai/pt-br/atuacao/terras-indigenas/geoprocessamento-e-mapas #not shp file
+#> Source: Portal de mapas: "https://mapas2.funai.gov.br/portal_mapas/"
 #> Metadata:
 # Titulo: Terras Indígenas  / Terras Indígenas em Estudos
 # Titulo alternativo: Terras Indígenas
@@ -19,164 +20,188 @@
 # Informação do Sistema de Referência: SIRGAS 2000
 
 
-# ####### Load Support functions to use in the preprocessing of the data -----------------
-# source("./prep_data/prep_functions.R")
-# 
-# 
-# # To Update the data, input the date YYYYMM and run the code
-# 
-# update <- 201909
-# update <- 202103
-# 
-library(RCurl)
-library(stringr)
-library(sf)
-library(dplyr)
-library(readr)
-library(data.table)
-library(magrittr)
-library(lwgeom)
-library(stringi)
-library(lubridate)
-library(arrow)
-library(geoarrow)
+####### Load Support functions  -----------------
 
-
-####### Set the date  -----------------
-
-# format year+month YYYYMM
-# date <- paste0(year, month)
-# date <- 202509
-
+# library(RCurl)
+# library(stringr)
+# library(sf)
+# library(dplyr)
+# library(readr)
+# library(tidyverse)
+# library(data.table)
+# library(magrittr)
+# library(lwgeom)
+# library(stringi)
+# library(lubridate)
+# library(arrow)
+# library(geoarrow)
+# library(rvest)
+# library(purrr)
 
 ####### Download the data  -----------------
-download_indigenousland <- function(year, month){ # year = 2010
+download_indigenousland <- function(year){ # year == 2025
 
-  ###### 0. Get the correct date url and file names (UPDATE YEAR) -----------------  
+  ###### 0. Create temp folders for download -----------------
+  
+  zip_dir <- paste0(tempdir(), "/indigenous_lands/", year)
+  dir.create(zip_dir, showWarnings = FALSE, recursive = TRUE)
+  dir.exists(zip_dir)
+  
+  # zipped folder
+  in_zip <- paste0(zip_dir, "/zipped/")
+  dir.create(in_zip, showWarnings = FALSE, recursive = TRUE)
+  dir.exists(in_zip)
+  
+  # unzip folder
+  out_zip <- paste0(zip_dir, "/unzipped/")
+  dir.create(out_zip, showWarnings = FALSE, recursive = TRUE)
+  dir.exists(out_zip)
+  
+  ###### 1. Get the correct url and file names -----------------  
+ 
+  # Portal de mapas
+  # url <- "https://mapas2.funai.gov.br/portal_mapas"
+  
+  # # If the date is "2000"
+  # if(year == 2000) {
+  #   
+  #   url <- "https://mapas2.funai.gov.br/portal_mapas/ti_sirgas/"
+  #   page <- read_html(url)
+  #   filenames <- page %>%
+  #     html_nodes("a") %>%
+  #     html_attr("href") %>%
+  #     grep("2000", ., value = TRUE)
+  #   #filenames <- paste0(url, filenames)
+  # }
+  
+  # Last update from 2024
+  if(year == 2024) {
+    url <- "https://mapas2.funai.gov.br/portal_mapas/ti_sirgas_20240313.zip"
+    filenames <- basename(url)
+  }
+  
+  # Last update from 2025
+  if(year == 2025) {
+    url <- "https://mapas2.funai.gov.br/portal_mapas/ti_sirgas.zip"
+    filenames <- basename(url)
+  }
+  
+  ###### 2. Create temp file -----------------  
+  
+  # # the year 2000 is not zipped
+  # if(year %in% c(2024, 2025)) {
+  #   file_raw <- fs::file_temp(tmp_dir = zip_dir,
+  #                             ext = fs::path_ext(url))
+  # }
+  
+  ###### 3. Download the raw data -----------------  
+  
+  # if(year == 2000) {
+  #   # Download files directly
+  #   for (name_file in filenames) {
+  #     download.file(paste(url, name_file, sep = ""),
+  #                   paste(out_zip, name_file, sep = "\\"))
+  #   }
+  # }
+  
+  # If the date is 2024 or 2025
+  if(year %in% c(2024, 2025)) {
+    
+    download.file(url, paste(in_zip, filenames, sep = "\\"))
+  }
+  
+  ###### 4. Unzip Raw data -----------------
+  
+  # directory of zips
+  zip_names <- list.files(in_zip, pattern = "\\.zip", full.names = TRUE)
+
+  # unzip files
+
+  if(year %in% c(2024, 2025)) {
+    unzip(zipfile = zip_names,
+          exdir = out_zip)
+  }
+  
+  ###### 5. Read the file -----------------
+
+  shp_names <- list.files(out_zip, pattern = "\\.shp$", full.names = TRUE)
+
+  indigenousland_list <- pbapply::pblapply(
+    X = shp_names,
+    FUN = function(x){ sf::st_read(x, quiet = T, stringsAsFactors=F) }
+  )
+
+  indigenousland_raw <- data.table::rbindlist(indigenousland_list)
+  data.table::setDF(indigenousland_raw)
+  indigenousland_raw <- sf::st_as_sf(indigenousland_raw)
+  
+  ###### 6. Show result -----------------
+  
+  glimpse(indigenousland_raw)
+  
+  return(indigenousland_raw)
+  }
+
   
   
-  
-  ###### 1. Get the correct url and file names (UPDATE YEAR) -----------------  
+  ###### 3. LINKS TO TEST HERE -----------------  
   
   #ftp <-  "https://mapas2.funai.gov.br/portal_mapas/shapes/ti_sirgas.zip" # NOT WORKING
   
   # ftp_link <- "https://geoserver.funai.gov.br/geoserver/Funai/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=Funai%3Atis_poligonais&maxFeatures=10000&outputFormat=SHAPE-ZIP"
   # 
-  ###### 2. Create temp folder -----------------
-  
-  zip_dir <- paste0(tempdir(), "/indigenous_land/", year)
-  dir.create(zip_dir, showWarnings = FALSE, recursive = TRUE)
-  dir.exists(zip_dir)
-  
-  file_raw <- fs::file_temp(tmp_dir = zip_dir,
-                            ext = fs::path_ext(url))
-  
-  
-  #### Create direction for each download
-  
-  # zip folder
-  in_zip <- paste0(zip_dir, "/zipped/")
-  dir.create(in_zip, showWarnings = FALSE, recursive = TRUE)
-  dir.exists(in_zip)
-  
-  ###### 3. Download Raw data -----------------
-  
-  # ### make it paralle with curl::multidownload ? 666
-  # # Download zipped files
-  # for (name_file in filenames) {
-  #   download.file(paste(url, name_file, sep = ""),
-  #                 paste(in_zip, name_file, sep = "\\"))
-  # }
-  
-  ###### 3. Unzip Raw data -----------------
-  
-  # # directory of zips
-  # zip_names <- list.files(in_zip, pattern = "\\.zip", full.names = TRUE)
+  # url <- "https://mapas2.funai.gov.br/portal_mapas/"
   # 
-  # # unzip folder
-  # out_zip <- paste0(zip_dir, "/unzipped/")
-  # dir.create(out_zip, showWarnings = FALSE, recursive = TRUE)
-  # dir.exists(out_zip)
+  # url <- "https://www.gov.br/funai/pt-br/atuacao/terras-indigenas/geoprocessamento-e-mapas"
   # 
-  # pbapply::pblapply(
-  #   X = zip_names, 
-  #   FUN = function(x){ unzip(zipfile = x, exdir = out_zip) }
-  # )
+  # Most recent
   
-  ###### 4. Bind Raw data together -----------------
-  # 
-  # shp_names <- list.files(out_zip, pattern = "\\.shp$", full.names = TRUE)
-  # 
-  # shp_names <- shp_names[c(1:2)] # 666 para testar, reduzir aqui o número de shp juntados
-  # 
-  # # paralelizar ?
-  # indigenousland_list <- pbapply::pblapply(
-  #   X = shp_names, 
-  #   FUN = function(x){ sf::st_read(x, quiet = T, stringsAsFactors=F) }
-  # )
-  # 
-  # indigenousland_raw <- data.table::rbindlist(indigenousland_list)
-  # data.table::setDF(indigenousland_raw)
-  # indigenousland_raw <- sf::st_as_sf(indigenousland_raw)
-  # 
-  # indigenousland_raw <- 1+date
-  # 
-  # return(indigenousland_raw)
 
-}
 
 # Clean the data ----------------------------------
-# clean_indigenousland <- function(indigenousland_raw, year) {
-# 
+clean_indigenousland <- function(indigenousland_raw, year) {
+
 ###### 0. Create folder to save clean data -----
-# 
-#   dir_clean <- paste0("./data/indigenous_land/", year)
-#   dir.create(dir_clean, recursive = T, showWarnings = FALSE)
-#   dir.exists(dir_clean)
-# 
-# 
-###### 0. Preparation -----------------
-###### 1. Create folder to save clean data -----
-# 
-# dir_clean <- paste0("./data/indigenous_land/", year)
-# dir.create(dir_clean, recursive = T, showWarnings = FALSE)
-# dir.exists(dir_clean)
-# 
-###### 2. Preparation -----------------
-# 
-# indigenousland_raw <- janitor::clean_names(indigenousland_raw)    
-# 
-###### 3. Apply harmonize geobr cleaning -----------------
-# 
-# temp_sf <- harmonize_geobr(
-#   temp_sf = indigenousland_raw,
-#   add_state = F,
-#   add_region = F,
-#   add_snake_case = F,
-#   #snake_colname = snake_colname,
-#   projection_fix = T,
-#   encoding_utf8 = T,
-#   topology_fix = T,
-#   remove_z_dimension = T,
-#   use_multipolygon = T
-# )
-# 
-# glimpse(temp_sf)
-# 
-###### 4. Save results  -----------------
-# 
-# #sf::st_write(temp_sf, dsn= paste0(dir_clean,"/indigenousland_", year, ".gpkg"), delete_dsn=TRUE)
-# 
-# # Save in parquet
-# arrow::write_parquet(
-#   x = temp_sf,
-#   sink = paste0(dir_clean,"/indigenousland_", year, ".parquet"),
-#   compression='zstd',
-#   compression_level = 22
-# )
-# 
-# return(dir_clean)
-# }
+
+  dir_clean <- paste0("./data/indigenous_land/", year)
+  dir.create(dir_clean, recursive = T, showWarnings = FALSE)
+  dir.exists(dir_clean)
+
+###### 1. Preparation -----------------
+
+indigenousland_raw <- janitor::clean_names(indigenousland_raw)
+
+###### 2. Apply harmonize geobr cleaning -----------------
+
+temp_sf <- harmonize_geobr(
+  temp_sf = indigenousland_raw,
+  add_state = F,
+  add_region = F,
+  add_snake_case = F,
+  #snake_colname = snake_colname,
+  projection_fix = T,
+  encoding_utf8 = T,
+  topology_fix = T,
+  remove_z_dimension = T,
+  use_multipolygon = T
+)
+
+glimpse(temp_sf)
+
+###### 3. Save results  -----------------
+
+#sf::st_write(temp_sf, dsn= paste0(dir_clean,"/indigenousland_", year, ".gpkg"), delete_dsn=TRUE)
+
+# Save in parquet
+arrow::write_parquet(
+  x = temp_sf,
+  sink = paste0(dir_clean,"/indigenousland_", year, ".parquet"),
+  compression='zstd',
+  compression_level = 22
+)
+
+return(dir_clean)
+}
 
 
 # RAPHAEL OLD CODE BELOW ---------------

@@ -2,9 +2,6 @@ library(targets)
 library(tarchetypes)
 library(crew)
 
-# In case of error, run:
-# test_errors <- targets::tar_meta(fields = warnings, complete_only = TRUE)
-
   # Set target options: ----
 tar_option_set(
   format = "rds",
@@ -74,6 +71,9 @@ targets::tar_source('./R')
 
 ############# The Targets List #########
 
+# In case of error, run:
+# test_errors <- targets::tar_meta(fields = warnings, complete_only = TRUE)
+
 list(
   #1. Semiárido ----------------------------------------------------------
 
@@ -107,19 +107,19 @@ list(
   #3. Biomas ----
 
   # year input
-  tar_target(name = years_biomes,
-             command = c(2004, 2019)),
-  
-  # download
-  tar_target(name = biomes_raw,
-             command = download_biomes(years_biomes),
-             pattern = map(years_biomes)),
-
-  # clean
-  tar_target(name = biomes_clean,
-             command = clean_biomes(biomes_raw, years_biomes),
-             pattern = map(biomes_raw, years_biomes),
-             format = 'file'),
+  # tar_target(name = years_biomes,
+  #            command = c(2004, 2019)),
+  # 
+  # # download
+  # tar_target(name = biomes_raw,
+  #            command = download_biomes(years_biomes),
+  #            pattern = map(years_biomes)),
+  # 
+  # # clean
+  # tar_target(name = biomes_clean,
+  #            command = clean_biomes(biomes_raw, years_biomes),
+  #            pattern = map(biomes_raw, years_biomes),
+  #            format = 'file'),
 
   #4. Grade estatística ----
 
@@ -160,50 +160,45 @@ list(
   #6. Regiões Intermediárias ----
 
   # year input
-  tar_target(name = years_intermediateregions,
-             command = c(#2000, #2001, 2005, 2007, 2010, 2013:2022,
-                         2022, #2023,
-                         2024)),
-
-  # download
-  tar_target(name = intermediateregions_raw,
-             command = download_intermediateregions(years_intermediateregions),
-             pattern = map(years_intermediateregions)),
-
-  # clean
-  tar_target(name = intermediateregions_clean,
-             command = clean_intermediateregions(intermediateregions_raw,
-                                                 years_intermediateregions),
-             pattern = map(intermediateregions_raw, years_intermediateregions),
-             format = 'file')
+  # tar_target(name = years_intermediateregions,
+  #            command = c(#2000, #2001, 2005, 2007, 2010, 2013:2022,
+  #                        2022, #2023,
+  #                        2024)),
+  # 
+  # # download
+  # tar_target(name = intermediateregions_raw,
+  #            command = download_intermediateregions(years_intermediateregions),
+  #            pattern = map(years_intermediateregions)),
+  # 
+  # # clean
+  # tar_target(name = intermediateregions_clean,
+  #            command = clean_intermediateregions(intermediateregions_raw,
+  #                                                years_intermediateregions),
+  #            pattern = map(intermediateregions_raw, years_intermediateregions),
+  #            format = 'file'),
 
   #7. Terras Indígenas ----
   
-  # date imput
-  # tar_target(name = indigenousland_date,
-  #            command = dates_indigenousland()),
-  # 
-  # # year input
-  # tar_target(name = indigenousland_years,
-  #            command = years_indigenousland(month_indigenousland,
-  #                                           year_indigenousland)),
+  # year imput
+  tar_target(name = years_indigenousland,
+             command = c(2024, 2025)),
+  
+  # download
+  tar_target(name = indigenousland_raw,
+             command = download_indigenousland(years_indigenousland),
+             pattern = map(years_indigenousland)),
 
-  # # download
-  # tar_target(name = indigenousland_raw,
-  #            command = download_indigenousland(indigenousland_years),
-  #            pattern = map(indigenousland_years)),
-  # 
-  # # clean
-  # tar_target(name = indigenousland_clean,
-  #            command = clean_indigenousland(indigenousland_raw, indigenousland_years),
-  #            pattern = map(indigenousland_raw, indigenousland_years),
-  #            format = 'file'),
+  # clean
+  tar_target(name = indigenousland_clean,
+             command = clean_indigenousland(indigenousland_raw, years_indigenousland),
+             pattern = map(indigenousland_raw, years_indigenousland),
+             format = 'file'),
 
   #8. Estabelecimentos de saúde ----
-# # year input
-# tar_target(name = years_statsgrid,
-#            command = c(2010, 2022)),
-# 
+  # year input
+  tar_target(name = years_healthfacilities,
+             command = c(2010, 2022))
+
 # # download
 # tar_target(name = statsgrid_raw,
 #            command = download_statsgrid(years_statsgrid),
