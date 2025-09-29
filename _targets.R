@@ -107,19 +107,19 @@ list(
   #3. Biomas ----
 
   # year input
-  # tar_target(name = years_biomes,
-  #            command = c(2004, 2019)),
-  # 
-  # # download
-  # tar_target(name = biomes_raw,
-  #            command = download_biomes(years_biomes),
-  #            pattern = map(years_biomes)),
-  # 
-  # # clean
-  # tar_target(name = biomes_clean,
-  #            command = clean_biomes(biomes_raw, years_biomes),
-  #            pattern = map(biomes_raw, years_biomes),
-  #            format = 'file'),
+  tar_target(name = years_biomes,
+             command = c(2004, 2019)),
+
+  # download
+  tar_target(name = biomes_raw,
+             command = download_biomes(years_biomes),
+             pattern = map(years_biomes)),
+
+  # clean
+  tar_target(name = biomes_clean,
+             command = clean_biomes(biomes_raw, years_biomes),
+             pattern = map(biomes_raw, years_biomes),
+             format = 'file'),
 
   #4. Grade estatística ----
 
@@ -143,7 +143,7 @@ list(
   # year input
   tar_target(name = years_immediateregions,
              command = c(#2000, #2001, 2005, 2007, 2010, 2013:2022,
-               2022, #2023,
+               2020:2022, #2023,
                2024)),
 
   # download
@@ -160,22 +160,22 @@ list(
   #6. Regiões Intermediárias ----
 
   # year input
-  # tar_target(name = years_intermediateregions,
-  #            command = c(#2000, #2001, 2005, 2007, 2010, 2013:2022,
-  #                        2022, #2023,
-  #                        2024)),
-  # 
-  # # download
-  # tar_target(name = intermediateregions_raw,
-  #            command = download_intermediateregions(years_intermediateregions),
-  #            pattern = map(years_intermediateregions)),
-  # 
-  # # clean
-  # tar_target(name = intermediateregions_clean,
-  #            command = clean_intermediateregions(intermediateregions_raw,
-  #                                                years_intermediateregions),
-  #            pattern = map(intermediateregions_raw, years_intermediateregions),
-  #            format = 'file'),
+  tar_target(name = years_intermediateregions,
+             command = c(#2000, #2001, 2005, 2007, 2010, 2013:2022,
+                         2022, #2023,
+                         2024)),
+
+  # download
+  tar_target(name = intermediateregions_raw,
+             command = download_intermediateregions(years_intermediateregions),
+             pattern = map(years_intermediateregions)),
+
+  # clean
+  tar_target(name = intermediateregions_clean,
+             command = clean_intermediateregions(intermediateregions_raw,
+                                                 years_intermediateregions),
+             pattern = map(intermediateregions_raw, years_intermediateregions),
+             format = 'file'),
 
   #7. Terras Indígenas ----
   

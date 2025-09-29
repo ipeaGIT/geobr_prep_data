@@ -93,6 +93,33 @@ download_immediateregions <- function(year){ # year = 2024
   #   
   # }
   
+  
+  
+  #2017 ----
+  if(year == 2017) {
+    ftp_link <- "https://geoftp.ibge.gov.br/organizacao_do_territorio/malhas_territoriais/malhas_municipais/municipio_2017/Brasil/BR/br_microrregioes.zip"
+  }
+  
+  #2018 ----
+  if(year == 2018) {
+    ftp_link <- "https://geoftp.ibge.gov.br/organizacao_do_territorio/malhas_territoriais/malhas_municipais/municipio_2018/Brasil/BR/br_microrregioes.zip"
+  }
+  
+  #2019 ----
+  if(year == 2019) {
+    ftp_link <- "https://geoftp.ibge.gov.br/organizacao_do_territorio/malhas_territoriais/malhas_municipais/municipio_2019/Brasil/BR/br_regioes_geograficas_imediatas.zip"
+  }
+  
+  #2020 ----
+  if(year == 2020) {
+    ftp_link <- "https://geoftp.ibge.gov.br/organizacao_do_territorio/malhas_territoriais/malhas_municipais/municipio_2020/Brasil/BR/BR_RG_Imediatas_2020.zip"
+  }
+  
+  #2021 ----
+  if(year == 2021) {
+    ftp_link <-  "https://geoftp.ibge.gov.br/organizacao_do_territorio/malhas_territoriais/malhas_municipais/municipio_2021/Brasil/BR/BR_RG_Imediatas_2021.zip"
+  }
+  
   #2022 ----
   if(year == 2022) {
     ftp_link <- "https://geoftp.ibge.gov.br/organizacao_do_territorio/malhas_territoriais/malhas_municipais/municipio_2022/Brasil/BR/BR_RG_Imediatas_2022.zip"
