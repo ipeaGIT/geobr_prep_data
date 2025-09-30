@@ -1,23 +1,23 @@
-#> DATASET: Immediate Geographic Regions - 2024
+#> DATASET: Micro Geographic Regions - 2017
 #> Source: IBGE - https://www.ibge.gov.br/geociencias/organizacao-do-territorio/malhas-territoriais/15774-malhas.html?=&t=o-que-e
 #> scale 1:250.000
 #> Metadata:
-# Título: Regiões Geográficas Imediatas
-# Título alternativo:
-# Frequência de atualização: decenal
+# Título: Microrregiões Geográficas
+# Título alternativo: micro regions
+# Frequência de atualização: anual, encerrado em 2017.
 #
 # Forma de apresentação: Shape
 # Linguagem: Pt-BR
 # Character set: Utf-8
 #
-# Resumo: Regiões Geográficas Imediatas foram criadas pelo IBGE em 2017 para substituir as micro-regiões
+# Resumo: Micro regiões Geográficas foram criadas pelo IBGE em 2000. Em 2017 o IBGE substituiu o conceito pelas regiões imediatas.
 #
 # Estado: Em desenvolvimento
 # Palavras chaves descritivas:****
 # Informacao do Sistema de Referencia: SIRGAS 2000
 
 # Observações: 
-# Anos disponíveis: ****************
+# Anos disponíveis: 2000 a 2014
 
 ### Libraries (use any library as necessary) --------
 
@@ -43,8 +43,8 @@
 
 
 ####### Download the data  -----------------
-download_immediateregions <- function(year){ # year = 2024
-
+download_microregions <- function(year){ # year = 2024
+  
   ###### 0. Get the correct url and file names -----------------
   
   # Year before 2016 ----
@@ -61,7 +61,7 @@ download_immediateregions <- function(year){ # year = 2024
   # }
   
   ###### 1. Generate the correct ftp link ----
- 
+  
   if(year %in% c(2000:2014)) {
     # create states tibble
     states <- tibble(cod_states = c(11, 12, 13, 14, 15, 16, 17, 21, 22, 23, 24,
@@ -72,7 +72,7 @@ download_immediateregions <- function(year){ # year = 2024
                                   "SE", "BA", "MG", "ES", "RJ", "SP", "PR",
                                   "SC", "RS", "MS", "MT", "GO", "DF"),
                      sgm_state = str_to_lower(sg_state))
-
+    
     # parts of url
     url_start <- "https://geoftp.ibge.gov.br/organizacao_do_territorio/malhas_territoriais/malhas_municipais/municipio_"
     ftp_link <- paste0(url_start, year, "/", states$sg_state, "/", states$sgm_state, "_microrregioes.zip")
@@ -167,11 +167,11 @@ download_immediateregions <- function(year){ # year = 2024
   }
   
   #2024 ----
-    if(year == 2024) {
+  if(year == 2024) {
     ftp_link <- "https://geoftp.ibge.gov.br/organizacao_do_territorio/malhas_territoriais/malhas_municipais/municipio_2024/Brasil/BR_RG_Imediatas_2024.zip"
-    }
-
-    
+  }
+  
+  
   #   # Url final----
   #   url <- "https://geoftp.ibge.gov.br/organizacao_do_territorio/malhas_territoriais/malhas_municipais/municipio_2000/ac/ac_microrregioes.zip"
   #   
@@ -184,11 +184,11 @@ download_immediateregions <- function(year){ # year = 2024
   # }
   
   ###### 2. Create temp folder -----------------
-
-  zip_dir <- paste0(tempdir(), "/immediate_regions/", year)
+  
+  zip_dir <- paste0(tempdir(), "/micro_regions/", year)
   dir.create(zip_dir, showWarnings = FALSE, recursive = TRUE)
   dir.exists(zip_dir)
-
+  
   ###### 3. Create direction for each download
   
   # zip folder
@@ -246,28 +246,28 @@ download_immediateregions <- function(year){ # year = 2024
   
   shp_names <- list.files(out_zip, pattern = "\\.shp$", full.names = TRUE)
   
-  immediateregions_list <- pbapply::pblapply(
+  microregions_list <- pbapply::pblapply(
     X = shp_names, 
     FUN = function(x){ sf::st_read(x, quiet = T, stringsAsFactors=F) }
   )
   
-  immediateregions_raw <- data.table::rbindlist(immediateregions_list)
+  microregions_raw <- data.table::rbindlist(microregions_list)
   
   ###### 6. Show result -----------------
   
-  data.table::setDF(immediateregions_raw)
-  immediateregions_raw <- sf::st_as_sf(immediateregions_raw) %>% 
+  data.table::setDF(microregions_raw)
+  microregions_raw <- sf::st_as_sf(microregions_raw) %>% 
     clean_names()
   
-  return(immediateregions_raw)
+  return(microregions_raw)
 }
 
 # ####### Clean the data  -----------------
-clean_immediateregions <- function(immediateregions_raw, year){ # year = 2024
-
+clean_microregions <- function(microregions_raw, year){ # year = 2024
+  
   ###### 0. Create folder to save clean data -----
-
-  dir_clean <- paste0("./data/immediate_regions/", year)
+  
+  dir_clean <- paste0("./data/micro_regions/", year)
   dir.create(dir_clean, recursive = T, showWarnings = FALSE)
   dir.exists(dir_clean)
   
@@ -277,7 +277,7 @@ clean_immediateregions <- function(immediateregions_raw, year){ # year = 2024
   ###### 2. Apply harmonize geobr cleaning -----------------
   
   temp_sf <- harmonize_geobr(
-    temp_sf = immediateregions_raw,
+    temp_sf = microregions_raw,
     add_state = F,
     add_region = F,
     add_snake_case = F,
@@ -296,23 +296,23 @@ clean_immediateregions <- function(immediateregions_raw, year){ # year = 2024
   
   ###### 4. Save datasets  -----------------
   
-  # sf::st_write(temp_sf, dsn = paste0(dir_clean, "/immediateregions_",  year,
+  # sf::st_write(temp_sf, dsn = paste0(dir_clean, "/microregions_",  year,
   #                                   ".gpkg"), delete_dsn = TRUE)
-  # sf::st_write(temp_sf_simplified, dsn = paste0(dir_clean, "/immediateregions_",
+  # sf::st_write(temp_sf_simplified, dsn = paste0(dir_clean, "/microregions_",
   #                                               year, "_simplified.gpkg"),
   #              delete_dsn = TRUE )
-
+  
   # Save in parquet
   arrow::write_parquet(
     x = temp_sf,
-    sink = paste0(dir_clean, "/immediateregions_", year, ".parquet"),
+    sink = paste0(dir_clean, "/microregions_", year, ".parquet"),
     compression = 'zstd',
     compression_level = 22
   )
   
   arrow::write_parquet(
     x = temp_sf_simplified,
-    sink = paste0(dir_clean,"/immediateregions_", year, "_simplified", ".parquet"),
+    sink = paste0(dir_clean,"/microregions_", year, "_simplified", ".parquet"),
     compression='zstd',
     compression_level = 22
   )
@@ -321,76 +321,36 @@ clean_immediateregions <- function(immediateregions_raw, year){ # year = 2024
 }
 
 
-########################## OLD FILE BELOW HERE ##########
 
+################ RAFAEL OLD CODE BELOW --------------
+
+####### Load Support functions to use in the preprocessing of the data
+# 
+# source("./prep_data/prep_functions.R")
+# source('./prep_data/download_malhas_municipais_function.R')
+# 
+# setwd('L:/# DIRUR #/ASMEQ/geobr/data-raw')
+# 
+# #pblapply(X=c(2000,2001,2005,2007,2010,2013:2020), FUN=download_ibge)
+# 
+# ###### download raw data --------------------------------
+# # unzip_to_geopackage(region='micro_regiao', year='2019')
+# unzip_to_geopackage(region='micro_regiao', year='all')
 # 
 # 
-# ###### 1. download the raw data from the original website source -----------------
-# 
-# if(update == 2019){
-#   ftp <- "ftp://geoftp.ibge.gov.br/organizacao_do_territorio/malhas_territoriais/malhas_municipais/municipio_2019/Brasil/BR/br_regioes_geograficas_imediatas.zip"
-# 
-#   download.file(url = ftp, destfile = "RG2019_rgi_20190430.zip")
-# }
-# if(update == 2017){
-#   ftp <- "ftp://geoftp.ibge.gov.br/organizacao_do_territorio/divisao_regional/divisao_regional_do_brasil/divisao_regional_do_brasil_em_regioes_geograficas_2017/shp/RG2017_rgi_20180911.zip"
-# 
-#   download.file(url = ftp, destfile = "RG2017_rgi_20180911.zip")
-# }
-# 
-# 
-# 
-# 
-# ###### 1.1. Unzip data files if necessary -----------------
-# 
-# if(update == 2019){
-#   unzip("RG2019_rgi_20190430.zip")
-# }
-# if(update == 2017){
-#   unzip("RG2017_rgi_20180911.zip")
-# }
-# 
-# 
-# ###### Unzip raw data --------------------------------
-# unzip_to_geopackage(region='imediata', year=2020)
-# 
-# 
-# 
-# 
-# ###### Cleaning UF files --------------------------------
+# ###### Cleaning MICRO files --------------------------------
 # setwd('L:/# DIRUR #/ASMEQ/geobr/data-raw/malhas_municipais')
 # 
-# # get folders with years
-# data_dir <-  paste0(getwd(),"./shapes_in_sf_all_years_original/imediata")
-# sub_dirs <- list.dirs(path =data_dir, recursive = F)
+# micro_dir <- paste0(getwd(),"/shapes_in_sf_all_years_original/micro_regiao")
+# 
+# sub_dirs <- list.dirs(path=micro_dir, recursive = F)
+# 
 # sub_dirs <- sub_dirs[sub_dirs %like% paste0(2000:2020,collapse = "|")]
 # 
+# # sub_dirs <- sub_dirs[sub_dirs %like% 2019]
 # 
-# 
-# 
-# # ###### 2. rename column names -----------------
-# #
-# # # read data
-# # if(update == 2019){
-# #   temp_sf <- st_read("BR_RG_Imediatas_2019.shp", quiet = F, stringsAsFactors=F, options = "ENCODING=UTF8")
-# #
-# #   temp_sf <- dplyr::rename(temp_sf, code_immediate = CD_RGI, name_immediate = NM_RGI)
-# # }
-# #
-# # if(update == 2017){
-# #   temp_sf <- st_read("RG2017_rgi.shp", quiet = F, stringsAsFactors=F, options = "ENCODING=UTF8")
-# #
-# #   temp_sf <- dplyr::rename(temp_sf, code_immediate = rgi, name_immediate = nome_rgi)
-# # }
-# #
-# # # reorder columns
-# # temp_sf <- dplyr::select(temp_sf, 'code_immediate', 'name_immediate','code_state', 'abbrev_state',
-# #                          'name_state', 'code_region', 'name_region', 'geometry')
-# 
-# 
-# 
-# # create a function that will clean the sf files according to particularities of the data in each year
-# clean_immediate <- function( e , year){ #  e <- sub_dirs[ sub_dirs %like% 2020]
+# # create a function that will clean the sf files according to particularities of the data in each year0
+# clean_micro <- function( e , year){ #  e <- sub_dirs[ sub_dirs %like% 2000]
 # 
 #   # select year
 #   if (year == 'all') {
@@ -410,11 +370,17 @@ clean_immediateregions <- function(immediateregions_raw, year){ # year = 2024
 #   year <- last4(e)
 #   year
 # 
+#   # create directory to save original shape files in sf format
+#   dir.create(file.path("shapes_in_sf_all_years_cleaned2"), showWarnings = FALSE)
+# 
+#   # create a subdirectory of states, municipalities, micro and meso regions
+#   dir.create(file.path("shapes_in_sf_all_years_cleaned2/micro_regiao/"), showWarnings = FALSE)
+# 
 #   # create a subdirectory of years
-#   dir.create(file.path(paste0("shapes_in_sf_all_years_cleaned2/imediata/",year)), showWarnings = FALSE, recursive = T)
+#   dir.create(file.path(paste0("shapes_in_sf_all_years_cleaned2/micro_regiao/",year)), showWarnings = FALSE)
 #   gc(reset = T)
 # 
-#   dir.dest <- file.path(paste0("./shapes_in_sf_all_years_cleaned2/imediata/",year))
+#   dir.dest <- file.path(paste0("./shapes_in_sf_all_years_cleaned2/micro_regiao/",year))
 # 
 # 
 #   # list all sf files in that year/folder
@@ -423,41 +389,63 @@ clean_immediateregions <- function(immediateregions_raw, year){ # year = 2024
 #   #sf_files <- sf_files[sf_files %like% "Microrregioes"]
 # 
 #   # for each file
-#   for (i in sf_files){ #  i <- sf_files[1]
+#   for (i in sf_files){ #  i <- sf_files[8]
 # 
 #     # read sf file
 #     temp_sf <- st_read(i)
 #     names(temp_sf) <- names(temp_sf) %>% tolower()
-#     head(temp_sf)
 # 
 # 
-#     if (year %like% "2020"){
+#     if (year %like% "2000|2001"){
 #       # dplyr::rename and subset columns
-#       temp_sf <- dplyr::select(temp_sf, c('code_immediate'=cd_rgi,
-#                                           'name_immediate'=nm_rgi,
-#                                           'abbrev_state'=sigla_uf,
-#                                           'geom'))
+#       temp_sf <- dplyr::select(temp_sf, c('code_micro'= geocodigo, 'name_micro'=nome, 'geom'))
+#     }
+# 
+# 
+#     if (year %like% "2010"){
+#       # dplyr::rename and subset columns
+#       temp_sf <- dplyr::select(temp_sf, c('code_micro'=cd_geocodu, 'name_micro'=nm_micro, 'geom'))
+#      }
+# 
+#     if (year %like% "2013|2014|2015|2016|2017|2018"){
+#       # dplyr::rename and subset columns
+#       temp_sf <- dplyr::select(temp_sf, c('code_micro'=cd_geocmi, 'name_micro'=nm_micro, 'geom'))
+#     }
+# 
+#     if (year %like% "2019|2020"){
+#       # dplyr::rename and subset columns
+#       temp_sf <- dplyr::select(temp_sf, c('code_micro'=cd_micro, 'name_micro'=nm_micro, 'abbrev_state'=sigla_uf, 'geom'))
 #     }
 # 
 #     # Use UTF-8 encoding
 #     temp_sf <- use_encoding_utf8(temp_sf)
 # 
+# 
 #     # add name_state
-#     temp_sf$code_state <- substring(temp_sf$code_immediate, 1,2)
-#     temp_sf <- add_state_info(temp_sf,column = 'code_state')
+#     temp_sf$code_state <- substring(temp_sf$code_micro, 1,2)
+#     temp_sf <- add_state_info(temp_sf,column = 'code_micro')
 # 
 #     # reorder columns
-#     temp_sf <- dplyr::select(temp_sf, 'code_immediate', 'name_immediate', 'code_state', 'abbrev_state', 'name_state', 'geom')
+#     temp_sf <- dplyr::select(temp_sf, 'code_state', 'abbrev_state', 'name_state', 'code_micro', 'name_micro', 'geom')
 # 
-# 
-# 
-#     # remove Z dimension of spatial data
-#     temp_sf <- temp_sf %>% st_sf() %>% st_zm( drop = T, what = "ZM")
-#     head(temp_sf)
+#     # Capitalize the first letter
+#     temp_sf$name_micro <- stringr::str_to_title(temp_sf$name_micro)
 # 
 #     # Harmonize spatial projection CRS, using SIRGAS 2000 epsg (SRID): 4674
 #     temp_sf <- harmonize_projection(temp_sf)
 # 
+#     # strange error in Bahia 2000
+#     # remove geometries with area == 0
+#     temp_sf <- temp_sf[ as.numeric(st_area(temp_sf)) != 0, ]
+# 
+#     # strange error in Maranhao 2000
+#     # micro_21 <- geobr::read_micro_region(code_micro = 21, year=2000)
+#     # mapview(micro_21) + temp_sf[c(7),]
+# 
+#     if (year==2000 & temp_sf$code_state[1]==21) {
+#     temp_sf[3, c('code_state', 'abbrev_state', 'name_state', 'code_micro', 'name_micro')] <- c(21, 'MA', 'Maranhão', 210520, 'Gerais De Balsas' )
+#     temp_sf[7, c('code_state', 'abbrev_state', 'name_state', 'code_micro', 'name_micro')] <- c(21, 'MA', 'Maranhão', 210521, 'Chapadas Das Mangabeiras' )
+#     }
 # 
 #     # Make an invalid geometry valid # st_is_valid( sf)
 #     temp_sf <- sf::st_make_valid(temp_sf)
@@ -472,26 +460,107 @@ clean_immediateregions <- function(immediateregions_raw, year){ # year = 2024
 # 
 #     # Save cleaned sf in the cleaned directory
 #     dir.dest.file <- paste0(dir.dest,"/")
-#     file.name <- paste0("immediate_regions_",year,".gpkg")
+# 
+#     # save each state separately
+#     for( c in unique(temp_sf$code_state)){ # c <- 11
+# 
+#       temp2 <- subset(temp_sf, code_state ==c)
+#       temp2_simplified <- subset(temp_sf_simplified, code_state ==c)
+# 
+#       file.name <- paste0(unique(substr(temp2$code_state,1,2)),"MI",".gpkg")
 # 
 #       # original
 #       i <- paste0(dir.dest.file,file.name)
-#       sf::st_write(temp_sf, i, overwrite=TRUE)
+#       sf::st_write(temp2, i, overwrite=TRUE)
 # 
 #       # simplified
 #       i <- gsub(".gpkg", "_simplified.gpkg", i)
-#       sf::st_write(temp_sf_simplified, i, overwrite=TRUE)
+#       sf::st_write(temp2_simplified, i, overwrite=TRUE)
 #     }
-# }
 # 
+# 
+#   }
+# }
 # 
 # 
 # # apply function in parallel
 # future::plan(multisession)
-# future_map(.x=sub_dirs, .f=clean_immediate, year=2020)
+# future_map(.x=sub_dirs, .f=clean_micro, year=2010)
 # 
 # rm(list= ls())
 # gc(reset = T)
-
+# 
+# 
+# ###### Correcting number of digits of micro regions in 2010  --------------------------------
+# # issue #20
+# # use data of 2013 to add code and name of micro regions in the 2010 data
+# 
+# # Dirs
+# micro_dir <- "L:////# DIRUR #//ASMEQ//geobr//data-raw//malhas_municipais//shapes_in_sf_all_years_cleaned2/micro_regiao"
+# sub_dirs <- list.dirs(path =micro_dir, recursive = F)
+# 
+# # dirs of 2010 (problematic data) ad 2013 (reference data)
+# sub_dir_2010 <- sub_dirs[sub_dirs %like% 2010]
+# sub_dir_2013 <- sub_dirs[sub_dirs %like% 2013]
+# 
+# 
+# # list sf files in each dir
+# sf_files_2010 <- list.files(sub_dir_2010, full.names = T, pattern = ".gpkg")
+# sf_files_2013 <- list.files(sub_dir_2013, full.names = T, pattern = ".gpkg")
+# 
+# 
+# # Create function to correct number of digits of meso regions in 2010, based on 2013 data
+# correct_micro_digits <- function(a2010_sf_micro_file){ # a2010_sf_micro_file <- sf_files_2010[39]
+# 
+# 
+#   # Get UF of the file
+#   get_uf <- function(x){if (grepl("simplified",x)) {
+#     substr(x, nchar(x)-19, nchar(x)-18)
+#   } else {substr(x, nchar(x)-8, nchar(x)-7)}
+#   }
+#   uf <- get_uf(a2010_sf_micro_file)
+# 
+#   # read 2010 file
+#   temp2010 <- st_read(a2010_sf_micro_file)
+# 
+#   # dplyr::rename and subset columns
+#   temp2010 <- temp2010 %>%  dplyr::mutate(name_micro =as.character(name_micro))
+#   temp2010 <- temp2010 %>%  dplyr::mutate(name_micro = ifelse(name_micro == "Moji Das Cruzes","Mogi Das Cruzes",
+#                                                               ifelse(name_micro == "Piraçununga","Pirassununga",
+#                                                                      ifelse(name_micro == "Moji-Mirim","Moji Mirim",
+#                                                                             ifelse(name_micro == "São Miguel D'oeste","São Miguel Do Oeste",
+#                                                                                    ifelse(name_micro == "Serras Do Sudeste","Serras De Sudeste",
+#                                                                                           ifelse(name_micro == "Vão Do Paraná","Vão Do Paranã",name_micro)))))))
+# 
+# 
+#   # read 2013 file
+#   temp2013 <- sf_files_2013[if (grepl("simplified",a2010_sf_micro_file)) {
+#     (sf_files_2013 %like% paste0("/",uf)) & (sf_files_2013 %like% "simplified")
+#   } else {
+#     (sf_files_2013 %like% paste0("/",uf)) & !(sf_files_2013 %like% "simplified")
+#   }]
+#   temp2013 <- st_read(temp2013)
+# 
+#   # keep only code and name columns
+#   table2013 <- temp2013 %>% as.data.frame()
+#   table2013 <- dplyr::select(table2013, code_micro, name_micro)
+# 
+#   # update code_micro
+#     # subset(temp2010, name_micro %like% 'Moji')
+#     # subset(temp2010, name_micro %like% 'Mogi')
+# 
+#   sf2010 <- left_join(temp2010, table2013, by="name_micro")
+#   sf2010 <- dplyr::select(sf2010, code_state, abbrev_state, name_state, code_micro=code_micro.y, name_micro, geom)
+#   head(sf2010)
+# 
+#   # Save file
+#   # write_rds(sf2010, path = a2010_sf_micro_file, compress="gz" )
+#   st_write(sf2010,a2010_sf_micro_file,append = FALSE,delete_dsn =T,delete_layer=T)
+# }
+# 
+# 
+# # apply function in parallel
+# future::plan(multisession)
+# future_map(sf_files_2010, correct_micro_digits)
 
 

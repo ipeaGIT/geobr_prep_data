@@ -95,7 +95,6 @@ statsgrid_raw|pattern|12ef9b8f1dd537b0|1d6b42049afbef94||-306683327||||8563579|r
 statsgrid_clean_6a524a955f906ca8|branch|fa0a4d9a204c35f3|1f4d432a4eeb8eb8|7a7519dc8120b494|1894558227|./data/statistical_grid/2022|t20350.622528873s|s3445476b|3445476|file|local|vector|statsgrid_clean||9.594||
 statsgrid_clean|pattern|45f315e3787b1591|1f4d432a4eeb8eb8||-355250693||||6607001|file|local|vector||statsgrid_clean_2f3df92dbe7170e5*statsgrid_clean_6a524a955f906ca8|18.344||
 statsgrid_clean_2f3df92dbe7170e5|branch|28fa3ab5f957bf1a|1f4d432a4eeb8eb8|41d976f68dab8e19|1392961096|./data/statistical_grid/2010|t20350.8717454944s|s3161525b|3161525|file|local|vector|statsgrid_clean||12.125||
-immediateregions_raw_342d3fb701b10fd7|branch|df04c77730b82816|628a5ecadc6c6fcb|26d451c0b42092e2|113087411||t20350.9559050558s||53|rds|local|vector|immediateregions_raw||3.422||length(url) == 1 não é TRUE
 statsgrid_raw_d21ec0dbbc0b6775|branch|465d707fc753e2f7|1d6b42049afbef94|9bd8278d8ad9ba65|2059299793||t20351.0486959886s|s3611585b|3611585|rds|local|vector|statsgrid_raw||53.188||
 statsgrid_raw_9a5000d9921c11e0|branch|5e27e0098a770b81|1d6b42049afbef94|9bd8278d8ad9ba65|-1656974575||t20351.0489899034s|s4951994b|4951994|rds|local|vector|statsgrid_raw||78.188||
 intermediateregions_raw_17a2cf1447e78d57|branch||85a1e3609bedebea|5611a7a297cf7dda|1401468424||t20351.1866308398s||0|rds|local|vector|intermediateregions_raw||3.688|erro 1 na extração a partir de arquivo zip|no simple features geometry column present
@@ -117,8 +116,6 @@ intermediateregions_clean|pattern|4758195220d719d4|2622fb8132163659||1109634719|
 immediateregions_clean_86f1e4ca1b7aa70b|branch|4a998afe1ea5c881|8e97c72e333a7ec8|50d70bf164784b37|-854924968|./data/immediate_regions/2022|t20353.8427437154s|s55917574b|55917574|file|local|vector|immediateregions_clean||124.734||
 intermediateregions_clean_d22d83bc568b2cbc|branch|577a26fa4a186318|2622fb8132163659|2225d94a4c3544fa|-2040080661|./data/intermediate_regions/2022|t20354.4997459274s|s30767662b|30767662|file|local|vector|intermediateregions_clean||64.593||
 intermediateregions_clean_a1b841f19d882e8d|branch|b47386dc4d517277|2622fb8132163659|5927231887926ad0|-1983417430|./data/intermediate_regions/2024|t20354.4998339942s|s33039897b|33039897|file|local|vector|intermediateregions_clean||72.016||
-intermediateregions_raw_cf31b6e946d9458f|branch|0208f32ca2ed2855|85a1e3609bedebea|097114d9e780cba9|671690074||t20353.7320729092s||77561|rds|local|vector|intermediateregions_raw||3.563||cannot coerce type 'closure' to vector of type 'character'
-years_intermediateregions|stem|6c6866b64c30c138|0bf236684b95e414|2c530c1562a7fbd1|-465247075||t20354.5091867401s|s58b|58|rds|local|vector||years_intermediateregions_43a1223249ea92a6*years_intermediateregions_1f9b22175ab58c3c|3.781||
 intermediateregions_raw_5299b771d567f0e5|branch|a46c745ac4eb1f4e|85a1e3609bedebea|0d3a3266c6a9c9c6|1785052184||t20354.509263566s|s41672207b|41672207|rds|local|vector|intermediateregions_raw||2.437||
 intermediateregions_raw_6de50431269e37bc|branch|d9a92cb7ce7bda66|85a1e3609bedebea|0d3a3266c6a9c9c6|914860087||t20354.5093306322s|s43304428b|43304428|rds|local|vector|intermediateregions_raw||6.922||
 indigenousland_dates_b2e03873f4e1a694|branch|c05e15cfb95eb213|4dec34c4e5aa6292|eae0b59dd12cd303|205703051||t20354.8529605111s|s58b|58|rds|local|vector|indigenousland_dates||3.328||
@@ -139,16 +136,30 @@ indigenousland_raw_f099656e8572eb33|branch||0a1a03faca53b7d7|f9f3991fd27fb2fc|-1
 years_indigenousland|stem|4e4a8ee30b0a8e98|79c91c143e41439f|2c530c1562a7fbd1|1849464248||t20359.7041878978s|s58b|58|rds|local|vector||years_indigenousland_1f9b22175ab58c3c*years_indigenousland_bc7018bec7ff711e|2.984||
 indigenousland_raw_ac4438b3782a845e|branch|8b25792082768078|0a1a03faca53b7d7|2669e5ff6297ce13|1150452873||t20359.7042411763s|s21882203b|21882203|rds|local|vector|indigenousland_raw||2.281|GDAL Message 1: D:\Users\B36596398854\AppData\Local\Temp\4\Rtmp8yQqeP\indigenous_lands\2024\unzipped\ti_sirgas2000.shp contains polygon(s) with rings with invalid winding order. Autocorrecting them, but that shapefile should be corrected using ogr2ogr for example.|
 indigenousland_raw_8200dd0139b45759|branch|589e26b708a554e3|0a1a03faca53b7d7|2669e5ff6297ce13|300493855||t20359.7042830751s|s21982888b|21982888|rds|local|vector|indigenousland_raw||4.828|GDAL Message 1: D:\Users\B36596398854\AppData\Local\Temp\4\RtmpemM9L4\indigenous_lands\2025\unzipped\ti_sirgas2000.shp contains polygon(s) with rings with invalid winding order. Autocorrecting them, but that shapefile should be corrected using ogr2ogr for example.|
-immediateregions_raw_71fc7767098686ed|branch|cf4616e4243b269f|628a5ecadc6c6fcb|36f84801cedcc5ea|2010296496||t20360.7372227073s|s77815799b|77815799|rds|local|vector|immediateregions_raw||6.984||
-immediateregions_raw_24af6079b6c3674a|branch|5730597b38bb8558|628a5ecadc6c6fcb|36f84801cedcc5ea|-637816829||t20360.7372288808s|s79327857b|79327857|rds|local|vector|immediateregions_raw||8.859||
-immediateregions_raw_debf03c37565259e|branch|a735da99f6aa2a09|628a5ecadc6c6fcb|36f84801cedcc5ea|1648108178||t20360.7379844665s|s72853851b|72853851|rds|local|vector|immediateregions_raw||3.141||
-immediateregions_raw_7e48f02ce8b91a1d|branch|6e9ee4ff4421ec39|628a5ecadc6c6fcb|36f84801cedcc5ea|144574287||t20360.7380146927s|s77699058b|77699058|rds|local|vector|immediateregions_raw||6.438||
-immediateregions_raw|pattern|2a238670dfd00dac|628a5ecadc6c6fcb||340824362||||150552909|rds|local|vector||immediateregions_raw_debf03c37565259e*immediateregions_raw_7e48f02ce8b91a1d*immediateregions_raw_71fc7767098686ed*immediateregions_raw_24af6079b6c3674a|9.579||
 immediateregions_clean_8838299dbd7b1410|branch|5c931d1352171dab|8e97c72e333a7ec8|3fd7c39d4d02b258|161622565|./data/immediate_regions/2020|t20360.7393617789s|s52305604b|52305604|file|local|vector|immediateregions_clean||115.844||
 immediateregions_clean_ea1106e5e51ba80e|branch|eb7a308ac0ba955f|8e97c72e333a7ec8|3708ad8c42d0d8dd|1297293599|./data/immediate_regions/2021|t20360.7395221198s|s55557688b|55557688|file|local|vector|immediateregions_clean||127.469||
-immediateregions_clean|pattern|136254593a040252|8e97c72e333a7ec8||165723008||||107863292|file|local|vector||immediateregions_clean_8838299dbd7b1410*immediateregions_clean_ea1106e5e51ba80e*immediateregions_clean_86f1e4ca1b7aa70b*immediateregions_clean_66a8a0cf4e4b9832|243.313||
 immediateregions_raw_1f9518b8a4109b65|branch||628a5ecadc6c6fcb|36f84801cedcc5ea|1649293577||t20360.7397935372s||0|rds|local|vector|immediateregions_raw||3.344||string multibyte inválida em '<87><e4>es'
-download_immediateregions|function|755b550d68728b8f
+immediateregions_clean_bd99c0be72fed0e3|branch|b13386260f2a1aef|8e97c72e333a7ec8|66eff5257c545462|-1449425310|./data/immediate_regions/2016|t20360.7464613206s|s36689795b|36689795|file|local|vector|immediateregions_clean||72.797||
+immediateregions_clean_b9fd97196bd902e5|branch|936d376df4a6e46f|8e97c72e333a7ec8|cf3d5333722b1232|-192543802|./data/immediate_regions/2017|t20360.7465341417s|s37663281b|37663281|file|local|vector|immediateregions_clean||77.641||
+immediateregions_clean_0d4907be9d652220|branch|63f4ede43c9c9241|8e97c72e333a7ec8|48d52baaf17c8648|-56158439|./data/immediate_regions/2018|t20360.7467092945s|s43748794b|43748794|file|local|vector|immediateregions_clean||92.063||
+immediateregions_clean_03e5c8046bed9b31|branch|995d3e06aa431a8e|8e97c72e333a7ec8|bcfb3384370bdd3e|1198146015|./data/immediate_regions/2019|t20360.7468373283s|s47107517b|47107517|file|local|vector|immediateregions_clean||106.156||
+immediateregions_raw|pattern|50e0c22a0229f5ca|628a5ecadc6c6fcb||340824362||||549890630|rds|local|vector||immediateregions_raw_1c34eed8bca401c6*immediateregions_raw_68ffb5c52f9bb40a*immediateregions_raw_881b6a2b3b834a7a*immediateregions_raw_e45ecc4f055d9734*immediateregions_raw_e00d05fca080a290*immediateregions_raw_debf03c37565259e*immediateregions_raw_7e48f02ce8b91a1d*immediateregions_raw_71fc7767098686ed*immediateregions_raw_24af6079b6c3674a|41.751||
+immediateregions_clean_1768b9128b4663ac|branch|71f5285d106e3c72|8e97c72e333a7ec8|ded5c2ac7496338c|-1270958302|./data/immediate_regions/2015|t20360.750910608s|s35352283b|35352283|file|local|vector|immediateregions_clean||79.141||
+immediateregions_clean|pattern|9dc87a4273419840|8e97c72e333a7ec8||165723008||||35352283|file|local|vector||immediateregions_clean_1768b9128b4663ac*immediateregions_clean_bd99c0be72fed0e3*immediateregions_clean_b9fd97196bd902e5*immediateregions_clean_0d4907be9d652220*immediateregions_clean_03e5c8046bed9b31*immediateregions_clean_8838299dbd7b1410*immediateregions_clean_ea1106e5e51ba80e*immediateregions_clean_86f1e4ca1b7aa70b*immediateregions_clean_66a8a0cf4e4b9832|79.141||
+intermediateregions_raw_cf31b6e946d9458f|branch|0208f32ca2ed2855|85a1e3609bedebea|0d3a3266c6a9c9c6|671690074||t20353.7320729092s||77561|rds|local|vector|intermediateregions_raw||0.047||objeto 'ftp_link' não encontrado
+years_intermediateregions|stem|6c6866b64c30c138|0bf236684b95e414|2c530c1562a7fbd1|-465247075||t20360.7544860167s|s58b|58|rds|local|vector||years_intermediateregions_43a1223249ea92a6*years_intermediateregions_1f9b22175ab58c3c|3.109||
+immediateregions_raw_342d3fb701b10fd7|branch|df04c77730b82816|628a5ecadc6c6fcb|7bb72f6ecdbbee0a|113087411||t20350.9559050558s||53|rds|local|vector|immediateregions_raw||0.063||length(url) == 1 não é TRUE
+years_immediateregions|stem|508e4bdf6bbda4cf|74b103c1b284c66f|2c530c1562a7fbd1|1829493587||t20360.761680203s|s76b|76|rds|local|vector||years_immediateregions_71d428f5b56cfa9f*years_immediateregions_66eee5cd36ed396e*years_immediateregions_a009eba4833e4540*years_immediateregions_b9c4205ce711d3b3*years_immediateregions_1d0440b850242374*years_immediateregions_c27afbe287ae8e82*years_immediateregions_d7731f103501508d*years_immediateregions_43a1223249ea92a6*years_immediateregions_1f9b22175ab58c3c|3.062||
+immediateregions_raw_1c34eed8bca401c6|branch|d7a673b52dc375fc|628a5ecadc6c6fcb|7bb72f6ecdbbee0a|-142724425||t20360.761751449s|s41538680b|41538680|rds|local|vector|immediateregions_raw||2.312||
+immediateregions_raw_881b6a2b3b834a7a|branch|a50755b466f1f6cc|628a5ecadc6c6fcb|7bb72f6ecdbbee0a|-460920625||t20360.7618207575s|s44441603b|44441603|rds|local|vector|immediateregions_raw||6.937||
+immediateregions_raw_e00d05fca080a290|branch|030059ed40a5079c|628a5ecadc6c6fcb|7bb72f6ecdbbee0a|-1192361253||t20360.7618573758s|s65398742b|65398742|rds|local|vector|immediateregions_raw||2.828||
+immediateregions_raw_e45ecc4f055d9734|branch|9dcf57010342b1de|628a5ecadc6c6fcb|7bb72f6ecdbbee0a|1259612252||t20360.7618589852s|s50253545b|50253545|rds|local|vector|immediateregions_raw||5.969||
+immediateregions_raw_68ffb5c52f9bb40a|branch|c7f1dd34d958c6d4|628a5ecadc6c6fcb|7bb72f6ecdbbee0a|-1123638810||t20360.7618710153s|s40561495b|40561495|rds|local|vector|immediateregions_raw||10.109||
+immediateregions_raw_debf03c37565259e|branch|a735da99f6aa2a09|628a5ecadc6c6fcb|7bb72f6ecdbbee0a|1648108178||t20360.7619518881s|s72853851b|72853851|rds|local|vector|immediateregions_raw||2.609||
+immediateregions_raw_7e48f02ce8b91a1d|branch|6e9ee4ff4421ec39|628a5ecadc6c6fcb|7bb72f6ecdbbee0a|144574287||t20360.7620138135s|s77699058b|77699058|rds|local|vector|immediateregions_raw||2.828||
+immediateregions_raw_24af6079b6c3674a|branch|5730597b38bb8558|628a5ecadc6c6fcb|7bb72f6ecdbbee0a|-637816829||t20360.7620152524s|s79327857b|79327857|rds|local|vector|immediateregions_raw||3.609||
+immediateregions_raw_71fc7767098686ed|branch|cf4616e4243b269f|628a5ecadc6c6fcb|7bb72f6ecdbbee0a|2010296496||t20360.7620738669s|s77815799b|77815799|rds|local|vector|immediateregions_raw||7.922||
+download_immediateregions|function|a9791d27883c68cc
 detect_year_from_string|function|7e1010acf860e4c3
 fix_topology|function|33a8777624a368eb
 add_state_info|function|dc769a19f7442ca1
@@ -162,6 +173,8 @@ use_encoding_utf8|function|4f174428ce87a762
 download_intermediateregions|function|d8cf6c6dfc36617f
 download_biomes|function|2c666f2aa96f78f3
 download_statsgrid|function|ee64c1fae5f72da5
+download_microregions|function|53e2f39655b6b8a6
+download_mesoregions|function|9878cd2936340c3c
 remove_state_repetition|function|f651de43bfd2d54b
 download_amazonialegal|function|ec987bd380a1b0f4
 download_semiarid|function|12932adc413e796a
@@ -172,9 +185,13 @@ dissolve_polygons|function|b4285f1f2b992921
 harmonize_geobr|function|df8dba216e5d7157
 clean_amazonialegal|function|b9207cb3c349af66
 clean_statsgrid|function|f463c8b561b31a2f
+clean_microregions|function|0379473651bcd533
+clean_mesoregions|function|1f4d3a6db2668178
 clean_indigenousland|function|4124a6c3d902f3e7
 clean_immediateregions|function|2b671480b6001c85
 clean_semiarid|function|b55bd50b224d83d8
 clean_intermediateregions|function|1ca73420362ae1e5
 clean_biomes|function|876df16b2a575403
-years_immediateregions|stem|ef5a9c19cf144fd6|639be438967e9b62|2c530c1562a7fbd1|1829493587||t20360.7407341822s|s63b|63|rds|local|vector||years_immediateregions_c27afbe287ae8e82*years_immediateregions_d7731f103501508d*years_immediateregions_43a1223249ea92a6*years_immediateregions_1f9b22175ab58c3c|3.281||
+years_microregions|stem|b5326a89fb6de454|cb4e5bb43f302d26|2c530c1562a7fbd1|1813983046||t20361.8539111633s|s53b|53|rds|local|vector||years_microregions_664e20f2cf9d5df1|3.297||
+years_mesoregions|stem|b5326a89fb6de454|cb4e5bb43f302d26|2c530c1562a7fbd1|-1777577158||t20361.8539116458s|s53b|53|rds|local|vector||years_mesoregions_664e20f2cf9d5df1|3.266||
+mesoregions_raw_6e32f3960ca7ae23|branch||8a02a17f256f9cdc|8993dab1660f7b77|1044927243||t20361.8539177441s||0|rds|local|vector|mesoregions_raw||0.032||objeto 'ftp_link' não encontrado
