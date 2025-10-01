@@ -140,18 +140,18 @@ list(
   #05. Estabelecimentos de saúde ----
   
   # year input
-  tar_target(name = years_healthfacilities,
-             command = c(2010, 2022)),
-  
+  # tar_target(name = years_healthfacilities,
+  #            command = c(2010, 2022)),
+  # 
   # # download
-  # tar_target(name = statsgrid_raw,
-  #            command = download_statsgrid(years_statsgrid),
-  #            pattern = map(years_statsgrid)),
+  # tar_target(name = healthfacilities_raw,
+  #            command = download_healthfacilities(years_healthfacilities),
+  #            pattern = map(years_healthfacilities)),
   # 
   # # clean
-  # tar_target(name = statsgrid_clean,
-  #            command = clean_statsgrid(statsgrid_raw, years_statsgrid),
-  #            pattern = map(statsgrid_raw, years_statsgrid),
+  # tar_target(name = healthfacilities_clean,
+  #            command = clean_healthfacilities(healthfacilities_raw,years_healthfacilities),
+  #            pattern = map(healthfacilities_raw, years_healthfacilities),
   #            format = 'file'),
   
   #06. Terras Indígenas ----
@@ -175,28 +175,32 @@ list(
   
   # year input
   tar_target(name = years_intermediateregions,
-             command = c(#2000, #2001, 2005, 2007, 2010, 2013:2022,
-               2022, #2023,
+             command = c(#2000, #2001, 2005, 2007, 2010, 2013, 2014, # mesorregioes sem BR folder
+               #2015:2018, # mesorregioes
+               2019:2022, # a partir daqui usa intermediates
+               #2023, #string multibyte inválida em '<87><e4>es'
                2024)),
-  
+   
   # download
   tar_target(name = intermediateregions_raw,
              command = download_intermediateregions(years_intermediateregions),
              pattern = map(years_intermediateregions)),
-  
-  # clean
-  tar_target(name = intermediateregions_clean,
-             command = clean_intermediateregions(intermediateregions_raw,
-                                                 years_intermediateregions),
-             pattern = map(intermediateregions_raw, years_intermediateregions),
-             format = 'file'),
+
+  # # clean
+  # tar_target(name = intermediateregions_clean,
+  #            command = clean_intermediateregions(intermediateregions_raw,
+  #                                                years_intermediateregions),
+  #            pattern = map(intermediateregions_raw, years_intermediateregions),
+  #            format = 'file'),
   
   #08. Regiões Imediatas ----
   
   # year input
   tar_target(name = years_immediateregions,
-             command = c(#2000, #2001, 2005, 2007, 2010, 2013, 2014, 
-               2015:2022, #2023,
+             command = c(#2000, #2001, 2005, 2007, 2010, 2013, 2014, # microrregioes sem BR folder
+               2015:2018, # microrregioes
+               2019:2022, # a partir daqui usa immediates
+               #2023, #string multibyte inválida em '<87><e4>es'
                2024)),
   
   # download
@@ -281,9 +285,9 @@ list(
   #13. Meso Regiões ----
 
   # # year input
-  # tar_target(name = years_mesoregions,
-  #            command = c(2000#, 2001, 2005, 2007, 2010, 2013, 2014, 
-  #              )),
+  tar_target(name = years_mesoregions,
+             command = c(#2000, #2001, 2005, 2007, 2010, 2013, 2014, # mesorregiões sem BR folder
+                         2015:2019)), # mesorregioes
   # 
   # # download
   # tar_target(name = mesoregions_raw,
@@ -299,9 +303,9 @@ list(
   #14. Microrregiões ----
   
   # # year input
-  # tar_target(name = years_microregions,
-  #            command = c(2000 #, 2001, 2005, 2007, 2010, 2013, 2014
-  #            )),
+  tar_target(name = years_microregions,
+             command = c(2000, #2001, 2005, 2007, 2010, 2013, 2014, # microrregioes sem BR folder
+                         2015:2019)), # microrregioes
   # 
   # # download
   # tar_target(name = microregions_raw,
@@ -312,7 +316,7 @@ list(
   # tar_target(name = microregions_clean,
   #            command = clean_microrregioes(microregions_raw, years_microregions),
   #            pattern = map(microregions_raw, years_microregions),
-  #            format = 'file')
+  #            format = 'file'),
   
   #15. Municipalidade ----
   

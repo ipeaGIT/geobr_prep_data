@@ -32,76 +32,33 @@
 # library(lwgeom)
 # library(stringi)
 
-
-
 ####### Download the data  -----------------
 download_intermediateregions <- function(year){ # year = 2024
   
-  ###### 0. Get the correct url and file names -----------------
-  
-  # Year before 2016 ----
-  # If the year is pre 2016, we don't have BR files
-  
-  
-  # Year after 2016 ----
-  # If the year is post 2016, we have BR files
-  
-  # if(year >= 2016) {
-  # 
-  # inicio_url <- "ftp://geoftp.ibge.gov.br/organizacao_do_territorio/malhas_territoriais/malhas_municipais/municipio_"
-  # url <- paste0(inicio_url, year, "/Brasil/BR/br_regioes_geograficas_imediatas.zip")
-  # }
-  
-  ###### 1. Generate the correct ftp link ----
+  ###### 0. Generate the correct ftp link (UPDATE YEAR HERE) ----
   #
-  # tesstint -----
-  # if(year <= 2017) {
-  #   url = "ftp://geoftp.ibge.gov.br/organizacao_do_territorio/malhas_territoriais/malhas_municipais/municipio_2019/Brasil/BR/br_regioes_geograficas_imediatas.zip"
-  # }
-  # 
-  # if(year == 2024) {
-  #   url = "https://geoftp.ibge.gov.br/recortes_para_fins_estatisticos/grade_estatistica/censo_2022/grade_estatistica/"
-  # }
-  # 
-  
-  #2000 ----
-  # if(year == 2000) {
-  # 
-  #   # create states tibble
-  #   states <- tibble(cod_states = c(11, 12, 13, 14, 15, 16, 17, 21, 22, 23, 24,
-  #                                   25, 26, 27, 28, 29, 31, 32, 33, 35, 41, 42,
-  #                                   43, 50, 51, 52, 53),
-  #                    sg_state = c("RO", "AC", "AM", "RR", "PA", "AP", "TO",
-  #                                 "MA", "PI", "CE", "RN", "PB", "PE", "AL",
-  #                                 "SE", "BA", "MG", "ES", "RJ", "SP", "PR",
-  #                                 "SC", "RS", "MS", "MT", "GO", "DF"),
-  #                    sgm_state = str_to_lower(sg_state))
-  # 
-  #   # parts of url
-  #   url_start <- "https://geoftp.ibge.gov.br/organizacao_do_territorio/malhas_territoriais/malhas_municipais/municipio_"
-  #   ftp_link <- paste0(url_start, year, "/", states$sgm_state, "/", states$sgm_state, "_microrregioes.zip")
-  # }
-  
-  
-  # # Years after 2020 ----
-  # if(year %in% c(2023, 2024)) {
-  #   url_start <- "https://geoftp.ibge.gov.br/organizacao_do_territorio/malhas_territoriais/malhas_municipais/municipio_"
-  #   ftp_link <- paste0(url_start, year, "/Brasil/BR_RG_Intermediarias_", year, ".zip")
-  # }
-
-  
+ 
   # Url final----
-  # if(year == 2000) {
-  # ftp_link <- "https://geoftp.ibge.gov.br/organizacao_do_territorio/malhas_territoriais/malhas_municipais/municipio_2000/ac/ac_microrregioes.zip"
-  # }
-
+ 
+  if(year == 2019) {
+    ftp_link <- "https://geoftp.ibge.gov.br/organizacao_do_territorio/malhas_territoriais/malhas_municipais/municipio_2019/Brasil/BR/br_regioes_geograficas_intermediarias.zip"
+  }
+  
+  if(year == 2020) {
+    ftp_link <- "https://geoftp.ibge.gov.br/organizacao_do_territorio/malhas_territoriais/malhas_municipais/municipio_2020/Brasil/BR/BR_RG_Intermediarias_2020.zip"
+  }
+  
+  if(year == 2021) {
+    ftp_link <- "https://geoftp.ibge.gov.br/organizacao_do_territorio/malhas_territoriais/malhas_municipais/municipio_2021/Brasil/BR/BR_RG_Intermediarias_2021.zip"
+  }
+  
   if(year == 2022) {
     ftp_link <- "https://geoftp.ibge.gov.br/organizacao_do_territorio/malhas_territoriais/malhas_municipais/municipio_2022/Brasil/BR/BR_RG_Intermediarias_2022.zip"
   }
   
-  # if(year == 2023) {
-  #   ftp_link <- "https://geoftp.ibge.gov.br/organizacao_do_territorio/malhas_territoriais/malhas_municipais/municipio_2023/Brasil/BR_RG_Intermediarias_2023.zip"
-  # }
+  if(year == 2023) {
+    ftp_link <- "https://geoftp.ibge.gov.br/organizacao_do_territorio/malhas_territoriais/malhas_municipais/municipio_2023/Brasil/BR_RG_Intermediarias_2023.zip"
+  }
   
   if(year == 2024) {
     ftp_link <- "https://geoftp.ibge.gov.br/organizacao_do_territorio/malhas_territoriais/malhas_municipais/municipio_2024/Brasil/BR_RG_Intermediarias_2024.zip"
@@ -127,31 +84,10 @@ download_intermediateregions <- function(year){ # year = 2024
   
   ###### 4. Download Raw data -----------------
   
-  # if(year == 2000) {
-  #   # Download zipped files
-  #   for (name_file in filenames) {
-  #     download.file(paste(url, name_file, sep = ""),
-  #                   paste(in_zip, name_file, sep = "\\"))
-  #   }
-  # }  
-  #   
-  #   #2a tentativa
-  #   for (namefile in filenames) {
-  #   httr::GET(url = ftp_link[namefile],
-  #             httr::progress(),
-  #             httr::write_disk(path = file_raw[i],
-  #                              overwrite = T))
-  #   }
-  #   
-  # }
-  
-  if(year != 2000) {
-    # Download zipped files
-    httr::GET(url = ftp_link,
-              httr::progress(),
-              httr::write_disk(path = file_raw,
-                               overwrite = T))
-  }
+  httr::GET(url = ftp_link,
+            httr::progress(),
+            httr::write_disk(path = file_raw,
+                             overwrite = T))
   
   ###### 4. Unzip Raw data -----------------
   
@@ -163,18 +99,9 @@ download_intermediateregions <- function(year){ # year = 2024
   dir.create(out_zip, showWarnings = FALSE, recursive = TRUE)
   dir.exists(out_zip)
   
-  if (length(zip_names) == 1) {
-    unzip(zipfile = zip_names,
+  unzip(zipfile = zip_names,
           exdir = out_zip)
-    
-  }
   
-  if (length(zip_names) > 1) {
-    pbapply::pblapply(
-      X = zip_names,
-      FUN = function(x){ unzip(zipfile = x, exdir = out_zip) }
-      )
-  }
   
   ###### 5. Bind Raw data together -----------------
   

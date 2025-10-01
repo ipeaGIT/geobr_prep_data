@@ -82,44 +82,8 @@ download_immediateregions <- function(year){ # year = 2024
     names(ftp_link) <- filenames
   }
   
-  ###### FTPs links by state
   
-  # #2000 ----
-  # if(year == 2000) {
-  # ftp_link <- ""
-  #   }
-  # 
-  # #2001 ----
-  # if(year == 2001) {
-  #   ftp_link <- ""
-  # }
-  # 
-  # #2005 ----
-  # if(year == 2005) {
-  #   ftp_link <- ""
-  # }
-  # 
-  # #2007 ----
-  # if(year == 2007) {
-  #   ftp_link <- ""
-  # }
-  # 
-  # #2010 ----
-  # if(year == 2010) {
-  #   ftp_link <- ""
-  # }
-  # 
-  # #2013 ----
-  # if(year == 2013) {
-  #   ftp_link <- ""
-  # }
-  # 
-  # #2014 ----
-  # if(year == 2014) {
-  #   ftp_link <- ""
-  # }
-  
-  ####### Ftp links com BR
+  ####### Ftp links com BR folder
   
   #2015 ----
   if(year == 2015) {
@@ -172,18 +136,7 @@ download_immediateregions <- function(year){ # year = 2024
     }
 
     
-  #   # Url final----
-  #   url <- "https://geoftp.ibge.gov.br/organizacao_do_territorio/malhas_territoriais/malhas_municipais/municipio_2000/ac/ac_microrregioes.zip"
-  #   
-  #   
-  #   url <- "https://geoftp.ibge.gov.br/organizacao_do_territorio/malhas_territoriais/malhas_municipais/municipio_2024/Brasil/BR_RG_Imediatas_2024.zip"
-  # }
-  # 
-  # if(year == 2024) {
-  # url <- "https://geoftp.ibge.gov.br/organizacao_do_territorio/malhas_territoriais/malhas_municipais/municipio_2024/Brasil/BR_RG_Imediatas_2024.zip"
-  # }
-  
-  ###### 2. Create temp folder -----------------
+   ###### 2. Create temp folder -----------------
 
   zip_dir <- paste0(tempdir(), "/immediate_regions/", year)
   dir.create(zip_dir, showWarnings = FALSE, recursive = TRUE)

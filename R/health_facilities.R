@@ -1,11 +1,11 @@
-#> DATASET: health facilities
+#> DATASET: Estabelecimentos de Saúde
 #> Source: Portal de Dados Abertos do Ministério da Saúde
 #: ##### scale 1:5.000.000
 #> Metadata:
 # Título: Estabelecimentos de Saúde CNES
 # Título alternativo: health facilities
 # Frequência de atualização: ##########
-# Forma de apresentação: ##########Shape
+# Forma de apresentação: ##########Shape?
 # Linguagem: Pt-BR
 # Character set: UTF-8
 #
@@ -17,43 +17,134 @@
 # Palavras-chaves descritivas:****
 # Informação do Sistema de Referência: ##### SIRGAS 2000
 #
-# Observações: Anos disponíveis: ###########
+# Observações: Anos disponíveis: ###########?
 
+### Libraries (use any library as necessary) ----
 
+library(tidyverse)
+library(lubridate)
+library(stringr)
+library(sf)
+library(janitor)
+library(dplyr)
+library(readr)
+library(data.table)
+library(magrittr)
+library(devtools)
+library(lwgeom)
+library(stringi)
+library(arrow)
+library(geoarrow)
 
 ###### Download the data  -----------------
-# download_healthfacilities <- function(){
-# 
-# 
-# 
-# 
-#   # Source:
-#   # "https://dados.gov.br/dados/conjuntos-dados/cnes-cadastro-nacional-de-estabelecimentos-de-saude"
+download_healthfacilities <- function(){ #no year because only most recent avaidable
+
+  ###### 0. Create temp folder and file -----------------
+  
+  zip_dir <- paste0(tempdir(), "/healthfacilities/", year)
+  dir.create(zip_dir, showWarnings = FALSE, recursive = TRUE)
+  dir.exists(zip_dir)
+  
+  file_raw <- fs::file_temp(tmp_dir = zip_dir,
+                            ext = fs::path_ext(url))
+
+  ###### 2. Get download link -----------------
+  
+  # Source:
+  # "https://dados.gov.br/dados/conjuntos-dados/cnes-cadastro-nacional-de-estabelecimentos-de-saude"
+  file_url <- "s3.sa-east-1.amazonaws.com/ckan.saude.gov.br/CNES/cnes_estabelecimentos_csv.zip"
+
 #   file_url = 'https://s3.sa-east-1.amazonaws.com/ckan.saude.gov.br/CNES/cnes_estabelecimentos.zip'
-# 
-#   # determine date of last update
+
+  #### Create direction for each download
+  
+  # zip folder
+  in_zip <- paste0(zip_dir, "/zipped/")
+  dir.create(in_zip, showWarnings = FALSE, recursive = TRUE)
+  dir.exists(in_zip)
+  
+  # determine date of last update
+  
+  date_run <- Sys.time()
+  
+  ym(date_run)
+  
+  
 #     caminho_api <- "https://dados.gov.br/api/publico/conjuntos-dados/cnes-cadastro-nacional-de-estabelecimentos-de-saude"
 # 
 #     meta <- jsonlite::read_json(caminho_api, simplifyVector = TRUE) |>
 #         purrr::pluck("resources")  |>
 #         tibble::as_tibble() |>
 #         dplyr::filter(format == "ZIP")
-# 
-#   healthfacilities_raw <- 1+1
-# 
-#   return(healthfacilities_raw)
-# 
-# }
-# 
-# ##### Clean the data  -----------------
-# download_healthfacilities <- function(){
-# 
-# 
-# 
-# 
-#   return()
-# 
-# }
+
+  #healthfacilities_raw <- 1+1
+
+  return(healthfacilities_raw)
+
+}
+
+##### Clean the data  -----------------
+clean_healthfacilities <- function(healthfacilities_raw, year){
+
+  ###### 0. Create folder to save clean data -----
+  
+  dir_clean <- paste0("./data/health_facilities/", year)
+  dir.create(dir_clean, recursive = T, showWarnings = FALSE)
+  dir.exists(dir_clean)
+  
+  ###### 1. Preparation -----------------
+  
+  
+  
+
+  ###### 2. Apply harmonize geobr cleaning -----------------
+  
+  temp_sf <- harmonize_geobr(
+    temp_sf = healthfacilities_raw,
+    add_state = F,
+    add_region = F,
+    add_snake_case = F,
+    #snake_colname = snake_colname,
+    projection_fix = T,
+    encoding_utf8 = T,
+    topology_fix = T,
+    remove_z_dimension = T,
+    use_multipolygon = T
+  )
+  
+  glimpse(temp_sf)
+  
+  ###### 3. lighter version --------------- 
+  temp_sf_simplified <- simplify_temp_sf(temp_sf, tolerance = 100)
+  
+  ###### 4. Save results  -----------------
+  
+  # sf::st_write(temp_sf, dsn = paste0(dir_clean, "/healthfacilities_",  year,
+  #                                    ".gpkg"), delete_dsn = TRUE)
+  # sf::st_write(temp_sf_simplified, dsn = paste0(dir_clean,
+  #                                               "/healthfacilities_",
+  #                                               year, "_simplified.gpkg"),
+  #              delete_dsn = TRUE )
+  
+  # Save in parquet
+  arrow::write_parquet(
+    x = temp_sf,
+    sink = paste0(dir_clean, "/healthfacilities_", year, ".parquet"),
+    compression = 'zstd',
+    compression_level = 22
+  )
+  
+  arrow::write_parquet(
+    x = temp_sf_simplified,
+    sink = paste0(dir_clean,"/healthfacilities_", year, "_simplified",
+                  ".parquet"),
+    compression='zstd',
+    compression_level = 22
+  )
+  
+  return(dir_clean)
+  
+}
 
 
 

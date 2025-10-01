@@ -82,42 +82,7 @@ download_microregions <- function(year){ # year = 2024
     names(ftp_link) <- filenames
   }
   
-  ###### FTPs links by state
   
-  # #2000 ----
-  # if(year == 2000) {
-  # ftp_link <- ""
-  #   }
-  # 
-  # #2001 ----
-  # if(year == 2001) {
-  #   ftp_link <- ""
-  # }
-  # 
-  # #2005 ----
-  # if(year == 2005) {
-  #   ftp_link <- ""
-  # }
-  # 
-  # #2007 ----
-  # if(year == 2007) {
-  #   ftp_link <- ""
-  # }
-  # 
-  # #2010 ----
-  # if(year == 2010) {
-  #   ftp_link <- ""
-  # }
-  # 
-  # #2013 ----
-  # if(year == 2013) {
-  #   ftp_link <- ""
-  # }
-  # 
-  # #2014 ----
-  # if(year == 2014) {
-  #   ftp_link <- ""
-  # }
   
   ####### Ftp links com BR
   
@@ -140,48 +105,6 @@ download_microregions <- function(year){ # year = 2024
   if(year == 2018) {
     ftp_link <- "https://geoftp.ibge.gov.br/organizacao_do_territorio/malhas_territoriais/malhas_municipais/municipio_2018/Brasil/BR/br_microrregioes.zip"
   }
-  
-  #2019 ----
-  if(year == 2019) {
-    ftp_link <- "https://geoftp.ibge.gov.br/organizacao_do_territorio/malhas_territoriais/malhas_municipais/municipio_2019/Brasil/BR/br_regioes_geograficas_imediatas.zip"
-  }
-  
-  #2020 ----
-  if(year == 2020) {
-    ftp_link <- "https://geoftp.ibge.gov.br/organizacao_do_territorio/malhas_territoriais/malhas_municipais/municipio_2020/Brasil/BR/BR_RG_Imediatas_2020.zip"
-  }
-  
-  #2021 ----
-  if(year == 2021) {
-    ftp_link <-  "https://geoftp.ibge.gov.br/organizacao_do_territorio/malhas_territoriais/malhas_municipais/municipio_2021/Brasil/BR/BR_RG_Imediatas_2021.zip"
-  }
-  
-  #2022 ----
-  if(year == 2022) {
-    ftp_link <- "https://geoftp.ibge.gov.br/organizacao_do_territorio/malhas_territoriais/malhas_municipais/municipio_2022/Brasil/BR/BR_RG_Imediatas_2022.zip"
-  }
-  
-  #2023 ----
-  if(year == 2023) {
-    ftp_link <- "https://geoftp.ibge.gov.br/organizacao_do_territorio/malhas_territoriais/malhas_municipais/municipio_2023/Brasil/BR_RG_Imediatas_2023.zip"
-  }
-  
-  #2024 ----
-  if(year == 2024) {
-    ftp_link <- "https://geoftp.ibge.gov.br/organizacao_do_territorio/malhas_territoriais/malhas_municipais/municipio_2024/Brasil/BR_RG_Imediatas_2024.zip"
-  }
-  
-  
-  #   # Url final----
-  #   url <- "https://geoftp.ibge.gov.br/organizacao_do_territorio/malhas_territoriais/malhas_municipais/municipio_2000/ac/ac_microrregioes.zip"
-  #   
-  #   
-  #   url <- "https://geoftp.ibge.gov.br/organizacao_do_territorio/malhas_territoriais/malhas_municipais/municipio_2024/Brasil/BR_RG_Imediatas_2024.zip"
-  # }
-  # 
-  # if(year == 2024) {
-  # url <- "https://geoftp.ibge.gov.br/organizacao_do_territorio/malhas_territoriais/malhas_municipais/municipio_2024/Brasil/BR_RG_Imediatas_2024.zip"
-  # }
   
   ###### 2. Create temp folder -----------------
   
