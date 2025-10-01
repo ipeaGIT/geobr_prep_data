@@ -62,48 +62,6 @@ download_immediateregions <- function(year){ # year = 2024
   
   ###### 1. Generate the correct ftp link ----
  
-  if(year %in% c(2000:2014)) {
-    # create states tibble
-    states <- tibble(cod_states = c(11, 12, 13, 14, 15, 16, 17, 21, 22, 23, 24,
-                                    25, 26, 27, 28, 29, 31, 32, 33, 35, 41, 42,
-                                    43, 50, 51, 52, 53),
-                     sg_state = c("RO", "AC", "AM", "RR", "PA", "AP", "TO",
-                                  "MA", "PI", "CE", "RN", "PB", "PE", "AL",
-                                  "SE", "BA", "MG", "ES", "RJ", "SP", "PR",
-                                  "SC", "RS", "MS", "MT", "GO", "DF"),
-                     sgm_state = str_to_lower(sg_state))
-
-    # parts of url
-    url_start <- "https://geoftp.ibge.gov.br/organizacao_do_territorio/malhas_territoriais/malhas_municipais/municipio_"
-    ftp_link <- paste0(url_start, year, "/", states$sg_state, "/", states$sgm_state, "_microrregioes.zip")
-    
-    filenames <- basename(ftp_link)
-    
-    names(ftp_link) <- filenames
-  }
-  
-  
-  ####### Ftp links com BR folder
-  
-  #2015 ----
-  if(year == 2015) {
-    ftp_link <- "https://geoftp.ibge.gov.br/organizacao_do_territorio/malhas_territoriais/malhas_municipais/municipio_2015/Brasil/BR/br_microrregioes.zip"
-  }
-  
-  #2016 ----
-  if(year == 2016) {
-    ftp_link <- "https://geoftp.ibge.gov.br/organizacao_do_territorio/malhas_territoriais/malhas_municipais/municipio_2016/Brasil/BR/br_microrregioes.zip"
-  }
-  
-  #2017 ----
-  if(year == 2017) {
-    ftp_link <- "https://geoftp.ibge.gov.br/organizacao_do_territorio/malhas_territoriais/malhas_municipais/municipio_2017/Brasil/BR/br_microrregioes.zip"
-  }
-  
-  #2018 ----
-  if(year == 2018) {
-    ftp_link <- "https://geoftp.ibge.gov.br/organizacao_do_territorio/malhas_territoriais/malhas_municipais/municipio_2018/Brasil/BR/br_microrregioes.zip"
-  }
   
   #2019 ----
   if(year == 2019) {

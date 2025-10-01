@@ -82,9 +82,7 @@ download_microregions <- function(year){ # year = 2024
     names(ftp_link) <- filenames
   }
   
-  
-  
-  ####### Ftp links com BR
+  ####### Ftp links com BR folder
   
   #2015 ----
   if(year == 2015) {
