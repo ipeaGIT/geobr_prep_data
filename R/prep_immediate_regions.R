@@ -27,9 +27,7 @@
 # library(janitor)
 # library(dplyr)
 # library(readr)
-# library(parallel) # não existe no cran
 # library(data.table)
-# library(xlsx)
 # library(magrittr)
 # library(devtools)
 # library(lwgeom)
@@ -42,65 +40,48 @@
 # source("./R/support_fun.R")
 
 
-####### Download the data  -----------------
+# Download the data  -----------------
 download_immediateregions <- function(year){ # year = 2024
-
-  ###### 0. Get the correct url and file names -----------------
   
-  # Year before 2016 ----
-  # If the year is pre 2016, we don't have BR files
+  ## 0. Generate the correct ftp link ----
   
-  
-  # Year after 2016 ----
-  # If the year is post 2016, we have BR files
-  
-  # if(year >= 2016) {
-  # 
-  # inicio_url <- "ftp://geoftp.ibge.gov.br/organizacao_do_territorio/malhas_territoriais/malhas_municipais/municipio_"
-  # url <- paste0(inicio_url, year, "/Brasil/BR/br_regioes_geograficas_imediatas.zip")
-  # }
-  
-  ###### 1. Generate the correct ftp link ----
- 
-  
-  #2019 ----
+  ###2019 ----
   if(year == 2019) {
     ftp_link <- "https://geoftp.ibge.gov.br/organizacao_do_territorio/malhas_territoriais/malhas_municipais/municipio_2019/Brasil/BR/br_regioes_geograficas_imediatas.zip"
   }
   
-  #2020 ----
+  ###2020 ----
   if(year == 2020) {
     ftp_link <- "https://geoftp.ibge.gov.br/organizacao_do_territorio/malhas_territoriais/malhas_municipais/municipio_2020/Brasil/BR/BR_RG_Imediatas_2020.zip"
   }
   
-  #2021 ----
+  ###2021 ----
   if(year == 2021) {
     ftp_link <-  "https://geoftp.ibge.gov.br/organizacao_do_territorio/malhas_territoriais/malhas_municipais/municipio_2021/Brasil/BR/BR_RG_Imediatas_2021.zip"
   }
   
-  #2022 ----
+  ###2022 ----
   if(year == 2022) {
     ftp_link <- "https://geoftp.ibge.gov.br/organizacao_do_territorio/malhas_territoriais/malhas_municipais/municipio_2022/Brasil/BR/BR_RG_Imediatas_2022.zip"
   }
   
-  #2023 ----
+  ###2023 ----
   if(year == 2023) {
     ftp_link <- "https://geoftp.ibge.gov.br/organizacao_do_territorio/malhas_territoriais/malhas_municipais/municipio_2023/Brasil/BR_RG_Imediatas_2023.zip"
   }
   
-  #2024 ----
-    if(year == 2024) {
+  ###2024 ----
+  if(year == 2024) {
     ftp_link <- "https://geoftp.ibge.gov.br/organizacao_do_territorio/malhas_territoriais/malhas_municipais/municipio_2024/Brasil/BR_RG_Imediatas_2024.zip"
-    }
-
-    
-   ###### 2. Create temp folder -----------------
-
+  }
+  
+  ## 1. Create temp folder -----------------
+  
   zip_dir <- paste0(tempdir(), "/immediate_regions/", year)
   dir.create(zip_dir, showWarnings = FALSE, recursive = TRUE)
   dir.exists(zip_dir)
-
-  ###### 3. Create direction for each download
+  
+  ## 2. Create direction for each download
   
   # zip folder
   in_zip <- paste0(zip_dir, "/zipped/")
@@ -110,10 +91,10 @@ download_immediateregions <- function(year){ # year = 2024
   file_raw <- fs::file_temp(tmp_dir = in_zip,
                             ext = fs::path_ext(ftp_link))
   
-  ###### 3. Download Raw data -----------------
+  ## 3. Download Raw data -----------------
   
   if(year < 2015) {
-    # Download zipped files
+    ### Download zipped files
     for (name_file in filenames) {
       download.file(ftp_link[name_file],
                     paste(in_zip, name_file, sep = "\\"))
@@ -127,35 +108,24 @@ download_immediateregions <- function(year){ # year = 2024
                                overwrite = T))
   }
   
-  # Download zipped files
+
+  ## 4. Unzip Raw data -----------------
   
-  
-  ###### 4. Unzip Raw data -----------------
-  
-  # directory of zips
-  zip_names <- list.files(in_zip, pattern = "\\.zip", full.names = TRUE)
-  
-  # unzip folder
+  ### unzip folder
   out_zip <- paste0(zip_dir, "/unzipped/")
   dir.create(out_zip, showWarnings = FALSE, recursive = TRUE)
   dir.exists(out_zip)
   
-  if (length(zip_names) == 1) {
-    unzip(zipfile = zip_names,
-          exdir = out_zip)
-    
-  }
+  unzip_geobr(zip_dir = zip_dir, in_zip = in_zip, out_zip = out_zip, is_shp = TRUE)
   
-  if (length(zip_names) > 1) {
-    pbapply::pblapply(
-      X = zip_names,
-      FUN = function(x){ unzip(zipfile = x, exdir = out_zip) }
-    )
-  }
+  ## 5. Bind Raw data together -----------------
   
-  ###### 5. Bind Raw data together -----------------
+  in_zip <- paste0(zip_dir, "/zipped/")
+  dir.create(in_zip, showWarnings = FALSE, recursive = TRUE)
+  dir.exists(in_zip)
   
-  shp_names <- list.files(out_zip, pattern = "\\.shp$", full.names = TRUE)
+  shp_names <- list.files(out_zip, pattern = "\\.shp$",
+                          full.names = TRUE)
   
   immediateregions_list <- pbapply::pblapply(
     X = shp_names, 
@@ -164,7 +134,7 @@ download_immediateregions <- function(year){ # year = 2024
   
   immediateregions_raw <- data.table::rbindlist(immediateregions_list)
   
-  ###### 6. Show result -----------------
+  ## 6. Show result -----------------
   
   data.table::setDF(immediateregions_raw)
   immediateregions_raw <- sf::st_as_sf(immediateregions_raw) %>% 
@@ -173,19 +143,18 @@ download_immediateregions <- function(year){ # year = 2024
   return(immediateregions_raw)
 }
 
-# ####### Clean the data  -----------------
+# Clean the data  -----------------
 clean_immediateregions <- function(immediateregions_raw, year){ # year = 2024
 
-  ###### 0. Create folder to save clean data -----
+  ## 0. Create folder to save clean data -----
 
   dir_clean <- paste0("./data/immediate_regions/", year)
   dir.create(dir_clean, recursive = T, showWarnings = FALSE)
   dir.exists(dir_clean)
   
-  ###### 1. Rename collumns names -----
+  ## 1. Apply harmonize geobr cleaning -----------------
   
-  
-  ###### 2. Apply harmonize geobr cleaning -----------------
+  immediateregions_raw <- clean_names(immediateregions_raw)
   
   temp_sf <- harmonize_geobr(
     temp_sf = immediateregions_raw,
@@ -202,18 +171,18 @@ clean_immediateregions <- function(immediateregions_raw, year){ # year = 2024
   
   glimpse(temp_sf)
   
-  ###### 3. lighter version --------------- 
+  ## 2. lighter version --------------- 
   temp_sf_simplified <- simplify_temp_sf(temp_sf, tolerance = 100)
   
-  ###### 4. Save datasets  -----------------
+  ## 3. Save datasets  -----------------
   
   # sf::st_write(temp_sf, dsn = paste0(dir_clean, "/immediateregions_",  year,
   #                                   ".gpkg"), delete_dsn = TRUE)
   # sf::st_write(temp_sf_simplified, dsn = paste0(dir_clean, "/immediateregions_",
   #                                               year, "_simplified.gpkg"),
   #              delete_dsn = TRUE )
-
-  # Save in parquet
+  
+  ### Save in parquet
   arrow::write_parquet(
     x = temp_sf,
     sink = paste0(dir_clean, "/immediateregions_", year, ".parquet"),

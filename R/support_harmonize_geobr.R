@@ -420,8 +420,60 @@ dissolve_polygons <- function(mysf, group_column){
   return(temp_sf)
 }
 
-
 # # test
 # states <- geobr::read_state(year=2000)
 # a <- dissolve_polygons(states, group_column='code_region')
 # plot(a)
+
+###### Unzip function -----------------
+
+unzip_geobr <- function(zip_dir, in_zip, out_zip = NULL, is_shp = FALSE) {
+  
+  if (is.null(out_zip)) {
+    # unzip folder
+    out_zip <- paste0(zip_dir, "/unzipped/")
+    dir.create(out_zip, showWarnings = FALSE, recursive = TRUE)
+    dir.exists(out_zip)
+  }
+  
+  # directory of zips
+  zip_names <- list.files(in_zip, pattern = "\\.zip", full.names = TRUE)
+  
+  # Delimit a number of files
+  
+  
+   if (is_shp == TRUE){ 
+     
+     files_inzip <- map(
+       zip_names, 
+       function(x) {
+         unzip(x, list = TRUE)
+       }
+     )
+     
+     shp_delimit <- "cpg|dbf|prj|shp|shx"
+     
+     files_delimit <- map(
+       files_inzip, function(x) {
+         str_subset(x$Name, pattern = shp_delimit)
+       }
+     )
+     
+   } else {NULL}
+
+  # unzip part 
+  
+  imap(
+    zip_names, 
+    function(x, idx) {
+      unzip(x,
+            exdir = out_zip,
+            files = files_delimit[[idx]])
+    },
+    .progress = TRUE
+  )
+  
+}
+
+  
+  

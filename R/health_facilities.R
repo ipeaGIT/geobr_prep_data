@@ -21,20 +21,20 @@
 
 ### Libraries (use any library as necessary) ----
 
-library(tidyverse)
-library(lubridate)
-library(stringr)
-library(sf)
-library(janitor)
-library(dplyr)
-library(readr)
-library(data.table)
-library(magrittr)
-library(devtools)
-library(lwgeom)
-library(stringi)
-library(arrow)
-library(geoarrow)
+# library(tidyverse)
+# library(lubridate)
+# library(stringr)
+# library(sf)
+# library(janitor)
+# library(dplyr)
+# library(readr)
+# library(data.table)
+# library(magrittr)
+# library(devtools)
+# library(lwgeom)
+# library(stringi)
+# library(arrow)
+# library(geoarrow)
 
 ###### Download the data  -----------------
 download_healthfacilities <- function(){ #no year because only most recent avaidable

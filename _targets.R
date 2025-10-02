@@ -197,9 +197,7 @@ list(
   
   # year input
   tar_target(name = years_immediateregions,
-             command = c(2019:2022,
-               #2023, #string multibyte inválida em '<87><e4>es'
-               2024)),
+             command = c(2019:2024)),
   
   # download
   tar_target(name = immediateregions_raw,
@@ -302,7 +300,7 @@ list(
   
   # # year input
   tar_target(name = years_microregions,
-             command = c(2000, #2001, 2005, 2007, 2010, 2013, 2014, # microrregioes sem BR folder
+             command = c(#2000, #2001, 2005, 2007, 2010, 2013, 2014, # microrregioes sem BR folder
                          2015:2018)),
 
   # download
