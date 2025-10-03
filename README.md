@@ -5,9 +5,9 @@ Data sets currenly implemented in the targets pipeline:
 - [ ] country
 - [ ] region
 - [ ] state
-- [ ] meso_region
-- [ ] micro_region
-- [X] intermediate_region
+- [P] meso_region
+- [P] micro_region
+- [P] intermediate_region
 - [X] immediate_region
 - [ ] municipality
 - [ ] municipal_seat
@@ -22,7 +22,7 @@ Data sets currenly implemented in the targets pipeline:
 - [ ] disaster_risk_area
 - [ ] indigenous_land
 - [x] semiarid
-- [ ] health_facilities
+- [P] health_facilities
 - [ ] health_region
 - [ ] neighborhood
 - [ ] schools

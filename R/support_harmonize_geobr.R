@@ -1,3 +1,4 @@
+# Harmonize Geobr -----------------
 harmonize_geobr <- function(temp_sf, 
                             add_state = TRUE, 
                             state_column = c('name_state', 'code_state'),
@@ -10,13 +11,13 @@ harmonize_geobr <- function(temp_sf,
                             topology_fix = TRUE,
                             remove_z_dimension = TRUE,
                             use_multipolygon = TRUE
-                            # dissolve
-                            ){
+                            ### dissolve
+){
   
-  # add state colum
+  ## add state colum
   if (isTRUE(add_state)) {
     
-    # check if "state_column" is in data
+    ### check if "state_column" is in data
     if(! state_column %in% names(temp_sf)){
       stop(paste("The data temp_sf does not have a columna named ", state_column))
     }
@@ -24,7 +25,7 @@ harmonize_geobr <- function(temp_sf,
   }
   
   
-  # add region colum
+  ## add region colum
   if (isTRUE(add_region)) {
     
     # check if "state_column" is in data
@@ -70,7 +71,7 @@ harmonize_geobr <- function(temp_sf,
 
 
 
-###### Add State abbreviation -----------------
+# Add State abbreviation -----------------
 add_state_info <- function(temp_sf, column){
   options(encoding = "UTF-8")
   
@@ -184,7 +185,7 @@ add_state_info <- function(temp_sf, column){
 }
 
 
-###### Add Region info -----------------
+# Add Region info -----------------
 add_region_info <- function(temp_sf, column){
   
   # add code_region
@@ -202,7 +203,7 @@ add_region_info <- function(temp_sf, column){
 }
 
 
-###### snake case names ---------------------------------------------------
+# snake case names ---------------------------------------------------
 snake_case_names <- function(temp_sf, colname){
   
   # Capitalize the first letter
@@ -221,7 +222,7 @@ snake_case_names <- function(temp_sf, colname){
 }
 
 
-###### Harmonize spatial projection -----------------
+# Harmonize spatial projection -----------------
 
 # Harmonize spatial projection CRS, using SIRGAS 2000 epsg (SRID): 4674
 
@@ -240,7 +241,7 @@ harmonize_projection <- function(temp_sf){
 
 
 
-###### Use UTF-8 encoding -----------------
+# Use UTF-8 encoding -----------------
 use_encoding_utf8 <- function(temp_sf){
   options(encoding = "UTF-8")
   
@@ -260,7 +261,7 @@ use_encoding_utf8 <- function(temp_sf){
 }
 
 
-###### convert to MULTIPOLYGON -----------------
+# convert to MULTIPOLYGON -----------------
 
 # to_multipolygon <- function(temp_sf){
 # if( st_geometry_type(temp_sf) |> unique() |> as.character() |> length() > 1 |
@@ -309,7 +310,7 @@ to_multipolygon <- function(temp_sf){
 
 
 
-###### Fix topology -----------------
+# Fix topology -----------------
 
 fix_topology <- function(temp_sf){
   
@@ -376,7 +377,7 @@ fix_topology <- function(temp_sf){
 
 
 
-###### Dissolve borders temp_sf -----------------
+# Dissolve borders temp_sf -----------------
 
 ## Function to clean and dissolve the borders of polygons by groups
 dissolve_polygons <- function(mysf, group_column){
@@ -425,13 +426,49 @@ dissolve_polygons <- function(mysf, group_column){
 # a <- dissolve_polygons(states, group_column='code_region')
 # plot(a)
 
-###### Unzip function -----------------
+# Create folder geobr function -----------------
 
-unzip_geobr <- function(zip_dir, in_zip, out_zip = NULL, is_shp = FALSE) {
+unzip_geobr <- function(folder_name = "character", temp = FALSE) {
+  
+  
+  zip_dir <- paste0(tempdir(), "/micro_regions/", year)
+  dir.create(zip_dir, showWarnings = FALSE, recursive = TRUE)
+  dir.exists(zip_dir)
+  
+  # ### Alternative folder
+  # zip_dir <- paste0("./data_raw/", "/micro_regions/", year)
+  # dir.create(zip_dir, showWarnings = FALSE, recursive = TRUE)
+  # dir.exists(zip_dir)
+  
+  if (is.null(in_zip)) {
+    # unzip folder
+    in_zip <- paste0(zip_dir, "/unzipped/")
+    dir.create(in_zip, showWarnings = FALSE, recursive = TRUE)
+    dir.exists(in_zip)
+  }
   
   if (is.null(out_zip)) {
     # unzip folder
-    out_zip <- paste0(zip_dir, "/unzipped/")
+    out_zip <- paste0(zip_dir, "/zipped/")
+    dir.create(out_zip, showWarnings = FALSE, recursive = TRUE)
+    dir.exists(out_zip)
+  }
+}
+
+# Unzip geobr function -----------------
+
+unzip_geobr <- function(zip_dir, in_zip, out_zip = NULL, is_shp = FALSE) {
+  
+  if (is.null(in_zip)) {
+    # unzip folder
+    in_zip <- paste0(zip_dir, "/unzipped/")
+    dir.create(in_zip, showWarnings = FALSE, recursive = TRUE)
+    dir.exists(in_zip)
+  }
+  
+  if (is.null(out_zip)) {
+    # unzip folder
+    out_zip <- paste0(zip_dir, "/zipped/")
     dir.create(out_zip, showWarnings = FALSE, recursive = TRUE)
     dir.exists(out_zip)
   }
@@ -441,10 +478,8 @@ unzip_geobr <- function(zip_dir, in_zip, out_zip = NULL, is_shp = FALSE) {
   
   # Delimit a number of files
   
-  
-   if (is_shp == TRUE){ 
-     
-     files_inzip <- map(
+    if (is_shp == TRUE){ 
+      files_inzip <- map(
        zip_names, 
        function(x) {
          unzip(x, list = TRUE)
@@ -463,17 +498,22 @@ unzip_geobr <- function(zip_dir, in_zip, out_zip = NULL, is_shp = FALSE) {
 
   # unzip part 
   
-  imap(
+  if (is_shp == TRUE){ 
+    imap(
     zip_names, 
     function(x, idx) {
       unzip(x,
             exdir = out_zip,
             files = files_delimit[[idx]])
     },
-    .progress = TRUE
-  )
-  
+    .progress = TRUE)
+  } else {
+    map(
+      zip_names, 
+      function(x) {
+        unzip(x,
+              exdir = out_zip)
+      },
+      .progress = TRUE)
+  }
 }
-
-  
-  

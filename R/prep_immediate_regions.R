@@ -36,6 +36,8 @@
 # library(tidyverse)
 # library(mirai)
 # library(rvest)
+# library(arrow)
+# library(geoarrow)
 # source("./R/support_harmonize_geobr.R")
 # source("./R/support_fun.R")
 
@@ -80,6 +82,11 @@ download_immediateregions <- function(year){ # year = 2024
   zip_dir <- paste0(tempdir(), "/immediate_regions/", year)
   dir.create(zip_dir, showWarnings = FALSE, recursive = TRUE)
   dir.exists(zip_dir)
+  
+  # ### Alternative folder
+  # zip_dir <- paste0("./data_raw/", "/immediate_regions/", year)
+  # dir.create(zip_dir, showWarnings = FALSE, recursive = TRUE)
+  # dir.exists(zip_dir)
   
   ## 2. Create direction for each download
   

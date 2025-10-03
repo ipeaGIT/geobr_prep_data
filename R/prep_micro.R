@@ -17,11 +17,13 @@
 # Informacao do Sistema de Referencia: SIRGAS 2000
 
 # Observações: 
-# Anos disponíveis: 2000 a 2014
+# Anos disponíveis: 2000 a 2018
 
 ### Libraries (use any library as necessary) --------
 
 # library(RCurl)
+# library(arrow)
+# library(geoarrow)
 # library(stringr)
 # library(sf)
 # library(janitor)
@@ -29,30 +31,29 @@
 # library(readr)
 # library(parallel) # não existe no cran
 # library(data.table)
-# library(xlsx)
 # library(magrittr)
 # library(devtools)
 # library(lwgeom)
 # library(stringi)
-# library(targets)
 # library(tidyverse)
 # library(mirai)
 # library(rvest)
+
 # source("./R/support_harmonize_geobr.R")
 # source("./R/support_fun.R")
 
 
-####### Download the data  -----------------
+# Download the data  -----------------
 download_microregions <- function(year){ # year = 2024
   
-  ###### 0. Get the correct url and file names -----------------
+  ## 0. Get the correct url and file names -----------------
   
-  # Year before 2016 ----
-  # If the year is pre 2016, we don't have BR files
+  ### Year before 2016 ----
+  #### If the year is pre 2016, we don't have BR files
   
   
-  # Year after 2016 ----
-  # If the year is post 2016, we have BR files
+  ### Year after 2016 ----
+  #### If the year is post 2016, we have BR files
   
   # if(year >= 2016) {
   # 
@@ -60,10 +61,13 @@ download_microregions <- function(year){ # year = 2024
   # url <- paste0(inicio_url, year, "/Brasil/BR/br_regioes_geograficas_imediatas.zip")
   # }
   
-  ###### 1. Generate the correct ftp link ----
+  ## 1. Generate the correct ftp link ----
+  
+  url_start <- paste0("https://geoftp.ibge.gov.br/organizacao_do_territorio/",
+                      "malhas_territoriais/malhas_municipais/municipio_")
   
   if(year %in% c(2000:2014)) {
-    # create states tibble
+    ### create states tibble
     states <- tibble(cod_states = c(11, 12, 13, 14, 15, 16, 17, 21, 22, 23, 24,
                                     25, 26, 27, 28, 29, 31, 32, 33, 35, 41, 42,
                                     43, 50, 51, 52, 53),
@@ -73,46 +77,32 @@ download_microregions <- function(year){ # year = 2024
                                   "SC", "RS", "MS", "MT", "GO", "DF"),
                      sgm_state = str_to_lower(sg_state))
     
-    # parts of url
-    url_start <- "https://geoftp.ibge.gov.br/organizacao_do_territorio/malhas_territoriais/malhas_municipais/municipio_"
-    ftp_link <- paste0(url_start, year, "/", states$sg_state, "/", states$sgm_state, "_microrregioes.zip")
+    ### parts of url
+    
+    ftp_link <- paste0(url_start, year, "/", states$sg_state, "/",
+                       states$sgm_state, "_microrregioes.zip")
     
     filenames <- basename(ftp_link)
     
     names(ftp_link) <- filenames
+  } else {
+    ftp_link <- paste0(url_start, year, "/Brasil/BR/br_microrregioes.zip")
   }
   
-  ####### Ftp links com BR folder
-  
-  #2015 ----
-  if(year == 2015) {
-    ftp_link <- "https://geoftp.ibge.gov.br/organizacao_do_territorio/malhas_territoriais/malhas_municipais/municipio_2015/Brasil/BR/br_microrregioes.zip"
-  }
-  
-  #2016 ----
-  if(year == 2016) {
-    ftp_link <- "https://geoftp.ibge.gov.br/organizacao_do_territorio/malhas_territoriais/malhas_municipais/municipio_2016/Brasil/BR/br_microrregioes.zip"
-  }
-  
-  #2017 ----
-  if(year == 2017) {
-    ftp_link <- "https://geoftp.ibge.gov.br/organizacao_do_territorio/malhas_territoriais/malhas_municipais/municipio_2017/Brasil/BR/br_microrregioes.zip"
-  }
-  
-  #2018 ----
-  if(year == 2018) {
-    ftp_link <- "https://geoftp.ibge.gov.br/organizacao_do_territorio/malhas_territoriais/malhas_municipais/municipio_2018/Brasil/BR/br_microrregioes.zip"
-  }
-  
-  ###### 2. Create temp folder -----------------
+  ## 2. Create temp folder -----------------
   
   zip_dir <- paste0(tempdir(), "/micro_regions/", year)
   dir.create(zip_dir, showWarnings = FALSE, recursive = TRUE)
   dir.exists(zip_dir)
   
-  ###### 3. Create direction for each download
+  ### Alternative folder
+  # zip_dir <- paste0("./data_raw/", "/micro_regions/", year)
+  # dir.create(zip_dir, showWarnings = FALSE, recursive = TRUE)
+  # dir.exists(zip_dir)
   
-  # zip folder
+  ## 3. Create direction for each download
+  
+  ### zip folder
   in_zip <- paste0(zip_dir, "/zipped/")
   dir.create(in_zip, showWarnings = FALSE, recursive = TRUE)
   dir.exists(in_zip)
@@ -120,10 +110,14 @@ download_microregions <- function(year){ # year = 2024
   file_raw <- fs::file_temp(tmp_dir = in_zip,
                             ext = fs::path_ext(ftp_link))
   
-  ###### 3. Download Raw data -----------------
+  out_zip <- paste0(zip_dir, "/zipped/")
+  dir.create(out_zip, showWarnings = FALSE, recursive = TRUE)
+  dir.exists(out_zip)
+  
+  ## 3. Download Raw data -----------------
   
   if(year < 2015) {
-    # Download zipped files
+    ### Download zipped files
     for (name_file in filenames) {
       download.file(ftp_link[name_file],
                     paste(in_zip, name_file, sep = "\\"))
@@ -137,33 +131,11 @@ download_microregions <- function(year){ # year = 2024
                                overwrite = T))
   }
   
-  # Download zipped files
+  ## 4. Unzip Raw data -----------------
   
+  unzip_geobr(zip_dir = zip_dir, in_zip = in_zip, out_zip = out_zip, is_shp = TRUE)
   
-  ###### 4. Unzip Raw data -----------------
-  
-  # directory of zips
-  zip_names <- list.files(in_zip, pattern = "\\.zip", full.names = TRUE)
-  
-  # unzip folder
-  out_zip <- paste0(zip_dir, "/unzipped/")
-  dir.create(out_zip, showWarnings = FALSE, recursive = TRUE)
-  dir.exists(out_zip)
-  
-  if (length(zip_names) == 1) {
-    unzip(zipfile = zip_names,
-          exdir = out_zip)
-    
-  }
-  
-  if (length(zip_names) > 1) {
-    pbapply::pblapply(
-      X = zip_names,
-      FUN = function(x){ unzip(zipfile = x, exdir = out_zip) }
-    )
-  }
-  
-  ###### 5. Bind Raw data together -----------------
+  ## 5. Bind Raw data together -----------------
   
   shp_names <- list.files(out_zip, pattern = "\\.shp$", full.names = TRUE)
   
@@ -174,7 +146,7 @@ download_microregions <- function(year){ # year = 2024
   
   microregions_raw <- data.table::rbindlist(microregions_list)
   
-  ###### 6. Show result -----------------
+  ## 6. Show result -----------------
   
   data.table::setDF(microregions_raw)
   microregions_raw <- sf::st_as_sf(microregions_raw) %>% 
@@ -183,19 +155,19 @@ download_microregions <- function(year){ # year = 2024
   return(microregions_raw)
 }
 
-# ####### Clean the data  -----------------
+# Clean the data  -----------------
 clean_microregions <- function(microregions_raw, year){ # year = 2024
   
-  ###### 0. Create folder to save clean data -----
+  ## 0. Create folder to save clean data -----
   
   dir_clean <- paste0("./data/micro_regions/", year)
   dir.create(dir_clean, recursive = T, showWarnings = FALSE)
   dir.exists(dir_clean)
   
-  ###### 1. Rename collumns names -----
+  ## 1. Rename collumns names -----
   
   
-  ###### 2. Apply harmonize geobr cleaning -----------------
+  ## 2. Apply harmonize geobr cleaning -----------------
   
   temp_sf <- harmonize_geobr(
     temp_sf = microregions_raw,
@@ -212,10 +184,10 @@ clean_microregions <- function(microregions_raw, year){ # year = 2024
   
   glimpse(temp_sf)
   
-  ###### 3. lighter version --------------- 
+  ## 3. lighter version --------------- 
   temp_sf_simplified <- simplify_temp_sf(temp_sf, tolerance = 100)
   
-  ###### 4. Save datasets  -----------------
+  ## 4. Save datasets  -----------------
   
   # sf::st_write(temp_sf, dsn = paste0(dir_clean, "/microregions_",  year,
   #                                   ".gpkg"), delete_dsn = TRUE)
@@ -223,7 +195,7 @@ clean_microregions <- function(microregions_raw, year){ # year = 2024
   #                                               year, "_simplified.gpkg"),
   #              delete_dsn = TRUE )
   
-  # Save in parquet
+  ### Save in parquet
   arrow::write_parquet(
     x = temp_sf,
     sink = paste0(dir_clean, "/microregions_", year, ".parquet"),

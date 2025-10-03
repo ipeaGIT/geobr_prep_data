@@ -7,7 +7,7 @@ tar_option_set(
   format = "rds",
   memory = "transient",
   garbage_collection = TRUE,
-  controller = crew_controller_local(workers = 4),
+  controller = crew_controller_local(workers = 8),
   
   
   # Packages ----
@@ -76,79 +76,79 @@ targets::tar_source('./R')
 
 list(
   #01. Semiárido ----------------------------------------------------------
-
-    # year input
-    tar_target(name = years_semiarid,
-               command = c(2005, 2017, 2021, 2022)),
-
-    # download
-    tar_target(name = semiarid_raw,
-               command = download_semiarid(years_semiarid),
-               pattern = map(years_semiarid)),
-
-    # clean
-    tar_target(name = semiarid_clean,
-               command = clean_semiarid(semiarid_raw, years_semiarid),
-               pattern = map(semiarid_raw, years_semiarid),
-               format = 'file'),
-
+  
+  # year input
+  tar_target(name = years_semiarid,
+             command = c(2005, 2017, 2021, 2022)),
+  
+  # download
+  tar_target(name = semiarid_raw,
+             command = download_semiarid(years_semiarid),
+             pattern = map(years_semiarid)),
+  
+  # clean
+  tar_target(name = semiarid_clean,
+             command = clean_semiarid(semiarid_raw, years_semiarid),
+             pattern = map(semiarid_raw, years_semiarid),
+             format = 'file'),
+  
   #02. Amazonia Legal ----
-
+  
   # download
   tar_target(name = amazonialegal_raw,
              command = download_amazonialegal()),
-
+  
   # clean
   tar_target(name = amazonialegal_clean,
              command = clean_amazonialegal(amazonialegal_raw),
              format = 'file'),
-
+  
   #03. Biomas ----
-
+  
   # year input
   tar_target(name = years_biomes,
              command = c(2004, 2019)),
-
+  
   # download
   tar_target(name = biomes_raw,
              command = download_biomes(years_biomes),
              pattern = map(years_biomes)),
-
+  
   # clean
   tar_target(name = biomes_clean,
              command = clean_biomes(biomes_raw, years_biomes),
              pattern = map(biomes_raw, years_biomes),
              format = 'file'),
-
+  
   #04. Grade estatística ----
-
-  # year input
-  tar_target(name = years_statsgrid,
-           command = c(2010, 2022)),
-
-  # download
-  tar_target(name = statsgrid_raw,
-           command = download_statsgrid(years_statsgrid),
-           pattern = map(years_statsgrid)),
-
-  # clean
-  tar_target(name = statsgrid_clean,
-           command = clean_statsgrid(statsgrid_raw, years_statsgrid),
-           pattern = map(statsgrid_raw, years_statsgrid),
-           format = 'file'),
-
-  #05. Estabelecimentos de saúde ----
   
   # year input
-  # tar_target(name = years_healthfacilities,
-  #            command = c(2010, 2022)),
-  # 
-  # # download
-  # tar_target(name = healthfacilities_raw,
-  #            command = download_healthfacilities(years_healthfacilities),
-  #            pattern = map(years_healthfacilities)),
-  # 
-  # # clean
+  tar_target(name = years_statsgrid,
+             command = c(2010, 2022)),
+  
+  # download
+  tar_target(name = statsgrid_raw,
+             command = download_statsgrid(years_statsgrid),
+             pattern = map(years_statsgrid)),
+  
+  # clean
+  tar_target(name = statsgrid_clean,
+             command = clean_statsgrid(statsgrid_raw, years_statsgrid),
+             pattern = map(statsgrid_raw, years_statsgrid),
+             format = 'file'),
+  
+  #05. Estabelecimentos de saúde ----
+  
+  #year input
+  tar_target(name = years_healthfacilities,
+             command = c(2025)),
+
+  # download
+  tar_target(name = healthfacilities_raw,
+             command = download_healthfacilities(years_healthfacilities),
+             pattern = map(years_healthfacilities)),
+  
+  # clean
   # tar_target(name = healthfacilities_clean,
   #            command = clean_healthfacilities(healthfacilities_raw,years_healthfacilities),
   #            pattern = map(healthfacilities_raw, years_healthfacilities),
@@ -180,12 +180,12 @@ list(
                2019:2022, # a partir daqui usa intermediates
                #2023, #string multibyte inválida em '<87><e4>es'
                2024)),
-   
+  
   # download
   tar_target(name = intermediateregions_raw,
              command = download_intermediateregions(years_intermediateregions),
              pattern = map(years_intermediateregions)),
-
+  
   # # clean
   # tar_target(name = intermediateregions_clean,
   #            command = clean_intermediateregions(intermediateregions_raw,
@@ -279,11 +279,11 @@ list(
   #            format = 'file'),
   
   #13. Meso Regiões ----
-
+  
   # # year input
   tar_target(name = years_mesoregions,
              command = c(#2000, #2001, 2005, 2007, 2010, 2013, 2014, # mesorregiões sem BR folder
-                         2015:2019)), # mesorregioes
+               2015:2019)), # mesorregioes
   # 
   # # download
   # tar_target(name = mesoregions_raw,
@@ -298,16 +298,16 @@ list(
   
   #14. Microrregiões ----
   
-  # # year input
+  # year input
   tar_target(name = years_microregions,
              command = c(#2000, #2001, 2005, 2007, 2010, 2013, 2014, # microrregioes sem BR folder
-                         2015:2018)),
-
+               2015:2018)),
+  
   # download
   tar_target(name = microregions_raw,
              command = download_microregions(years_microregions),
              pattern = map(years_microregions)),
-
+  
   # clean
   tar_target(name = microregions_clean,
              command = clean_microregions(microregions_raw, years_microregions),
@@ -518,7 +518,7 @@ list(
   # year input
   tar_target(name = years_poparrangements,
              command = c(2010, 2022))
-   
+  
   # # download
   # tar_target(name = poparrangements_raw,
   #            command = download_poparrangements(years_poparrangements),
@@ -529,11 +529,10 @@ list(
   #            command = clean_poparrangements(poparrangements_raw, years_poparrangements),
   #            pattern = map(poparrangements_raw, years_poparrangements),
   #            format = 'file')
-
- )
+)
 
 ##################### UNTIL HERE UPDATED ---------------------
-
+#
 # # 3. Municipios ----------------------------------------------------------
 # 
 #   # year input
@@ -551,7 +550,7 @@ list(
 #              command = clean_muni(download_municipios)
 #              , pattern = map(download_municipios)
 #              )
-
+#
 # # 4. Estados ----------------------------------------------------------
 #
 # # year input
@@ -562,8 +561,8 @@ list(
 #              command = download_states(years_states),
 #              pattern = map(years_states)),
 #
-
-# # 5. Pais ----------------------------------------------------------
+#
+# # 5. Pais ----
 #
 # # year input
 # tar_target(years_country, c(1872, 1900, 1911, 1920, 1933, 1940, 1950, 1960, 1970,
@@ -574,10 +573,5 @@ list(
 # tar_target(name = get_country,
 #            command = get_country(years_country),
 #            pattern = map(years_country))
-#
 #)
-
-
-
-# Metadata ----------------------------------------------------------
-
+#

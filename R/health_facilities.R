@@ -21,66 +21,86 @@
 
 ### Libraries (use any library as necessary) ----
 
-# library(tidyverse)
-# library(lubridate)
-# library(stringr)
-# library(sf)
-# library(janitor)
-# library(dplyr)
-# library(readr)
-# library(data.table)
-# library(magrittr)
-# library(devtools)
-# library(lwgeom)
-# library(stringi)
-# library(arrow)
-# library(geoarrow)
+library(tidyverse)
+library(lubridate)
+library(stringr)
+library(sf)
+library(janitor)
+library(dplyr)
+library(readr)
+library(data.table)
+library(magrittr)
+library(devtools)
+library(lwgeom)
+library(stringi)
+library(arrow)
+library(geoarrow)
+source("./R/support_harmonize_geobr.R")
+source("./R/support_fun.R")
 
-###### Download the data  -----------------
-download_healthfacilities <- function(){ #no year because only most recent avaidable
-
-  ###### 0. Create temp folder and file -----------------
+# Download the data  -----------------
+download_healthfacilities <- function(year){ #no year because only most recent avaidable
   
-  zip_dir <- paste0(tempdir(), "/healthfacilities/", year)
+  ## 0. Create temp folder and file ----
+  
+  zip_dir <- paste0(tempdir(), "/health_facilities/", year)
   dir.create(zip_dir, showWarnings = FALSE, recursive = TRUE)
   dir.exists(zip_dir)
   
-  file_raw <- fs::file_temp(tmp_dir = zip_dir,
-                            ext = fs::path_ext(url))
-
-  ###### 2. Get download link -----------------
+  ## 2. Get download link ----
   
   # Source:
   # "https://dados.gov.br/dados/conjuntos-dados/cnes-cadastro-nacional-de-estabelecimentos-de-saude"
   file_url <- "s3.sa-east-1.amazonaws.com/ckan.saude.gov.br/CNES/cnes_estabelecimentos_csv.zip"
-
-#   file_url = 'https://s3.sa-east-1.amazonaws.com/ckan.saude.gov.br/CNES/cnes_estabelecimentos.zip'
-
-  #### Create direction for each download
+  #file_url = 'https://s3.sa-east-1.amazonaws.com/ckan.saude.gov.br/CNES/cnes_estabelecimentos.zip'
   
-  # zip folder
-  in_zip <- paste0(zip_dir, "/zipped/")
+  ## 3. Create direction for each download
+  
+  #### zip folders
+  in_zip <- paste0(zip_dir, "/unzipped/")
   dir.create(in_zip, showWarnings = FALSE, recursive = TRUE)
   dir.exists(in_zip)
   
-  # determine date of last update
+  file_raw <- fs::file_temp(tmp_dir = in_zip,
+                            ext = fs::path_ext(file_url))
   
+  out_zip <- paste0(zip_dir, "/zipped/")
+  dir.create(out_zip, showWarnings = FALSE, recursive = TRUE)
+  dir.exists(out_zip)
+  
+  ### Alternative folder
+  # zip_dir <- paste0("./data_raw/", "/health_facilities/", year)
+  # dir.create(zip_dir, showWarnings = FALSE, recursive = TRUE)
+  # dir.exists(zip_dir)
+  
+  ### determine date of last update
   date_run <- Sys.time()
   
-  ym(date_run)
+  ## 4. Download Raw data ----
   
+  httr::GET(url = file_url,
+            httr::progress(),
+            httr::write_disk(path = file_raw,
+                             overwrite = T))
   
-#     caminho_api <- "https://dados.gov.br/api/publico/conjuntos-dados/cnes-cadastro-nacional-de-estabelecimentos-de-saude"
-# 
-#     meta <- jsonlite::read_json(caminho_api, simplifyVector = TRUE) |>
-#         purrr::pluck("resources")  |>
-#         tibble::as_tibble() |>
-#         dplyr::filter(format == "ZIP")
-
-  #healthfacilities_raw <- 1+1
-
+  ## 5. Unzip Raw data ----
+  
+  file_unzipped <- paste0(in_zip, basename(file_raw))
+  
+  unzip(file_unzipped, exdir = out_zip)
+  
+  ## 6. Read file ----
+  
+  healthfacilities_raw <- fread(file = file_unzipped,
+                                encoding = "UTF-8",
+                                integer64 = "character") |> 
+    clean_names()
+  
+  ## 7. Show result ----
+  
+  glimpse(healthfacilities_raw)
+  
   return(healthfacilities_raw)
-
 }
 
 ##### Clean the data  -----------------
