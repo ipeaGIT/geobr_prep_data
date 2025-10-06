@@ -21,22 +21,22 @@
 
 ### Libraries (use any library as necessary) ----
 
-library(tidyverse)
-library(lubridate)
-library(stringr)
-library(sf)
-library(janitor)
-library(dplyr)
-library(readr)
-library(data.table)
-library(magrittr)
-library(devtools)
-library(lwgeom)
-library(stringi)
-library(arrow)
-library(geoarrow)
-source("./R/support_harmonize_geobr.R")
-source("./R/support_fun.R")
+# library(tidyverse)
+# library(lubridate)
+# library(stringr)
+# library(sf)
+# library(janitor)
+# library(dplyr)
+# library(readr)
+# library(data.table)
+# library(magrittr)
+# library(devtools)
+# library(lwgeom)
+# library(stringi)
+# library(arrow)
+# library(geoarrow)
+# source("./R/support_harmonize_geobr.R")
+# source("./R/support_fun.R")
 
 # Download the data  -----------------
 download_healthfacilities <- function(year){ #no year because only most recent avaidable
@@ -98,6 +98,9 @@ download_healthfacilities <- function(year){ #no year because only most recent a
   
   ## 7. Show result ----
   
+  healthfacilities_raw <- st_as_sf(healthfacilities_raw, na.fail = FALSE,
+                                   coords = c("nu_longitude","nu_latitude"))
+  
   glimpse(healthfacilities_raw)
   
   return(healthfacilities_raw)
@@ -126,10 +129,10 @@ clean_healthfacilities <- function(healthfacilities_raw, year){
     add_snake_case = F,
     #snake_colname = snake_colname,
     projection_fix = T,
-    encoding_utf8 = T,
-    topology_fix = T,
-    remove_z_dimension = T,
-    use_multipolygon = T
+    encoding_utf8 = F,
+    topology_fix = F,
+    remove_z_dimension = F,
+    use_multipolygon = F
   )
   
   glimpse(temp_sf)

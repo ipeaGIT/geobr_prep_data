@@ -22,7 +22,7 @@ Data sets currenly implemented in the targets pipeline:
 - [ ] disaster_risk_area
 - [ ] indigenous_land
 - [x] semiarid
-- [P] health_facilities
+- [X] health_facilities
 - [ ] health_region
 - [ ] neighborhood
 - [ ] schools

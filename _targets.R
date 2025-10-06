@@ -149,10 +149,10 @@ list(
              pattern = map(years_healthfacilities)),
   
   # clean
-  # tar_target(name = healthfacilities_clean,
-  #            command = clean_healthfacilities(healthfacilities_raw,years_healthfacilities),
-  #            pattern = map(healthfacilities_raw, years_healthfacilities),
-  #            format = 'file'),
+  tar_target(name = healthfacilities_clean,
+             command = clean_healthfacilities(healthfacilities_raw,years_healthfacilities),
+             pattern = map(healthfacilities_raw, years_healthfacilities),
+             format = 'file'),
   
   #06. Terras Indígenas ----
   
