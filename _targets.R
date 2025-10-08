@@ -141,7 +141,7 @@ list(
   
   #year input
   tar_target(name = years_healthfacilities,
-             command = c(2025)),
+             command = c(format(Sys.Date(), "%Y_%m"))),
 
   # download
   tar_target(name = healthfacilities_raw,
@@ -300,8 +300,13 @@ list(
   
   # year input
   tar_target(name = years_microregions,
-             command = c(#2000, #2001, 2005, 2007, 2010, 2013, 2014, # microrregioes sem BR folder
-               2015:2018)),
+             command = c(2000, 
+                         2001, #no sf collumn error
+                         #2005, 2007 #Precisa identificar qual é o microregions file
+                         #2010,
+                         #2013,
+                         2014, # microrregioes sem BR folder
+                         2015:2018)),
   
   # download
   tar_target(name = microregions_raw,

@@ -38,7 +38,6 @@
 # library(tidyverse)
 # library(mirai)
 # library(rvest)
-
 # source("./R/support_harmonize_geobr.R")
 # source("./R/support_fun.R")
 
@@ -46,16 +45,10 @@
 # Download the data  -----------------
 download_microregions <- function(year){ # year = 2024
   
-  ## 0. Get the correct url and file names -----------------
-  
-  ### Year before 2016 ----
-  #### If the year is pre 2016, we don't have BR files
+  ## 0. Get the correct pattern url  ----
   
   
-  ### Year after 2016 ----
-  #### If the year is post 2016, we have BR files
-  
-  # if(year >= 2016) {
+  # if(year >= 2015) {
   # 
   # inicio_url <- "ftp://geoftp.ibge.gov.br/organizacao_do_territorio/malhas_territoriais/malhas_municipais/municipio_"
   # url <- paste0(inicio_url, year, "/Brasil/BR/br_regioes_geograficas_imediatas.zip")
@@ -79,8 +72,35 @@ download_microregions <- function(year){ # year = 2024
     
     ### parts of url
     
-    ftp_link <- paste0(url_start, year, "/", states$sg_state, "/",
-                       states$sgm_state, "_microrregioes.zip")
+    #2000
+    if(year == 2000) {
+      ftp_link <- paste0(url_start, year, "/", states$sgm_state, "/",
+                         states$sgm_state, "_microrregioes.zip")
+    }
+    
+    #2001
+    if(year == 2001) {
+      ftp_link <- paste0(url_start, year, "/", states$sgm_state, "/",
+                         states$cod_states, "mi2500g.zip")
+    }
+   
+    #2010 
+    if(year == 2010) {
+      ftp_link <- paste0(url_start, year, "/", states$sgm_state, "/",
+                         states$sgm_state, "_microrregioes.zip")
+    }
+    
+    #2013 
+    if(year == 2013) {
+      ftp_link <- paste0(url_start, year, "/", states$sg_state, "/",
+                         states$sgm_state, "_microrregioes.zip")
+    }
+    
+    #2014
+    if(year == 2014) {
+      ftp_link <- paste0(url_start, year, "/", states$sg_state, "/",
+                         states$sgm_state, "_microrregioes.zip")
+    }
     
     filenames <- basename(ftp_link)
     
@@ -110,7 +130,7 @@ download_microregions <- function(year){ # year = 2024
   file_raw <- fs::file_temp(tmp_dir = in_zip,
                             ext = fs::path_ext(ftp_link))
   
-  out_zip <- paste0(zip_dir, "/zipped/")
+  out_zip <- paste0(zip_dir, "/unzipped/")
   dir.create(out_zip, showWarnings = FALSE, recursive = TRUE)
   dir.exists(out_zip)
   
@@ -141,7 +161,8 @@ download_microregions <- function(year){ # year = 2024
   
   microregions_list <- pbapply::pblapply(
     X = shp_names, 
-    FUN = function(x){ sf::st_read(x, quiet = T, stringsAsFactors=F) }
+    FUN = function(x){ sf::st_read(x, quiet = T, stringsAsFactors= F,
+                                   fill = T) }
   )
   
   microregions_raw <- data.table::rbindlist(microregions_list)

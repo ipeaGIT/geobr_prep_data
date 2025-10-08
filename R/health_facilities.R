@@ -41,6 +41,11 @@
 # Download the data  -----------------
 download_healthfacilities <- function(year){ #no year because only most recent avaidable
   
+  ## 0. Adjust date of last update ----
+  
+  date_month <- str_sub(year, start = 6, end = 8)
+  date_year <- str_sub(year, start = 1, end = 4)
+  
   ## 0. Create temp folder and file ----
   
   zip_dir <- paste0(tempdir(), "/health_facilities/", year)
@@ -72,9 +77,6 @@ download_healthfacilities <- function(year){ #no year because only most recent a
   # zip_dir <- paste0("./data_raw/", "/health_facilities/", year)
   # dir.create(zip_dir, showWarnings = FALSE, recursive = TRUE)
   # dir.exists(zip_dir)
-  
-  ### determine date of last update
-  date_run <- Sys.time()
   
   ## 4. Download Raw data ----
   

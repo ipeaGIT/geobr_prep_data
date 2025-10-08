@@ -143,13 +143,9 @@ intermediateregions_raw_c483a7b0b48dcee9|branch|73fb715a0aac2149|85a1e3609bedebe
 intermediateregions_raw_6de50431269e37bc|branch|d9a92cb7ce7bda66|85a1e3609bedebea|f819ab74289c910a|914860087||t20362.7271731875s|s43304428b|43304428|rds|local|vector|intermediateregions_raw||6.407||
 intermediateregions_raw_5299b771d567f0e5|branch|a46c745ac4eb1f4e|85a1e3609bedebea|f819ab74289c910a|1785052184||t20362.727193293s|s41672207b|41672207|rds|local|vector|intermediateregions_raw||7.875||
 intermediateregions_raw|pattern|502ed733d0f4913d|85a1e3609bedebea||-1998557575||||84976635|rds|local|vector||intermediateregions_raw_9dde06d7dd3ef86c*intermediateregions_raw_d8078a455ca3c106*intermediateregions_raw_c483a7b0b48dcee9*intermediateregions_raw_5299b771d567f0e5*intermediateregions_raw_6de50431269e37bc|14.282||
-microregions_raw|pattern|ce462ccb9891f77c|6b22cd582ad26fef||-1096164307||||135256643|rds|local|vector||microregions_raw_992c5437a752b95a*microregions_raw_cc1b11aae60054d7*microregions_raw_2930463961ed1ab4*microregions_raw_8efd6e486cb1161e|20.031||
 microregions_clean_08c489c9d3522b38|branch|b13386260f2a1aef|412d71366ce2bba8|50fbba489f7ace43|-794873577|./data/micro_regions/2016|t20362.7299853997s|s36689795b|36689795|file|local|vector|microregions_clean||77.781||
 microregions_clean_461a302c261cdd60|branch|936d376df4a6e46f|412d71366ce2bba8|285467debf5446c6|467132127|./data/micro_regions/2017|t20362.7300153104s|s37663281b|37663281|file|local|vector|microregions_clean||78.578||
 microregions_clean_5c1e41029b1ef2df|branch|63f4ede43c9c9241|412d71366ce2bba8|5028874083980198|175061405|./data/micro_regions/2018|t20362.7301218669s|s43748794b|43748794|file|local|vector|microregions_clean||91.312||
-microregions_clean|pattern|00fdabf208de1fb5|412d71366ce2bba8||2023425665||||153454153|file|local|vector||microregions_clean_87d1c0af6dd7d210*microregions_clean_08c489c9d3522b38*microregions_clean_461a302c261cdd60*microregions_clean_5c1e41029b1ef2df|322.577||
-microregions_raw_c980190e48de79a7|branch||6b22cd582ad26fef|4c775645375fbc9e|74677499||t20362.7247374384s||0|rds|local|vector|microregions_raw||3.5|cannot open URL 'https://geoftp.ibge.gov.br/organizacao_do_territorio/malhas_territoriais/malhas_municipais/municipio_2000/RO/ro_microrregioes.zip': HTTP status was '404 Not Found'|não foi possível abrir a URL 'https://geoftp.ibge.gov.br/organizacao_do_territorio/malhas_territoriais/malhas_municipais/municipio_2000/RO/ro_microrregioes.zip'
-years_microregions|stem|21c50babdd0178f2|279fc54b2cbbba36|2c530c1562a7fbd1|1813983046||t20362.7432715627s|s59b|59|rds|local|vector||years_microregions_0dbb0d8073ac7624*years_microregions_758238886b5b5d67*years_microregions_5ad65fc7095a1c84*years_microregions_68ff525f367ea9a5|3.094||
 immediateregions_raw_e00d05fca080a290|branch|030059ed40a5079c|628a5ecadc6c6fcb|601b555da1c67b92|-1192361253||t20362.9095794517s|s65398742b|65398742|rds|local|vector|immediateregions_raw||6.14||
 immediateregions_raw_71fc7767098686ed|branch|cf4616e4243b269f|628a5ecadc6c6fcb|601b555da1c67b92|2010296496||t20362.909619491s|s77815799b|77815799|rds|local|vector|immediateregions_raw||8.172||
 immediateregions_raw_7e48f02ce8b91a1d|branch|6e9ee4ff4421ec39|628a5ecadc6c6fcb|601b555da1c67b92|144574287||t20362.909624038s|s77699058b|77699058|rds|local|vector|immediateregions_raw||9.906||
@@ -159,13 +155,6 @@ immediateregions_raw_1f9518b8a4109b65|branch|93b0e4832d01aca7|628a5ecadc6c6fcb|6
 immediateregions_clean_fda91a73a4161d02|branch|17f8a3be571fa811|8e97c72e333a7ec8|edcab7a5ae3bf11f|2092917343|./data/immediate_regions/2023|t20362.9115940562s|s56305293b|56305293|file|local|vector|immediateregions_clean||118.688||
 years_immediateregions|stem|a01f8fbe7ebec758|5f97a53acc1aca5c|2c530c1562a7fbd1|1829493587||t20363.5970585462s|s64b|64|rds|local|vector||years_immediateregions_9d65bb50e1f17566*years_immediateregions_8a1df9e2ee854288*years_immediateregions_dd26cb6b0d59dfe4*years_immediateregions_f5438c71d808fd51*years_immediateregions_f2ce06dfc4b52e40*years_immediateregions_003e0b7803bf9350|3.156||
 immediateregions_raw|pattern|51152d27b325485a|628a5ecadc6c6fcb||340824362||||152491004|rds|local|vector||immediateregions_raw_2e1b3ecd1910c74d*immediateregions_raw_4229a83c6ce083bf*immediateregions_raw_7ac2ecf40e033ba4*immediateregions_raw_75474001d1881e52*immediateregions_raw_b6e98febc9728d80*immediateregions_raw_d2c61470a62518ff|17.578||
-immediateregions_clean_b632b20d9a850a0d|branch|995d3e06aa431a8e|8e97c72e333a7ec8|196f9676d5989b1f|-1307716059|./data/immediate_regions/2019|t20363.7647770652s|s47107517b|47107517|file|local|vector|immediateregions_clean||108.063||
-immediateregions_clean_d9ca1a4ce7490758|branch|5c931d1352171dab|8e97c72e333a7ec8|c2c9f9adc9c10c84|-140607298|./data/immediate_regions/2020|t20363.7649085698s|s52305604b|52305604|file|local|vector|immediateregions_clean||117.375||
-immediateregions_clean_442dbceb23372656|branch|eb7a308ac0ba955f|8e97c72e333a7ec8|e10b31e68c4dddc8|1508162214|./data/immediate_regions/2021|t20363.7649998879s|s55557688b|55557688|file|local|vector|immediateregions_clean||123.735||
-immediateregions_clean_51917a243eceb472|branch|4a998afe1ea5c881|8e97c72e333a7ec8|afd465b944fe2850|-1176068583|./data/immediate_regions/2022|t20363.7650451734s|s55917574b|55917574|file|local|vector|immediateregions_clean||125.843||
-immediateregions_clean_dc44d2ead839c9bd|branch|17f8a3be571fa811|8e97c72e333a7ec8|0e28cce9c772a2d6|54407828|./data/immediate_regions/2023|t20363.7650823714s|s56305293b|56305293|file|local|vector|immediateregions_clean||122.422||
-immediateregions_clean_c8c542e508cf7346|branch|3ccf7fce443b4375|8e97c72e333a7ec8|e2bc1459d7fbbdd8|-1061101012|./data/immediate_regions/2024|t20363.7651376037s|s58567536b|58567536|file|local|vector|immediateregions_clean||129.594||
-immediateregions_clean|pattern|e1294713f3729dbc|8e97c72e333a7ec8||165723008||||325761212|file|local|vector||immediateregions_clean_b632b20d9a850a0d*immediateregions_clean_d9ca1a4ce7490758*immediateregions_clean_442dbceb23372656*immediateregions_clean_51917a243eceb472*immediateregions_clean_dc44d2ead839c9bd*immediateregions_clean_c8c542e508cf7346|727.032||
 healthfacilities_raw_ca0d7468f0b27fd0|branch||b04712cd06c0bec3|4c498bb1c7f908b5|676455844||t20364.728576914s||0|rds|local|vector|healthfacilities_raw||0.016||argumento não utilizado (years_healthfacilities)
 .Random.seed|object|8e24d59268d86255
 microregions_raw_992c5437a752b95a|branch|d7a673b52dc375fc|6b22cd582ad26fef|7b638d44f5fe795a|-1309619641||t20364.783180677s|s41538680b|41538680|rds|local|vector|microregions_raw||6.703||
@@ -178,9 +167,33 @@ immediateregions_raw_2e1b3ecd1910c74d|branch|030059ed40a5079c|628a5ecadc6c6fcb|c
 immediateregions_raw_7ac2ecf40e033ba4|branch|6e9ee4ff4421ec39|628a5ecadc6c6fcb|c343c5f41b446688|87741879||t20364.7833761879s|s77699058b|77699058|rds|local|vector|immediateregions_raw||13.922||
 immediateregions_raw_d2c61470a62518ff|branch|5730597b38bb8558|628a5ecadc6c6fcb|c343c5f41b446688|-30351961||t20364.7833782954s|s79327857b|79327857|rds|local|vector|immediateregions_raw||4.453||
 immediateregions_raw_b6e98febc9728d80|branch|93b0e4832d01aca7|628a5ecadc6c6fcb|c343c5f41b446688|-1985545700||t20364.7834144814s|s73163147b|73163147|rds|local|vector|immediateregions_raw||5.343||
-years_healthfacilities|stem|f6cc6aba62cdfaa3|193615ba35988fc1|2c530c1562a7fbd1|-1117875811||t20367.2112924624s|s53b|53|rds|local|vector||years_healthfacilities_bc7018bec7ff711e|3||
 healthfacilities_raw_c26d6eb7ddfbf10c|branch|6c5cec3cddd93ad6|b04712cd06c0bec3|fc07bc3c167839b2|434862947||t20367.2115714279s|s47699745b|47699745|rds|local|vector|healthfacilities_raw||13.687||
-healthfacilities_raw|pattern|b1453a61ac8a9598|b04712cd06c0bec3||1762140248||||47699745|rds|local|vector||healthfacilities_raw_c26d6eb7ddfbf10c|13.687||
+healthfacilities_clean_837537f8f5990187|branch|a157786e23a75ec9|ced381dbebae1564|933e73b99a0f42ff|1727069362|./data/health_facilities/2025|t20367.2140777618s|s74201057b|74201057|file|local|vector|healthfacilities_clean||139||
+microregions_clean_87d1c0af6dd7d210|branch|71f5285d106e3c72|412d71366ce2bba8|e55ef2f48b5946c6|-573246211|./data/micro_regions/2015|t20362.7299452288s|s0b|0|file|local|vector|microregions_clean||74.906||
+years_healthfacilities|stem|3f903ceafaf37b45|7084834da9b053aa|2c530c1562a7fbd1|-1117875811||t20368.7380925802s|s60b|60|rds|local|vector||years_healthfacilities_ceecc1f2d067dff0|3.047||
+healthfacilities_raw_9c5bf68e8d196baf|branch|790c97226983bf9f|b04712cd06c0bec3|8ba3d3526621ab91|7532503||t20368.7383459252s|s47704790b|47704790|rds|local|vector|healthfacilities_raw||11.609||
+healthfacilities_raw|pattern|8efaec640635ab9e|b04712cd06c0bec3||1762140248||||47704790|rds|local|vector||healthfacilities_raw_9c5bf68e8d196baf|11.609||
+healthfacilities_clean_19a13145e8c34c9c|branch|c2e243cf5e55c4ac|ced381dbebae1564|6d8f403f956d62a5|131176880|./data/health_facilities/2025_10|t20368.7401101058s|s74220843b|74220843|file|local|vector|healthfacilities_clean||139.141||
+healthfacilities_clean|pattern|29f79eee3cc183fd|ced381dbebae1564||423354283||||74220843|file|local|vector||healthfacilities_clean_19a13145e8c34c9c|139.141||
+microregions_raw|pattern|e222f19c75fdf30c|6b22cd582ad26fef||-1096164307||||185430343|rds|local|vector||microregions_raw_c980190e48de79a7*microregions_raw_53027abc6d9c45a3*microregions_raw_49a209c56ee27039*microregions_raw_cad4f61e4a786b0f*microregions_raw_6e7672a0c1f6c4af|35.533||
+microregions_clean_f7743e32b4be2c6e|branch|75fd74f28c5f5d88|412d71366ce2bba8|7254d373dcdb88a7|-1726607163|./data/micro_regions/2000|t20369.2895177977s|s10554731b|10554731|file|local|vector|microregions_clean||29.078|x is already of type POLYGON.|
+microregions_clean_8334f08e02d8635d|branch|71f5285d106e3c72|412d71366ce2bba8|175e644c870858ae|-508461370|./data/micro_regions/2015|t20369.290006727s|s35352283b|35352283|file|local|vector|microregions_clean||70.484||
+microregions_clean_1281c7452b2b6997|branch|936d376df4a6e46f|412d71366ce2bba8|290d6b8107dd7807|-783486684|./data/micro_regions/2017|t20369.2900477941s|s37663281b|37663281|file|local|vector|microregions_clean||72.906||
+microregions_clean_729fb46310763235|branch|b13386260f2a1aef|412d71366ce2bba8|ed6d789d85a5ee2e|-1721586792|./data/micro_regions/2016|t20369.2900551725s|s36689795b|36689795|file|local|vector|microregions_clean||72.343||
+microregions_clean_0ef5ea2e88590e5e|branch|63f4ede43c9c9241|412d71366ce2bba8|5c443675acb8e2d4|-820359225|./data/micro_regions/2018|t20369.2902589335s|s43748794b|43748794|file|local|vector|microregions_clean||87.5||
+microregions_clean|pattern|bc13daf4d87be736|412d71366ce2bba8||2023425665||||164008884|file|local|vector||microregions_clean_f7743e32b4be2c6e*microregions_clean_8334f08e02d8635d*microregions_clean_729fb46310763235*microregions_clean_1281c7452b2b6997*microregions_clean_0ef5ea2e88590e5e|332.311||
+immediateregions_clean_b632b20d9a850a0d|branch|d072d172b4a4c918|8e97c72e333a7ec8|1fec452b550a280b|-1307716059|./data/immediate_regions/2019|t20369.2927460226s|s46838372b|46838372|file|local|vector|immediateregions_clean||51.906||
+immediateregions_clean_51917a243eceb472|branch|ea1fc0d8b5120d37|8e97c72e333a7ec8|5aaebed3f91bab6d|-1176068583|./data/immediate_regions/2022|t20369.2928448657s|s55571065b|55571065|file|local|vector|immediateregions_clean||61.125||
+immediateregions_clean_d9ca1a4ce7490758|branch|6239b4625d5ad254|8e97c72e333a7ec8|0230fd0c009585e6|-140607298|./data/immediate_regions/2020|t20369.2928552378s|s51986612b|51986612|file|local|vector|immediateregions_clean||56.843||
+immediateregions_clean_dc44d2ead839c9bd|branch|1ac78e7e6558a70a|8e97c72e333a7ec8|6732184afc5ae1e5|54407828|./data/immediate_regions/2023|t20369.2928719613s|s55963279b|55963279|file|local|vector|immediateregions_clean||60.016||
+immediateregions_clean_442dbceb23372656|branch|88ea97d8a9876c85|8e97c72e333a7ec8|dadd295309e09edf|1508162214|./data/immediate_regions/2021|t20369.2929128175s|s55164461b|55164461|file|local|vector|immediateregions_clean||60.422||
+immediateregions_clean_c8c542e508cf7346|branch|98363e34a4d4aade|8e97c72e333a7ec8|a8a10ff812ee99c1|-1061101012|./data/immediate_regions/2024|t20369.2929974422s|s60832907b|60832907|file|local|vector|immediateregions_clean||64.047||
+immediateregions_clean|pattern|e66e882309a810b4|8e97c72e333a7ec8||165723008||||326356696|file|local|vector||immediateregions_clean_b632b20d9a850a0d*immediateregions_clean_d9ca1a4ce7490758*immediateregions_clean_442dbceb23372656*immediateregions_clean_51917a243eceb472*immediateregions_clean_dc44d2ead839c9bd*immediateregions_clean_c8c542e508cf7346|354.359||
+microregions_raw_49a209c56ee27039|branch|c7f1dd34d958c6d4|6b22cd582ad26fef|7db9331ede5fe64d|-212950248||t20369.4588099728s|s40561495b|40561495|rds|local|vector|microregions_raw||2.406||
+microregions_raw_6e7672a0c1f6c4af|branch|9dcf57010342b1de|6b22cd582ad26fef|7db9331ede5fe64d|312258888||t20369.458873359s|s50253545b|50253545|rds|local|vector|microregions_raw||5.375||
+microregions_raw_14337a2d7860f1b0|branch||6b22cd582ad26fef|7db9331ede5fe64d|-1460507655||t20369.4559251518s||0|rds|local|vector|microregions_raw||4.922||Item 14 tem 11 colunas, inconsistente com o item 1 que tem 9 colunas. Para preencher colunas ausentes, use fill=TRUE.
+microregions_raw_cad4f61e4a786b0f|branch|a50755b466f1f6cc|6b22cd582ad26fef|7f0c4c2ba6217fc7|-1757430538||t20369.4576473003s||44441603|rds|local|vector|microregions_raw||5.422||no simple features geometry column present
+microregions_raw_53027abc6d9c45a3|branch|d7a673b52dc375fc|6b22cd582ad26fef|7f0c4c2ba6217fc7|1045200538||t20369.4576403709s||41538680|rds|local|vector|microregions_raw||5.156||no simple features geometry column present
 unzip_geobr|function|fccb324e77d99122
 detect_year_from_string|function|7e1010acf860e4c3
 fix_topology|function|33a8777624a368eb
@@ -195,14 +208,14 @@ use_encoding_utf8|function|4f174428ce87a762
 download_intermediateregions|function|f203af58039b3f6a
 download_biomes|function|2c666f2aa96f78f3
 download_statsgrid|function|ee64c1fae5f72da5
-download_healthfacilities|function|99694435cd0cd765
+download_healthfacilities|function|aaff4c0dfe01a7c5
 download_mesoregions|function|9878cd2936340c3c
 remove_state_repetition|function|f651de43bfd2d54b
 download_amazonialegal|function|ec987bd380a1b0f4
 download_semiarid|function|12932adc413e796a
 list_folders|function|bcfbf4f7465afa51
 download_immediateregions|function|2b75f3ec7a8532f4
-download_microregions|function|55e2c1eda2fe182a
+download_microregions|function|7640fec9991b7e8b
 muni_saveraw|function|027c21b5678a4e03
 simplify_temp_sf|function|02880e2aae8b4a7f
 dissolve_polygons|function|b4285f1f2b992921
@@ -213,10 +226,9 @@ clean_mesoregions|function|1f4d3a6db2668178
 clean_microregions|function|0379473651bcd533
 clean_healthfacilities|function|eaa067509292c8c6
 clean_indigenousland|function|4124a6c3d902f3e7
-clean_immediateregions|function|2a7c81f49ce60f97
+clean_immediateregions|function|9d62313580a237bb
 clean_semiarid|function|b55bd50b224d83d8
 clean_intermediateregions|function|1ca73420362ae1e5
 clean_biomes|function|876df16b2a575403
-microregions_clean_87d1c0af6dd7d210|branch|71f5285d106e3c72|412d71366ce2bba8|e55ef2f48b5946c6|-573246211|./data/micro_regions/2015|t20362.7299452288s|s0b|0|file|local|vector|microregions_clean||74.906||
-healthfacilities_clean_837537f8f5990187|branch|a157786e23a75ec9|ced381dbebae1564|933e73b99a0f42ff|1727069362|./data/health_facilities/2025|t20367.2140777618s|s74201057b|74201057|file|local|vector|healthfacilities_clean||139||
-healthfacilities_clean|pattern|bd6b16e804a3e019|ced381dbebae1564||423354283||||74201057|file|local|vector||healthfacilities_clean_837537f8f5990187|139||
+years_microregions|stem|287cbd29016cb662|ce6f0242c2f70337|2c530c1562a7fbd1|1813983046||t20369.4911644112s|s71b|71|rds|local|vector||years_microregions_664e20f2cf9d5df1*years_microregions_755c32733bcf0b7a*years_microregions_83f691dcdf51096e*years_microregions_71d428f5b56cfa9f*years_microregions_66eee5cd36ed396e*years_microregions_a009eba4833e4540*years_microregions_b9c4205ce711d3b3|3||
+microregions_raw_c980190e48de79a7|branch|c3d8e26b921ab245|6b22cd582ad26fef|7f0c4c2ba6217fc7|74677499||t20369.4582414894s||8635020|rds|local|vector|microregions_raw||5.531||no simple features geometry column present

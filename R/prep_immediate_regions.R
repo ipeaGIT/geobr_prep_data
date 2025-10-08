@@ -173,7 +173,7 @@ clean_immediateregions <- function(immediateregions_raw, year){ # year = 2024
     encoding_utf8 = T,
     topology_fix = T,
     remove_z_dimension = T,
-    use_multipolygon = T
+    use_multipolygon = F
   )
   
   glimpse(temp_sf)
