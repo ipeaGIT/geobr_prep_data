@@ -478,35 +478,35 @@ unzip_geobr <- function(zip_dir, in_zip, out_zip = NULL, is_shp = FALSE) {
   
   # Delimit a number of files
   
-    if (is_shp == TRUE){ 
-      files_inzip <- map(
-       zip_names, 
-       function(x) {
-         unzip(x, list = TRUE)
-       }
-     )
-     
-     shp_delimit <- "cpg|dbf|prj|shp|shx"
-     
-     files_delimit <- map(
-       files_inzip, function(x) {
-         str_subset(x$Name, pattern = shp_delimit)
-       }
-     )
-     
-   } else {NULL}
-
+  if (is_shp == TRUE){ 
+    files_inzip <- map(
+      zip_names, 
+      function(x) {
+        unzip(x, list = TRUE)
+      }
+    )
+    
+    shp_delimit <- "shp|cpg|dbf|prj|shx|xml|sbn|sbx"
+    
+    files_delimit <- map(
+      files_inzip, function(x) {
+        str_subset(x$Name, pattern = shp_delimit)
+      }
+    )
+    
+  } else {NULL}
+  
   # unzip part 
   
   if (is_shp == TRUE){ 
     imap(
-    zip_names, 
-    function(x, idx) {
-      unzip(x,
-            exdir = out_zip,
-            files = files_delimit[[idx]])
-    },
-    .progress = TRUE)
+      zip_names, 
+      function(x, idx) {
+        unzip(x,
+              exdir = out_zip,
+              files = files_delimit[[idx]])
+      },
+      .progress = TRUE)
   } else {
     map(
       zip_names, 
@@ -517,3 +517,14 @@ unzip_geobr <- function(zip_dir, in_zip, out_zip = NULL, is_shp = FALSE) {
       .progress = TRUE)
   }
 }
+
+# Collumns names geobr function -----------------
+
+columns_geobr <- function(zip_dir, in_zip, out_zip = NULL, is_shp = FALSE) {
+  
+  table_collumns <- tibble(name_collum = colnames(microregions_raw),
+                           type_collum = sapply(microregions_raw, class)) |> 
+    rownames_to_column(var = "num_collumn")
+  
+}
+  
