@@ -213,18 +213,18 @@ list(
   #09. Escolas ----
   
   # # year input
-  # tar_target(name = years_statsgrid,
+  # tar_target(name = years_schools,
   #            command = c(2010, 2022)),
   # 
   # # download
-  # tar_target(name = statsgrid_raw,
-  #            command = download_statsgrid(years_statsgrid),
-  #            pattern = map(years_statsgrid)),
+  # tar_target(name = schools_raw,
+  #            command = download_schools(years_schools),
+  #            pattern = map(years_schools)),
   # 
   # # clean
-  # tar_target(name = statsgrid_clean,
-  #            command = clean_statsgrid(statsgrid_raw, years_statsgrid),
-  #            pattern = map(statsgrid_raw, years_statsgrid),
+  # tar_target(name = schools_clean,
+  #            command = clean_schools(schools_raw, years_schools),
+  #            pattern = map(schools_raw, years_schools),
   #            format = 'file'),
   
   #10. Estados ----
@@ -301,11 +301,11 @@ list(
   # year input
   tar_target(name = years_microregions,
              command = c(2000, 
-                         2001, #no sf collumn error
+                         #2001, #no sf collumn error
                          #2005, 2007 #Precisa identificar qual é o microregions file
                          #2010,
                          #2013,
-                         2014, # microrregioes sem BR folder
+                         #2014, # microrregioes sem BR folder
                          2015:2018)),
   
   # download
