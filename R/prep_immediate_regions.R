@@ -19,7 +19,7 @@
 # Observações: 
 # Anos disponíveis: ****************
 
-### Libraries (use any library as necessary) --------
+## Libraries (use any library as necessary) ----
 
 # library(RCurl)
 # library(stringr)
@@ -42,7 +42,7 @@
 # source("./R/support_fun.R")
 
 
-# Download the data  -----------------
+# Download the data  ----
 download_immediateregions <- function(year){ # year = 2024
   
   ## 0. Generate the correct ftp link ----
@@ -77,7 +77,7 @@ download_immediateregions <- function(year){ # year = 2024
     ftp_link <- "https://geoftp.ibge.gov.br/organizacao_do_territorio/malhas_territoriais/malhas_municipais/municipio_2024/Brasil/BR_RG_Imediatas_2024.zip"
   }
   
-  ## 1. Create temp folder -----------------
+  ## 1. Create temp folder ----
   
   zip_dir <- paste0(tempdir(), "/immediate_regions/", year)
   dir.create(zip_dir, showWarnings = FALSE, recursive = TRUE)
@@ -88,7 +88,7 @@ download_immediateregions <- function(year){ # year = 2024
   # dir.create(zip_dir, showWarnings = FALSE, recursive = TRUE)
   # dir.exists(zip_dir)
   
-  ## 2. Create direction for each download
+  ## 2. Create direction for each download ----
   
   # zip folder
   in_zip <- paste0(zip_dir, "/zipped/")
@@ -98,7 +98,7 @@ download_immediateregions <- function(year){ # year = 2024
   file_raw <- fs::file_temp(tmp_dir = in_zip,
                             ext = fs::path_ext(ftp_link))
   
-  ## 3. Download Raw data -----------------
+  ## 3. Download Raw data ----
   
   if(year < 2015) {
     ### Download zipped files
@@ -116,7 +116,7 @@ download_immediateregions <- function(year){ # year = 2024
   }
   
 
-  ## 4. Unzip Raw data -----------------
+  ## 4. Unzip Raw data ----
   
   ### unzip folder
   out_zip <- paste0(zip_dir, "/unzipped/")
@@ -125,7 +125,7 @@ download_immediateregions <- function(year){ # year = 2024
   
   unzip_geobr(zip_dir = zip_dir, in_zip = in_zip, out_zip = out_zip, is_shp = TRUE)
   
-  ## 5. Bind Raw data together -----------------
+  ## 5. Bind Raw data together ----
   
   in_zip <- paste0(zip_dir, "/zipped/")
   dir.create(in_zip, showWarnings = FALSE, recursive = TRUE)
@@ -141,7 +141,7 @@ download_immediateregions <- function(year){ # year = 2024
   
   immediateregions_raw <- data.table::rbindlist(immediateregions_list)
   
-  ## 6. Show result -----------------
+  ## 6. Show result ----
   
   data.table::setDF(immediateregions_raw)
   immediateregions_raw <- sf::st_as_sf(immediateregions_raw) %>% 
@@ -150,16 +150,16 @@ download_immediateregions <- function(year){ # year = 2024
   return(immediateregions_raw)
 }
 
-# Clean the data  -----------------
+# Clean the data  ----
 clean_immediateregions <- function(immediateregions_raw, year){ # year = 2024
 
-  ## 0. Create folder to save clean data -----
+  ## 0. Create folder to save clean data ----
 
   dir_clean <- paste0("./data/immediate_regions/", year)
   dir.create(dir_clean, recursive = T, showWarnings = FALSE)
   dir.exists(dir_clean)
   
-  ## 1. Apply harmonize geobr cleaning -----------------
+  ## 1. Apply harmonize geobr cleaning ----
   
   immediateregions_raw <- clean_names(immediateregions_raw)
   
@@ -178,10 +178,10 @@ clean_immediateregions <- function(immediateregions_raw, year){ # year = 2024
   
   glimpse(temp_sf)
   
-  ## 2. lighter version --------------- 
+  ## 2. lighter version ----
   temp_sf_simplified <- simplify_temp_sf(temp_sf, tolerance = 100)
   
-  ## 3. Save datasets  -----------------
+  ## 3. Save datasets  ----
   
   # sf::st_write(temp_sf, dsn = paste0(dir_clean, "/immediateregions_",  year,
   #                                   ".gpkg"), delete_dsn = TRUE)
