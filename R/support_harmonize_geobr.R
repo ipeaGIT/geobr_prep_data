@@ -426,33 +426,41 @@ dissolve_polygons <- function(mysf, group_column){
 # a <- dissolve_polygons(states, group_column='code_region')
 # plot(a)
 
-# Create folder geobr function -----------------
+# Folder creation geobr function -----------------
 
-unzip_geobr <- function(folder_name = "character", temp = FALSE) {
+folder_geobr <- function(folder_name = NULL, temp = FALSE) {
   
-  
-  zip_dir <- paste0(tempdir(), "/micro_regions/", year)
-  dir.create(zip_dir, showWarnings = FALSE, recursive = TRUE)
-  dir.exists(zip_dir)
-  
-  # ### Alternative folder
-  # zip_dir <- paste0("./data_raw/", "/micro_regions/", year)
-  # dir.create(zip_dir, showWarnings = FALSE, recursive = TRUE)
-  # dir.exists(zip_dir)
-  
-  if (is.null(in_zip)) {
-    # unzip folder
-    in_zip <- paste0(zip_dir, "/unzipped/")
-    dir.create(in_zip, showWarnings = FALSE, recursive = TRUE)
-    dir.exists(in_zip)
+  if (temp == TRUE){ 
+    
+    # create a temp folder
+    zip_dir <- paste0(tempdir(), "/", folder_name, "/", year)
+    dir.create(zip_dir, showWarnings = FALSE, recursive = TRUE)
+    dir.exists(zip_dir)
+    
+  } else {
+    
+    # create a folder on the project
+    zip_dir <- paste0("./data_raw/", folder_name, "/", year)
+    dir.create(zip_dir, showWarnings = FALSE, recursive = TRUE)
+    dir.exists(zip_dir)
+    
   }
   
-  if (is.null(out_zip)) {
-    # unzip folder
-    out_zip <- paste0(zip_dir, "/zipped/")
-    dir.create(out_zip, showWarnings = FALSE, recursive = TRUE)
-    dir.exists(out_zip)
-  }
+  # unzip folder
+  in_zip <- paste0(zip_dir, "/unzipped/")
+  dir.create(in_zip, showWarnings = FALSE, recursive = TRUE)
+  dir.exists(in_zip)
+  
+  # unzip folder
+  out_zip <- paste0(zip_dir, "/zipped/")
+  dir.create(out_zip, showWarnings = FALSE, recursive = TRUE)
+  dir.exists(out_zip)
+  
+  ### Data folder
+  dir_clean <- paste0("./data/", folder_name, "/", year)
+  dir.create(dir_clean, recursive = T, showWarnings = FALSE)
+  dir.exists(dir_clean)
+  
 }
 
 # Unzip geobr function -----------------
@@ -520,12 +528,17 @@ unzip_geobr <- function(zip_dir, in_zip, out_zip = NULL, is_shp = FALSE) {
 
 # Collumns names geobr function -----------------
 
-columns_geobr <- function(data = NULL, filenames = NULL, out_dir = NULL,
-                          multiple.files = FALSE) {
+glimpse_geobr <- function(data = NULL, filenames = NULL,
+                          multiple_files = FALSE) {
   
-  table_collumns <- tibble(name_collum = colnames(data),
-                           type_collum = sapply(data, class)) |> 
-    rownames_to_column(var = "num_collumn")
+  # if (multiple_files == TRUE){ 
+  #   
+  # } else {
+    
+    table_collumns <- tibble(name_collum = colnames(data),
+                             type_collum = sapply(data, class)) |> 
+      rownames_to_column(var = "num_collumn")
+  #}
   
   return(table_collumns)
   

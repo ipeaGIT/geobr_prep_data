@@ -30,6 +30,13 @@ Data sets currenly implemented in the targets pipeline:
 - [ ] urban_concentrations
 - [ ] pop_arrangements
 
+
+Functions used:
+- [x] harmonize_geobr
+- [x] unzip_geobr
+- [R] folder_geobr
+- [P] glimpse_geobr
+
 P = parcial
 x = done
 R = in review
