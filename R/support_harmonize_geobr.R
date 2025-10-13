@@ -520,11 +520,14 @@ unzip_geobr <- function(zip_dir, in_zip, out_zip = NULL, is_shp = FALSE) {
 
 # Collumns names geobr function -----------------
 
-columns_geobr <- function(zip_dir, in_zip, out_zip = NULL, is_shp = FALSE) {
+columns_geobr <- function(data = NULL, filenames = NULL, out_dir = NULL,
+                          multiple.files = FALSE) {
   
-  table_collumns <- tibble(name_collum = colnames(microregions_raw),
-                           type_collum = sapply(microregions_raw, class)) |> 
+  table_collumns <- tibble(name_collum = colnames(data),
+                           type_collum = sapply(data, class)) |> 
     rownames_to_column(var = "num_collumn")
+  
+  return(table_collumns)
   
 }
   
