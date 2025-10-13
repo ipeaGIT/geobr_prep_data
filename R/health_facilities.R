@@ -46,7 +46,9 @@ download_healthfacilities <- function(year){ #no year because only most recent a
   date_month <- str_sub(year, start = 6, end = 8)
   date_year <- str_sub(year, start = 1, end = 4)
   
-  ## 0. Create temp folder and file ----
+  ## 1. Create temp folders and data folders ----
+  
+  #folder_geobr(folder_name = "health_facilities", temp = TRUE)
   
   zip_dir <- paste0(tempdir(), "/health_facilities/", year)
   dir.create(zip_dir, showWarnings = FALSE, recursive = TRUE)
@@ -108,21 +110,21 @@ download_healthfacilities <- function(year){ #no year because only most recent a
   return(healthfacilities_raw)
 }
 
-##### Clean the data  -----------------
+# Clean the data  -----------------
 clean_healthfacilities <- function(healthfacilities_raw, year){
 
-  ###### 0. Create folder to save clean data -----
+  ## 0. Create folder to save clean data -----
   
   dir_clean <- paste0("./data/health_facilities/", year)
   dir.create(dir_clean, recursive = T, showWarnings = FALSE)
   dir.exists(dir_clean)
   
-  ###### 1. Preparation -----------------
+  ## 1. Preparation ----
   
   
   
 
-  ###### 2. Apply harmonize geobr cleaning -----------------
+  ## 2. Apply harmonize geobr cleaning ----
   
   temp_sf <- harmonize_geobr(
     temp_sf = healthfacilities_raw,
@@ -131,18 +133,18 @@ clean_healthfacilities <- function(healthfacilities_raw, year){
     add_snake_case = F,
     #snake_colname = snake_colname,
     projection_fix = T,
-    encoding_utf8 = F,
+    encoding_utf8 = T,
     topology_fix = F,
-    remove_z_dimension = F,
+    remove_z_dimension = T,
     use_multipolygon = F
   )
   
   glimpse(temp_sf)
   
-  ###### 3. lighter version --------------- 
+  ## 3. lighter version ---- 
   temp_sf_simplified <- simplify_temp_sf(temp_sf, tolerance = 100)
   
-  ###### 4. Save results  -----------------
+  ## 4. Save results  ----
   
   # sf::st_write(temp_sf, dsn = paste0(dir_clean, "/healthfacilities_",  year,
   #                                    ".gpkg"), delete_dsn = TRUE)
