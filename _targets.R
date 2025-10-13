@@ -212,20 +212,20 @@ list(
   
   #09. Escolas ----
   
-  # # year input
-  # tar_target(name = years_schools,
-  #            command = c(2010, 2022)),
-  # 
-  # # download
-  # tar_target(name = schools_raw,
-  #            command = download_schools(years_schools),
-  #            pattern = map(years_schools)),
-  # 
-  # # clean
-  # tar_target(name = schools_clean,
-  #            command = clean_schools(schools_raw, years_schools),
-  #            pattern = map(schools_raw, years_schools),
-  #            format = 'file'),
+  # year input
+  tar_target(name = years_schools,
+             command = c(Sys.Date())),
+
+  # download
+  tar_target(name = schools_raw,
+             command = download_schools(years_schools),
+             pattern = map(years_schools)),
+
+  # clean
+  tar_target(name = schools_clean,
+             command = clean_schools(schools_raw, years_schools),
+             pattern = map(schools_raw, years_schools),
+             format = 'file'),
   
   #10. Estados ----
   

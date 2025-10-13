@@ -45,16 +45,7 @@
 # Download the data  -----------------
 download_microregions <- function(year){ # year = 2024
   
-  ## 0. Get the correct pattern url  ----
-  
-  
-  # if(year >= 2015) {
-  # 
-  # inicio_url <- "ftp://geoftp.ibge.gov.br/organizacao_do_territorio/malhas_territoriais/malhas_municipais/municipio_"
-  # url <- paste0(inicio_url, year, "/Brasil/BR/br_regioes_geograficas_imediatas.zip")
-  # }
-  
-  ## 1. Generate the correct ftp link ----
+  ## 0. Generate the correct ftp link ----
   
   url_start <- paste0("https://geoftp.ibge.gov.br/organizacao_do_territorio/",
                       "malhas_territoriais/malhas_municipais/municipio_")
@@ -109,7 +100,7 @@ download_microregions <- function(year){ # year = 2024
     ftp_link <- paste0(url_start, year, "/Brasil/BR/br_microrregioes.zip")
   }
   
-  ## 2. Create temp folder -----------------
+  ## 1. Create temp folder -----------------
   
   zip_dir <- paste0(tempdir(), "/micro_regions/", year)
   dir.create(zip_dir, showWarnings = FALSE, recursive = TRUE)
@@ -120,7 +111,7 @@ download_microregions <- function(year){ # year = 2024
   # dir.create(zip_dir, showWarnings = FALSE, recursive = TRUE)
   # dir.exists(zip_dir)
   
-  ## 3. Create direction for each download
+  ## 2. Create direction for each download
   
   ### zip folder
   in_zip <- paste0(zip_dir, "/zipped/")
@@ -151,25 +142,50 @@ download_microregions <- function(year){ # year = 2024
                                overwrite = T))
   }
   
-  ## 4. Unzip Raw data -----------------
+  ## 4. Unzip Raw data ----
   
   unzip_geobr(zip_dir = zip_dir, in_zip = in_zip, out_zip = out_zip, is_shp = TRUE)
   
-  ## 5. Bind Raw data together -----------------
+  ## 5. Bind Raw data together ----
   
   shp_names <- list.files(out_zip, pattern = "\\.shp$", full.names = TRUE)
   
-  microregions_list <- pbapply::pblapply(
-    X = shp_names, 
-    FUN = function(x){ sf::st_read(x, quiet = T, stringsAsFactors= F,
-                                   fill = T) }
-  )
+  #### Before 2015
+  if (length(shp_names) > 1) {
+    microregions_list <- pbapply::pblapply(
+      X = shp_names,
+      FUN = function(x){ sf::st_read(x, quiet = T, stringsAsFactors= F) }
+    )
+    
+    microregions_raw <- data.table::rbindlist(microregions_list)
+  }
   
-  microregions_raw <- data.table::rbindlist(microregions_list)
+  #### After 2015
+  if (length(shp_names) == 1) {
+    microregions_raw <- st_read(shp_names, quiet = T, stringsAsFactors= F)
+  }
   
-  ## 6. Show result -----------------
+  ## 6. Integrity test ----
+  
+  #### Before 2015
+  
+  
+  
+  #### After 2015
+  if (length(shp_names) == 1) {
+    table_collumns <- tibble(name_collum = colnames(microregions_raw),
+                             type_collum = sapply(microregions_raw, class)) |> 
+      rownames_to_column(var = "num_collumn")
+    
+    glimpse(table_collumns)
+    glimpse(microregions_raw)
+  }
+
+  ## 7. Show result -----------------
   
   data.table::setDF(microregions_raw)
+  
+  
   microregions_raw <- sf::st_as_sf(microregions_raw) %>% 
     clean_names()
   
