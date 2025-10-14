@@ -544,3 +544,23 @@ glimpse_geobr <- function(data = NULL, filenames = NULL,
   
 }
   
+# Robust sf read geobr function -----------------
+
+read_and_merge_shapefiles <- function(folder_path) {
+  
+  microregions_list <- map(folder_path = shp_names, function(f) {
+    message("Lendo: ", f)
+    st_read(f, quiet = TRUE)
+  })
+  
+  # encontrar colunas que estão em todos os shapefiles
+  common_cols <- reduce(map(shp_list, names), intersect)
+  
+  # mantém só as colunas comuns
+  shp_list <- map(shp_list, ~ .x[, common_cols])
+  
+  # une tudo
+  microregions_raw <- bind_rows(shp_list)
+  
+  return(microregions_raw)
+}
