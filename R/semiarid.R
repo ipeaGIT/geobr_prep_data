@@ -19,12 +19,29 @@
 # Palavras-chaves descritivas:****
 # Informação do Sistema de Referência: SIRGAS 2000
 
+### Libraries (use any library as necessary) ----
 
+# library(arrow)
+# library(geoarrow)
+# library(stringr)
+# library(sf)
+# library(janitor)
+# library(dplyr)
+# library(readr)
+# library(data.table)
+# library(magrittr)
+# library(devtools)
+# library(lwgeom)
+# library(stringi)
+# library(tidyverse)
+# library(rvest)
+# source("./R/support_harmonize_geobr.R")
+# source("./R/support_fun.R")
 
-##### Download the data  -----------------
+# Download the data  ----
 download_semiarid <- function(year){ # year = 2022
 
-  #### 0. Get ftp link from source website -----------------
+  ## 0. Get ftp link from source website ----
 
   # get correct ftp url link
 
@@ -44,7 +61,9 @@ download_semiarid <- function(year){ # year = 2022
     ftp <- 'https://geoftp.ibge.gov.br/organizacao_do_territorio/estrutura_territorial/semiarido_brasileiro/Situacao_2022/lista_municipios_Semiarido_2022.xlsx'
   }
 
-  #### 1. Create temp folder -----------------
+  ## 1. Create temp folder ----
+  
+  #folder_geobr(folder_name = "semiarid", temp = TRUE)
   
   zip_dir <- paste0(tempdir(), "/semiarid/", year)
   dir.create(zip_dir, showWarnings = FALSE, recursive = TRUE)
@@ -60,13 +79,12 @@ download_semiarid <- function(year){ # year = 2022
   file_raw <-fs::file_temp(tmp_dir = in_zip,
                            ext = fs::path_ext(ftp))
 
-  #### 2. Download  -----------------
+  ## 2. Download  ----
   httr::GET(url = ftp,
             httr::progress(),
             httr::write_disk(path = file_raw,
                              overwrite = T))
 
-  
   if (year == 2005){
     # read IBGE data frame
     munis_semiarid <- readxl::read_xls(path = file_raw,
@@ -107,9 +125,13 @@ download_semiarid <- function(year){ # year = 2022
                                     code_muni = CD_MUN,
                                     name_muni = NM_MUN)
   }
+
+  ## 3. Show result  ----
   
   munis_semiarid <- munis_semiarid |>
-    mutate( year = year)
+    mutate(year = year)
+  
+  glimpse(munis_semiarid)
   
   return(munis_semiarid)
 }
@@ -117,13 +139,13 @@ download_semiarid <- function(year){ # year = 2022
 # munis_semiarid <- tar_read("semiarid_raw", branches = 3)
 # year <- tar_read("years_semiarid")[3]
 
-##### Clean the data   -----------------
+# Clean the data   ----
 clean_semiarid <- function(munis_semiarid, year) { 
   
   
-  #### 0. Create folders to save clean sf files  -----------------
-  dir_clean <- paste0("./data/semiarid/", year)
-  dir.create(dir_clean, recursive = T, showWarnings = FALSE)
+  # #### 0. Create folders to save clean sf files  -----------------
+  # dir_clean <- paste0("./data/semiarid/", year)
+  # dir.create(dir_clean, recursive = T, showWarnings = FALSE)
   
   
   #### 2. Clean data set -----------------
