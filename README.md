@@ -6,14 +6,14 @@ Data sets currenly implemented in the targets pipeline:
 - [ ] region
 - [ ] state
 - [P] meso_region
-- [P] micro_region
+- [x] micro_region
 - [P] intermediate_region
-- [R] immediate_region
+- [x] immediate_region
 - [ ] municipality
 - [ ] municipal_seat
 - [ ] weighting_area
 - [ ] census_tract
-- [R] statistical_grid
+- [x] statistical_grid
 - [ ] metro_area
 - [ ] urban_area
 - [x] amazon
@@ -22,10 +22,10 @@ Data sets currenly implemented in the targets pipeline:
 - [ ] disaster_risk_area
 - [ ] indigenous_land
 - [x] semiarid
-- [R] health_facilities
+- [x] health_facilities
 - [ ] health_region
 - [ ] neighborhood
-- [P] schools
+- [x] schools
 - [ ] comparable_areas
 - [ ] urban_concentrations
 - [ ] pop_arrangements
@@ -34,6 +34,7 @@ Data sets currenly implemented in the targets pipeline:
 Functions used:
 - [x] harmonize_geobr
 - [x] unzip_geobr
+- [x] readmerge_geobr
 - [R] folder_geobr
 - [P] glimpse_geobr
 

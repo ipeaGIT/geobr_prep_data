@@ -19,17 +19,17 @@
 # Observações: 
 # Anos disponíveis: 2000 a 2018
 
-### Libraries (use any library as necessary) --------
+### Libraries (use any library as necessary) ----
 
 # library(RCurl)
 # library(arrow)
 # library(geoarrow)
 # library(stringr)
 # library(sf)
+# library(purrr)
 # library(janitor)
 # library(dplyr)
 # library(readr)
-# library(parallel) # não existe no cran
 # library(data.table)
 # library(magrittr)
 # library(devtools)
@@ -43,14 +43,15 @@
 
 
 # Download the data  -----------------
-download_microregions <- function(year){ # year = 2024
+download_microregions <- function(year){ # year = 2001
   
   ## 0. Generate the correct ftp link ----
   
   url_start <- paste0("https://geoftp.ibge.gov.br/organizacao_do_territorio/",
                       "malhas_territoriais/malhas_municipais/municipio_")
   
-  if(year %in% c(2000:2014)) {
+  # Before 2015
+  if(year %in% c(2000, 2001, 2010:2014)) {
     ### create states tibble
     states <- tibble(cod_states = c(11, 12, 13, 14, 15, 16, 17, 21, 22, 23, 24,
                                     25, 26, 27, 28, 29, 31, 32, 33, 35, 41, 42,
@@ -96,11 +97,25 @@ download_microregions <- function(year){ # year = 2024
     filenames <- basename(ftp_link)
     
     names(ftp_link) <- filenames
-  } else {
+  } 
+  
+  #2005
+  if(year == 2005) {
+    ftp_link <- paste0(url_start, year, "/escala_2500mil/proj_geografica/arcview_shp/brasil/55mu2500gc.zip")
+  }
+  
+  #2007
+  if(year == 2007) {
+    ftp_link <- paste0(url_start, year, "/escala_2500mil/proj_geografica_sirgas2000/brasil/55mu2500gsr.zip")
+
+  }
+  
+  # After 2015
+  if(year >= 2015) {
     ftp_link <- paste0(url_start, year, "/Brasil/BR/br_microrregioes.zip")
   }
   
-  ## 1. Create temp folder -----------------
+  ## 1. Create temp folder ----
   
   zip_dir <- paste0(tempdir(), "/micro_regions/", year)
   dir.create(zip_dir, showWarnings = FALSE, recursive = TRUE)
@@ -111,7 +126,7 @@ download_microregions <- function(year){ # year = 2024
   # dir.create(zip_dir, showWarnings = FALSE, recursive = TRUE)
   # dir.exists(zip_dir)
   
-  ## 2. Create direction for each download
+  ## 2. Create direction for each download ----
   
   ### zip folder
   in_zip <- paste0(zip_dir, "/zipped/")
@@ -125,9 +140,9 @@ download_microregions <- function(year){ # year = 2024
   dir.create(out_zip, showWarnings = FALSE, recursive = TRUE)
   dir.exists(out_zip)
   
-  ## 3. Download Raw data -----------------
+  ## 3. Download Raw data ----
   
-  if(year < 2015) {
+  if(year %in% c(2000, 2001, 2010:2014)) {
     ### Download zipped files
     for (name_file in filenames) {
       download.file(ftp_link[name_file],
@@ -135,7 +150,7 @@ download_microregions <- function(year){ # year = 2024
     }
   }
   
-  if(year >= 2015) {
+  if(year %in% c(2005, 2007, 2015:2018)) {
     httr::GET(url = ftp_link,
               httr::progress(),
               httr::write_disk(path = file_raw,
@@ -151,13 +166,18 @@ download_microregions <- function(year){ # year = 2024
   shp_names <- list.files(out_zip, pattern = "\\.shp$", full.names = TRUE)
   
   #### Before 2015
-  if (length(shp_names) > 1) {
+  if (year %in% c(2000, 2005, 2007)) { #years without IBGE errors
     microregions_list <- pbapply::pblapply(
       X = shp_names,
       FUN = function(x){ sf::st_read(x, quiet = T, stringsAsFactors= F) }
     )
     
     microregions_raw <- data.table::rbindlist(microregions_list)
+  }
+  
+  if (year %in% c(2001, 2010:2014))  {#years with error in number of collumns
+    microregions_raw <- readmerge_geobr(folder_path = out_zip)
+    
   }
   
   #### After 2015
@@ -181,10 +201,9 @@ download_microregions <- function(year){ # year = 2024
     glimpse(microregions_raw)
   }
 
-  ## 7. Show result -----------------
+  ## 7. Show result ----
   
   data.table::setDF(microregions_raw)
-  
   
   microregions_raw <- sf::st_as_sf(microregions_raw) %>% 
     clean_names()
@@ -216,7 +235,7 @@ clean_microregions <- function(microregions_raw, year){ # year = 2024
     encoding_utf8 = T,
     topology_fix = T,
     remove_z_dimension = T,
-    use_multipolygon = T
+    use_multipolygon = F
   )
   
   glimpse(temp_sf)

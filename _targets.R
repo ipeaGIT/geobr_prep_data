@@ -35,6 +35,7 @@ tar_option_set(
                'openxlsx',
                'parallel',
                'pbapply',
+               'purrr',
                'RCurl',
                'readr',
                'readxl',
@@ -300,12 +301,9 @@ list(
   
   # year input
   tar_target(name = years_microregions,
-             command = c(2000, 
-                         #2001, #no sf collumn error
-                         #2005, 2007 #Precisa identificar qual é o microregions file
-                         #2010,
-                         #2013,
-                         #2014, # microrregioes sem BR folder
+             command = c(2000, 2001, #error in number of collumns 
+                         2005, 2007, #Precisa identificar qual é o microregions file
+                         2010, 2013, 2014, # microrregioes sem BR folder
                          2015:2018)),
   
   # download
