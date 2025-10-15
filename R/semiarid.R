@@ -143,10 +143,10 @@ download_semiarid <- function(year){ # year = 2022
 clean_semiarid <- function(munis_semiarid, year) { 
   
   
-  # #### 0. Create folders to save clean sf files  -----------------
-  # dir_clean <- paste0("./data/semiarid/", year)
-  # dir.create(dir_clean, recursive = T, showWarnings = FALSE)
-  
+  #### 0. Create folders to save clean sf files  -----------------
+  dir_clean <- paste0("./data/semiarid/", year)
+  dir.create(dir_clean, recursive = T, showWarnings = FALSE)
+
   
   #### 2. Clean data set -----------------
 
