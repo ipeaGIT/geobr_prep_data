@@ -24,22 +24,25 @@
 # library(janitor)
 # library(dplyr)
 # library(readr)
-# library(parallel)
 # library(data.table)
-# library(xlsx)
 # library(magrittr)
 # library(devtools)
 # library(lwgeom)
 # library(stringi)
+# library(targets)
+# library(tidyverse)
+# library(mirai)
+# library(rvest)
+# library(arrow)
+# library(geoarrow)
+# source("./R/support_harmonize_geobr.R")
+# source("./R/support_fun.R")
 
-####### Download the data  -----------------
+# Download the data  ----
 download_intermediateregions <- function(year){ # year = 2024
   
-  ###### 0. Generate the correct ftp link (UPDATE YEAR HERE) ----
-  #
- 
-  # Url final----
- 
+  ## 0. Generate the correct ftp link (UPDATE YEAR HERE) ----
+  
   if(year == 2019) {
     ftp_link <- "https://geoftp.ibge.gov.br/organizacao_do_territorio/malhas_territoriais/malhas_municipais/municipio_2019/Brasil/BR/br_regioes_geograficas_intermediarias.zip"
   }
@@ -64,13 +67,18 @@ download_intermediateregions <- function(year){ # year = 2024
     ftp_link <- "https://geoftp.ibge.gov.br/organizacao_do_territorio/malhas_territoriais/malhas_municipais/municipio_2024/Brasil/BR_RG_Intermediarias_2024.zip"
   }
   
-  ###### 2. Create temp folder -----------------
+  ## 1. Create temp folder ----
   
   zip_dir <- paste0(tempdir(), "/intermediate_regions/", year)
   dir.create(zip_dir, showWarnings = FALSE, recursive = TRUE)
   dir.exists(zip_dir)
   
-  ###### 3. Create direction for each download
+  ### Alternative folder
+  # zip_dir <- paste0("./data_raw/", "/intermediate_regions/", year)
+  # dir.create(zip_dir, showWarnings = FALSE, recursive = TRUE)
+  # dir.exists(zip_dir)
+  
+  ## 2. Create direction for each download ----
   
   # zip folder
   in_zip <- paste0(zip_dir, "/zipped/")
@@ -80,32 +88,32 @@ download_intermediateregions <- function(year){ # year = 2024
   file_raw <- fs::file_temp(tmp_dir = in_zip,
                             ext = fs::path_ext(ftp_link))
   
-  filenames <- basename(ftp_link)
+  #filenames <- basename(ftp_link)
   
-  ###### 4. Download Raw data -----------------
+  ## 3. Download Raw data ----
   
   httr::GET(url = ftp_link,
             httr::progress(),
             httr::write_disk(path = file_raw,
                              overwrite = T))
   
-  ###### 4. Unzip Raw data -----------------
+  ## 4. Unzip Raw data -----------------
   
-  # directory of zips
-  zip_names <- list.files(in_zip, pattern = "\\.zip", full.names = TRUE)
-  
-  # unzip folder
+  ### unzip folder
   out_zip <- paste0(zip_dir, "/unzipped/")
   dir.create(out_zip, showWarnings = FALSE, recursive = TRUE)
   dir.exists(out_zip)
   
-  unzip(zipfile = zip_names,
-          exdir = out_zip)
+  unzip_geobr(zip_dir = zip_dir, in_zip = in_zip, out_zip = out_zip, is_shp = TRUE)
   
+  ## 5. Bind Raw data together -----------------
   
-  ###### 5. Bind Raw data together -----------------
+  in_zip <- paste0(zip_dir, "/zipped/")
+  dir.create(in_zip, showWarnings = FALSE, recursive = TRUE)
+  dir.exists(in_zip)
   
-  shp_names <- list.files(out_zip, pattern = "\\.shp$", full.names = TRUE)
+  shp_names <- list.files(out_zip, pattern = "\\.shp$",
+                          full.names = TRUE)
   
   intermediateregions_list <- pbapply::pblapply(
     X = shp_names, 
@@ -114,7 +122,7 @@ download_intermediateregions <- function(year){ # year = 2024
   
   intermediateregions_raw <- data.table::rbindlist(intermediateregions_list)
   
-  ###### 6. Show result -----------------
+  ## 6. Show result ----
   
   data.table::setDF(intermediateregions_raw)
   intermediateregions_raw <- sf::st_as_sf(intermediateregions_raw) %>% 
@@ -124,19 +132,19 @@ download_intermediateregions <- function(year){ # year = 2024
   
 }
 
-####### Clean the data  -----------------
+# Clean the data  -----------------
 clean_intermediateregions <- function(intermediateregions_raw, year){ # year = 2024
   
-  ###### 0. Create folder to save clean data -----
+  ## 0. Create folder to save clean data -----
   
   dir_clean <- paste0("./data/intermediate_regions/", year)
   dir.create(dir_clean, recursive = T, showWarnings = FALSE)
   dir.exists(dir_clean)
   
-  ###### 1. Rename collumns names -----
+  ## 1. Rename collumns names -----
   
   
-  ###### 2. Apply harmonize geobr cleaning -----------------
+  ## 2. Apply harmonize geobr cleaning ----
   
   temp_sf <- harmonize_geobr(
     temp_sf = intermediateregions_raw,
@@ -153,10 +161,10 @@ clean_intermediateregions <- function(intermediateregions_raw, year){ # year = 2
   
   glimpse(temp_sf)
   
-  ###### 3. lighter version --------------- 
+  ## 3. lighter version ---- 
   temp_sf_simplified <- simplify_temp_sf(temp_sf, tolerance = 100)
   
-  ###### 4. Save datasets  -----------------
+  ## 4. Save datasets  ----
   
   # sf::st_write(temp_sf, dsn = paste0(dir_clean, "/intermediateregions_",  year,
   #                                    ".gpkg"), delete_dsn = TRUE)

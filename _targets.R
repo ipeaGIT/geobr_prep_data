@@ -176,23 +176,19 @@ list(
   
   # year input
   tar_target(name = years_intermediateregions,
-             command = c(#2000, #2001, 2005, 2007, 2010, 2013, 2014, # mesorregioes sem BR folder
-               #2015:2018, # mesorregioes
-               2019:2022, # a partir daqui usa intermediates
-               #2023, #string multibyte inválida em '<87><e4>es'
-               2024)),
+             command = c(2019:2024)),
   
   # download
   tar_target(name = intermediateregions_raw,
              command = download_intermediateregions(years_intermediateregions),
              pattern = map(years_intermediateregions)),
   
-  # # clean
-  # tar_target(name = intermediateregions_clean,
-  #            command = clean_intermediateregions(intermediateregions_raw,
-  #                                                years_intermediateregions),
-  #            pattern = map(intermediateregions_raw, years_intermediateregions),
-  #            format = 'file'),
+  # clean
+  tar_target(name = intermediateregions_clean,
+             command = clean_intermediateregions(intermediateregions_raw,
+                                                 years_intermediateregions),
+             pattern = map(intermediateregions_raw, years_intermediateregions),
+             format = 'file'),
   
   #08. Regiões Imediatas ----
   
@@ -281,7 +277,7 @@ list(
   
   #13. Meso Regiões ----
   
-  # # year input
+  # year input
   tar_target(name = years_mesoregions,
              command = c(#2000, #2001, 2005, 2007, 2010, 2013, 2014, # mesorregiões sem BR folder
                2015:2019)), # mesorregioes

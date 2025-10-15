@@ -7,7 +7,7 @@ Data sets currenly implemented in the targets pipeline:
 - [ ] state
 - [P] meso_region
 - [x] micro_region
-- [P] intermediate_region
+- [x] intermediate_region
 - [x] immediate_region
 - [ ] municipality
 - [ ] municipal_seat
