@@ -4,8 +4,8 @@ Data sets currenly implemented in the targets pipeline:
 
 - [ ] country
 - [ ] region
-- [ ] state
-- [P] meso_region
+- [P] state
+- [x] meso_region
 - [x] micro_region
 - [x] intermediate_region
 - [x] immediate_region

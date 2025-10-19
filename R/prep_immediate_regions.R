@@ -45,7 +45,7 @@
 # Download the data  ----
 download_immediateregions <- function(year){ # year = 2024
   
-  ## 0. Generate the correct ftp link ----
+  ## 0. Generate the correct ftp link (UPDATE YEAR HERE) ----
   
   ###2019 ----
   if(year == 2019) {
@@ -83,7 +83,7 @@ download_immediateregions <- function(year){ # year = 2024
   dir.create(zip_dir, showWarnings = FALSE, recursive = TRUE)
   dir.exists(zip_dir)
   
-  # ### Alternative folder
+  ### Alternative folder
   # zip_dir <- paste0("./data_raw/", "/immediate_regions/", year)
   # dir.create(zip_dir, showWarnings = FALSE, recursive = TRUE)
   # dir.exists(zip_dir)
@@ -100,22 +100,11 @@ download_immediateregions <- function(year){ # year = 2024
   
   ## 3. Download Raw data ----
   
-  if(year < 2015) {
-    ### Download zipped files
-    for (name_file in filenames) {
-      download.file(ftp_link[name_file],
-                    paste(in_zip, name_file, sep = "\\"))
-    }
-  }
+  httr::GET(url = ftp_link,
+            httr::progress(),
+            httr::write_disk(path = file_raw,
+                             overwrite = T))
   
-  if(year >= 2015) {
-    httr::GET(url = ftp_link,
-              httr::progress(),
-              httr::write_disk(path = file_raw,
-                               overwrite = T))
-  }
-  
-
   ## 4. Unzip Raw data ----
   
   ### unzip folder
@@ -173,7 +162,7 @@ clean_immediateregions <- function(immediateregions_raw, year){ # year = 2024
     encoding_utf8 = T,
     topology_fix = T,
     remove_z_dimension = T,
-    use_multipolygon = F
+    use_multipolygon = T
   )
   
   glimpse(temp_sf)
