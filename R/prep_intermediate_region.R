@@ -2,15 +2,15 @@
 #> Source: IBGE - https://www.ibge.gov.br/geociencias/organizacao-do-territorio/malhas-territoriais/15774-malhas.html?=&t=o-que-e
 #> scale 1:250.000 ?????????????
 #> Metadata:
-# Titulo: Regioes Geograficas Intermediarias
-# Titulo alternativo:
+# Título: Regiões Geográficas Intermediárias
+# Titulo alternativo: intermediate regions
 # Frequencia de atualizacao: decenal
 #
 # Forma de apresentacao: Shape
 # Linguagem: Pt-BR
 # Character set: Utf-8
 #
-# Resumo: Regioes Geograficas Intermediarias foram criadas pelo IBGE em 2017 para substituir a meso-regioes
+# Resumo: Regiões Geográficas Intermediárias foram criadas pelo IBGE em 2017 para substituir a mesorregiões
 #
 # Estado: Em desenvolvimento
 # Palavras chaves descritivas:****
