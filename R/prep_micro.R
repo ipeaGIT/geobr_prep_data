@@ -10,7 +10,7 @@
 # Linguagem: Pt-BR
 # Character set: Utf-8
 #
-# Resumo: Micro regiões Geográficas foram criadas pelo IBGE em 2000. Em 2017 o IBGE substituiu o conceito pelas regiões imediatas.
+# Resumo: Microrregiões Geográficas foram criadas pelo IBGE em 2000. Em 2017 o IBGE substituiu o conceito pelas regiões imediatas.
 #
 # Estado: Em desenvolvimento
 # Palavras chaves descritivas:****
@@ -40,7 +40,6 @@
 # library(rvest)
 # source("./R/support_harmonize_geobr.R")
 # source("./R/support_fun.R")
-
 
 # Download the data  -----------------
 download_microregions <- function(year){ # year = 2001
@@ -99,17 +98,6 @@ download_microregions <- function(year){ # year = 2001
     names(ftp_link) <- filenames
   } 
   
-  #2005
-  if(year == 2005) {
-    ftp_link <- paste0(url_start, year, "/escala_2500mil/proj_geografica/arcview_shp/brasil/55mu2500gc.zip")
-  }
-  
-  #2007
-  if(year == 2007) {
-    ftp_link <- paste0(url_start, year, "/escala_2500mil/proj_geografica_sirgas2000/brasil/55mu2500gsr.zip")
-
-  }
-  
   # After 2015
   if(year >= 2015) {
     ftp_link <- paste0(url_start, year, "/Brasil/BR/br_microrregioes.zip")
@@ -150,7 +138,7 @@ download_microregions <- function(year){ # year = 2001
     }
   }
   
-  if(year %in% c(2005, 2007, 2015:2018)) {
+  if(year %in% 2015:2018) {
     httr::GET(url = ftp_link,
               httr::progress(),
               httr::write_disk(path = file_raw,
@@ -166,7 +154,7 @@ download_microregions <- function(year){ # year = 2001
   shp_names <- list.files(out_zip, pattern = "\\.shp$", full.names = TRUE)
   
   #### Before 2015
-  if (year %in% c(2000, 2005, 2007)) { #years without IBGE errors
+  if (year == 2000) { #years without IBGE errors
     microregions_list <- pbapply::pblapply(
       X = shp_names,
       FUN = function(x){ sf::st_read(x, quiet = T, stringsAsFactors= F) }
@@ -177,7 +165,6 @@ download_microregions <- function(year){ # year = 2001
   
   if (year %in% c(2001, 2010:2014))  {#years with error in number of collumns
     microregions_raw <- readmerge_geobr(folder_path = out_zip)
-    
   }
   
   #### After 2015
