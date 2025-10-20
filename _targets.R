@@ -7,7 +7,7 @@ tar_option_set(
   format = "rds",
   memory = "transient",
   garbage_collection = TRUE,
-  controller = crew_controller_local(workers = 8),
+  controller = crew_controller_local(workers = 4),
   
   
   # Packages ----
@@ -226,20 +226,21 @@ list(
   
   #10. Estados ----
   
-  # # year input
-  # tar_target(name = years_statsgrid,
-  #            command = c(2010, 2022)),
-  # 
-  # # download
-  # tar_target(name = statsgrid_raw,
-  #            command = download_statsgrid(years_statsgrid),
-  #            pattern = map(years_statsgrid)),
-  # 
-  # # clean
-  # tar_target(name = statsgrid_clean,
-  #            command = clean_statsgrid(statsgrid_raw, years_statsgrid),
-  #            pattern = map(statsgrid_raw, years_statsgrid),
-  #            format = 'file'),
+  # year input
+  tar_target(name = years_states,
+             command = c(2000, 2001, 2010, 
+                         2013:2024)),
+  
+  # download
+  tar_target(name = states_raw,
+             command = download_states(years_states),
+             pattern = map(years_states)),
+
+  # clean
+  tar_target(name = states_clean,
+             command = clean_states(states_raw, years_states),
+             pattern = map(states_raw, years_states),
+             format = 'file'),
   
   #11. Regiões ----
   

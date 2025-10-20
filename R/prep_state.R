@@ -1,3 +1,260 @@
+#> DATASET: states 2010, 2022
+#> Source: ###### IBGE - ftp://geoftp.ibge.gov.br/recortes_para_fins_estatisticos/grade_estatistica/censo_2010/
+#########: scale 1:5.000.000
+#> Metadata: #####
+# Título: Estados
+# Título alternativo: states
+# Frequência de atualização: ?????
+#
+# Forma de apresentação: Shape
+# Linguagem: Pt-BR
+# Character set: UTF-8
+#
+# Resumo: Poligonos dos estados brasileiros.
+# Informações adicionais: Dados produzidos pelo IBGE, e utilizados na elaboração do shape dos estados com a melhor base oficial disponível.
+# Propósito: Disponibilização das fronteiras estaduais do Brasil.
+#
+# Estado: Em desenvolvimento
+# Palavras-chaves descritivas: ****
+# Informação do Sistema de Referência: SIRGAS 2000
+#
+# Observações: 
+# Anos disponíveis: 2010, 2022***
+
+######## USE temporariamente ------
+# library(tidyverse)
+# library(data.table)
+# source("./R/support_harmonize_geobr.R")
+# source("./R/support_fun.R")
+
+# Download the data  ----
+download_states <- function(year){ # year = 2010
+  
+  ## 0. Generate the correct ftp link (UPDATE YEAR HERE) ----
+  
+  url_start <- paste0("https://geoftp.ibge.gov.br/organizacao_do_territorio/",
+                      "malhas_territoriais/malhas_municipais/municipio_")
+  
+  # Before 2015
+  if(year %in% c(2000, 2001, 2010:2014)) {
+    ### create states tibble
+    states <- tibble(cod_states = c(11, 12, 13, 14, 15, 16, 17, 21, 22, 23, 24,
+                                    25, 26, 27, 28, 29, 31, 32, 33, 35, 41, 42,
+                                    43, 50, 51, 52, 53),
+                     sg_state = c("RO", "AC", "AM", "RR", "PA", "AP", "TO",
+                                  "MA", "PI", "CE", "RN", "PB", "PE", "AL",
+                                  "SE", "BA", "MG", "ES", "RJ", "SP", "PR",
+                                  "SC", "RS", "MS", "MT", "GO", "DF"),
+                     sgm_state = str_to_lower(sg_state))
+    
+    ### parts of url
+    
+    #2000 ou 2010
+    if(year %in% c(2000, 2010)) {
+      ftp_link <- paste0(url_start, year, "/", states$sgm_state, "/",
+                         states$sgm_state, "_unidades_da_federacao.zip")
+      }
+    
+    #2001
+    if(year == 2001) {
+      ftp_link <- paste0(url_start, year, "/", states$sgm_state, "/",
+                         states$cod_states, "uf2500g.zip")
+    }
+    
+    
+    #2013
+    if(year == 2013) {
+      ftp_link <- paste0(url_start, year, "/", states$sg_state, "/",
+                         states$sgm_state, "_unidades_da_federacao.zip")
+    
+      #correct spell error in AM
+      ftp_link[3] <- paste0(url_start, year, "/", states$sg_state[3], "/",
+                            states$sgm_state[3], "_unidades_da_fedecao.zip")
+      
+    }
+    
+    #2014
+    if(year == 2014) {
+      ftp_link <- paste0(url_start, year, "/", states$sg_state, "/",
+                         states$sgm_state, "_unidades_da_federacao.zip")
+    }
+    
+    filenames <- basename(ftp_link)
+    
+    names(ftp_link) <- filenames
+  } 
+  
+  # 2015 until 2019
+  if(year %in% c(2015:2019)) {
+    ftp_link <- paste0(url_start, year, "/Brasil/BR/br_unidades_da_federacao.zip")
+  }
+  
+  # 2020 until 2022
+  if(year %in% c(2020:2022)) {
+    ftp_link <- paste0(url_start, year, "/Brasil/BR/BR_UF_", year, ".zip")
+  }
+  
+  # After 2023
+  if(year >= 2023) {
+    ftp_link <- paste0(url_start, year, "/Brasil/BR_UF_", year, ".zip")
+  }
+  
+  ## 1. Create temp folder ----
+  
+  zip_dir <- paste0(tempdir(), "/states/", year)
+  dir.create(zip_dir, showWarnings = FALSE, recursive = TRUE)
+  dir.exists(zip_dir)
+  
+  ### Alternative folder
+  # zip_dir <- paste0("./data_raw/", "/states/", year)
+  # dir.create(zip_dir, showWarnings = FALSE, recursive = TRUE)
+  # dir.exists(zip_dir)
+  
+  ## 2. Create direction for each download ----
+  
+  ### zip folder
+  in_zip <- paste0(zip_dir, "/zipped/")
+  dir.create(in_zip, showWarnings = FALSE, recursive = TRUE)
+  dir.exists(in_zip)
+  
+  file_raw <- fs::file_temp(tmp_dir = in_zip,
+                            ext = fs::path_ext(ftp_link))
+  
+  out_zip <- paste0(zip_dir, "/unzipped/")
+  dir.create(out_zip, showWarnings = FALSE, recursive = TRUE)
+  dir.exists(out_zip)
+  
+  ## 3. Download Raw data ----
+  
+  if(year %in% c(2000, 2001, 2010:2014)) {
+    ### Download zipped files
+    for (name_file in filenames) {
+      download.file(ftp_link[name_file],
+                    paste(in_zip, name_file, sep = "\\"))
+    }
+  }
+  
+  if(year %in% 2015:2024) {
+    httr::GET(url = ftp_link,
+              httr::progress(),
+              httr::write_disk(path = file_raw,
+                               overwrite = T))
+  }
+  
+  ## 4. Unzip Raw data ----
+  
+  unzip_geobr(zip_dir = zip_dir, in_zip = in_zip, out_zip = out_zip, is_shp = TRUE)
+  
+  ## 5. Bind Raw data together ----
+  
+  shp_names <- list.files(out_zip, pattern = "\\.shp$", full.names = TRUE)
+  
+  #### Before 2015
+  if (year == 2000) { #years without IBGE errors
+    states_list <- pbapply::pblapply(
+      X = shp_names,
+      FUN = function(x){ sf::st_read(x, quiet = T, stringsAsFactors= F) }
+    )
+    
+    states_raw <- data.table::rbindlist(states_list)
+  }
+  
+  if (year %in% c(2001, 2010:2014))  {#years with error in number of collumns
+    states_raw <- readmerge_geobr(folder_path = out_zip)
+  }
+  
+  #### After 2015
+  if (length(shp_names) == 1) {
+    states_raw <- st_read(shp_names, quiet = T, stringsAsFactors= F)
+  }
+  
+  ## 6. Integrity test ----
+  
+  #### Before 2015
+  
+  
+  
+  #### After 2015
+  if (length(shp_names) == 1) {
+    table_collumns <- tibble(name_collum = colnames(states_raw),
+                             type_collum = sapply(states_raw, class)) |> 
+      rownames_to_column(var = "num_collumn")
+    
+    glimpse(table_collumns)
+    glimpse(states_raw)
+  }
+  
+  ## 7. Show result ----
+  
+  data.table::setDF(states_raw)
+  
+  states_raw <- sf::st_as_sf(states_raw) %>% 
+    clean_names()
+  
+  return(states_raw)
+  
+}
+
+# Clean the data  ----
+clean_states <- function(states_raw, year){ # year = 2024
+  
+  ## 0. Create folder to save clean data -----
+  
+  dir_clean <- paste0("./data/states/", year)
+  dir.create(dir_clean, recursive = T, showWarnings = FALSE)
+  dir.exists(dir_clean)
+  
+  ## 1. Rename collumns names -----
+  
+  
+  ## 2. Apply harmonize geobr cleaning ----
+  
+  temp_sf <- harmonize_geobr(
+    temp_sf = states_raw,
+    add_state = F,
+    add_region = F,
+    add_snake_case = F,
+    #snake_colname = snake_colname,
+    projection_fix = T,
+    encoding_utf8 = T,
+    topology_fix = T,
+    remove_z_dimension = T,
+    use_multipolygon = F
+  )
+  
+  glimpse(temp_sf)
+  
+  ## 3. lighter version ----
+  temp_sf_simplified <- simplify_temp_sf(temp_sf, tolerance = 100)
+  
+  ## 4. Save datasets  ----
+  
+  # sf::st_write(temp_sf, dsn = paste0(dir_clean, "/states_",  year,
+  #                                   ".gpkg"), delete_dsn = TRUE)
+  # sf::st_write(temp_sf_simplified, dsn = paste0(dir_clean, "/states_",
+  #                                               year, "_simplified.gpkg"),
+  #              delete_dsn = TRUE )
+  
+  ### Save in parquet
+  arrow::write_parquet(
+    x = temp_sf,
+    sink = paste0(dir_clean, "/states_", year, ".parquet"),
+    compression = 'zstd',
+    compression_level = 22
+  )
+  
+  arrow::write_parquet(
+    x = temp_sf_simplified,
+    sink = paste0(dir_clean,"/states_", year, "_simplified", ".parquet"),
+    compression='zstd',
+    compression_level = 22
+  )
+  
+  return(dir_clean)
+}
+
+############### OLD CODE BELOW #########
+
 ####### Load Support functions to use in the preprocessing of the data
 # 
 # source("./prep_data/prep_functions.R")
