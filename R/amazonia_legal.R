@@ -1,5 +1,6 @@
 #> DATASET: Brazilian legal amazon
 #> Source: MMA - http://mapas.mma.gov.br/i3geo/datadownload.htm
+#> Fonte alternativa a se analizar: https://geoftp.ibge.gov.br/organizacao_do_territorio/estrutura_territorial/amazonia_legal/
 #> Metadata:
 # Título: Amazônia Legal
 # Título alternativo: Amazonia legal
