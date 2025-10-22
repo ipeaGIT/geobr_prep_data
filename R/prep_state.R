@@ -1,6 +1,6 @@
 #> DATASET: states 2010, 2022
-#> Source: ###### IBGE - ftp://geoftp.ibge.gov.br/recortes_para_fins_estatisticos/grade_estatistica/censo_2010/
-#########: scale 1:5.000.000
+#> Source: IBGE - https://www.ibge.gov.br/geociencias/organizacao-do-territorio/malhas-territoriais/15774-malhas.html?=&t=o-que-e
+#> scale 1:250.000
 #> Metadata: #####
 # Título: Estados
 # Título alternativo: states

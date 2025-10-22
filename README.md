@@ -3,8 +3,8 @@
 Data sets currenly implemented in the targets pipeline:
 
 - [ ] country
-- [ ] region
-- [P] state
+- [P] region
+- [x] state
 - [x] meso_region
 - [x] micro_region
 - [x] intermediate_region
@@ -29,6 +29,7 @@ Data sets currenly implemented in the targets pipeline:
 - [ ] comparable_areas
 - [ ] urban_concentrations
 - [ ] pop_arrangements
+- [ ] favelas
 
 
 Functions used:
