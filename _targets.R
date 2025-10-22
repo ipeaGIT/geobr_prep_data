@@ -7,7 +7,7 @@ tar_option_set(
   format = "rds",
   memory = "transient",
   garbage_collection = TRUE,
-  controller = crew_controller_local(workers = 4),
+  controller = crew_controller_local(workers = 2),
   
   
   # Packages ----
@@ -226,11 +226,11 @@ list(
   
   #10. Estados ----
   
-  # year input
+  #year input
   tar_target(name = years_states,
-             command = c(2000, 2001, 2010, 
+             command = c(2000, 2001, 2010,
                          2013:2024)),
-  
+
   # download
   tar_target(name = states_raw,
              command = download_states(years_states),
@@ -244,15 +244,17 @@ list(
   
   #11. Regiões ----
   
-  # # year input
-  # tar_target(name = years_statsgrid,
-  #            command = c(2010, 2022)),
-  # 
+  # year input
+  tar_target(name = years_regions,
+             command = c(#2000, 2001, 2010,
+                         #2013:2023,
+                         2024)),
+   
   # # download
-  # tar_target(name = statsgrid_raw,
-  #            command = download_statsgrid(years_statsgrid),
-  #            pattern = map(years_statsgrid)),
-  # 
+  # tar_target(name = regions_raw,
+  #            command = download_regions(years_regions),
+  #            pattern = map(years_regions)),
+
   # # clean
   # tar_target(name = statsgrid_clean,
   #            command = clean_statsgrid(statsgrid_raw, years_statsgrid),
@@ -517,8 +519,25 @@ list(
   # 
   #26. Arranjos populacionais ----
   
+  # # year input
+  # tar_target(name = years_poparrangements,
+  #            command = c(2010, 2022)),
+  
+  # # download
+  # tar_target(name = poparrangements_raw,
+  #            command = download_poparrangements(years_poparrangements),
+  #            pattern = map(years_poparrangements)),
+  # 
+  # # clean
+  # tar_target(name = poparrangements_clean,
+  #            command = clean_poparrangements(poparrangements_raw, years_poparrangements),
+  #            pattern = map(poparrangements_raw, years_poparrangements),
+  #            format = 'file'),
+  
+  #27. Favelas e aglomerados urbanos ----
+  
   # year input
-  tar_target(name = years_poparrangements,
+  tar_target(name = years_favela,
              command = c(2010, 2022))
   
   # # download
@@ -531,6 +550,7 @@ list(
   #            command = clean_poparrangements(poparrangements_raw, years_poparrangements),
   #            pattern = map(poparrangements_raw, years_poparrangements),
   #            format = 'file')
+  
 )
 
 ##################### UNTIL HERE UPDATED ---------------------
