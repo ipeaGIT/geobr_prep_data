@@ -38,7 +38,7 @@
 # source("./R/support_harmonize_geobr.R")
 # source("./R/support_fun.R")
 
-# Download the data  -----------------
+# Download the data  ----
 download_healthfacilities <- function(year){ #no year because only most recent avaidable
   
   ## 0. Adjust date of last update ----
@@ -61,7 +61,7 @@ download_healthfacilities <- function(year){ #no year because only most recent a
   file_url <- "s3.sa-east-1.amazonaws.com/ckan.saude.gov.br/CNES/cnes_estabelecimentos_csv.zip"
   #file_url = 'https://s3.sa-east-1.amazonaws.com/ckan.saude.gov.br/CNES/cnes_estabelecimentos.zip'
   
-  ## 3. Create direction for each download
+  ## 3. Create direction for each download ----
   
   #### zip folders
   in_zip <- paste0(zip_dir, "/unzipped/")
@@ -113,7 +113,7 @@ download_healthfacilities <- function(year){ #no year because only most recent a
 # Clean the data  -----------------
 clean_healthfacilities <- function(healthfacilities_raw, year){
 
-  ## 0. Create folder to save clean data -----
+  ## 0. Create folder to save clean data ----
   
   dir_clean <- paste0("./data/health_facilities/", year)
   dir.create(dir_clean, recursive = T, showWarnings = FALSE)
