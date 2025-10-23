@@ -3,7 +3,7 @@
 #########: scale 1:5.000.000
 #> Metadata: #####
 # Título: Grade Estatística
-# Título alternativo: #####Statistical Grid 2010 Census
+# Título alternativo: Statistical Grid 2010 Census
 # Frequência de atualização: Ocasionalmente
 #
 # Forma de apresentação: #####Shape
@@ -21,79 +21,78 @@
 # Observações: 
 # Anos disponíveis: 2010, 2022
 
+### USE temporariamente ------
+# library(targets)
+# library(tidyverse)
+# library(data.table)
+# library(mirai)
+# library(RCurl)
+# library(rvest)
+# source("./R/support_harmonize_geobr.R")
+# source("./R/support_fun.R")
 
-####### Download the data  -----------------
- download_statsgrid <- function(year){ # year = 2010
-
-######## USE temporariamente ------
-   # library(targets)
-   # library(tidyverse)
-   # library(data.table)
-   # library(mirai)
-   # library(RCurl)
-   # library(rvest)
-   # source("./R/support_harmonize_geobr.R")
-   # source("./R/support_fun.R")
-
-  ###### 0. Get the correct url and file names (UPDATE YEAR) -----------------
-   
-   if(year == 2010) {
-     url = "ftp://geoftp.ibge.gov.br/recortes_para_fins_estatisticos/grade_estatistica/censo_2010/"
-   }
-   
-   if(year == 2022) {
-     url = "https://geoftp.ibge.gov.br/recortes_para_fins_estatisticos/grade_estatistica/censo_2022/grade_estatistica/"
-   }
-   
-   
-  ###### 1. Create temp folder -----------------
-   
-   zip_dir <- paste0(tempdir(), "/statsgrid/", year)
-   dir.create(zip_dir, showWarnings = FALSE, recursive = TRUE)
-   dir.exists(zip_dir)
-   
-   file_raw <- fs::file_temp(tmp_dir = zip_dir,
-                             ext = fs::path_ext(url))
-
-  ###### 2. Generate file names for both cases (UPDATE YEAR) ------
-   
-   # If the year is 2010
-   if(year == 2010) {
-     filenames = getURL(url, ftp.use.epsv = FALSE, dirlistonly = TRUE)
-     filenames <- strsplit(filenames, "\r\n")
-     filenames = unlist(filenames)
-     
-     # Filter only the zip ones
-     filenames <- subset(filenames, grepl(filenames, pattern = ".zip"), value = TRUE)
-     }
- 
-   # If the year is 2022
-   if(year == 2022) {
-     page <- read_html(url)
-     filenames <- page %>%
-       html_nodes("a") %>%
-       html_attr("href") %>%
-       grep("\\.zip$", ., value = TRUE)
-     #filenames <- paste0(url, filenames)
-      }
-     
+# Download the data  ----
+download_statsgrid <- function(year){ # year = 2010
+  
+  ## 0. Get the correct url and file names (UPDATE YEAR) ----
+  
+  if(year == 2010) {
+    url = "ftp://geoftp.ibge.gov.br/recortes_para_fins_estatisticos/grade_estatistica/censo_2010/"
+  }
+  
+  if(year == 2022) {
+    url = "https://geoftp.ibge.gov.br/recortes_para_fins_estatisticos/grade_estatistica/censo_2022/grade_estatistica/"
+  }
+  
+  
+  ## 1. Create temp folder ----
+  
+  zip_dir <- paste0(tempdir(), "/statsgrid/", year)
+  dir.create(zip_dir, showWarnings = FALSE, recursive = TRUE)
+  dir.exists(zip_dir)
+  
+  file_raw <- fs::file_temp(tmp_dir = zip_dir,
+                            ext = fs::path_ext(url))
+  
+  ## 2. Generate file names for both cases (UPDATE YEAR) ----
+  
+  # If the year is 2010
+  if(year == 2010) {
+    filenames = getURL(url, ftp.use.epsv = FALSE, dirlistonly = TRUE)
+    filenames <- strsplit(filenames, "\r\n")
+    filenames = unlist(filenames)
+    
+    # Filter only the zip ones
+    filenames <- subset(filenames, grepl(filenames, pattern = ".zip"), value = TRUE)
+  }
+  
+  # If the year is 2022
+  if(year == 2022) {
+    page <- read_html(url)
+    filenames <- page %>%
+      html_nodes("a") %>%
+      html_attr("href") %>%
+      grep("\\.zip$", ., value = TRUE)
+    #filenames <- paste0(url, filenames)
+  }
+  
   #### Create direction for each download
-
-   # zip folder
-   in_zip <- paste0(zip_dir, "/zipped/")
-   dir.create(in_zip, showWarnings = FALSE, recursive = TRUE)
-   dir.exists(in_zip)
-   
-  ###### 2. Download Raw data -----------------
+  
+  # zip folder
+  in_zip <- paste0(zip_dir, "/zipped/")
+  dir.create(in_zip, showWarnings = FALSE, recursive = TRUE)
+  dir.exists(in_zip)
+  
+  ## 3. Download Raw data ----
   
   ### make it paralle with curl::multidownload ? 666
   # Download zipped files
   for (name_file in filenames) {
     download.file(paste(url, name_file, sep = ""),
                   paste(in_zip, name_file, sep = "\\"))
-    }
-
-  ###### 3. Unzip Raw data -----------------
+  }
+  
+  ## 4. Unzip Raw data ----
   
   # directory of zips
   zip_names <- list.files(in_zip, pattern = "\\.zip", full.names = TRUE)
@@ -119,7 +118,7 @@
   # )
   # mirai::daemons(0)
   
-  ###### 4. Bind Raw data together -----------------
+  ## 5. Bind Raw data together ----
   
   shp_names <- list.files(out_zip, pattern = "\\.shp$", full.names = TRUE)
   
@@ -129,51 +128,51 @@
   statsgrid_list <- pbapply::pblapply(
     X = shp_names, 
     FUN = function(x){ sf::st_read(x, quiet = T, stringsAsFactors=F) }
-    )
+  )
   
   statsgrid_raw <- data.table::rbindlist(statsgrid_list)
   data.table::setDF(statsgrid_raw)
   statsgrid_raw <- sf::st_as_sf(statsgrid_raw)
-
+  
   return(statsgrid_raw)
 }
-   
-# Clean the data ----------------------------------
-  clean_statsgrid <- function(statsgrid_raw, year) {
 
-  ###### 0. Create folder to save clean data -----
-
+# Clean the data ----
+clean_statsgrid <- function(statsgrid_raw, year) {
+  
+  ## 0. Create folder to save clean data ----
+  
   dir_clean <- paste0("./data/statistical_grid/", year)
   dir.create(dir_clean, recursive = T, showWarnings = FALSE)
   dir.exists(dir_clean)
-
-  ###### 1. Preparation -----------------
+  
+  ## 1. Preparation ----
   
   if(year == 2010) {
     
-  # drop unecessary columns
+    # drop unecessary columns
     statsgrid_raw$Shape_Leng <- NULL
     statsgrid_raw$Shape_Area <- NULL
   }
   
   nomes_colunas <- names(statsgrid_raw)
   
-  ###### 2. Standarize the collum names and order ???? -----------------
+  ## 2. Standarize the collum names and order ???? -----------------
   
   if(year == 2010) {
     # "ID_UNICO"   "nome_1KM"   "nome_5KM"   "nome_10KM"  "nome_50KM"  "nome_100KM" "nome_500KM"
     # "QUADRANTE"  "MASC"       "FEM"        "POP"        "DOM_OCU"    "geometry"
   }
-
+  
   if(year == 2022) {
-   #"ID_UNICO"   "nome_1km"   "nome_5KM"   "nome_10KM"  "nome_50KM"  "nome_100KM" "nome_500KM"
-   # "QUADRANTE"  "TOTAL"      "TOTAL_DOM"  "geometry" 
+    #"ID_UNICO"   "nome_1km"   "nome_5KM"   "nome_10KM"  "nome_50KM"  "nome_100KM" "nome_500KM"
+    # "QUADRANTE"  "TOTAL"      "TOTAL_DOM"  "geometry" 
     
   }
   
   statsgrid_raw <- janitor::clean_names(statsgrid_raw)    
   
-  ###### 3. Apply harmonize geobr cleaning -----------------
+  ## 3. Apply harmonize geobr cleaning ----
   
   temp_sf <- harmonize_geobr(
     temp_sf = statsgrid_raw,
@@ -190,8 +189,8 @@
   
   glimpse(temp_sf)
   
-  ###### 4. Save results  -----------------
-
+  ## 4. Save results  ----
+  
   #sf::st_write(temp_sf, dsn= paste0(dir_clean,"/statsgrid_", year, ".gpkg"), delete_dsn=TRUE)
   
   # Save in parquet
@@ -203,8 +202,8 @@
   )
   
   return(dir_clean)
-  }
-  
+}
+
 ############### OLD CODE BELOW HERE #############
 # # list all shape files
 #   all_shapes <- list.files(full.names = T, recursive = T, pattern = ".shp")
