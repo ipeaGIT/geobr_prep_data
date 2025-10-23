@@ -21,9 +21,25 @@
 # Observações: 
 # Anos disponíveis: 2000 a 2024
 
-######## USE temporariamente ------
-# library(tidyverse)
+### Libraries (use any library as necessary) ----
+
+# library(RCurl)
+# library(arrow)
+# library(geoarrow)
+# library(stringr)
+# library(sf)
+# library(purrr)
+# library(janitor)
+# library(dplyr)
+# library(readr)
 # library(data.table)
+# library(magrittr)
+# library(devtools)
+# library(lwgeom)
+# library(stringi)
+# library(tidyverse)
+# library(mirai)
+# library(rvest)
 # source("./R/support_harmonize_geobr.R")
 # source("./R/support_fun.R")
 

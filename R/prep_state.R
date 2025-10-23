@@ -21,9 +21,25 @@
 # Observações: 
 # Anos disponíveis: 2010, 2022***
 
-######## USE temporariamente ------
-# library(tidyverse)
+### Libraries (use any library as necessary) ----
+
+# library(RCurl)
+# library(arrow)
+# library(geoarrow)
+# library(stringr)
+# library(sf)
+# library(purrr)
+# library(janitor)
+# library(dplyr)
+# library(readr)
 # library(data.table)
+# library(magrittr)
+# library(devtools)
+# library(lwgeom)
+# library(stringi)
+# library(tidyverse)
+# library(mirai)
+# library(rvest)
 # source("./R/support_harmonize_geobr.R")
 # source("./R/support_fun.R")
 
@@ -205,6 +221,11 @@ clean_states <- function(states_raw, year){ # year = 2024
   dir.exists(dir_clean)
   
   ## 1. Rename collumns names -----
+  glimpse(states_raw)
+  
+  ## 2. Check names of the states -----
+  
+  # Ano2000
   
   
   ## 2. Apply harmonize geobr cleaning ----
