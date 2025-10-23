@@ -43,28 +43,30 @@ download_intermediateregions <- function(year){ # year = 2024
   
   ## 0. Generate the correct ftp link (UPDATE YEAR HERE) ----
   
+  ftp_start <- "https://geoftp.ibge.gov.br/organizacao_do_territorio/malhas_territoriais/malhas_municipais/municipio_"
+    
   if(year == 2019) {
-    ftp_link <- "https://geoftp.ibge.gov.br/organizacao_do_territorio/malhas_territoriais/malhas_municipais/municipio_2019/Brasil/BR/br_regioes_geograficas_intermediarias.zip"
+    ftp_link <- paste0(ftp_start, year, "/Brasil/BR/br_regioes_geograficas_intermediarias.zip")
   }
   
   if(year == 2020) {
-    ftp_link <- "https://geoftp.ibge.gov.br/organizacao_do_territorio/malhas_territoriais/malhas_municipais/municipio_2020/Brasil/BR/BR_RG_Intermediarias_2020.zip"
+    ftp_link <- paste0(ftp_start, year, "/Brasil/BR/BR_RG_Intermediarias_2020.zip")
   }
   
   if(year == 2021) {
-    ftp_link <- "https://geoftp.ibge.gov.br/organizacao_do_territorio/malhas_territoriais/malhas_municipais/municipio_2021/Brasil/BR/BR_RG_Intermediarias_2021.zip"
+    ftp_link <- paste0(ftp_start, year, "/Brasil/BR/BR_RG_Intermediarias_2021.zip")
   }
   
   if(year == 2022) {
-    ftp_link <- "https://geoftp.ibge.gov.br/organizacao_do_territorio/malhas_territoriais/malhas_municipais/municipio_2022/Brasil/BR/BR_RG_Intermediarias_2022.zip"
+    ftp_link <- paste0(ftp_start, year, "/Brasil/BR/BR_RG_Intermediarias_2022.zip")
   }
   
   if(year == 2023) {
-    ftp_link <- "https://geoftp.ibge.gov.br/organizacao_do_territorio/malhas_territoriais/malhas_municipais/municipio_2023/Brasil/BR_RG_Intermediarias_2023.zip"
+    ftp_link <- paste0(ftp_start, year, "/Brasil/BR_RG_Intermediarias_2023.zip")
   }
   
   if(year == 2024) {
-    ftp_link <- "https://geoftp.ibge.gov.br/organizacao_do_territorio/malhas_territoriais/malhas_municipais/municipio_2024/Brasil/BR_RG_Intermediarias_2024.zip"
+    ftp_link <- paste0(ftp_start, year, "/Brasil/BR_RG_Intermediarias_2024.zip")
   }
   
   ## 1. Create temp folder ----
@@ -97,7 +99,7 @@ download_intermediateregions <- function(year){ # year = 2024
             httr::write_disk(path = file_raw,
                              overwrite = T))
   
-  ## 4. Unzip Raw data -----------------
+  ## 4. Unzip Raw data ----
   
   ### unzip folder
   out_zip <- paste0(zip_dir, "/unzipped/")
@@ -106,7 +108,7 @@ download_intermediateregions <- function(year){ # year = 2024
   
   unzip_geobr(zip_dir = zip_dir, in_zip = in_zip, out_zip = out_zip, is_shp = TRUE)
   
-  ## 5. Bind Raw data together -----------------
+  ## 5. Bind Raw data together ----
   
   in_zip <- paste0(zip_dir, "/zipped/")
   dir.create(in_zip, showWarnings = FALSE, recursive = TRUE)
@@ -132,16 +134,16 @@ download_intermediateregions <- function(year){ # year = 2024
   
 }
 
-# Clean the data  -----------------
+# Clean the data  ----
 clean_intermediateregions <- function(intermediateregions_raw, year){ # year = 2024
   
-  ## 0. Create folder to save clean data -----
+  ## 0. Create folder to save clean data ----
   
   dir_clean <- paste0("./data/intermediate_regions/", year)
   dir.create(dir_clean, recursive = T, showWarnings = FALSE)
   dir.exists(dir_clean)
   
-  ## 1. Rename collumns names -----
+  ## 1. Rename collumns names ----
   
   
   ## 2. Apply harmonize geobr cleaning ----
