@@ -18,6 +18,24 @@
 # Palavras-chaves descritivas:****
 # Informação do Sistema de Referência: SIRGAS 2000
 
+### Libraries (use any library as necessary) ----
+
+# library(arrow)
+# library(geoarrow)
+# library(stringr)
+# library(sf)
+# library(janitor)
+# library(dplyr)
+# library(readr)
+# library(data.table)
+# library(magrittr)
+# library(devtools)
+# library(lwgeom)
+# library(stringi)
+# library(tidyverse)
+# library(rvest)
+# source("./R/support_harmonize_geobr.R")
+# source("./R/support_fun.R")
 
 ##### Download the data  -----------------
 download_amazonialegal <- function(){ # i've removed the year argument,
