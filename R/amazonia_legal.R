@@ -37,21 +37,21 @@
 # source("./R/support_harmonize_geobr.R")
 # source("./R/support_fun.R")
 
-##### Download the data  -----------------
+# Download the data  ----
 download_amazonialegal <- function(){ # i've removed the year argument,
   # because the file is atomic. Only have had one update.
 
 
-  # Download and read into CSV at the same time ----
+  ## 0. Download and read into CSV at the same time ----
   ftp_shp <- 'http://mapas.mma.gov.br/ms_tmp/amazlegal.shp'
   ftp_shx <- 'http://mapas.mma.gov.br/ms_tmp/amazlegal.shx'
   ftp_dbf <- 'http://mapas.mma.gov.br/ms_tmp/amazlegal.dbf'
   ftp <- c(ftp_shp,ftp_shx,ftp_dbf)
 
 
-  # Directions do download the file ------
+  ## 1. Directions do download the file ----
   temp_dir <- fs::path_temp()
-  download_temp_dir <- paste0(temp_dir,"/amazonialegal/")
+  download_temp_dir <- paste0(temp_dir,"/amazonia_legal/")
   dir.create(download_temp_dir, showWarnings = FALSE, recursive = TRUE)
   dir.exists(download_temp_dir)
   
@@ -66,87 +66,86 @@ download_amazonialegal <- function(){ # i've removed the year argument,
     )
    }
   
-  # Save in the temp directory ----
+  ## 2. Save in the temp directory ----
   shp_file <- basename(ftp_shp)
   shp_dir <- paste0(download_temp_dir, shp_file)
   
-  # read data
-  temp_sf <- sf::st_read(
+  ## 3. Read data
+  amazonialegal_raw <- sf::st_read(
     shp_dir, 
     quiet = F, 
     stringsAsFactors=F
-    )
+  )
   
-  return(temp_sf)
+  return(amazonialegal_raw)
   
   }
 
 
-##### Clean the data
-
-###### 1. create clean directory -----------------
-
-
+# Clean the data ----
 clean_amazonialegal <- function(amazonialegal_raw){
- 
+  
+  ## 0. create clean directory ----
+  
   #create directory
-   dir_clean <- "./data/amazonia_legal/"
-   dir.create(dir_clean, showWarnings = FALSE)
+  dir_clean <- "./data/amazonia_legal/"
+  dir.create(dir_clean, showWarnings = FALSE)
+  dir.exists(dir_clean)
    
 
-###### 2. rename column names -----------------
-
-# Rename columns
-   amazonialegal_raw$GID0 <- NULL
-   amazonialegal_raw$ID1 <- NULL
-
-   
-###### 3. Apply geobr cleaning -----------------
-
-   temp_sf <- harmonize_geobr(
-     temp_sf = amazonialegal_raw, 
-     add_state = F, 
-     add_region = F, 
-     add_snake_case = F, 
-     #snake_colname = snake_colname,
-     projection_fix = T,
-     encoding_utf8 = F, 
-     topology_fix = T,
-     remove_z_dimension = T,
-     use_multipolygon = T
-   )
-
-glimpse(temp_sf)
-   
-###### 4. generate a lighter version of the dataset with simplified borders -----------------
-
-# simplify
-temp_sf2 <- simplify_temp_sf(temp_sf)
-head(temp_sf2)
-
-
-###### 5. Clean data set and save it in geopackage format-----------------
-
-#save original and simplified datasets
-# sf::st_write(temp_sf, append = FALSE, dsn = paste0(dir_clean, "amazonialegal", ".gpkg") )
-# sf::st_write(temp_sf2, append = FALSE, dsn = paste0(dir_clean, "amazonialegal","_simplified", ".gpkg"))
-
-
-#save original and simplified datasets in parquet ## 666 not working
-arrow::write_parquet(
-  x = temp_sf,
-  sink = paste0(dir_clean, "amazonialegal", ".parquet"),
-  compression='zstd',
-  compression_level = 22
+  ## 1. rename column names ----
+  
+  # Rename columns
+  amazonialegal_raw$GID0 <- NULL
+  amazonialegal_raw$ID1 <- NULL
+  
+  
+  ## 2. Apply geobr cleaning ----
+  
+  temp_sf <- harmonize_geobr(
+    temp_sf = amazonialegal_raw, 
+    add_state = F, 
+    add_region = F, 
+    add_snake_case = F, 
+    #snake_colname = snake_colname,
+    projection_fix = T,
+    encoding_utf8 = F, 
+    topology_fix = T,
+    remove_z_dimension = T,
+    use_multipolygon = T
   )
-
-arrow::write_parquet(
-  x = temp_sf2,
-  sink = paste0(dir_clean, "amazonialegal","_simplified", ".parquet"),
-  compression='zstd',
-  compression_level = 22
+  
+  glimpse(temp_sf)
+  
+  ## 3. generate a lighter version of the dataset with simplified borders ----
+  
+  # simplify
+  temp_sf2 <- simplify_temp_sf(temp_sf)
+  head(temp_sf2)
+  
+  
+  ## 4. Clean data set and save it in geopackage format ----
+  
+  #save original and simplified datasets
+  # sf::st_write(temp_sf, append = FALSE, dsn = paste0(dir_clean, "amazonialegal", ".gpkg") )
+  # sf::st_write(temp_sf2, append = FALSE, dsn = paste0(dir_clean, "amazonialegal","_simplified", ".gpkg"))
+  
+  
+  ## 5. Save original and simplified datasets in parquet ----
+  arrow::write_parquet(
+    x = temp_sf,
+    sink = paste0(dir_clean, "amazonialegal", ".parquet"),
+    compression='zstd',
+    compression_level = 22
   )
-
-return(dir_clean)
+  
+  arrow::write_parquet(
+    x = temp_sf2,
+    sink = paste0(dir_clean, "amazonialegal","_simplified", ".parquet"),
+    compression='zstd',
+    compression_level = 22
+  )
+  
+  return(dir_clean)
 }
 
