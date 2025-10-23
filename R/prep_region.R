@@ -204,8 +204,16 @@ clean_regions <- function(regions_raw, year){ # year = 2024
   dir.create(dir_clean, recursive = T, showWarnings = FALSE)
   dir.exists(dir_clean)
   
-  ## 1. Rename collumns names -----
+  ## 1. Preparation -----
   
+  glimpse(regions_raw)
+  plot(regions_raw$geometry)
+  
+  # remove wrong-coded regions
+  regions_raw <- subset(regions_raw, cd_regia %in% c(1:5))
+
+  # store original crs
+  original_crs <- st_crs(regions_raw)
   
   ## 2. Apply harmonize geobr cleaning ----
   
@@ -223,6 +231,26 @@ clean_regions <- function(regions_raw, year){ # year = 2024
   )
   
   glimpse(temp_sf)
+  
+  ## 2. Transform states in regions -----
+  
+  
+  #   # b) make sure we have valid geometries
+  #   temp_sf <- sf::st_make_valid(sf_states)
+  #   temp_sf <- temp_sf %>% st_buffer(0)
+  # 
+  #   sf_states1 <- to_multipolygon(temp_sf)
+  # 
+  # 
+  # ## Dissolve each region
+  # all_regions <- dissolve_polygons(mysf=temp_sf, group_column='code_region')
+  # 
+  # 
+  # ### add region names
+  # all_regions <- add_region_info(temp_sf = all_regions, column = 'code_region')
+  # all_regions <- select(all_regions, c('code_region', 'name_region', 'geometry'))
+  # 
+  # 
   
   ## 3. lighter version ----
   temp_sf_simplified <- simplify_temp_sf(temp_sf, tolerance = 100)
