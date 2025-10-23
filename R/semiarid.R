@@ -45,20 +45,22 @@ download_semiarid <- function(year){ # year = 2022
 
   # get correct ftp url link
 
+  ftp_start <- "https://geoftp.ibge.gov.br/organizacao_do_territorio/estrutura_territorial/semiarido_brasileiro/Situacao_"
+  
   if(year == 2005) {
-    ftp <- 'https://geoftp.ibge.gov.br/organizacao_do_territorio/estrutura_territorial/semiarido_brasileiro/Situacao_2005a2017/lista_municipios_semiarido.xls'
+    ftp <- paste0(ftp_start, "2005a2017/lista_municipios_semiarido.xls")
   }
 
   if (year == 2017) {
-    ftp <- 'https://geoftp.ibge.gov.br/organizacao_do_territorio/estrutura_territorial/semiarido_brasileiro/Situacao_23nov2017/lista_municipios_Semiarido_2017_11_23.xlsx'
+    ftp <- paste0(ftp_start, "23nov2017/lista_municipios_Semiarido_2017_11_23.xlsx")
   }
 
   if (year == 2021) {
-    ftp <- 'https://geoftp.ibge.gov.br/organizacao_do_territorio/estrutura_territorial/semiarido_brasileiro/Situacao_2021/lista_municipios_Semiarido_2021.xls'
+    ftp <- paste0(ftp_start, "2021/lista_municipios_Semiarido_2021.xls")
   }
 
   if (year == 2022) {
-    ftp <- 'https://geoftp.ibge.gov.br/organizacao_do_territorio/estrutura_territorial/semiarido_brasileiro/Situacao_2022/lista_municipios_Semiarido_2022.xlsx'
+    ftp <- paste0(ftp_start, "2022/lista_municipios_Semiarido_2022.xlsx")
   }
 
   ## 1. Create temp folder ----
@@ -69,17 +71,12 @@ download_semiarid <- function(year){ # year = 2022
   dir.create(zip_dir, showWarnings = FALSE, recursive = TRUE)
   dir.exists(zip_dir)
   
-  # zip folder
-  in_zip <- paste0(zip_dir, "/zipped/")
-  dir.create(in_zip, showWarnings = FALSE, recursive = TRUE)
-  dir.exists(in_zip)
-  
-  # directions to download file
-  # file_raw <- paste0(dir_raw,"/", year, "_", basename(ftp))
-  file_raw <-fs::file_temp(tmp_dir = in_zip,
+  ## 2. Directions to download file ----
+  #file_raw <- paste0(in_zip, basename(ftp))
+  file_raw <-fs::file_temp(tmp_dir = zip_dir,
                            ext = fs::path_ext(ftp))
 
-  ## 2. Download  ----
+  ## 3. Download  ----
   httr::GET(url = ftp,
             httr::progress(),
             httr::write_disk(path = file_raw,
@@ -126,7 +123,7 @@ download_semiarid <- function(year){ # year = 2022
                                     name_muni = NM_MUN)
   }
 
-  ## 3. Show result  ----
+  ## 4. Show result  ----
   
   munis_semiarid <- munis_semiarid |>
     mutate(year = year)
@@ -136,19 +133,15 @@ download_semiarid <- function(year){ # year = 2022
   return(munis_semiarid)
 }
 
-# munis_semiarid <- tar_read("semiarid_raw", branches = 3)
-# year <- tar_read("years_semiarid")[3]
-
 # Clean the data   ----
 clean_semiarid <- function(munis_semiarid, year) { 
   
-  
-  #### 0. Create folders to save clean sf files  -----------------
+  ## 0. Create folders to save clean sf files  ----
   dir_clean <- paste0("./data/semiarid/", year)
   dir.create(dir_clean, recursive = T, showWarnings = FALSE)
+  dir.exists(dir_clean)
 
-  
-  #### 2. Clean data set -----------------
+  ## 1. Clean data set ----
 
   # load all munis sf
   all_munis <- geobr::read_municipality(code_muni = 'all',
@@ -163,12 +156,12 @@ clean_semiarid <- function(munis_semiarid, year) {
   }
   
   # subset municipalities
-  temp_sf <- subset(all_munis, code_muni %in% munis_semiarid$code_muni)
+  all_munis2 <- subset(all_munis, code_muni %in% munis_semiarid$code_muni)
   
-  #### 3. Apply geobr cleaning -----------------
+  ## 2. Apply geobr cleaning ----
   
   temp_sf <- harmonize_geobr(
-    temp_sf = temp_sf, 
+    temp_sf = all_munis2, 
     add_state = F, 
     add_region = F, 
     add_snake_case = F, 
@@ -180,18 +173,13 @@ clean_semiarid <- function(munis_semiarid, year) {
     use_multipolygon = F
   )
   
-  # glimpse(temp_sf)
-  
-
-
-  #### 4. lighter version --------------- 
+  ## 3. lighter version ----
   temp_sf_simplified <- simplify_temp_sf(temp_sf, tolerance = 100)
   
-  #### 3. Save data set -----------------
+  ## 4. Save data set in parquet format ----
   # sf::st_write(temp_sf, dsn= paste0(dir_clean,"/semiarid_", year, ".gpkg"), delete_dsn=TRUE)
   # sf::st_write(temp_sf_simplified, dsn= paste0(dir_clean,"/semiarid_", year, "_simplified.gpkg"), delete_dsn=TRUE )
-  # 
-  # Save in parquet
+   
   arrow::write_parquet(
     x = temp_sf,
     sink = paste0(dir_clean,"/semiarid_", year, ".parquet"),
