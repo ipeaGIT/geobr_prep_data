@@ -580,3 +580,34 @@ readmerge_geobr <-  function(folder_path, encoding = NULL) {
   
   return(merged)
 }
+
+# States table codes for correction geobr function -----------------
+
+states_geobr <-  function() {
+  states <- tibble(cod_states = c(11, 12, 13, 14, 15, 16, 17, 21, 22, 23, 24,
+                                  25, 26, 27, 28, 29, 31, 32, 33, 35, 41, 42,
+                                  43, 50, 51, 52, 53),
+                   sg_state = c("RO", "AC", "AM", "RR", "PA", "AP", "TO",
+                                "MA", "PI", "CE", "RN", "PB", "PE", "AL",
+                                "SE", "BA", "MG", "ES", "RJ", "SP", "PR",
+                                "SC", "RS", "MS", "MT", "GO", "DF"),
+                   nm_state = c("Rondônia", "Acre", "Amazonas", "Roraima",
+                                "Pará", "Amapá", "Tocantins", "Maranhão",
+                                "Piauí", "Ceará", "Rio Grande do Norte",
+                                "Paraíba", "Pernambuco", "Alagoas", "Sergipe",
+                                "Bahia", "Minas Gerais", "Espírito Santo", 
+                                "Rio de Janeiro", "São Paulo", "Paraná",
+                                "Santa Catarina", "Rio Grande do Sul",
+                                "Mato Grosso do Sul", "Mato Grosso", "Goiás",
+                                "Distrito Federal"),
+                   nm_region = c("Norte", "Norte", "Norte", "Norte", "Norte",
+                                 "Norte", "Norte", "Nordeste", "Nordeste",
+                                 "Nordeste", "Nordeste", "Nordeste", "Nordeste",
+                                 "Nordeste", "Nordeste", "Nordeste", "Sudeste",
+                                 "Sudeste", "Sudeste", "Sudeste", "Sul", "Sul",
+                                 "Sul", "Centro-Oeste", "Centro-Oeste",
+                                 "Centro-Oeste", "Centro-Oeste"),
+                   sgm_state = str_to_lower(sg_state))
+  
+  return(states)
+  }
