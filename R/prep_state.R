@@ -159,7 +159,7 @@ download_states <- function(year){ # year = 2010
   shp_names <- list.files(out_zip, pattern = "\\.shp$", full.names = TRUE)
   
   #### Before 2015
-  if (year == 2000) { #years without IBGE errors
+  if (year == 2000) { #years without number of collumns errors
     states_list <- pbapply::pblapply(
       X = shp_names,
       FUN = function(x){ sf::st_read(x, quiet = T, stringsAsFactors= F)
@@ -219,21 +219,38 @@ clean_states <- function(states_raw, year){ # year = 2024
   
   ## 2. Check names of the states -----
   
-  if (year == 2000){ #For years that have spelling problems
-  glimpse(states_raw)
-  glimpse(states)
-  
-  states_thin <- states %>% 
-    select(cod_states, nm_state) %>% 
-    mutate(cod_states = as.character(cod_states))
-  
-  states_clean <- states_raw %>% 
-    clean_names() %>% 
-    select(-nome) %>% 
-    left_join(states_thin, by = c("codigo" = "cod_states")) %>% 
-    rename(nome = nm_state) %>% 
-    relocate(nome, .after = geocodigo)
+  #For years that have spelling problems
+  if (year %in% c(2000, 2001, 2010)){ 
+    glimpse(states_raw)
+    glimpse(states)
+    
+    states_thin <- states %>% 
+      select(cod_states, nm_state) %>% 
+      mutate(cod_states = as.character(cod_states))
+    
+    if (year %in% c(2000, 2001)){ 
+      states_clean <- states_raw %>% 
+        select(-nome) %>% 
+        left_join(states_thin, by = c("codigo" = "cod_states")) %>% 
+        rename(nome = nm_state) %>% 
+        relocate(nome, .after = geocodigo)
+    }
+    if (year %in% c(2010)){ 
+      states_clean <- states_raw %>% 
+        left_join(states_thin, by = c("cd_geocodu" = "cod_states")) %>%
+        select(-nm_estado) %>% 
+        rename(nm_estado = nm_state) %>% 
+        relocate(nm_estado, .after = cd_geocodu)
+    }
+    glimpse(states_clean)
   }
+  #For years that have no spelling problems
+  if (year %in% c(2024)){ 
+    glimpse(states_raw)
+    glimpse(states)
+    states_clean <- states_raw
+    glimpse(states_clean)
+    }
   
   ## 2. Apply harmonize geobr cleaning ----
   
@@ -247,7 +264,7 @@ clean_states <- function(states_raw, year){ # year = 2024
     encoding_utf8 = T,
     topology_fix = T,
     remove_z_dimension = T,
-    use_multipolygon = F
+    use_multipolygon = T
   )
   
   glimpse(temp_sf)

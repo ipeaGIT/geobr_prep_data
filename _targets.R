@@ -7,7 +7,7 @@ tar_option_set(
   format = "rds",
   memory = "transient",
   garbage_collection = TRUE,
-  controller = crew_controller_local(workers = 8),
+  controller = crew_controller_local(workers = 2),
   
   
   # Packages ----
@@ -218,19 +218,19 @@ list(
              command = download_schools(years_schools),
              pattern = map(years_schools)),
 
-  # # clean
-  # tar_target(name = schools_clean,
-  #            command = clean_schools(schools_raw, years_schools),
-  #            pattern = map(schools_raw, years_schools),
-  #            format = 'file'),
+  # clean
+  tar_target(name = schools_clean,
+             command = clean_schools(schools_raw, years_schools),
+             pattern = map(schools_raw, years_schools),
+             format = 'file'),
 
   #10. Estados ----
 
   #year input
   tar_target(name = years_states,
-             command = c(2000#,2001, 2010,
+             command = c(2000 ,2001, 2010,
                          #2013:2024
-                         )),
+                         2024)),
 
   # download
   tar_target(name = states_raw,
