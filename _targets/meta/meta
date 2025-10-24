@@ -156,26 +156,6 @@ indigenousland_raw_8200dd0139b45759|branch|589e26b708a554e3|0a1a03faca53b7d7|266
 indigenousland_raw_ac4438b3782a845e|branch|8b25792082768078|0a1a03faca53b7d7|2669e5ff6297ce13|1150452873||t20384.7944512631s|s21882203b|21882203|rds|local|vector|indigenousland_raw||6.578|GDAL Message 1: D:\Users\B36596398854\AppData\Local\Temp\16\RtmpwRHbu2\indigenous_lands\2024\unzipped\ti_sirgas2000.shp contains polygon(s) with rings with invalid winding order. Autocorrecting them, but that shapefile should be corrected using ogr2ogr for example.|
 schools_raw_70218228dcf34f2b|branch|b9352539c6b86d06|51e71d18aca022cf|c68c13fe0b4cb073|119178310||t20384.8181445245s|s137b|137|rds|local|vector|schools_raw||3.5|execução de '(./data_raw/Análise - Tabela da lista das escolas - Detalhado.csv) > D:\Users\B36596398854\AppData\Local\Temp\16\RtmpMjabXc\filea1dc6df16594' falhou com código de erro 1. O arquivo 'D:\Users\B36596398854\AppData\Local\Temp\16\RtmpMjabXc\filea1dc6df16594' tem tamanho 0. Retornando NULL data.table.|
 schools_clean_7d3644ed4b33a194|branch||e37044c94bb96926|e23503656c5c25e9|1722519593||t20384.8181508029s||0|file|local|vector|schools_clean||2.938||Objeto 'latitude' não encontrado entre []
-states_raw_4ddd9debf0ba7e1c|branch|f971ccd50c959ed1|3d28aad835a908c3|e19df5e2d087efd4|-1125807815||t20384.8406345876s|s7717748b|7717748|rds|local|vector|states_raw||4.594||
-states_raw_d6571fadf1450f91|branch|f6a0f4206722c8ce|3d28aad835a908c3|e19df5e2d087efd4|1902813411||t20384.8406943832s|s9482211b|9482211|rds|local|vector|states_raw||1.437||
-states_raw_204b4211a7360cc8|branch|f1d821f5714572ce|3d28aad835a908c3|e19df5e2d087efd4|1421765436||t20384.8406972883s|s7123280b|7123280|rds|local|vector|states_raw||10.078||
-states_raw_799950eb676e48ae|branch|8b28f247b1ed3555|3d28aad835a908c3|e19df5e2d087efd4|-1146737507||t20384.8406982375s|s7185290b|7185290|rds|local|vector|states_raw||10.031||
-states_clean_3e0c7b10f0db4e74|branch|bfb129cf77337b4b|78d3b2b8bbcbe770|4400a1fcc267b975|296648455|./data/states/2015|t20384.8407155522s|s6986736b|6986736|file|local|vector|states_clean||6.891||
-states_clean_80488215b17e7a2a|branch|24965eafae6361ad|78d3b2b8bbcbe770|f5692024775f40e7|-621012948|./data/states/2016|t20384.8407207662s|s6952837b|6952837|file|local|vector|states_clean||7.062||
-states_raw_0ac035a491f3f96f|branch|6b7dbe3514d17615|3d28aad835a908c3|e19df5e2d087efd4|1514009021||t20384.8407209752s|s11982760b|11982760|rds|local|vector|states_raw||1.515||
-states_clean_7126508da9841f2b|branch|e4fbe4cc5e3c0126|78d3b2b8bbcbe770|e143cc279bc07dc8|-1342854165|./data/states/2017|t20384.8407243238s|s7274721b|7274721|file|local|vector|states_clean||7.266||
-states_raw_de4d6e99fc4c234b|branch|28c4e578fe8fb5db|3d28aad835a908c3|e19df5e2d087efd4|-376339757||t20384.8407620377s|s14733723b|14733723|rds|local|vector|states_raw||1.75||
-states_raw_d5be2c94f119e0fb|branch|858fae16d6535e55|3d28aad835a908c3|e19df5e2d087efd4|1997584768||t20384.8407646649s|s14797327b|14797327|rds|local|vector|states_raw||1.688||
-states_clean_58c4726e58452114|branch|b4d21558410721fb|78d3b2b8bbcbe770|6188fd432e124a9c|512331101|./data/states/2013|t20384.840790824s|s6542147b|6542147|file|local|vector|states_clean||7.625||
-states_clean_03f7c473a72e4e6d|branch|b9dd76236a2c4485|78d3b2b8bbcbe770|7e88c45f137fb941|-1751611122|./data/states/2014|t20384.8407996556s|s6655786b|6655786|file|local|vector|states_clean||7.938||
-states_raw_58c51ef2c4f089db|branch|15f6c74b7d010cf6|3d28aad835a908c3|e19df5e2d087efd4|-342274472||t20384.8408159405s|s14880196b|14880196|rds|local|vector|states_raw||6.782||
-states_raw_0a352a3d4b53eadb|branch|c3b602bff08eb37b|3d28aad835a908c3|e19df5e2d087efd4|204903689||t20384.8409339911s|s13801445b|13801445|rds|local|vector|states_raw||5.625||
-states_clean_77710f338011de72|branch|b27da8529ee8c4a2|78d3b2b8bbcbe770|a91b4dfb0858005e|1693158661|./data/states/2020|t20384.8410065146s|s12121278b|12121278|file|local|vector|states_clean||15.219||
-states_clean_9637872f0d3678f5|branch|8e809b825ed40d21|78d3b2b8bbcbe770|b8300104abf9e354|-585907121|./data/states/2021|t20384.8410527909s|s12010797b|12010797|file|local|vector|states_clean||17.625||
-states_clean_554ceb7adef8a05b|branch|a587d73e4d7ef0e2|78d3b2b8bbcbe770|771cc04f1c759b3e|-2092144471|./data/states/2022|t20384.8410543879s|s12095722b|12095722|file|local|vector|states_clean||17.734||
-states_clean_de845ba35fa919b1|branch|8ce37a82489d552e|78d3b2b8bbcbe770|f1586b49da792dab|-1256813841|./data/states/2023|t20384.8410977517s|s12094550b|12094550|file|local|vector|states_clean||13.578||
-states_clean_aa2dd50314bbe822|branch|5e032fc44bb37dcd|78d3b2b8bbcbe770|d3d2cce70b9e630a|1182278438|./data/states/2018|t20384.8411273374s|s8766582b|8766582|file|local|vector|states_clean||12.969||
-states_clean_65f88625fec5b1de|branch|f0cdab2057156e59|78d3b2b8bbcbe770|87c37890c817b028|1944910954|./data/states/2019|t20384.841144575s|s9651858b|9651858|file|local|vector|states_clean||14.438||
 regions_raw_b37e845850a7e8f6|branch|269279651d11a855|b540ed2c6d7fcda2|d4fccf8020059673|1459385194||t20384.9365642895s|s7386019b|7386019|rds|local|vector|regions_raw||4.671||
 regions_raw_70719700756f2e3e|branch|a6c73e3557fc6c8e|b540ed2c6d7fcda2|d4fccf8020059673|-1316998699||t20384.9365701484s|s7358406b|7358406|rds|local|vector|regions_raw||4.937||
 regions_raw_1d86976dc874072f|branch|f971ccd50c959ed1|b540ed2c6d7fcda2|d4fccf8020059673|-1893945574||t20384.9365732967s|s7717748b|7717748|rds|local|vector|regions_raw||5.407||
@@ -189,8 +169,6 @@ regions_raw_a7fcf50e769d9f40|branch|7392f1925135fb74|b540ed2c6d7fcda2|d4fccf8020
 regions_raw_00dbd528e79bb65d|branch|c3b602bff08eb37b|b540ed2c6d7fcda2|d4fccf8020059673|317862968||t20384.9366274746s|s13801445b|13801445|rds|local|vector|regions_raw||2.515||
 regions_raw_57d2d638d6b5fd25|branch|8b28f247b1ed3555|b540ed2c6d7fcda2|d4fccf8020059673|1626843182||t20384.9366354077s|s7185290b|7185290|rds|local|vector|regions_raw||10.734||
 regions_raw|pattern|86eb211a1ff1f233|b540ed2c6d7fcda2||165878926||||125550171|rds|local|vector||regions_raw_c4481e7240c36c6c*regions_raw_9f7a850b68c69794*regions_raw_05e86ca93e0f416e*regions_raw_7f7667115ff9aeae*regions_raw_cf85afc39ece147f*regions_raw_cbf829602f5bdd25*regions_raw_37404453840370f4*regions_raw_241f9993913b63f4*regions_raw_3f93dcbfa8a3dffd*regions_raw_b6b5141b72b469c5*regions_raw_64c871ade94fb399*regions_raw_79287a3323929e91*regions_raw_d2dfdae13656c7a4*regions_raw_584ebd36105c5547*regions_raw_de4dac42e4399c05|83.234||
-states_raw_dc11b7e38627e848|branch|269279651d11a855|3d28aad835a908c3|8a5a75b4f8ac75d4|1003626833||t20384.8406310426s||7386019|rds|local|vector|states_raw||4.453||vetor de caracteres esperado como argumento
-states_raw_e82815a5835812ac|branch|a6c73e3557fc6c8e|3d28aad835a908c3|8a5a75b4f8ac75d4|-993964327||t20384.8406343081s||7358406|rds|local|vector|states_raw||4.484||vetor de caracteres esperado como argumento
 amazonialegal_raw|stem|b03bee0f9484c312|c7db07574161f53e|016d042f25509dd9|-1787579839||t20349.5637042753s|s177157b|177157|rds|local|vector|||4.078||
 years_mesoregions|stem|2479d8ceb4c2b371|822fbbd1a82daa39|2c530c1562a7fbd1|-1777577158||t20380.1425669993s|s76b|76|rds|local|vector||years_mesoregions_664e20f2cf9d5df1*years_mesoregions_755c32733bcf0b7a*years_mesoregions_cd8caaabc45b5c4a*years_mesoregions_db80aad4ff4ed880*years_mesoregions_83f691dcdf51096e*years_mesoregions_71d428f5b56cfa9f*years_mesoregions_66eee5cd36ed396e*years_mesoregions_a009eba4833e4540*years_mesoregions_b9c4205ce711d3b3|3.703||
 years_regions|stem|ebb0232658edbdf9|f2c0910c699daf40|2c530c1562a7fbd1|62234391||t20382.8405284296s|s92b|92|rds|local|vector||years_regions_664e20f2cf9d5df1*years_regions_755c32733bcf0b7a*years_regions_cd8caaabc45b5c4a*years_regions_db80aad4ff4ed880*years_regions_83f691dcdf51096e*years_regions_71d428f5b56cfa9f*years_regions_66eee5cd36ed396e*years_regions_a009eba4833e4540*years_regions_b9c4205ce711d3b3*years_regions_1d0440b850242374*years_regions_c27afbe287ae8e82*years_regions_d7731f103501508d*years_regions_43a1223249ea92a6*years_regions_eb70d4cf2ff78de2*years_regions_1f9b22175ab58c3c|3.125||
@@ -265,11 +243,37 @@ schools_clean_5e84e5fa01048baf|branch|8b87eacf73199ae0|e37044c94bb96926|4eca60ac
 schools_clean|pattern|2260a4dcfe6748ac|e37044c94bb96926||545202438||||18868602|file|local|vector||schools_clean_5e84e5fa01048baf|45.515||
 healthfacilities_clean_19a13145e8c34c9c|branch|1a79d9a77684fd6c|ced381dbebae1564|2fbf6a0aa0b6d5a2|131176880|./data/health_facilities/2025_10|t20385.5883265469s|s74757538b|74757538|file|local|vector|healthfacilities_clean||159.968||
 healthfacilities_clean|pattern|2400eeadc66af471|ced381dbebae1564||423354283||||74757538|file|local|vector||healthfacilities_clean_19a13145e8c34c9c|159.968||
-years_states|stem|b6da4dec9d92bf8d|fd3d3cc84ed7e5ad|2c530c1562a7fbd1|36981220||t20385.6504703758s|s63b|63|rds|local|vector||years_states_664e20f2cf9d5df1*years_states_755c32733bcf0b7a*years_states_cd8caaabc45b5c4a*years_states_1f9b22175ab58c3c|2.969||
 states_raw_1e5fb3645f6ef898|branch|7392f1925135fb74|3d28aad835a908c3|e5e96828f11bff43|1693743747||t20381.8504425154s|s15837291b|15837291|rds|local|vector|states_raw||5.578||
 states_raw_aada240c79cc9d80|branch|06a284ea44ca98b6|3d28aad835a908c3|e5e96828f11bff43|-985233767||t20385.651018346s|s815362b|815362|rds|local|vector|states_raw||7.281||
 states_raw_ba2876cebd4d6d6e|branch|6c7a494fd5c1bc47|3d28aad835a908c3|e5e96828f11bff43|-1542640575||t20385.6510495959s|s6362940b|6362940|rds|local|vector|states_raw||9.5||
-states_raw|pattern|e64503ac7b628a39|3d28aad835a908c3||1221545994||||7178302|rds|local|vector||states_raw_c3e66cbcd7e99064*states_raw_aada240c79cc9d80*states_raw_ba2876cebd4d6d6e*states_raw_1e5fb3645f6ef898|16.781||
+states_raw_204b4211a7360cc8|branch|f1d821f5714572ce|3d28aad835a908c3|e5e96828f11bff43|1421765436||t20385.7186102582s|s7123280b|7123280|rds|local|vector|states_raw||7.359||
+states_clean_e23dc204a4cbec1e|branch|8263be711d1ce5ad|78d3b2b8bbcbe770|644dd53a894f0aab|938717821|./data/states/2024|t20385.7203456502s|s13165464b|13165464|file|local|vector|states_clean||28.375||
+states_clean_df6d4ddb3c89cc1b|branch|bc4285696e53364c|78d3b2b8bbcbe770|965571188196915f|-627793292|./data/states/2000|t20385.7208010712s|s2906228b|2906228|file|local|vector|states_clean||6.796|x is already of type POLYGON.|
+states_clean_463b36d4c1de577e|branch|ab61e2022d0367f3|78d3b2b8bbcbe770|34538b96c5e63191|-2123860556|./data/states/2001|t20385.7208230041s|s1370812b|1370812|file|local|vector|states_clean||7.672||
+states_clean_fafd6a1479eceefb|branch|19edf267c0606591|78d3b2b8bbcbe770|dbfe1b96825fe272|1604249475|./data/states/2010|t20385.7209111525s|s6324358b|6324358|file|local|vector|states_clean||15.187||
+states_clean_58c4726e58452114|branch|296c50859f69fe40|78d3b2b8bbcbe770|37dd70760fc58108|512331101|./data/states/2013|t20385.7229634146s|s6852493b|6852493|file|local|vector|states_clean||13.188||
+states_raw_dc11b7e38627e848|branch|269279651d11a855|3d28aad835a908c3|e5e96828f11bff43|1003626833||t20385.7247523147s|s7386019b|7386019|rds|local|vector|states_raw||4.781||
+states_raw_799950eb676e48ae|branch|8b28f247b1ed3555|3d28aad835a908c3|e5e96828f11bff43|-1146737507||t20385.7247611578s|s7185290b|7185290|rds|local|vector|states_raw||6.61||
+states_clean_3e0c7b10f0db4e74|branch|181b975e2f472a52|78d3b2b8bbcbe770|55006c3515d003c6|296648455|./data/states/2015|t20385.7249138085s|s7089940b|7089940|file|local|vector|states_clean||13.515||
+states_clean_03f7c473a72e4e6d|branch|915b60fb7f58571f|78d3b2b8bbcbe770|960c80d056906c7b|-1751611122|./data/states/2014|t20385.7249190051s|s7013507b|7013507|file|local|vector|states_clean||13.218||
+states_raw_e82815a5835812ac|branch|a6c73e3557fc6c8e|3d28aad835a908c3|e5e96828f11bff43|-993964327||t20385.7252503249s|s7358406b|7358406|rds|local|vector|states_raw||1.609||
+states_clean_80488215b17e7a2a|branch|0be8ef84e3f1b2d3|78d3b2b8bbcbe770|494437ec2f8ec072|-621012948|./data/states/2016|t20385.7254214828s|s7286505b|7286505|file|local|vector|states_clean||14.344||
+states_raw_4ddd9debf0ba7e1c|branch|f971ccd50c959ed1|3d28aad835a908c3|e5e96828f11bff43|-1125807815||t20385.725701175s|s7717748b|7717748|rds|local|vector|states_raw||1.656||
+states_clean_7126508da9841f2b|branch|32bca747ae5f3933|78d3b2b8bbcbe770|08b1841efc4ec969|-1342854165|./data/states/2017|t20385.7258703191s|s7292771b|7292771|file|local|vector|states_clean||14.188||
+states_raw_d6571fadf1450f91|branch|f6a0f4206722c8ce|3d28aad835a908c3|e5e96828f11bff43|1902813411||t20385.7262290202s|s9482211b|9482211|rds|local|vector|states_raw||2.593||
+states_clean_aa2dd50314bbe822|branch|1a7890e13dfc74f1|78d3b2b8bbcbe770|6ae616d333518791|1182278438|./data/states/2018|t20385.7264531645s|s8829497b|8829497|file|local|vector|states_clean||18.906||
+states_raw_0ac035a491f3f96f|branch|6b7dbe3514d17615|3d28aad835a908c3|e5e96828f11bff43|1514009021||t20385.7267101006s|s11982760b|11982760|rds|local|vector|states_raw||2.328||
+states_clean_65f88625fec5b1de|branch|63aa64930c7f0b76|78d3b2b8bbcbe770|1e6bd2a854d69b66|1944910954|./data/states/2019|t20385.7269708075s|s9711804b|9711804|file|local|vector|states_clean||22.031||
+states_raw_58c51ef2c4f089db|branch|15f6c74b7d010cf6|3d28aad835a908c3|e5e96828f11bff43|-342274472||t20385.7273401639s|s14880196b|14880196|rds|local|vector|states_raw||2.609||
+states_clean_77710f338011de72|branch|69c718bbad42c547|78d3b2b8bbcbe770|e7dfbc19c9efeb3d|1693158661|./data/states/2020|t20385.7276534177s|s12203621b|12203621|file|local|vector|states_clean||26.515||
+states_raw_de4d6e99fc4c234b|branch|28c4e578fe8fb5db|3d28aad835a908c3|e5e96828f11bff43|-376339757||t20385.7279313576s|s14733723b|14733723|rds|local|vector|states_raw||2.812||
+states_raw_d5be2c94f119e0fb|branch|858fae16d6535e55|3d28aad835a908c3|e5e96828f11bff43|1997584768||t20385.7279774113s|s14797327b|14797327|rds|local|vector|states_raw||5.797||
+states_clean_9637872f0d3678f5|branch|b6ad9978783f3b67|78d3b2b8bbcbe770|f44c84ad08400f56|-585907121|./data/states/2021|t20385.7282435346s|s12092459b|12092459|file|local|vector|states_clean||26.438||
+states_clean_554ceb7adef8a05b|branch|f24f9ccc5bb72e99|78d3b2b8bbcbe770|d69dad777114eb04|-2092144471|./data/states/2022|t20385.7282893913s|s12178659b|12178659|file|local|vector|states_clean||26.421||
+states_raw_0a352a3d4b53eadb|branch|c3b602bff08eb37b|3d28aad835a908c3|e5e96828f11bff43|204903689||t20385.72876284s|s13801445b|13801445|rds|local|vector|states_raw||2.797||
+states_raw|pattern|e8893611f7156b4e|3d28aad835a908c3||1221545994||||13801445|rds|local|vector||states_raw_c3e66cbcd7e99064*states_raw_aada240c79cc9d80*states_raw_ba2876cebd4d6d6e*states_raw_204b4211a7360cc8*states_raw_799950eb676e48ae*states_raw_dc11b7e38627e848*states_raw_e82815a5835812ac*states_raw_4ddd9debf0ba7e1c*states_raw_d6571fadf1450f91*states_raw_0ac035a491f3f96f*states_raw_58c51ef2c4f089db*states_raw_de4d6e99fc4c234b*states_raw_d5be2c94f119e0fb*states_raw_0a352a3d4b53eadb*states_raw_1e5fb3645f6ef898|2.797||
+states_clean_de845ba35fa919b1|branch|86a025b69b367b05|78d3b2b8bbcbe770|d0889e568c7d8efc|-1256813841|./data/states/2023|t20385.7290761982s|s12175098b|12175098|file|local|vector|states_clean||26.515||
+states_clean|pattern|fbb3495b31cc3904|78d3b2b8bbcbe770||1335302320||||12175098|file|local|vector||states_clean_df6d4ddb3c89cc1b*states_clean_463b36d4c1de577e*states_clean_fafd6a1479eceefb*states_clean_58c4726e58452114*states_clean_03f7c473a72e4e6d*states_clean_3e0c7b10f0db4e74*states_clean_80488215b17e7a2a*states_clean_7126508da9841f2b*states_clean_aa2dd50314bbe822*states_clean_65f88625fec5b1de*states_clean_77710f338011de72*states_clean_9637872f0d3678f5*states_clean_554ceb7adef8a05b*states_clean_de845ba35fa919b1*states_clean_e23dc204a4cbec1e|26.515||
 download_amazonialegal|function|969bf06cf5c79fd3
 add_region_info|function|52f8962884fe316a
 add_state_info|function|dc769a19f7442ca1
@@ -308,7 +312,7 @@ clean_schools|function|15478f875faa4666
 clean_biomes|function|876df16b2a575403
 clean_healthfacilities|function|7e2e3af7d93f837e
 clean_regions|function|c8b704265eca4013
-clean_states|function|5279d9f5e9fd5be9
+clean_states|function|84e588d285c60950
 clean_intermediateregions|function|1ca73420362ae1e5
 clean_immediateregions|function|2a7c81f49ce60f97
 clean_mesoregions|function|15c1c3b7af2ee237
@@ -353,8 +357,4 @@ microregions_clean_8334f08e02d8635d|branch|b5f66f5bdc4b1614|412d71366ce2bba8|d35
 microregions_clean_729fb46310763235|branch|dfbe1443b740623c|412d71366ce2bba8|35f2fd2f2ab44ad0|-1721586792|./data/micro_regions/2016|t20378.0868114421s|s0b|0|file|local|vector|microregions_clean||33.672||
 microregions_clean_1281c7452b2b6997|branch|074aa2dd6d3570e6|412d71366ce2bba8|b6a96393752237b5|-783486684|./data/micro_regions/2017|t20378.0868679465s|s0b|0|file|local|vector|microregions_clean||33.156||
 microregions_clean_0ef5ea2e88590e5e|branch|5e353f1499652b85|412d71366ce2bba8|d7e31651fb301cdb|-820359225|./data/micro_regions/2018|t20378.087029207s|s0b|0|file|local|vector|microregions_clean||38.453||
-states_clean_463b36d4c1de577e|branch|ab61e2022d0367f3|78d3b2b8bbcbe770|0de80dde10edd767|-2123860556|./data/states/2001|t20385.6534267703s|s1370812b|1370812|file|local|vector|states_clean||7.687||
-states_clean_df6d4ddb3c89cc1b|branch|bc4285696e53364c|78d3b2b8bbcbe770|ab0160a9dc66478d|-627793292|./data/states/2000|t20385.6534504046s|s2906228b|2906228|file|local|vector|states_clean||9.734|x is already of type POLYGON.|
-states_clean_fafd6a1479eceefb|branch|19edf267c0606591|78d3b2b8bbcbe770|bc489f7de3616001|1604249475|./data/states/2010|t20385.6535671756s|s6324358b|6324358|file|local|vector|states_clean||11.719||
-states_clean_e23dc204a4cbec1e|branch|8263be711d1ce5ad|78d3b2b8bbcbe770|bb1eee7421e3a2a1|938717821|./data/states/2024|t20385.6537877662s|s13165464b|13165464|file|local|vector|states_clean||28.532||
-states_clean|pattern|6e4b3f8673ab8cbe|78d3b2b8bbcbe770||1335302320||||23766862|file|local|vector||states_clean_df6d4ddb3c89cc1b*states_clean_463b36d4c1de577e*states_clean_fafd6a1479eceefb*states_clean_e23dc204a4cbec1e|57.672||
+years_states|stem|ebb0232658edbdf9|f2c0910c699daf40|2c530c1562a7fbd1|36981220||t20385.7294374325s|s92b|92|rds|local|vector||years_states_664e20f2cf9d5df1*years_states_755c32733bcf0b7a*years_states_cd8caaabc45b5c4a*years_states_db80aad4ff4ed880*years_states_83f691dcdf51096e*years_states_71d428f5b56cfa9f*years_states_66eee5cd36ed396e*years_states_a009eba4833e4540*years_states_b9c4205ce711d3b3*years_states_1d0440b850242374*years_states_c27afbe287ae8e82*years_states_d7731f103501508d*years_states_43a1223249ea92a6*years_states_eb70d4cf2ff78de2*years_states_1f9b22175ab58c3c|3.031||

@@ -220,7 +220,7 @@ clean_states <- function(states_raw, year){ # year = 2024
   ## 2. Check names of the states -----
   
   #For years that have spelling problems
-  if (year %in% c(2000, 2001, 2010)){ 
+  if (year %in% c(2000, 2001, 2010, 2013:2018)){ 
     glimpse(states_raw)
     glimpse(states)
     
@@ -242,10 +242,19 @@ clean_states <- function(states_raw, year){ # year = 2024
         rename(nm_estado = nm_state) %>% 
         relocate(nm_estado, .after = cd_geocodu)
     }
+    
+    # For years that have only uppercase
+    if (year %in% c(2013:2018)){ 
+      states_clean <- states_raw %>% 
+        left_join(states_thin, by = c("cd_geocuf" = "cod_states")) %>%
+        select(-nm_estado) %>% 
+        rename(nm_estado = nm_state) %>% 
+        relocate(nm_estado)
+    }
     glimpse(states_clean)
   }
   #For years that have no spelling problems
-  if (year %in% c(2024)){ 
+  if (year %in% c(2019:2024)){ 
     glimpse(states_raw)
     glimpse(states)
     states_clean <- states_raw

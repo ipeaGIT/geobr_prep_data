@@ -7,7 +7,7 @@ tar_option_set(
   format = "rds",
   memory = "transient",
   garbage_collection = TRUE,
-  controller = crew_controller_local(workers = 2),
+  controller = crew_controller_local(workers = 4),
   
   
   # Packages ----
@@ -228,9 +228,8 @@ list(
 
   #year input
   tar_target(name = years_states,
-             command = c(2000 ,2001, 2010,
-                         #2013:2024
-                         2024)),
+             command = c(2000, 2001, 2010,
+                         2013:2024)),
 
   # download
   tar_target(name = states_raw,
