@@ -7,7 +7,7 @@ tar_option_set(
   format = "rds",
   memory = "transient",
   garbage_collection = TRUE,
-  controller = crew_controller_local(workers = 4),
+  controller = crew_controller_local(workers = 8),
   
   
   # Packages ----
@@ -120,7 +120,7 @@ list(
              command = clean_biomes(biomes_raw, years_biomes),
              pattern = map(biomes_raw, years_biomes),
              format = 'file'),
-
+   
   #04. Grade estatística ----
 
   # year input
@@ -157,20 +157,20 @@ list(
 
   #06. Terras Indígenas ----
 
-  # year imput
-  tar_target(name = years_indigenousland,
-             command = c(2024, 2025)),
-
-  # download
-  tar_target(name = indigenousland_raw,
-             command = download_indigenousland(years_indigenousland),
-             pattern = map(years_indigenousland)),
-
-  # clean
-  tar_target(name = indigenousland_clean,
-             command = clean_indigenousland(indigenousland_raw, years_indigenousland),
-             pattern = map(indigenousland_raw, years_indigenousland),
-             format = 'file'),
+  # # year imput
+  # tar_target(name = years_indigenousland,
+  #            command = c(2024, 2025)),
+  # 
+  # # download
+  # tar_target(name = indigenousland_raw,
+  #            command = download_indigenousland(years_indigenousland),
+  #            pattern = map(years_indigenousland)),
+  # 
+  # # clean
+  # tar_target(name = indigenousland_clean,
+  #            command = clean_indigenousland(indigenousland_raw, years_indigenousland),
+  #            pattern = map(indigenousland_raw, years_indigenousland),
+  #            format = 'file'),
 
   #07. Regiões Intermediárias ----
 
@@ -218,18 +218,19 @@ list(
              command = download_schools(years_schools),
              pattern = map(years_schools)),
 
-  # clean
-  tar_target(name = schools_clean,
-             command = clean_schools(schools_raw, years_schools),
-             pattern = map(schools_raw, years_schools),
-             format = 'file'),
+  # # clean
+  # tar_target(name = schools_clean,
+  #            command = clean_schools(schools_raw, years_schools),
+  #            pattern = map(schools_raw, years_schools),
+  #            format = 'file'),
 
   #10. Estados ----
 
   #year input
   tar_target(name = years_states,
-             command = c(2000, 2001, 2010,
-                         2013:2024)),
+             command = c(2000#,2001, 2010,
+                         #2013:2024
+                         )),
 
   # download
   tar_target(name = states_raw,
@@ -246,14 +247,13 @@ list(
 
   # year input
   tar_target(name = years_regions,
-             command = c(#2000, 2001, 2010,
-                         #2013:2023,
-                         2024)),
+             command = c(2000, 2001, 2010,
+                         2013:2024)),
 
-  # # download
-  # tar_target(name = regions_raw,
-  #            command = download_regions(years_regions),
-  #            pattern = map(years_regions)),
+  # download
+  tar_target(name = regions_raw,
+             command = download_regions(years_regions),
+             pattern = map(years_regions)),
 
   # # clean
   # tar_target(name = statsgrid_clean,
@@ -319,9 +319,7 @@ list(
              format = 'file'),
 
   #15. Municipalidade ----
-
-
-
+  
   # # year input
   # tar_target(name = years_statsgrid,
   #            command = c(2010, 2022)),
@@ -336,10 +334,9 @@ list(
   #            command = clean_statsgrid(statsgrid_raw, years_statsgrid),
   #            pattern = map(statsgrid_raw, years_statsgrid),
   #            format = 'file'),
-  #
+  
   #16. Assento municipal ----
 
-  #
   # # year input
   # tar_target(name = years_statsgrid,
   #            command = c(2010, 2022)),
@@ -354,10 +351,9 @@ list(
   #            command = clean_statsgrid(statsgrid_raw, years_statsgrid),
   #            pattern = map(statsgrid_raw, years_statsgrid),
   #            format = 'file'),
-  #
+  
   #17. Traço do Censo ----
 
-
   # # year input
   # tar_target(name = years_statsgrid,
   #            command = c(2010, 2022)),
@@ -372,10 +368,9 @@ list(
   #            command = clean_statsgrid(statsgrid_raw, years_statsgrid),
   #            pattern = map(statsgrid_raw, years_statsgrid),
   #            format = 'file'),
-  #
+  
   #18. Área de peso ----
 
-
   # # year input
   # tar_target(name = years_statsgrid,
   #            command = c(2010, 2022)),
@@ -390,9 +385,8 @@ list(
   #            command = clean_statsgrid(statsgrid_raw, years_statsgrid),
   #            pattern = map(statsgrid_raw, years_statsgrid),
   #            format = 'file'),
-  #
+  
   #19. Áreas metropolitanas ----
-
 
   # # year input
   # tar_target(name = years_statsgrid,
@@ -411,7 +405,6 @@ list(
   #
   #20. Áreas urbanas ----
 
-
   # # year input
   # tar_target(name = years_statsgrid,
   #            command = c(2010, 2022)),
@@ -429,7 +422,6 @@ list(
   #
   #21. Unidades de conservação ----
 
-
   # # year input
   # tar_target(name = years_statsgrid,
   #            command = c(2010, 2022)),
@@ -444,10 +436,9 @@ list(
   #            command = clean_statsgrid(statsgrid_raw, years_statsgrid),
   #            pattern = map(statsgrid_raw, years_statsgrid),
   #            format = 'file'),
-  #
+  
   #22. Áreas de risco de desastre ----
 
-
   # # year input
   # tar_target(name = years_statsgrid,
   #            command = c(2010, 2022)),
@@ -462,10 +453,9 @@ list(
   #            command = clean_statsgrid(statsgrid_raw, years_statsgrid),
   #            pattern = map(statsgrid_raw, years_statsgrid),
   #            format = 'file'),
-  #
+  
   #23. Região de Saúde ----
 
-
   # # year input
   # tar_target(name = years_statsgrid,
   #            command = c(2010, 2022)),
@@ -480,9 +470,8 @@ list(
   #            command = clean_statsgrid(statsgrid_raw, years_statsgrid),
   #            pattern = map(statsgrid_raw, years_statsgrid),
   #            format = 'file'),
-  #
+  
   #24. Vizinhança ----
-
 
   # # year input
   # tar_target(name = years_statsgrid,
@@ -501,7 +490,6 @@ list(
   #
   #25. Concentrações urbanas ----
 
-
   # # year input
   # tar_target(name = years_statsgrid,
   #            command = c(2010, 2022)),
@@ -516,7 +504,7 @@ list(
   #            command = clean_statsgrid(statsgrid_raw, years_statsgrid),
   #            pattern = map(statsgrid_raw, years_statsgrid),
   #            format = 'file'),
-  #
+  
   #26. Arranjos populacionais ----
 
   # # year input

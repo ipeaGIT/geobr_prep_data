@@ -54,14 +54,7 @@ download_states <- function(year){ # year = 2010
   # Before 2015
   if(year %in% c(2000, 2001, 2010:2014)) {
     ### create states tibble
-    states <- tibble(cod_states = c(11, 12, 13, 14, 15, 16, 17, 21, 22, 23, 24,
-                                    25, 26, 27, 28, 29, 31, 32, 33, 35, 41, 42,
-                                    43, 50, 51, 52, 53),
-                     sg_state = c("RO", "AC", "AM", "RR", "PA", "AP", "TO",
-                                  "MA", "PI", "CE", "RN", "PB", "PE", "AL",
-                                  "SE", "BA", "MG", "ES", "RJ", "SP", "PR",
-                                  "SC", "RS", "MS", "MT", "GO", "DF"),
-                     sgm_state = str_to_lower(sg_state))
+    states <- states_geobr()
     
     ### parts of url
     
@@ -169,7 +162,8 @@ download_states <- function(year){ # year = 2010
   if (year == 2000) { #years without IBGE errors
     states_list <- pbapply::pblapply(
       X = shp_names,
-      FUN = function(x){ sf::st_read(x, quiet = T, stringsAsFactors= F) }
+      FUN = function(x){ sf::st_read(x, quiet = T, stringsAsFactors= F)
+        }
     )
     
     states_raw <- data.table::rbindlist(states_list)
@@ -187,9 +181,8 @@ download_states <- function(year){ # year = 2010
   ## 6. Integrity test ----
   
   #### Before 2015
-  
-  
-  
+  glimpse(states_raw)
+
   #### After 2015
   if (length(shp_names) == 1) {
     table_collumns <- tibble(name_collum = colnames(states_raw),
@@ -221,17 +214,31 @@ clean_states <- function(states_raw, year){ # year = 2024
   dir.exists(dir_clean)
   
   ## 1. Rename collumns names -----
-  glimpse(states_raw)
+  
+  states <- states_geobr()
   
   ## 2. Check names of the states -----
   
-  # Ano2000
+  if (year == 2000){ #For years that have spelling problems
+  glimpse(states_raw)
+  glimpse(states)
   
+  states_thin <- states %>% 
+    select(cod_states, nm_state) %>% 
+    mutate(cod_states = as.character(cod_states))
+  
+  states_clean <- states_raw %>% 
+    clean_names() %>% 
+    select(-nome) %>% 
+    left_join(states_thin, by = c("codigo" = "cod_states")) %>% 
+    rename(nome = nm_state) %>% 
+    relocate(nome, .after = geocodigo)
+  }
   
   ## 2. Apply harmonize geobr cleaning ----
   
   temp_sf <- harmonize_geobr(
-    temp_sf = states_raw,
+    temp_sf = states_clean,
     add_state = F,
     add_region = F,
     add_snake_case = F,

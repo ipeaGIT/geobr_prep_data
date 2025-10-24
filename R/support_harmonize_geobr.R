@@ -546,28 +546,37 @@ glimpse_geobr <- function(data = NULL, filenames = NULL,
   
 # Robust sf read geobr function -----------------
 
-readmerge_geobr <-  function(folder_path, encoding = NULL) {
+readmerge_geobr <-  function(folder_path
+                             #, encoding
+                             ) {
   
   # lista todos os .shp na pasta (busca recursiva opcional)
   shp_files <- list.files(folder_path, pattern = "\\.shp$", full.names = TRUE)
   
   # choose the encoding
   
-  #UTF8
-  if (encoding == "UTF-8"){ 
+  #if (encoding == NULL){
     shp_list <- map(shp_files, function(f) {
       message("Lendo: ", f)
-      st_read(f, quiet = TRUE, options = "ENCODING=UTF8")
+      st_read(f, quiet = TRUE)
     })
-  }
+  #}
   
-  #Latin1
-  if (encoding == "Latin-1"){ 
-    shp_list <- map(shp_files, function(f) {
-      message("Lendo: ", f)
-      st_read(f, quiet = TRUE, options = "ENCODING=LATIN1")
-    })
-  }
+  # #UTF8
+  # if (encoding == "UTF-8"){ 
+  #   shp_list <- map(shp_files, function(f) {
+  #     message("Lendo: ", f)
+  #     st_read(f, quiet = TRUE, options = "ENCODING=UTF8")
+  #   })
+  # }
+  # 
+  # #Latin1
+  # if (encoding == "Latin-1"){ 
+  #   shp_list <- map(shp_files, function(f) {
+  #     message("Lendo: ", f)
+  #     st_read(f, quiet = TRUE, options = "ENCODING=LATIN1")
+  #   })
+  # }
   
   # encontra colunas que estão em todos os shapefiles
   common_cols <- reduce(map(shp_list, names), intersect)
