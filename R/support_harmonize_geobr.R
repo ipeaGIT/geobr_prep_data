@@ -384,7 +384,8 @@ dissolve_polygons <- function(mysf, group_column){
   
   
   # a) make sure we have valid geometries
-  mysf <- fix_topoly(mysf)
+  mysf <- fix_topology(mysf) #change to fix_topology? #666
+  # Before fix_topoly
   
   # b) make sure we have sf MULTIPOLYGON
   #temp_sf1 <- temp_sf |> st_cast("MULTIPOLYGON")
@@ -394,7 +395,8 @@ dissolve_polygons <- function(mysf, group_column){
   dissolvefun <- function(grp){
     
     # c.1) subset region
-    temp_region <- subset(mysf, get(group_column, mysf)== grp )
+    temp_region <- subset(mysf, get(group_column, mysf)== grp ) |> 
+      ungroup() ### 666 added ungroup because of error
     
     
     temp_region <- summarise(temp_region, .by = group_column)
@@ -407,7 +409,7 @@ dissolve_polygons <- function(mysf, group_column){
     #   mutate(geometry = st_as_sfc(geometry))
     
     temp_region <- sfheaders::sf_remove_holes(temp_region)
-    temp_region <- fix_topoly(temp_region)
+    temp_region <- fix_topology(temp_region) #666 fix_topoly?
     
     return(temp_region)
   }
