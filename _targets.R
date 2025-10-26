@@ -254,11 +254,11 @@ list(
              command = download_regions(years_regions),
              pattern = map(years_regions)),
 
-  # # clean
-  # tar_target(name = statsgrid_clean,
-  #            command = clean_statsgrid(statsgrid_raw, years_statsgrid),
-  #            pattern = map(statsgrid_raw, years_statsgrid),
-  #            format = 'file'),
+  # clean
+  tar_target(name = regions_clean,
+             command = clean_regions(regions_raw, years_regions),
+             pattern = map(regions_raw, years_regions),
+             format = 'file'),
 
   #12. País ----
 

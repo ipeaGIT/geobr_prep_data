@@ -54,14 +54,7 @@ download_regions <- function(year){ # year = 2010
   # Before 2015
   if(year %in% c(2000, 2001, 2010:2014)) {
     ### create states tibble
-    states <- tibble(cod_states = c(11, 12, 13, 14, 15, 16, 17, 21, 22, 23, 24,
-                                    25, 26, 27, 28, 29, 31, 32, 33, 35, 41, 42,
-                                    43, 50, 51, 52, 53),
-                     sg_state = c("RO", "AC", "AM", "RR", "PA", "AP", "TO",
-                                  "MA", "PI", "CE", "RN", "PB", "PE", "AL",
-                                  "SE", "BA", "MG", "ES", "RJ", "SP", "PR",
-                                  "SC", "RS", "MS", "MT", "GO", "DF"),
-                     sgm_state = str_to_lower(sg_state))
+    states <- states_geobr()
     
     ### parts of url
     
@@ -76,7 +69,6 @@ download_regions <- function(year){ # year = 2010
       ftp_link <- paste0(url_start, year, "/", states$sgm_state, "/",
                          states$cod_states, "uf2500g.zip")
     }
-    
     
     #2013
     if(year == 2013) {
@@ -140,7 +132,7 @@ download_regions <- function(year){ # year = 2010
   dir.create(out_zip, showWarnings = FALSE, recursive = TRUE)
   dir.exists(out_zip)
   
-  ## 3. Download Raw data ----
+  ## 3. Download Raw data (UPDATE YEAR) ----
   
   if(year %in% c(2000, 2001, 2010:2014)) {
     ### Download zipped files
@@ -161,7 +153,7 @@ download_regions <- function(year){ # year = 2010
   
   unzip_geobr(zip_dir = zip_dir, in_zip = in_zip, out_zip = out_zip, is_shp = TRUE)
   
-  ## 5. Bind Raw data together ----
+  ## 5. Bind Raw data together (UPDATE YEAR) ----
   
   shp_names <- list.files(out_zip, pattern = "\\.shp$", full.names = TRUE)
   
@@ -187,8 +179,7 @@ download_regions <- function(year){ # year = 2010
   ## 6. Integrity test ----
   
   #### Before 2015
-  
-  
+  glimpse(regions_raw)
   
   #### After 2015
   if (length(shp_names) == 1) {
@@ -220,21 +211,71 @@ clean_regions <- function(regions_raw, year){ # year = 2024
   dir.create(dir_clean, recursive = T, showWarnings = FALSE)
   dir.exists(dir_clean)
   
-  ## 1. Preparation -----
+  ## 1. Check names of the states (UPDATE YEAR) -----
+  
+  states <- states_geobr()
+  states <- states %>% 
+    select(cod_states, cod_region) %>% 
+    mutate(cod_states = as.character(cod_states))
   
   glimpse(regions_raw)
-  plot(regions_raw$geometry)
+  
+  #For years that have spelling problems
+  if (year %in% c(2000, 2001, 2010, 2013:2018)){ 
+    
+    if (year %in% c(2000, 2001)){ 
+      regions_clean <- regions_raw %>% 
+        left_join(states, by = c("codigo" = "cod_states"))  |> 
+        select(cod_region)
+    }
+    
+    if (year %in% c(2010)){
+      regions_clean <- regions_raw %>% 
+        left_join(states, by = c("cd_geocodu" = "cod_states")) |> 
+        select(cod_region)
+    }
+    
+    # For years that have only uppercase
+    if (year %in% c(2013:2018)){ 
+      regions_clean <- regions_raw %>% 
+        left_join(states, by = c("cd_geocuf" = "cod_states")) |> 
+        select(cod_region)
+    }
+    glimpse(regions_clean)
+  }
+  
+  #For years that have no spelling problems
+  if (year %in% c(2019:2024)){ 
+    regions_clean <- regions_raw |> 
+      left_join(states, by = c("cd_uf" = "cod_states")) |> 
+      select(cod_region)
+  }
   
   # remove wrong-coded regions
-  regions_raw <- subset(regions_raw, cd_regia %in% c(1:5))
+  regions_clean <- subset(regions_clean, cod_region %in% c(1:5))
 
   # store original crs
-  original_crs <- st_crs(regions_raw)
+  original_crs <- st_crs(regions_clean)
   
-  ## 2. Apply harmonize geobr cleaning ----
+  ## 2. Transform states in regions -----
+  
+  ### Dissolve each region
+  all_regions <- dissolve_polygons(mysf=regions_clean, group_column='cod_region')
+  
+  glimpse(all_regions)
+  
+  ### add region names
+  
+  all_regions <- add_region_info(temp_sf = all_regions, column = 'cod_region')
+  all_regions <- select(all_regions, c('cod_region', 'name_region', 'geometry'))
+  
+  glimpse(all_regions)
+  plot(all_regions)
+  
+  ## 3. Apply harmonize geobr cleaning ----
   
   temp_sf <- harmonize_geobr(
-    temp_sf = regions_raw,
+    temp_sf = all_regions,
     add_state = F,
     add_region = F,
     add_snake_case = F,
@@ -243,35 +284,15 @@ clean_regions <- function(regions_raw, year){ # year = 2024
     encoding_utf8 = T,
     topology_fix = T,
     remove_z_dimension = T,
-    use_multipolygon = F
+    use_multipolygon = T
   )
   
   glimpse(temp_sf)
   
-  ## 2. Transform states in regions -----
-  
-  
-  #   # b) make sure we have valid geometries
-  #   temp_sf <- sf::st_make_valid(sf_states)
-  #   temp_sf <- temp_sf %>% st_buffer(0)
-  # 
-  #   sf_states1 <- to_multipolygon(temp_sf)
-  # 
-  # 
-  # ## Dissolve each region
-  # all_regions <- dissolve_polygons(mysf=temp_sf, group_column='code_region')
-  # 
-  # 
-  # ### add region names
-  # all_regions <- add_region_info(temp_sf = all_regions, column = 'code_region')
-  # all_regions <- select(all_regions, c('code_region', 'name_region', 'geometry'))
-  # 
-  # 
-  
-  ## 3. lighter version ----
+  ## 4. lighter version ----
   temp_sf_simplified <- simplify_temp_sf(temp_sf, tolerance = 100)
   
-  ## 4. Save datasets  ----
+  ## 5. Save datasets  ----
   
   # sf::st_write(temp_sf, dsn = paste0(dir_clean, "/regions_",  year,
   #                                   ".gpkg"), delete_dsn = TRUE)

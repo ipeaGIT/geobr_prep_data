@@ -611,7 +611,7 @@ states_geobr <-  function() {
                                 "Santa Catarina", "Rio Grande do Sul",
                                 "Mato Grosso do Sul", "Mato Grosso", "Goiás",
                                 "Distrito Federal"),
-                   cd_region = c(rep(1, 7), rep(2, 9), rep(3, 4), rep(4, 3),
+                   cod_region = c(rep(1, 7), rep(2, 9), rep(3, 4), rep(4, 3),
                                  rep(5, 4)),
                    nm_region = c(rep("Norte", 7), rep("Nordeste", 9),
                                  rep("Sudeste", 4), rep("Sul", 3), 
