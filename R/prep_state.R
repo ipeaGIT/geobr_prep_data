@@ -62,14 +62,13 @@ download_states <- function(year){ # year = 2010
     if(year %in% c(2000, 2010)) {
       ftp_link <- paste0(url_start, year, "/", states$sgm_state, "/",
                          states$sgm_state, "_unidades_da_federacao.zip")
-      }
+    }
     
     #2001
     if(year == 2001) {
       ftp_link <- paste0(url_start, year, "/", states$sgm_state, "/",
                          states$cod_states, "uf2500g.zip")
     }
-    
     
     #2013
     if(year == 2013) {
@@ -213,7 +212,7 @@ clean_states <- function(states_raw, year){ # year = 2024
   dir.create(dir_clean, recursive = T, showWarnings = FALSE)
   dir.exists(dir_clean)
   
-  ## 1. Rename collumns names -----
+  ## 1. Create states names reference table -----
   
   states <- states_geobr()
   
