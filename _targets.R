@@ -262,19 +262,20 @@ list(
 
   #12. País ----
 
-  # # year input
-  # tar_target(name = years_statsgrid,
-  #            command = c(2010, 2022)),
-  #
-  # # download
-  # tar_target(name = statsgrid_raw,
-  #            command = download_statsgrid(years_statsgrid),
-  #            pattern = map(years_statsgrid)),
-  #
+  # year input
+  tar_target(name = years_country,
+             command = c(2000, 2001, 2010,
+                         2013:2024)),
+  
+  # download
+  tar_target(name = country_raw,
+             command = download_country(years_country),
+             pattern = map(years_country)),
+
   # # clean
-  # tar_target(name = statsgrid_clean,
-  #            command = clean_statsgrid(statsgrid_raw, years_statsgrid),
-  #            pattern = map(statsgrid_raw, years_statsgrid),
+  # tar_target(name = country_clean,
+  #            command = clean_country(country_raw, years_country),
+  #            pattern = map(country_raw, years_country),
   #            format = 'file'),
 
   #13. Meso Regiões ----
