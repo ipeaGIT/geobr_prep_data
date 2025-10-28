@@ -25,20 +25,19 @@
 
 
 # library(geobr)
+# library(tidyverse)
+# library(janitor)
+# library(arrow)
+# library(geoarrow)
 # library(dplyr)
 # library(readr)
 # library(sp)
 # library(sf)
-# library(rgdal)
-# library(rgeos)
-# library(maptools)
 # library(devtools)
 # library(parallel)
 # library(data.table)
 # source("./R/support_harmonize_geobr.R")
 # source("./R/support_fun.R")
-
-
 
 
 # Download the data  ----
@@ -203,72 +202,26 @@ download_country <- function(year){ # year = 2010
 # Clean the data  ----
 clean_country <- function(country_raw, year){ # year = 2024
   
-  ## 0. Create folder to save clean data -----
+  ## 0. Create folder to save clean data ----
   
   dir_clean <- paste0("./data/country/", year)
   dir.create(dir_clean, recursive = T, showWarnings = FALSE)
   dir.exists(dir_clean)
   
-  ## 1. Check names of the states (UPDATE YEAR) -----
+  ## 1. Preparation ----
   
-  states <- states_geobr()
-  states <- states %>% 
-    select(cod_states, cod_region) %>% 
-    mutate(cod_states = as.character(cod_states))
+  country_clean <- country_raw |> 
+    mutate(cod_country = 1) |> 
+    select(cod_country)
   
-  glimpse(country_raw)
-  
-  #For years that have spelling problems
-  if (year %in% c(2000, 2001, 2010, 2013:2018)){ 
-    
-    if (year %in% c(2000, 2001)){ 
-      country_clean <- country_raw %>% 
-        left_join(states, by = c("codigo" = "cod_states"))  |> 
-        select(cod_region)
-    }
-    
-    if (year %in% c(2010)){
-      country_clean <- country_raw %>% 
-        left_join(states, by = c("cd_geocodu" = "cod_states")) |> 
-        select(cod_region)
-    }
-    
-    # For years that have only uppercase
-    if (year %in% c(2013:2018)){ 
-      country_clean <- country_raw %>% 
-        left_join(states, by = c("cd_geocuf" = "cod_states")) |> 
-        select(cod_region)
-    }
-    glimpse(country_clean)
-  }
-  
-  #For years that have no spelling problems
-  if (year %in% c(2019:2024)){ 
-    country_clean <- country_raw |> 
-      left_join(states, by = c("cd_uf" = "cod_states")) |> 
-      select(cod_region)
-  }
-  
-  # remove wrong-coded regions
-  country_clean <- subset(country_clean, cod_region %in% c(1:5))
-  
-  # store original crs
-  original_crs <- st_crs(country_clean)
+  glimpse(country_clean)
   
   ## 2. Transform states in country -----
   
   ### Dissolve each region
-  all_country <- dissolve_polygons(mysf=country_clean, group_column='cod_region')
+  all_country <- dissolve_polygons(mysf=country_clean, group_column='cod_country')
   
   glimpse(all_country)
-  
-  ### add region names
-  
-  all_country <- add_region_info(temp_sf = all_country, column = 'cod_region')
-  all_country <- select(all_country, c('cod_region', 'name_region', 'geometry'))
-  
-  glimpse(all_country)
-  plot(all_country)
   
   ## 3. Apply harmonize geobr cleaning ----
   

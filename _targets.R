@@ -2,12 +2,13 @@ library(targets)
 library(tarchetypes)
 library(crew)
 
+
 # Set target options: ----
 tar_option_set(
   format = "rds",
   memory = "transient",
   garbage_collection = TRUE,
-  controller = crew_controller_local(workers = 4),
+  controller = crew_controller_local(workers = 8),
   
   
   # Packages ----
@@ -272,11 +273,11 @@ list(
              command = download_country(years_country),
              pattern = map(years_country)),
 
-  # # clean
-  # tar_target(name = country_clean,
-  #            command = clean_country(country_raw, years_country),
-  #            pattern = map(country_raw, years_country),
-  #            format = 'file'),
+  # clean
+  tar_target(name = country_clean,
+             command = clean_country(country_raw, years_country),
+             pattern = map(country_raw, years_country),
+             format = 'file'),
 
   #13. Meso Regiões ----
 

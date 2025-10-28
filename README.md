@@ -8,7 +8,7 @@ editor_options:
 
 Data sets currenly implemented in the targets pipeline:
 
--   [P] country
+-   [x] country
 -   [x] region
 -   [x] state
 -   [x] meso_region
@@ -26,7 +26,7 @@ Data sets currenly implemented in the targets pipeline:
 -   [x] biomes
 -   [ ] conservation_units
 -   [ ] disaster_risk_area
--   [ ] indigenous_land
+-   [P] indigenous_land
 -   [x] semiarid
 -   [x] health_facilities
 -   [ ] health_region
