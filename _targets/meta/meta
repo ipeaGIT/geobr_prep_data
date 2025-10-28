@@ -352,106 +352,6 @@ clean_states|function|e2389d59453061d0
 clean_intermediateregions|function|1ca73420362ae1e5
 clean_immediateregions|function|2a7c81f49ce60f97
 clean_mesoregions|function|15c1c3b7af2ee237
-clean_country|function|6573191fc2d9f8a7
-clean_amazonialegal|function|a3eb0b7353aacdac
-clean_semiarid|function|4ae4b07583308a2e
-amazonialegal_clean|stem|dca2f534e96a0507|95159e5d240411f4|203bfb1da7a477fb|-1296395540|./data/amazonia_legal/|t20349.9427853895s|s0b|0|file|local|vector|||1.141||
-semiarid_clean_128a3f22808da7f3|branch|aea0f11d6577567c|9037b1bdf7aaf37d|b9c1b7caf24270dc|-956107927|./data/semiarid/2005|t20349.9429623992s|s0b|0|file|local|vector|semiarid_clean||3.375||
-semiarid_clean_d917dfa6ab062da9|branch|017edb130252a2d4|9037b1bdf7aaf37d|9b05e7585c484525|910039653|./data/semiarid/2017|t20349.9431710994s|s0b|0|file|local|vector|semiarid_clean||28.578||
-semiarid_clean_9112b5af9ff3e22d|branch|e340c1f8a2674e28|9037b1bdf7aaf37d|8e089274b8ef698b|263222990|./data/semiarid/2021|t20349.9432688646s|s0b|0|file|local|vector|semiarid_clean||35.125||
-semiarid_clean_572604ff74155e91|branch|502e1fbc2b2fc193|9037b1bdf7aaf37d|04d0d145ca679d9c|741912371|./data/semiarid/2022|t20349.9435296417s|s0b|0|file|local|vector|semiarid_clean||40.797||
-biomes_clean_e12a14eb015c6d79|branch|31cabc41cc9d1435|143ca876c44d3d90|98a3b6afb4742893|989655298|./data/biomes/2004|t20349.943300996s|s0b|0|file|local|vector|biomes_clean||2.078||
-biomes_clean_6310261c1b7c75fb|branch|a9bc5360401ef945|143ca876c44d3d90|3677f517ed831ac8|-428005352|./data/biomes/2019|t20349.9437474938s|s0b|0|file|local|vector|biomes_clean||40.594||
-statsgrid_clean_2f3df92dbe7170e5|branch|28fa3ab5f957bf1a|1f4d432a4eeb8eb8|41d976f68dab8e19|1392961096|./data/statistical_grid/2010|t20349.9428267401s|s0b|0|file|local|vector|statsgrid_clean||7.078||
-statsgrid_clean_6a524a955f906ca8|branch|fa0a4d9a204c35f3|1f4d432a4eeb8eb8|7a7519dc8120b494|1894558227|./data/statistical_grid/2022|t20349.9428489519s|s0b|0|file|local|vector|statsgrid_clean||8.281||
-immediateregions_clean_b632b20d9a850a0d|branch|995d3e06aa431a8e|8e97c72e333a7ec8|196f9676d5989b1f|-1307716059|./data/immediate_regions/2019|t20378.1182454869s|s0b|0|file|local|vector|immediateregions_clean||112.031||
-immediateregions_clean_d9ca1a4ce7490758|branch|5c931d1352171dab|8e97c72e333a7ec8|c2c9f9adc9c10c84|-140607298|./data/immediate_regions/2020|t20378.7745884049s|s0b|0|file|local|vector|immediateregions_clean||123.89||
-immediateregions_clean_442dbceb23372656|branch|eb7a308ac0ba955f|8e97c72e333a7ec8|e10b31e68c4dddc8|1508162214|./data/immediate_regions/2021|t20378.7746439397s|s0b|0|file|local|vector|immediateregions_clean||126.36||
-immediateregions_clean_51917a243eceb472|branch|4a998afe1ea5c881|8e97c72e333a7ec8|afd465b944fe2850|-1176068583|./data/immediate_regions/2022|t20378.7759133434s|s0b|0|file|local|vector|immediateregions_clean||130.469||
-immediateregions_clean_dc44d2ead839c9bd|branch|17f8a3be571fa811|8e97c72e333a7ec8|0e28cce9c772a2d6|54407828|./data/immediate_regions/2023|t20378.7759703902s|s0b|0|file|local|vector|immediateregions_clean||135.438||
-immediateregions_clean_c8c542e508cf7346|branch|3ccf7fce443b4375|8e97c72e333a7ec8|e2bc1459d7fbbdd8|-1061101012|./data/immediate_regions/2024|t20378.7772937065s|s0b|0|file|local|vector|immediateregions_clean||136.203||
-intermediateregions_clean_0121f520b30fcc61|branch|415f806fe0423784|2622fb8132163659|473a2465ebe056f5|564348437|./data/intermediate_regions/2019|t20378.1047800092s|s0b|0|file|local|vector|intermediateregions_clean||71.453||
-intermediateregions_clean_0d5907bd4fe0de82|branch|5d02b42c2dc91e9a|2622fb8132163659|42fe722d3d4c92a2|1620290291|./data/intermediate_regions/2020|t20378.1057034157s|s0b|0|file|local|vector|intermediateregions_clean||79.188||
-intermediateregions_clean_a220bc8e4c8804ea|branch|7f37683a1850dcff|2622fb8132163659|6d881e7df0ed7529|-502134039|./data/intermediate_regions/2021|t20378.1055864375s|s0b|0|file|local|vector|intermediateregions_clean||84||
-intermediateregions_clean_c7a9042ed0d5cec9|branch|577a26fa4a186318|2622fb8132163659|b938937a12b98259|145529009|./data/intermediate_regions/2022|t20378.1049233001s|s0b|0|file|local|vector|intermediateregions_clean||84.907||
-intermediateregions_clean_30353d73c90fe418|branch|b65491f330fead8f|2622fb8132163659|15b3d84cfbb62404|1448345975|./data/intermediate_regions/2023|t20378.1057347194s|s0b|0|file|local|vector|intermediateregions_clean||75.078||
-intermediateregions_clean_ae03bbe15985c556|branch|b47386dc4d517277|2622fb8132163659|49c86f15d74da078|592442073|./data/intermediate_regions/2024|t20378.1057540363s|s0b|0|file|local|vector|intermediateregions_clean||77.14||
-microregions_clean_f7743e32b4be2c6e|branch|c5d7f273c27a4321|412d71366ce2bba8|34d0e264500b989d|-1726607163|./data/micro_regions/2000|t20378.0861617904s|s0b|0|file|local|vector|microregions_clean||12.984||
-microregions_clean_0c65051598e9e15a|branch|f7cc4d0df2cc303c|412d71366ce2bba8|2b5e9f0a4989f742|-1496882382|./data/micro_regions/2001|t20378.0860743831s|s0b|0|file|local|vector|microregions_clean||4.297||
-microregions_clean_6747c0b2d12217a5|branch|8c9632bc60554315|412d71366ce2bba8|80f5cb75f15eb1f6|-1323101223|./data/micro_regions/2010|t20378.0864109992s|s0b|0|file|local|vector|microregions_clean||28.422||
-microregions_clean_42cb8c414e218421|branch|72e88627ed5dffb3|412d71366ce2bba8|b9cb75fd0115010e|-117688962|./data/micro_regions/2013|t20378.086484278s|s0b|0|file|local|vector|microregions_clean||29.485||
-microregions_clean_ad4abbeda24b19c6|branch|18119be0a161da79|412d71366ce2bba8|4f0e1383df5749b6|-521972372|./data/micro_regions/2014|t20378.0865516062s|s0b|0|file|local|vector|microregions_clean||30.687||
-microregions_clean_8334f08e02d8635d|branch|b5f66f5bdc4b1614|412d71366ce2bba8|d35f5ceb9e324524|-508461370|./data/micro_regions/2015|t20378.086552208s|s0b|0|file|local|vector|microregions_clean||31.937||
-microregions_clean_729fb46310763235|branch|dfbe1443b740623c|412d71366ce2bba8|35f2fd2f2ab44ad0|-1721586792|./data/micro_regions/2016|t20378.0868114421s|s0b|0|file|local|vector|microregions_clean||33.672||
-microregions_clean_1281c7452b2b6997|branch|074aa2dd6d3570e6|412d71366ce2bba8|b6a96393752237b5|-783486684|./data/micro_regions/2017|t20378.0868679465s|s0b|0|file|local|vector|microregions_clean||33.156||
-microregions_clean_0ef5ea2e88590e5e|branch|5e353f1499652b85|412d71366ce2bba8|d7e31651fb301cdb|-820359225|./data/micro_regions/2018|t20378.087029207s|s0b|0|file|local|vector|microregions_clean||38.453||
-mesoregions_clean_5d9a6885930714e5|branch|9da7058cf029a9a9|9edbf08601439832|cd73ec6b0830e1b5|-981953330|./data/meso_regions/2000|t20380.1812340058s|s0b|0|file|local|vector|mesoregions_clean||10.562||
-mesoregions_clean_1bda1756fec75067|branch|bae1c8e6ddbc01ed|9edbf08601439832|5d4f7cf814289cd1|-1425081398|./data/meso_regions/2001|t20380.1810994494s|s0b|0|file|local|vector|mesoregions_clean||5.968||
-mesoregions_clean_842a437e4e874b2d|branch|6637a91953c8d1e2|9edbf08601439832|e8371b371684d588|1796606994|./data/meso_regions/2010|t20380.1813574999s|s0b|0|file|local|vector|mesoregions_clean||19.047||
-mesoregions_clean_9f5d4e9fe1708555|branch|50be92be355c7af4|9edbf08601439832|02ceecb21b9a4eae|-1724855274|./data/meso_regions/2013|t20380.1813682026s|s0b|0|file|local|vector|mesoregions_clean||20.047||
-mesoregions_clean_00f1160b6427d190|branch|ed131262b1cb5181|9edbf08601439832|1b11a8911fac679a|-1198858215|./data/meso_regions/2014|t20380.1813813799s|s0b|0|file|local|vector|mesoregions_clean||20.484||
-mesoregions_clean_8ef429cae28e7e67|branch|2d470884bbc48cc2|9edbf08601439832|0e995b0206227662|-42876277|./data/meso_regions/2015|t20380.1813897557s|s0b|0|file|local|vector|mesoregions_clean||21.329||
-mesoregions_clean_26898b6a5019afe5|branch|d3f4443fb33fef26|9edbf08601439832|a4e475ea7b22da73|556184809|./data/meso_regions/2016|t20380.1814011306s|s0b|0|file|local|vector|mesoregions_clean||21.562||
-mesoregions_clean_16aa115df7c978fd|branch|a7308e8b69c3dd10|9edbf08601439832|034ac332ff9fee6b|-795123123|./data/meso_regions/2017|t20380.1814057236s|s0b|0|file|local|vector|mesoregions_clean||21.64||
-mesoregions_clean_400d205342bd5935|branch|d60e867973f27597|9edbf08601439832|9f52b433926bfe6a|506005618|./data/meso_regions/2018|t20380.1814283634s|s0b|0|file|local|vector|mesoregions_clean||21.235||
-country_clean_6e191afb38356333|branch|3e5ac845dd450c5c|37020f217797774a|9466be77c036843f|475097141|./data/country/2001|t20389.7572000516s|s575249b|575249|file|local|vector|country_clean||5.438|polygon from first part only. polygon from first part only. polygon from first part only. polygon from first part only. x is already of type POLYGON.. Using an external vector in selections was deprecated in tidyselect 1.1.0. ℹ Please use `all_of()` or `any_of()` instead.   # Was:   data %>% select(group_column)    # Now:   data %>% select(all_of(group_column))  See <https://tidyselect.r-lib.org/reference/faq-external-vector.html>.|
-country_clean_3c60ca2bd4f33b47|branch|4513ef9b13a694b4|37020f217797774a|963c9fd1e8ab2e2f|460619075|./data/country/2000|t20389.7572368583s|s1180800b|1180800|file|local|vector|country_clean||8.61|x is already of type POLYGON.. Using an external vector in selections was deprecated in tidyselect 1.1.0. ℹ Please use `all_of()` or `any_of()` instead.   # Was:   data %>% select(group_column)    # Now:   data %>% select(all_of(group_column))  See <https://tidyselect.r-lib.org/reference/faq-external-vector.html>.|
-country_clean_0277bf726099cb6d|branch|f5aefc785ff984ee|37020f217797774a|6adeaaf5a663c823|-1153957297|./data/country/2010|t20389.7574588669s|s3410280b|3410280|file|local|vector|country_clean||27.781|Using an external vector in selections was deprecated in tidyselect 1.1.0. ℹ Please use `all_of()` or `any_of()` instead.   # Was:   data %>% select(group_column)    # Now:   data %>% select(all_of(group_column))  See <https://tidyselect.r-lib.org/reference/faq-external-vector.html>.|
-country_clean_58d3406132a0bc10|branch|32ce83063100da92|37020f217797774a|834647a853d7a83b|-966275738|./data/country/2013|t20389.7574986481s|s4058815b|4058815|file|local|vector|country_clean||31.219|Using an external vector in selections was deprecated in tidyselect 1.1.0. ℹ Please use `all_of()` or `any_of()` instead.   # Was:   data %>% select(group_column)    # Now:   data %>% select(all_of(group_column))  See <https://tidyselect.r-lib.org/reference/faq-external-vector.html>.|
-country_clean_0e45a2ea55ce33d8|branch|828a3f637d338a39|37020f217797774a|02d02aff475224d2|-982184765|./data/country/2014|t20389.7575070975s|s4097963b|4097963|file|local|vector|country_clean||31.938|Using an external vector in selections was deprecated in tidyselect 1.1.0. ℹ Please use `all_of()` or `any_of()` instead.   # Was:   data %>% select(group_column)    # Now:   data %>% select(all_of(group_column))  See <https://tidyselect.r-lib.org/reference/faq-external-vector.html>.|
-country_clean_1b18d4eef4985ef2|branch|f0e3ec9257595915|37020f217797774a|ae8d261fd2709508|469198058|./data/country/2016|t20389.7575338459s|s4257208b|4257208|file|local|vector|country_clean||33.656|Using an external vector in selections was deprecated in tidyselect 1.1.0. ℹ Please use `all_of()` or `any_of()` instead.   # Was:   data %>% select(group_column)    # Now:   data %>% select(all_of(group_column))  See <https://tidyselect.r-lib.org/reference/faq-external-vector.html>.|
-country_clean_43d593baa9e85cd9|branch|61de1bf99a344da7|37020f217797774a|5e0057c0a49a842d|-202928341|./data/country/2015|t20389.7575495293s|s4215781b|4215781|file|local|vector|country_clean||35.015|Using an external vector in selections was deprecated in tidyselect 1.1.0. ℹ Please use `all_of()` or `any_of()` instead.   # Was:   data %>% select(group_column)    # Now:   data %>% select(all_of(group_column))  See <https://tidyselect.r-lib.org/reference/faq-external-vector.html>.|
-country_clean_92e0202cc73c0979|branch|790ce15e9ec0e94e|37020f217797774a|5098776625b425ab|649023457|./data/country/2017|t20389.7575525849s|s4282124b|4282124|file|local|vector|country_clean||35.281|Using an external vector in selections was deprecated in tidyselect 1.1.0. ℹ Please use `all_of()` or `any_of()` instead.   # Was:   data %>% select(group_column)    # Now:   data %>% select(all_of(group_column))  See <https://tidyselect.r-lib.org/reference/faq-external-vector.html>.|
-country_clean_a051e622214bcbe6|branch|0a385358118c718c|37020f217797774a|61c53636a9ee7d52|-327305621|./data/country/2018|t20389.7577714223s|s6294220b|6294220|file|local|vector|country_clean||48.89||
-country_clean_329ef3f93916be8d|branch|3d318f2ea5641493|37020f217797774a|b4eee1cb1e3f3408|-714613996|./data/country/2019|t20389.7578190743s|s6379591b|6379591|file|local|vector|country_clean||49.782||
-country_clean_ae1827a76f064032|branch|bc154c82b4acd8ee|37020f217797774a|78101a88fd29b730|1654569028|./data/country/2020|t20389.7581217452s|s6768370b|6768370|file|local|vector|country_clean||56.703||
-country_clean_eb26bb9c7adaf072|branch|93221475bfd9bea9|37020f217797774a|df14af77abd21d18|-1351333146|./data/country/2021|t20389.7581588181s|s6633118b|6633118|file|local|vector|country_clean||56.469||
-country_clean_5c5f3ed22b736077|branch|7b07238d5aa65b52|37020f217797774a|babb95c925e62119|191970059|./data/country/2022|t20389.7581907403s|s6721112b|6721112|file|local|vector|country_clean||58.5||
-country_clean_85c25e0df6246d73|branch|a46647a77daa70e1|37020f217797774a|425b86ea28a53e1a|402113537|./data/country/2023|t20389.7581977891s|s6700158b|6700158|file|local|vector|country_clean||56.796||
-country_clean_412f26e74fa5ac2e|branch|0efb50afcca3351d|37020f217797774a|ffeab40439e591b3|-1179009864|./data/country/2024|t20389.7583362888s|s8288210b|8288210|file|local|vector|country_clean||67.359||
-download_amazonialegal|function|969bf06cf5c79fd3
-add_region_info|function|52f8962884fe316a
-add_state_info|function|dc769a19f7442ca1
-fix_topology|function|33a8777624a368eb
-harmonize_projection|function|91bb9d922009f51d
-snake_case_names|function|690ec5dbb9cbb374
-to_multipolygon|function|f9fb28bdb97ac472
-use_encoding_utf8|function|4f174428ce87a762
-detect_year_from_string|function|7e1010acf860e4c3
-download_schools|function|4962e03f8ac2d149
-readmerge_geobr|function|8308767f1d08180a
-download_biomes|function|2c666f2aa96f78f3
-states_geobr|function|11e260181235e364
-unzip_geobr|function|96d9968dd13b54fd
-remove_state_repetition|function|f651de43bfd2d54b
-download_statsgrid|function|ee64c1fae5f72da5
-folder_geobr|function|531be508648944b0
-glimpse_geobr|function|9a23522f3fe786a9
-list_folders|function|bcfbf4f7465afa51
-download_semiarid|function|a0c4e5d0b453da18
-download_file|function|3a6b6c7673db47dd
-download_healthfacilities|function|aaff4c0dfe01a7c5
-simplify_temp_sf|function|02880e2aae8b4a7f
-dissolve_polygons|function|74157d2a75bc6ba8
-harmonize_geobr|function|df8dba216e5d7157
-muni_saveraw|function|027c21b5678a4e03
-download_regions|function|900930ab51e2e902
-download_country|function|ea51c2ce68b43cc8
-download_microregions|function|54f0d99fda56fcce
-download_states|function|335991e2159ac34f
-download_immediateregions|function|f2efcab435e074d9
-download_mesoregions|function|2132f7c7a53ec9dd
-download_intermediateregions|function|f0557c27e337e9ae
-clean_microregions|function|c291437c8ba6013d
-clean_statsgrid|function|f463c8b561b31a2f
-clean_schools|function|15478f875faa4666
-clean_biomes|function|876df16b2a575403
-clean_healthfacilities|function|7e2e3af7d93f837e
-clean_regions|function|81a04d21032e25bd
-clean_states|function|e2389d59453061d0
-clean_intermediateregions|function|1ca73420362ae1e5
-clean_immediateregions|function|2a7c81f49ce60f97
-clean_mesoregions|function|15c1c3b7af2ee237
 clean_country|function|b9cd50b53e588545
 clean_amazonialegal|function|a3eb0b7353aacdac
 clean_semiarid|function|4ae4b07583308a2e
@@ -500,3 +400,12 @@ country_clean_0277bf726099cb6d|branch|f5aefc785ff984ee|37020f217797774a|da66a596
 country_clean_58d3406132a0bc10|branch|32ce83063100da92|37020f217797774a|629f153b80aabd13|-966275738|./data/country/2013|t20389.7662864031s|s4058815b|4058815|file|local|vector|country_clean||30.719|Using an external vector in selections was deprecated in tidyselect 1.1.0. ℹ Please use `all_of()` or `any_of()` instead.   # Was:   data %>% select(group_column)    # Now:   data %>% select(all_of(group_column))  See <https://tidyselect.r-lib.org/reference/faq-external-vector.html>.|
 country_clean_0e45a2ea55ce33d8|branch|828a3f637d338a39|37020f217797774a|df74369f2ddae9ee|-982184765|./data/country/2014|t20389.7662879411s|s4097963b|4097963|file|local|vector|country_clean||30.828|Using an external vector in selections was deprecated in tidyselect 1.1.0. ℹ Please use `all_of()` or `any_of()` instead.   # Was:   data %>% select(group_column)    # Now:   data %>% select(all_of(group_column))  See <https://tidyselect.r-lib.org/reference/faq-external-vector.html>.|
 country_clean_1b18d4eef4985ef2|branch|f0e3ec9257595915|37020f217797774a|a9127e6545d3664d|469198058|./data/country/2016|t20389.7663174442s|s4257208b|4257208|file|local|vector|country_clean||33.094|Using an external vector in selections was deprecated in tidyselect 1.1.0. ℹ Please use `all_of()` or `any_of()` instead.   # Was:   data %>% select(group_column)    # Now:   data %>% select(all_of(group_column))  See <https://tidyselect.r-lib.org/reference/faq-external-vector.html>.|
+country_clean_43d593baa9e85cd9|branch|61de1bf99a344da7|37020f217797774a|c1b7077af93bb723|-202928341|./data/country/2015|t20389.7667517822s|s4215781b|4215781|file|local|vector|country_clean||34.859|Using an external vector in selections was deprecated in tidyselect 1.1.0. ℹ Please use `all_of()` or `any_of()` instead.   # Was:   data %>% select(group_column)    # Now:   data %>% select(all_of(group_column))  See <https://tidyselect.r-lib.org/reference/faq-external-vector.html>.|
+country_clean_92e0202cc73c0979|branch|790ce15e9ec0e94e|37020f217797774a|201df178d63009fc|649023457|./data/country/2017|t20389.7667565736s|s4282124b|4282124|file|local|vector|country_clean||34.953|Using an external vector in selections was deprecated in tidyselect 1.1.0. ℹ Please use `all_of()` or `any_of()` instead.   # Was:   data %>% select(group_column)    # Now:   data %>% select(all_of(group_column))  See <https://tidyselect.r-lib.org/reference/faq-external-vector.html>.|
+country_clean_a051e622214bcbe6|branch|0a385358118c718c|37020f217797774a|c045511d3ea57ae8|-327305621|./data/country/2018|t20389.7669349932s|s6294220b|6294220|file|local|vector|country_clean||51.359|Using an external vector in selections was deprecated in tidyselect 1.1.0. ℹ Please use `all_of()` or `any_of()` instead.   # Was:   data %>% select(group_column)    # Now:   data %>% select(all_of(group_column))  See <https://tidyselect.r-lib.org/reference/faq-external-vector.html>.|
+country_clean_329ef3f93916be8d|branch|3d318f2ea5641493|37020f217797774a|721839f17b91cf79|-714613996|./data/country/2019|t20389.7669582569s|s6379591b|6379591|file|local|vector|country_clean||53.032|Using an external vector in selections was deprecated in tidyselect 1.1.0. ℹ Please use `all_of()` or `any_of()` instead.   # Was:   data %>% select(group_column)    # Now:   data %>% select(all_of(group_column))  See <https://tidyselect.r-lib.org/reference/faq-external-vector.html>.|
+country_clean_5c5f3ed22b736077|branch|7b07238d5aa65b52|37020f217797774a|4e76928f0c4129b4|191970059|./data/country/2022|t20389.7670251087s|s6721112b|6721112|file|local|vector|country_clean||60.984|Using an external vector in selections was deprecated in tidyselect 1.1.0. ℹ Please use `all_of()` or `any_of()` instead.   # Was:   data %>% select(group_column)    # Now:   data %>% select(all_of(group_column))  See <https://tidyselect.r-lib.org/reference/faq-external-vector.html>.|
+country_clean_eb26bb9c7adaf072|branch|93221475bfd9bea9|37020f217797774a|02bcdedfbcbc3c95|-1351333146|./data/country/2021|t20389.7670354791s|s6633118b|6633118|file|local|vector|country_clean||59.407|Using an external vector in selections was deprecated in tidyselect 1.1.0. ℹ Please use `all_of()` or `any_of()` instead.   # Was:   data %>% select(group_column)    # Now:   data %>% select(all_of(group_column))  See <https://tidyselect.r-lib.org/reference/faq-external-vector.html>.|
+country_clean_ae1827a76f064032|branch|bc154c82b4acd8ee|37020f217797774a|5717ecc15c699db7|1654569028|./data/country/2020|t20389.7670368911s|s6768370b|6768370|file|local|vector|country_clean||59.844|Using an external vector in selections was deprecated in tidyselect 1.1.0. ℹ Please use `all_of()` or `any_of()` instead.   # Was:   data %>% select(group_column)    # Now:   data %>% select(all_of(group_column))  See <https://tidyselect.r-lib.org/reference/faq-external-vector.html>.|
+country_clean_85c25e0df6246d73|branch|a46647a77daa70e1|37020f217797774a|3dc7b19b0ea35f56|402113537|./data/country/2023|t20389.7670447732s|s6700158b|6700158|file|local|vector|country_clean||59.828|Using an external vector in selections was deprecated in tidyselect 1.1.0. ℹ Please use `all_of()` or `any_of()` instead.   # Was:   data %>% select(group_column)    # Now:   data %>% select(all_of(group_column))  See <https://tidyselect.r-lib.org/reference/faq-external-vector.html>.|
+country_clean_412f26e74fa5ac2e|branch|0efb50afcca3351d|37020f217797774a|49db4fd7fd8f1f7e|-1179009864|./data/country/2024|t20389.7675312521s|s8288210b|8288210|file|local|vector|country_clean||66.766||

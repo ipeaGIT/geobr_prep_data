@@ -1,3 +1,28 @@
+#> DATASET: sus regions
+#> Source: FUNAI - http://www.funai.gov.br/index.php/shape #not working
+#> Source: "https://www.gov.br/funai/pt-br/atuacao/terras-indigenas/geoprocessamento-e-mapas #not shp file
+#> Source: Portal de mapas: "https://mapas2.funai.gov.br/portal_mapas/"
+#> Metadata:
+# Titulo: Terras Indígenas  / Terras Indígenas em Estudos
+# Titulo alternativo: Terras Indígenas
+# Data: Atualização Mensal
+#
+# Forma de apresentação: Shape
+# Linguagem: Pt-BR
+# Character set: Utf-8
+#
+# Resumo: Polígonos e Pontos das terras indígenas brasileiras.
+# Informações adicionais: Dados produzidos pela FUNAI, e utilizados na elaboração do shape de terras indígenas com a melhor base oficial disponível.
+# Propósito: Identificação das terras indígenas brasileiras.
+#
+# Estado: Completado
+# Palavras chaves descritivas:Terras Indígenas, Áreas Indígenas do Brasil, Áreas Indígenas, FUNAI, Ministério da Justiça (tema).
+# Informação do Sistema de Referência: SIRGAS 2000
+
+
+
+######### OLD CODE BELOW ######## ----
+
 # library(sf)
 # library(dplyr)
 # library(tidyverse)
@@ -5,7 +30,6 @@
 # library(data.table)
 # library(mapview)
 # library(readr)
-# library(maptools)
 # 
 # #> Metadata:
 # # Titulo: Health regions

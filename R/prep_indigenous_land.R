@@ -38,109 +38,109 @@
 # library(rvest)
 # library(purrr)
 
-# # Download the data  ----
-# download_indigenousland <- function(year){ # year == 2025
-# 
-#   ###### 0. Create temp folders for download -----------------
-#   
-#   zip_dir <- paste0(tempdir(), "/indigenous_lands/", year)
-#   dir.create(zip_dir, showWarnings = FALSE, recursive = TRUE)
-#   dir.exists(zip_dir)
-#   
-#   # zipped folder
-#   in_zip <- paste0(zip_dir, "/zipped/")
-#   dir.create(in_zip, showWarnings = FALSE, recursive = TRUE)
-#   dir.exists(in_zip)
-#   
-#   # unzip folder
-#   out_zip <- paste0(zip_dir, "/unzipped/")
-#   dir.create(out_zip, showWarnings = FALSE, recursive = TRUE)
-#   dir.exists(out_zip)
-#   
-#   ###### 1. Get the correct url and file names -----------------  
-#  
-#   # Portal de mapas
-#   # url <- "https://mapas2.funai.gov.br/portal_mapas"
-#   
-#   # # If the date is "2000"
-#   # if(year == 2000) {
-#   #   
-#   #   url <- "https://mapas2.funai.gov.br/portal_mapas/ti_sirgas/"
-#   #   page <- read_html(url)
-#   #   filenames <- page %>%
-#   #     html_nodes("a") %>%
-#   #     html_attr("href") %>%
-#   #     grep("2000", ., value = TRUE)
-#   #   #filenames <- paste0(url, filenames)
-#   # }
-#   
-#   # Last update from 2024
-#   if(year == 2024) {
-#     url <- "https://mapas2.funai.gov.br/portal_mapas/ti_sirgas_20240313.zip"
-#     filenames <- basename(url)
-#   }
-#   
-#   # Last update from 2025
-#   if(year == 2025) {
-#     url <- "https://mapas2.funai.gov.br/portal_mapas/ti_sirgas.zip"
-#     filenames <- basename(url)
-#   }
-#   
-#   ###### 2. Create temp file -----------------  
-#   
-#   # # the year 2000 is not zipped
-#   # if(year %in% c(2024, 2025)) {
-#   #   file_raw <- fs::file_temp(tmp_dir = zip_dir,
-#   #                             ext = fs::path_ext(url))
-#   # }
-#   
-#   ###### 3. Download the raw data -----------------  
-#   
-#   # if(year == 2000) {
-#   #   # Download files directly
-#   #   for (name_file in filenames) {
-#   #     download.file(paste(url, name_file, sep = ""),
-#   #                   paste(out_zip, name_file, sep = "\\"))
-#   #   }
-#   # }
-#   
-#   # If the date is 2024 or 2025
-#   if(year %in% c(2024, 2025)) {
-#     
-#     download.file(url, paste(in_zip, filenames, sep = "\\"))
-#   }
-#   
-#   ###### 4. Unzip Raw data -----------------
-#   
-#   # directory of zips
-#   zip_names <- list.files(in_zip, pattern = "\\.zip", full.names = TRUE)
-# 
-#   # unzip files
-# 
-#   if(year %in% c(2024, 2025)) {
-#     unzip(zipfile = zip_names,
-#           exdir = out_zip)
-#   }
-#   
-#   ###### 5. Read the file -----------------
-# 
-#   shp_names <- list.files(out_zip, pattern = "\\.shp$", full.names = TRUE)
-# 
-#   indigenousland_list <- pbapply::pblapply(
-#     X = shp_names,
-#     FUN = function(x){ sf::st_read(x, quiet = T, stringsAsFactors=F) }
-#   )
-# 
-#   indigenousland_raw <- data.table::rbindlist(indigenousland_list)
-#   data.table::setDF(indigenousland_raw)
-#   indigenousland_raw <- sf::st_as_sf(indigenousland_raw)
-#   
-#   ###### 6. Show result -----------------
-#   
-#   glimpse(indigenousland_raw)
-#   
-#   return(indigenousland_raw)
-#   }
+# Download the data  ----
+download_indigenousland <- function(year){ # year == 2025
+
+  ## 0. Create temp folders for download -----------------
+
+  zip_dir <- paste0(tempdir(), "/indigenous_lands/", year)
+  dir.create(zip_dir, showWarnings = FALSE, recursive = TRUE)
+  dir.exists(zip_dir)
+
+  # zipped folder
+  in_zip <- paste0(zip_dir, "/zipped/")
+  dir.create(in_zip, showWarnings = FALSE, recursive = TRUE)
+  dir.exists(in_zip)
+
+  # unzip folder
+  out_zip <- paste0(zip_dir, "/unzipped/")
+  dir.create(out_zip, showWarnings = FALSE, recursive = TRUE)
+  dir.exists(out_zip)
+
+  ###### 1. Get the correct url and file names -----------------
+
+  # Portal de mapas
+  # url <- "https://mapas2.funai.gov.br/portal_mapas"
+
+  # # If the date is "2000"
+  # if(year == 2000) {
+  #
+  #   url <- "https://mapas2.funai.gov.br/portal_mapas/ti_sirgas/"
+  #   page <- read_html(url)
+  #   filenames <- page %>%
+  #     html_nodes("a") %>%
+  #     html_attr("href") %>%
+  #     grep("2000", ., value = TRUE)
+  #   #filenames <- paste0(url, filenames)
+  # }
+
+  # Last update from 2024
+  if(year == 2024) {
+    url <- "https://mapas2.funai.gov.br/portal_mapas/ti_sirgas_20240313.zip"
+    filenames <- basename(url)
+  }
+
+  # Last update from 2025
+  if(year == 2025) {
+    url <- "https://mapas2.funai.gov.br/portal_mapas/ti_sirgas.zip"
+    filenames <- basename(url)
+  }
+
+  ###### 2. Create temp file -----------------
+
+  # # the year 2000 is not zipped
+  # if(year %in% c(2024, 2025)) {
+  #   file_raw <- fs::file_temp(tmp_dir = zip_dir,
+  #                             ext = fs::path_ext(url))
+  # }
+
+  ###### 3. Download the raw data -----------------
+
+  # if(year == 2000) {
+  #   # Download files directly
+  #   for (name_file in filenames) {
+  #     download.file(paste(url, name_file, sep = ""),
+  #                   paste(out_zip, name_file, sep = "\\"))
+  #   }
+  # }
+
+  # If the date is 2024 or 2025
+  if(year %in% c(2024, 2025)) {
+
+    download.file(url, paste(in_zip, filenames, sep = "\\"))
+  }
+
+  ###### 4. Unzip Raw data -----------------
+
+  # directory of zips
+  zip_names <- list.files(in_zip, pattern = "\\.zip", full.names = TRUE)
+
+  # unzip files
+
+  if(year %in% c(2024, 2025)) {
+    unzip(zipfile = zip_names,
+          exdir = out_zip)
+  }
+
+  ###### 5. Read the file -----------------
+
+  shp_names <- list.files(out_zip, pattern = "\\.shp$", full.names = TRUE)
+
+  indigenousland_list <- pbapply::pblapply(
+    X = shp_names,
+    FUN = function(x){ sf::st_read(x, quiet = T, stringsAsFactors=F) }
+  )
+
+  indigenousland_raw <- data.table::rbindlist(indigenousland_list)
+  data.table::setDF(indigenousland_raw)
+  indigenousland_raw <- sf::st_as_sf(indigenousland_raw)
+
+  ###### 6. Show result -----------------
+
+  glimpse(indigenousland_raw)
+
+  return(indigenousland_raw)
+  }
 
   
   

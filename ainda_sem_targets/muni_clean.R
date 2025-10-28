@@ -164,7 +164,7 @@ clean_muni <- function( muni_raw_paths ){
    pbapply::pblapply(X = all_muni_raw_paths, FUN = clean_file)
 
   # requiredPackages <- c('data.table', 'sf','dplyr', 'sfheaders', 'units',
-  #                       'lwgeom', 'rgeos', 'sp', 'maptools', 'stringr', 'stringi')
+  #                       'lwgeom', 'rgeos', 'sp', 'stringr', 'stringi')
   # furrr::future_walk(.x = muni_raw_paths, .f = clean_file,
   #                    .options = furrr::furrr_options(
   #                      seed = FALSE,
