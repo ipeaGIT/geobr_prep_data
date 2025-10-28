@@ -8,11 +8,11 @@ editor_options:
 
 Data sets currenly implemented in the targets pipeline:
 
--   [ ] country
--   [P] region
--   [P] state
+-   [P] country
+-   [x] region
+-   [x] state
 -   [x] meso_region
--   [x] micro_region
+-   [R] micro_region
 -   [x] intermediate_region
 -   [x] immediate_region
 -   [ ] municipality
