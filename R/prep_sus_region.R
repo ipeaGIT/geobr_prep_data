@@ -1,25 +1,56 @@
-#> DATASET: sus regions
+#> DATASET: health regions
 #> Source: FUNAI - http://www.funai.gov.br/index.php/shape #not working
 #> Source: "https://www.gov.br/funai/pt-br/atuacao/terras-indigenas/geoprocessamento-e-mapas #not shp file
 #> Source: Portal de mapas: "https://mapas2.funai.gov.br/portal_mapas/"
 #> Metadata:
-# Titulo: Terras Indígenas  / Terras Indígenas em Estudos
-# Titulo alternativo: Terras Indígenas
-# Data: Atualização Mensal
+# Título: Regiões de Saúde
+# Título alternativo: Regiões de Saúde do SUS
+# Data: Atualizado em 07/07/2020
 #
 # Forma de apresentação: Shape
 # Linguagem: Pt-BR
-# Character set: Utf-8
+# Character set: 2005 - WINDOWS-1252 / 2015 - UTF-8
 #
-# Resumo: Polígonos e Pontos das terras indígenas brasileiras.
-# Informações adicionais: Dados produzidos pela FUNAI, e utilizados na elaboração do shape de terras indígenas com a melhor base oficial disponível.
-# Propósito: Identificação das terras indígenas brasileiras.
+# Resumo: Resumo: Criado a partir do Decreto n. 7508 de junho de 2011, em substituição aos
+# Colegiados de Gestão Regional (oriundos do Pacto pela Saúde), o CIR a um colegiado
+# no qual participam as Secretarias Municipais de Saúde, de uma dada região, e a Secretaria
+# de Estado de Saúde com o objetivo de promover a gestão colaborativa no setor saúde do estado.
+# Essa instância veio aprimorar o processo de regionalização no SUS. Os problemas de saúde são
+# identificados e analisados conjuntamente. A partir dessa avaliação procede-se a identificação
+# e pactuação das ações prioritárias, com objetivo de melhorar a situação de saúde e garantir a
+# atenção integral na região. A CIR é um ambiente de debate e negociação que promove a gestão
+# colaborativa na saúde. Caracteriza-se como um espaço de governança regional.  Cabe às CIR a
+# pactuação,  organização e o funcionamento em nível regional das ações e serviços de saúde
+# integrados na rede de atenção a saúde - RAS.
+# Informações adicionais: 
+# Propósito: .
 #
-# Estado: Completado
-# Palavras chaves descritivas:Terras Indígenas, Áreas Indígenas do Brasil, Áreas Indígenas, FUNAI, Ministério da Justiça (tema).
-# Informação do Sistema de Referência: SIRGAS 2000
+# Estado: Em desenvolvimento
+# Palavras chaves descritivas: CIR; RAS; SUS.
+# Informação do Sistema de Referência: DATASUS
 
+# Observações: 
+# Anos disponíveis: 2000 a 2024
+  
+### Libraries (use any library as necessary) ----
 
+# library(arrow)
+# library(geoarrow)
+# library(data.table)
+# library(tidyverse)
+# library(sf)
+# source("./R/support_harmonize_geobr.R")
+# source("./R/support_fun.R")
+
+download_healthregions <- function(year){ # year = 2010
+  
+  ## 0. Generate the correct ftp link (UPDATE YEAR HERE) ----
+  
+  url_start <- paste0("https://geoftp.ibge.gov.br/organizacao_do_territorio/",
+                      "malhas_territoriais/malhas_municipais/municipio_")
+  
+}
+  
 
 ######### OLD CODE BELOW ######## ----
 
@@ -58,7 +89,7 @@
 # # Informacao do Sistema de Referdncia: DATASUS
 # 
 # 
-# ##### dowload, read e saverds ####
+# ##### dowload, read e saverds #### ----
 # 
 # dir.shapes <- "L:\\\\# DIRUR #\\ASMEQ\\geobr\\data-raw\\regioes_sus"
 # 
