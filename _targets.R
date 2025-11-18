@@ -3,7 +3,7 @@ library(tarchetypes)
 library(crew)
 
 
-# Set target options: ----
+# Set target options: -----------------------------------------------------------------
 tar_option_set(
   format = "rds",
   memory = "transient",
@@ -11,7 +11,7 @@ tar_option_set(
   controller = crew_controller_local(workers = 8),
   
   
-  # Packages ----
+  # Packages -----------------------------------------------------------------
   packages = c('arrow',
                'collapse',
                'crew',
@@ -36,6 +36,7 @@ tar_option_set(
                'openxlsx',
                'parallel',
                'pbapply',
+               'piggyback',
                'purrr',
                'RCurl',
                'readr',
@@ -77,7 +78,7 @@ targets::tar_source('./R')
 # test_errors <- targets::tar_meta(fields = warnings, complete_only = TRUE)
 
 list(
-  #01. Semiárido ----------------------------------------------------------
+  #01. Semiárido -----------------------------------------------------------------
 
   # year input
   tar_target(name = years_semiarid,
@@ -94,7 +95,7 @@ list(
              pattern = map(semiarid_raw, years_semiarid),
              format = 'file'),
 
-  #02. Amazonia Legal ----
+  #02. Amazonia Legal -----------------------------------------------------------------
 
   # download
   tar_target(name = amazonialegal_raw,
@@ -105,7 +106,7 @@ list(
              command = clean_amazonialegal(amazonialegal_raw),
              format = 'file'),
 
-  #03. Biomas ----
+  #03. Biomas -----------------------------------------------------------------
 
   # year input
   tar_target(name = years_biomes,
@@ -122,7 +123,7 @@ list(
              pattern = map(biomes_raw, years_biomes),
              format = 'file'),
    
-  #04. Grade estatística ----
+  #04. Grade estatística -----------------------------------------------------------------
 
   # year input
   tar_target(name = years_statsgrid,
@@ -139,7 +140,7 @@ list(
              pattern = map(statsgrid_raw, years_statsgrid),
              format = 'file'),
 
-  #05. Estabelecimentos de saúde ----
+  #05. Estabelecimentos de saúde -----------------------------------------------------------------
 
   #year input
   tar_target(name = years_healthfacilities,
@@ -156,7 +157,7 @@ list(
              pattern = map(healthfacilities_raw, years_healthfacilities),
              format = 'file'),
 
-  #06. Terras Indígenas ----
+  #06. Terras Indígenas -----------------------------------------------------------------
 
   # # year imput
   # tar_target(name = years_indigenousland,
@@ -173,7 +174,7 @@ list(
   #            pattern = map(indigenousland_raw, years_indigenousland),
   #            format = 'file'),
 
-  #07. Regiões Intermediárias ----
+  #07. Regioes Intermediarias -----------------------------------------------------------------
 
   # year input
   tar_target(name = years_intermediateregions,
@@ -191,7 +192,7 @@ list(
              pattern = map(intermediateregions_raw, years_intermediateregions),
              format = 'file'),
 
-  #08. Regiões Imediatas ----
+  #08. Regiões Imediatas -----------------------------------------------------------------
 
   # year input
   tar_target(name = years_immediateregions,
@@ -208,7 +209,7 @@ list(
              pattern = map(immediateregions_raw, years_immediateregions),
              format = 'file'),
 
-  #09. Escolas ----
+  #09. Escolas -----------------------------------------------------------------
 
   # year input
   tar_target(name = years_schools,
@@ -225,7 +226,7 @@ list(
              pattern = map(schools_raw, years_schools),
              format = 'file'),
 
-  #10. Estados ----
+  #10. Estados -----------------------------------------------------------------
 
   #year input
   tar_target(name = years_states,
@@ -243,7 +244,7 @@ list(
              pattern = map(states_raw, years_states),
              format = 'file'),
 
-  #11. Regiões ----
+  #11. Regiões -----------------------------------------------------------------
 
   # year input
   tar_target(name = years_regions,
@@ -261,7 +262,7 @@ list(
              pattern = map(regions_raw, years_regions),
              format = 'file'),
 
-  #12. País ----
+  #12. País -----------------------------------------------------------------
 
   # year input
   tar_target(name = years_country,
@@ -279,7 +280,7 @@ list(
              pattern = map(country_raw, years_country),
              format = 'file'),
 
-  #13. Meso Regiões ----
+  #13. Meso Regiões -----------------------------------------------------------------
 
   # year input
   tar_target(name = years_mesoregions,
@@ -299,7 +300,7 @@ list(
              pattern = map(mesoregions_raw, years_mesoregions),
              format = 'file'),
 
-  #14. Microrregiões ----
+  #14. Microrregiões -----------------------------------------------------------------
 
   # year input
   tar_target(name = years_microregions,
@@ -319,7 +320,7 @@ list(
              pattern = map(microregions_raw, years_microregions),
              format = 'file'),
 
-  #15. Municipalidade ----
+  #15. Municipalidade -----------------------------------------------------------------
   
   # # year input
   # tar_target(name = years_statsgrid,
@@ -336,7 +337,7 @@ list(
   #            pattern = map(statsgrid_raw, years_statsgrid),
   #            format = 'file'),
   
-  #16. Assento municipal ----
+  #16. Assento municipal -----------------------------------------------------------------
 
   # # year input
   # tar_target(name = years_statsgrid,
@@ -353,7 +354,7 @@ list(
   #            pattern = map(statsgrid_raw, years_statsgrid),
   #            format = 'file'),
   
-  #17. Traço do Censo ----
+  #17. Traço do Censo -----------------------------------------------------------------
 
   # # year input
   # tar_target(name = years_statsgrid,
@@ -370,7 +371,7 @@ list(
   #            pattern = map(statsgrid_raw, years_statsgrid),
   #            format = 'file'),
   
-  #18. Área de peso ----
+  #18. Área de peso -----------------------------------------------------------------
 
   # # year input
   # tar_target(name = years_statsgrid,
@@ -387,7 +388,7 @@ list(
   #            pattern = map(statsgrid_raw, years_statsgrid),
   #            format = 'file'),
   
-  #19. Áreas metropolitanas ----
+  #19. Áreas metropolitanas -----------------------------------------------------------------
 
   # # year input
   # tar_target(name = years_statsgrid,
@@ -404,7 +405,7 @@ list(
   #            pattern = map(statsgrid_raw, years_statsgrid),
   #            format = 'file'),
   #
-  #20. Áreas urbanas ----
+  #20. Áreas urbanas -----------------------------------------------------------------
 
   # # year input
   # tar_target(name = years_statsgrid,
@@ -421,24 +422,7 @@ list(
   #            pattern = map(statsgrid_raw, years_statsgrid),
   #            format = 'file'),
   #
-  #21. Unidades de conservação ----
-
-  # # year input
-  # tar_target(name = years_statsgrid,
-  #            command = c(2010, 2022)),
-  #
-  # # download
-  # tar_target(name = statsgrid_raw,
-  #            command = download_statsgrid(years_statsgrid),
-  #            pattern = map(years_statsgrid)),
-  #
-  # # clean
-  # tar_target(name = statsgrid_clean,
-  #            command = clean_statsgrid(statsgrid_raw, years_statsgrid),
-  #            pattern = map(statsgrid_raw, years_statsgrid),
-  #            format = 'file'),
-  
-  #22. Áreas de risco de desastre ----
+  #21. Unidades de conservação -----------------------------------------------------------------
 
   # # year input
   # tar_target(name = years_statsgrid,
@@ -455,7 +439,7 @@ list(
   #            pattern = map(statsgrid_raw, years_statsgrid),
   #            format = 'file'),
   
-  #23. Região de Saúde ----
+  #22. Áreas de risco de desastre -----------------------------------------------------------------
 
   # # year input
   # tar_target(name = years_statsgrid,
@@ -472,24 +456,7 @@ list(
   #            pattern = map(statsgrid_raw, years_statsgrid),
   #            format = 'file'),
   
-  #24. Vizinhança ----
-
-  # # year input
-  # tar_target(name = years_statsgrid,
-  #            command = c(2010, 2022)),
-  #
-  # # download
-  # tar_target(name = statsgrid_raw,
-  #            command = download_statsgrid(years_statsgrid),
-  #            pattern = map(years_statsgrid)),
-  #
-  # # clean
-  # tar_target(name = statsgrid_clean,
-  #            command = clean_statsgrid(statsgrid_raw, years_statsgrid),
-  #            pattern = map(statsgrid_raw, years_statsgrid),
-  #            format = 'file'),
-  #
-  #25. Concentrações urbanas ----
+  #23. Região de Saúde -----------------------------------------------------------------
 
   # # year input
   # tar_target(name = years_statsgrid,
@@ -506,7 +473,41 @@ list(
   #            pattern = map(statsgrid_raw, years_statsgrid),
   #            format = 'file'),
   
-  #26. Arranjos populacionais ----
+  #24. Vizinhança -----------------------------------------------------------------
+
+  # # year input
+  # tar_target(name = years_statsgrid,
+  #            command = c(2010, 2022)),
+  #
+  # # download
+  # tar_target(name = statsgrid_raw,
+  #            command = download_statsgrid(years_statsgrid),
+  #            pattern = map(years_statsgrid)),
+  #
+  # # clean
+  # tar_target(name = statsgrid_clean,
+  #            command = clean_statsgrid(statsgrid_raw, years_statsgrid),
+  #            pattern = map(statsgrid_raw, years_statsgrid),
+  #            format = 'file'),
+  #
+  #25. Concentrações urbanas -----------------------------------------------------------------
+
+  # # year input
+  # tar_target(name = years_statsgrid,
+  #            command = c(2010, 2022)),
+  #
+  # # download
+  # tar_target(name = statsgrid_raw,
+  #            command = download_statsgrid(years_statsgrid),
+  #            pattern = map(years_statsgrid)),
+  #
+  # # clean
+  # tar_target(name = statsgrid_clean,
+  #            command = clean_statsgrid(statsgrid_raw, years_statsgrid),
+  #            pattern = map(statsgrid_raw, years_statsgrid),
+  #            format = 'file'),
+  
+  #26. Arranjos populacionais -----------------------------------------------------------------
 
   # # year input
   # tar_target(name = years_poparrangements,
@@ -523,7 +524,7 @@ list(
   #            pattern = map(poparrangements_raw, years_poparrangements),
   #            format = 'file'),
 
-  #27. Favelas e aglomerados urbanos ----
+  #27. Favelas e aglomerados urbanos -----------------------------------------------------------------
 
   # year input
   tar_target(name = years_favela,
@@ -540,11 +541,32 @@ list(
   #            pattern = map(poparrangements_raw, years_poparrangements),
   #            format = 'file')
 
+  
+  # END. Upload files -----------------------------------------------------------------
+  
+  # all files input
+  tar_target(name = all_files,
+             command = list.files(path = "./data/", 
+                                  pattern = ".parquet", 
+                                  recursive = TRUE, 
+                                  full.names = TRUE) # [c(1,20,40,60,80)]
+               ),
+  
+  tar_target(name = versao_dados,
+             command = "v2.0.0"
+  ),
+  
+  tar_target(name = upload,
+             command = upload_arquivos(files = all_files, versao_dados = "v2.0.0"))
 )
 
-##################### UNTIL HERE UPDATED ---------------------
+  
+  
+)
+
+##################### UNTIL HERE UPDATED -----------------------------------------------------------------
 #
-# # 3. Municipios ----------------------------------------------------------
+# # 3. Municipios -----------------------------------------------------------------
 # 
 #   # year input
 #   tar_target(years_muni, c(2000, 2001, 2005, 2007, 2010,
@@ -562,7 +584,7 @@ list(
 #              , pattern = map(download_municipios)
 #              )
 #
-# # 4. Estados ----------------------------------------------------------
+# # 4. Estados -----------------------------------------------------------------------------------------------------------------------
 #
 # # year input
 #   tar_target(years_states, c(2000, 2001, 2010, 2013, 2014,  2015,
@@ -573,7 +595,7 @@ list(
 #              pattern = map(years_states)),
 #
 #
-# # 5. Pais ----
+# # 5. Pais -----------------------------------------------------------------
 #
 # # year input
 # tar_target(years_country, c(1872, 1900, 1911, 1920, 1933, 1940, 1950, 1960, 1970,
