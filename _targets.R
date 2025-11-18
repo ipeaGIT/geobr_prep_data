@@ -97,14 +97,23 @@ list(
 
   # #02. Amazonia Legal -----------------------------------------------------------------
   # 
+  # # year input
+  # tar_target(name = years_amazon,
+  #            command = c(2014, 2019, 2020, 2021, 2022, 2024)
+  #            ),
+  # 
   # # download
   # tar_target(name = amazonialegal_raw,
-  #            command = download_amazonialegal()),
+  #            command = download_amazonialegal(years_amazon),
+  #            pattern = map(years_amazon)
+  #            ),
+  # 
   # 
   # # clean
   # tar_target(name = amazonialegal_clean,
   #            command = clean_amazonialegal(amazonialegal_raw),
-  #            format = 'file'),
+  #            format = 'file'
+  #            ),
 
   #03. Biomas -----------------------------------------------------------------
 
