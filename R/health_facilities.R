@@ -132,17 +132,17 @@ clean_healthfacilities <- function(healthfacilities_raw, year){
     add_region = F,
     add_snake_case = F,
     #snake_colname = snake_colname,
-    projection_fix = T,
+    projection_fix = F,
     encoding_utf8 = T,
     topology_fix = F,
-    remove_z_dimension = T,
+    remove_z_dimension = F,
     use_multipolygon = F
   )
   
   glimpse(temp_sf)
   
   ## 3. lighter version ---- 
-  temp_sf_simplified <- simplify_temp_sf(temp_sf, tolerance = 100)
+  #temp_sf_simplified <- simplify_temp_sf(temp_sf, tolerance = 100)
   
   ## 4. Save results  ----
   
