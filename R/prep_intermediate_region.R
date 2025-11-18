@@ -191,7 +191,12 @@ clean_intermediateregions <- function(intermediateregions_raw, year){ # year = 2
     compression_level = 22
   )
   
-  return(dir_clean)
+  files <- list.files(path = dir_clean, 
+                      pattern = ".parquet", 
+                      recursive = TRUE, 
+                      full.names = TRUE)
+  
+  return(files)
 }
 
 ################ RAPHAEL OLD CODE BELOW HERE #############

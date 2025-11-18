@@ -95,16 +95,16 @@ list(
              pattern = map(semiarid_raw, years_semiarid),
              format = 'file'),
 
-  #02. Amazonia Legal -----------------------------------------------------------------
-
-  # download
-  tar_target(name = amazonialegal_raw,
-             command = download_amazonialegal()),
-
-  # clean
-  tar_target(name = amazonialegal_clean,
-             command = clean_amazonialegal(amazonialegal_raw),
-             format = 'file'),
+  # #02. Amazonia Legal -----------------------------------------------------------------
+  # 
+  # # download
+  # tar_target(name = amazonialegal_raw,
+  #            command = download_amazonialegal()),
+  # 
+  # # clean
+  # tar_target(name = amazonialegal_clean,
+  #            command = clean_amazonialegal(amazonialegal_raw),
+  #            format = 'file'),
 
   #03. Biomas -----------------------------------------------------------------
 
@@ -547,10 +547,12 @@ list(
   
   # all files input
   tar_target(name = all_files,
-             command = list.files(path = "./data/", 
-                                  pattern = ".parquet", 
-                                  recursive = TRUE, 
-                                  full.names = TRUE) # [c(1,20,40,60,80)]
+             command = c(semiarid_clean, biomes_clean,statsgrid_clean, 
+                         healthfacilities_clean, intermediateregions_clean, 
+                         immediateregions_clean, schools_clean, states_clean, 
+                         regions_clean, country_clean, mesoregions_clean, 
+                         microregions_clean)
+             
                ),
   
   tar_target(name = versao_dados,

@@ -193,7 +193,12 @@ clean_immediateregions <- function(immediateregions_raw, year){ # year = 2024
     compression_level = 22
   )
   
-  return(dir_clean)
+  files <- list.files(path = dir_clean, 
+                      pattern = ".parquet", 
+                      recursive = TRUE, 
+                      full.names = TRUE)
+  
+  return(files)
 }
 
 
