@@ -352,10 +352,10 @@ dissolve_polygons <- function(mysf, group_column){
 
     # d) convert to sp
     sf_regiona <- mypols %>% as("Spatial")
-    sf_regiona <- rgeos::gBuffer(sf_regiona, byid=TRUE, width=0) # correct eventual topology issues
+    # sf_regiona <- rgeos::gBuffer(sf_regiona, byid=TRUE, width=0) # correct eventual topology issues
 
-    # c) dissolve borders to create country file
-    result <- maptools::unionSpatialPolygons(sf_regiona, rep(TRUE, nrow(sf_regiona@data))) # dissolve
+    # c) dissolve borders to create country file 66666666 replace maptools
+    # result <- maptools::unionSpatialPolygons(sf_regiona, rep(TRUE, nrow(sf_regiona@data))) # dissolve
 
 
     # d) get rid of holes

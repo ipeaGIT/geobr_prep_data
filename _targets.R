@@ -528,7 +528,8 @@ list(
 
   # year input
   tar_target(name = years_favela,
-             command = c(2010, 2022))
+             command = c(2010, 2022)
+             ),
 
   # # download
   # tar_target(name = poparrangements_raw,
@@ -554,11 +555,11 @@ list(
   
   tar_target(name = versao_dados,
              command = "v2.0.0"
-  ),
+             ),
   
   tar_target(name = upload,
-             command = upload_arquivos(files = all_files, versao_dados = "v2.0.0"))
-)
+             command = upload_arquivos(files = all_files, versao_dados)
+             )
 
   
   

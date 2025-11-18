@@ -117,27 +117,27 @@ sfh2$br <- 1
 sfh2 |> group_by(br) |> summarise() |> plot()
 
 
-##### rgeos
-library(rgeos)
-
-fgeos <- function(temp_region){
-
-wm <- as(temp_region, "Spatial")
-cs <- gUnaryUnion(wm, id=as.character(temp_region$nome))
-cs_sf <- st_as_sf(cs)
-cs_sf$nome <- row.names(cs)
-return(cs_sf)
-}
-cs_sf$br <- 1
-cs_sf |> group_by(br) |> summarise() |> plot()
-
-
-
-
-fgeos2 <- dissolve_polygons(temp_sf = df, f = fgeos)
-fgeos2$br <- 1
-fgeos2 |> group_by(br) |> summarise() |> plot()
-
+# ##### rgeos
+# # library(rgeos)
+# 
+# fgeos <- function(temp_region){
+# 
+# wm <- as(temp_region, "Spatial")
+# cs <- gUnaryUnion(wm, id=as.character(temp_region$nome))
+# cs_sf <- st_as_sf(cs)
+# cs_sf$nome <- row.names(cs)
+# return(cs_sf)
+# }
+# cs_sf$br <- 1
+# cs_sf |> group_by(br) |> summarise() |> plot()
+# 
+# 
+# 
+# 
+# fgeos2 <- dissolve_polygons(temp_sf = df, f = fgeos)
+# fgeos2$br <- 1
+# fgeos2 |> group_by(br) |> summarise() |> plot()
+# 
 
 ##### outer ring
 
@@ -180,10 +180,10 @@ pedrof <- function(temp_region){
 
   # d) convert to sp
   sf_regiona <- mypols |> as("Spatial")
-  sf_regiona <- rgeos::gBuffer(sf_regiona, byid=TRUE, width=0) # correct eventual topology issues
+  # sf_regiona <- rgeos::gBuffer(sf_regiona, byid=TRUE, width=0) # correct eventual topology issues
 
-  # c) dissolve borders to create country file
-  result <- maptools::unionSpatialPolygons(sf_regiona, rep(TRUE, nrow(sf_regiona@data))) # dissolve
+  # c) dissolve borders to create country file replace maptools 666666
+  # result <- maptools::unionSpatialPolygons(sf_regiona, rep(TRUE, nrow(sf_regiona@data))) # dissolve
 
 
   # d) get rid of holes

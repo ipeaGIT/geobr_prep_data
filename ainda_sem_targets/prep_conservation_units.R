@@ -28,8 +28,8 @@ library(data.table)
 library(magrittr)
 library(lwgeom)
 library(stringi)
-library(rgdal)
-
+# library(rgdal)
+# 
 
 
 ####### Load Support functions to use in the preprocessing of the data
