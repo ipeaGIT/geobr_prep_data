@@ -52,7 +52,7 @@ download_schools <- function(year){ # year = 2024
   
   #### manual download manual and standarize the collumns names
   # https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/inep-data/catalogo-de-escolas
-  dt <- fread("./data_raw/Análise - Tabela da lista das escolas - Detalhado.csv",
+  dt <- fread("./data_raw/schools/Análise - Tabela da lista das escolas - Detalhado.csv",
               encoding = 'UTF-8')
   
   ## 2. Test integrity ----
@@ -176,7 +176,12 @@ clean_schools <- function(schools_raw, year){ # year = 2025
     compression_level = 22
   )
   
-  return(dir_clean)
+  files <- list.files(path = dir_clean, 
+                      pattern = ".parquet", 
+                      recursive = TRUE, 
+                      full.names = TRUE)
+  
+  return(files)
 }
 
 

@@ -82,6 +82,8 @@ download_amazonialegal <- function(){ # i've removed the year argument,
   }
 
 
+# amazonialegal_raw <- targets::tar_read("amazonialegal_raw")
+
 # Clean the data ----
 clean_amazonialegal <- function(amazonialegal_raw){
   
@@ -146,6 +148,11 @@ clean_amazonialegal <- function(amazonialegal_raw){
     compression_level = 22
   )
   
-  return(dir_clean)
+  files <- list.files(path = dir_clean, 
+                      pattern = ".parquet", 
+                      recursive = TRUE, 
+                      full.names = TRUE)
+  
+  return(files)
 }
 
