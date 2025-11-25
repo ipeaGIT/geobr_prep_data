@@ -315,6 +315,8 @@ clean_regions <- function(regions_raw, year){ # year = 2024
     compression_level = 22
   )
   
+  ## 6. Create the files for geobr index  ----
+  
   files <- list.files(path = dir_clean, 
                       pattern = ".parquet", 
                       recursive = TRUE, 

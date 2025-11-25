@@ -168,6 +168,7 @@ clean_healthfacilities <- function(healthfacilities_raw, year){
     compression='zstd',
     compression_level = 22
   )
+  ## 5. Create the files for geobr index  ----
   
   files <- list.files(path = dir_clean, 
                       pattern = ".parquet", 

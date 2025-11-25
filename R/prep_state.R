@@ -260,7 +260,7 @@ clean_states <- function(states_raw, year){ # year = 2024
     glimpse(states_clean)
     }
   
-  ## 2. Apply harmonize geobr cleaning ----
+  ## 3. Apply harmonize geobr cleaning ----
   
   temp_sf <- harmonize_geobr(
     temp_sf = states_clean,
@@ -277,10 +277,10 @@ clean_states <- function(states_raw, year){ # year = 2024
   
   glimpse(temp_sf)
   
-  ## 3. lighter version ----
+  ## 4. lighter version ----
   temp_sf_simplified <- simplify_temp_sf(temp_sf, tolerance = 100)
   
-  ## 4. Save datasets  ----
+  ## 5. Save datasets  ----
   
   # sf::st_write(temp_sf, dsn = paste0(dir_clean, "/states_",  year,
   #                                   ".gpkg"), delete_dsn = TRUE)
@@ -302,6 +302,8 @@ clean_states <- function(states_raw, year){ # year = 2024
     compression='zstd',
     compression_level = 22
   )
+  
+  ## 6. Create the files for geobr index  ----
   
   files <- list.files(path = dir_clean, 
                       pattern = ".parquet", 

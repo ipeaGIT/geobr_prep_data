@@ -126,7 +126,7 @@ clean_schools <- function(schools_raw, year){ # year = 2025
   #   subset(temp_sf, code_school=='11000180')
   # 
   
-  ## 2. Convert to geo spatial file ----
+  ## 3. Convert to geo spatial file ----
   
   # Convert originl data frame into sf
   df <- sf::st_as_sf(schools,
@@ -150,10 +150,15 @@ clean_schools <- function(schools_raw, year){ # year = 2025
   
   glimpse(temp_sf)
   
-  ## 5. lighter version ----
+  ## 5. Create geocode br collum ----
+  
+  
+  
+  
+  ## 6. lighter version ----
   temp_sf_simplified <- simplify_temp_sf(temp_sf, tolerance = 100)
   
-  ## 6. Save datasets  ----
+  ## 7. Save datasets  ----
   
   # sf::st_write(temp_sf, dsn = paste0(dir_clean, "/schools_",  year,
   #                                   ".gpkg"), delete_dsn = TRUE)
@@ -175,6 +180,9 @@ clean_schools <- function(schools_raw, year){ # year = 2025
     compression='zstd',
     compression_level = 22
   )
+  
+  ## 8. Create the files for geobr index  ----
+  
   
   files <- list.files(path = dir_clean, 
                       pattern = ".parquet", 

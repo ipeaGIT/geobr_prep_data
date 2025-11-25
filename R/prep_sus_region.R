@@ -50,7 +50,10 @@ download_healthregions <- function(year){ # year = 2010
                       "malhas_territoriais/malhas_municipais/municipio_")
   
 }
-  
+
+
+## 8. Create the files for geobr index  ----
+
 
 ######### OLD CODE BELOW ######## ----
 
