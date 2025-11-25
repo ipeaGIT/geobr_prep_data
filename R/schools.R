@@ -4,7 +4,7 @@
 #> Metadata:
 # Título: Escolas
 # Título alternativo: schools
-# Frequência de atualização: Anual - manualmente
+# Frequência de atualização: Anual - ***manualmente***
 #
 # Forma de apresentação: CSV
 # Linguagem: Pt-BR
@@ -24,19 +24,19 @@
 
 ### Libraries (use any library as necessary) ----
 
-# library(stringr)
-# library(sf)
-# library(janitor)
-# library(dplyr)
-# library(readr)
-# library(data.table)
-# library(magrittr)
-# library(lwgeom)
-# library(tidyverse)
-# library(arrow)
-# library(geoarrow)
-# source("./R/support_harmonize_geobr.R")
-# source("./R/support_fun.R")
+library(stringr)
+library(sf)
+library(janitor)
+library(dplyr)
+library(readr)
+library(data.table)
+library(magrittr)
+library(lwgeom)
+library(tidyverse)
+library(arrow)
+library(geoarrow)
+source("./R/support_harmonize_geobr.R")
+source("./R/support_fun.R")
 
 # Download the data  ----
 download_schools <- function(year){ # year = 2024

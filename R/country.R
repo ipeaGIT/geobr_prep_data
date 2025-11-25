@@ -316,7 +316,7 @@ clean_country <- function(country_raw, year){ # year = 2024
 # 
 # 
 #   # c) dissolve borders to create country file
-#   result <- maptools::unionSpatialPolygons(sf_statesa, rep(TRUE, nrow(sf_statesa@data))) # dissolve
+#   result <- map_tools::union_SpatialPolygons(sf_statesa, rep(TRUE, nrow(sf_statesa@data))) # dissolve
 # 
 #   # d) get rid of holes
 #   outerRings = Filter(function(f){f@ringDir==1},result@polygons[[1]]@Polygons)
@@ -362,7 +362,7 @@ clean_country <- function(country_raw, year){ # year = 2024
 # # create computing clusters
 #   cl <- parallel::makeCluster(detectCores())
 # 
-#   clusterEvalQ(cl, c(library(geobr), library(maptools), library(dplyr), library(readr), library(rgeos), library(sf)))
+#   clusterEvalQ(cl, c(library(geobr), library(dplyr), library(readr), library(rgeos), library(sf)))
 #   parallel::clusterExport(cl=cl, varlist= c("years","read_state"), envir=environment())
 # 
 # # apply function in parallel
