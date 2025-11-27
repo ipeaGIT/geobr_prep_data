@@ -3,7 +3,7 @@ library(tarchetypes)
 library(crew)
 
 
-# Set target options: -----------------------------------------------------------------
+# Set target options: ----
 tar_option_set(
   format = "rds",
   memory = "transient",
@@ -11,7 +11,7 @@ tar_option_set(
   controller = crew_controller_local(workers = 8),
   
   
-  # Packages -----------------------------------------------------------------
+  # Packages ----
   packages = c('arrow',
                'collapse',
                'crew',
@@ -78,7 +78,7 @@ targets::tar_source('./R')
 # test_errors <- targets::tar_meta(fields = warnings, complete_only = TRUE)
 
 list(
-  #01. Semiárido -----------------------------------------------------------------
+  #01. Semiárido ----
 
   # year input
   tar_target(name = years_semiarid,
@@ -95,20 +95,20 @@ list(
              pattern = map(semiarid_raw, years_semiarid),
              format = 'file'),
 
-  # #02. Amazonia Legal -----------------------------------------------------------------
-  # 
-  # # year input
-  # tar_target(name = years_amazon,
-  #            command = c(2014, 2019, 2020, 2021, 2022, 2024)
-  #            ),
-  # 
-  # # download
-  # tar_target(name = amazonialegal_raw,
-  #            command = download_amazonialegal(years_amazon),
-  #            pattern = map(years_amazon)
-  #            ),
-  # 
-  # 
+  #02. Amazonia Legal ----
+
+  # year input
+  tar_target(name = years_amazon,
+             command = c(
+               #2014, 2019, 2020, 2021, 2022,
+               2024)),
+
+  # download
+  tar_target(name = amazonialegal_raw,
+             command = download_amazonialegal(years_amazon),
+             pattern = map(years_amazon)
+             ),
+
   # # clean
   # tar_target(name = amazonialegal_clean,
   #            command = clean_amazonialegal(amazonialegal_raw),
@@ -218,7 +218,7 @@ list(
              pattern = map(immediateregions_raw, years_immediateregions),
              format = 'file'),
 
-  #09. Escolas -----------------------------------------------------------------
+  #09. Escolas ----
 
   # year input
   tar_target(name = years_schools,
@@ -552,11 +552,13 @@ list(
   #            format = 'file')
 
   
-  # END. Upload files -----------------------------------------------------------------
+  # END. Upload files ----
   
   # all files input
   tar_target(name = all_files,
-             command = c(semiarid_clean, biomes_clean,statsgrid_clean, 
+             command = c(semiarid_clean,
+                         biomes_clean,
+                         statsgrid_clean,
                          healthfacilities_clean, intermediateregions_clean, 
                          immediateregions_clean, schools_clean, states_clean, 
                          regions_clean, country_clean, mesoregions_clean, 

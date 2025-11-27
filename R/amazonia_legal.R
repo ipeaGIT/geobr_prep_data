@@ -38,22 +38,26 @@
 # source("./R/support_fun.R")
 
 # Download the data  ----
-download_amazonialegal <- function(){ # i've removed the year argument,
-  # because the file is atomic. Only have had one update.
+download_amazonialegal <- function(year){ #
 
-
-  ## 0. Download and read into CSV at the same time ----
-  ftp_shp <- 'http://mapas.mma.gov.br/ms_tmp/amazlegal.shp'
-  ftp_shx <- 'http://mapas.mma.gov.br/ms_tmp/amazlegal.shx'
-  ftp_dbf <- 'http://mapas.mma.gov.br/ms_tmp/amazlegal.dbf'
-  ftp <- c(ftp_shp,ftp_shx,ftp_dbf)
-
-
+  ## 0. Set up the download links
+  
+  base_link <- "https://geoftp.ibge.gov.br/organizacao_do_territorio/estrutura_territorial/amazonia_legal/"
+  
+  #2024
+  ftp_zip <- paste0(base_link, year, "/Limites_Amazonia_Legal_", year,
+                    "_shp.zip")
+  
   ## 1. Directions do download the file ----
   temp_dir <- fs::path_temp()
   download_temp_dir <- paste0(temp_dir,"/amazonia_legal/")
   dir.create(download_temp_dir, showWarnings = FALSE, recursive = TRUE)
   dir.exists(download_temp_dir)
+ 
+  
+  
+  
+ 
   
   for(i in 1:length(ftp)){
     
@@ -64,7 +68,7 @@ download_amazonialegal <- function(){ # i've removed the year argument,
       httr::write_disk(path = paste0(download_temp_dir, file_name),
                        overwrite = T)
     )
-   }
+  }
   
   ## 2. Save in the temp directory ----
   shp_file <- basename(ftp_shp)
@@ -79,7 +83,54 @@ download_amazonialegal <- function(){ # i've removed the year argument,
   
   return(amazonialegal_raw)
   
-  }
+}
+  
+}
+####### CECÍLIA OLD CODE BELOW (Because MMA lost the source of files) ####
+
+# Download the data  ----
+# download_amazonialegal <- function(){ # i've removed the year argument,
+#   # because the file is atomic. Only have had one update.
+#
+# 
+#   ## 0. Download and read into CSV at the same time ----
+#   ftp_shp <- 'http://mapas.mma.gov.br/ms_tmp/amazlegal.shp'
+#   ftp_shx <- 'http://mapas.mma.gov.br/ms_tmp/amazlegal.shx'
+#   ftp_dbf <- 'http://mapas.mma.gov.br/ms_tmp/amazlegal.dbf'
+#   ftp <- c(ftp_shp,ftp_shx,ftp_dbf)
+# 
+# 
+#   ## 1. Directions do download the file ----
+#   temp_dir <- fs::path_temp()
+#   download_temp_dir <- paste0(temp_dir,"/amazonia_legal/")
+#   dir.create(download_temp_dir, showWarnings = FALSE, recursive = TRUE)
+#   dir.exists(download_temp_dir)
+#   
+#   for(i in 1:length(ftp)){
+#     
+#     file_name <- basename(ftp[i])
+#     
+#     temp_download <-  httr::GET(
+#       url = ftp[i], 
+#       httr::write_disk(path = paste0(download_temp_dir, file_name),
+#                        overwrite = T)
+#     )
+#    }
+#   
+#   ## 2. Save in the temp directory ----
+#   shp_file <- basename(ftp_shp)
+#   shp_dir <- paste0(download_temp_dir, shp_file)
+#   
+#   ## 3. Read data
+#   amazonialegal_raw <- sf::st_read(
+#     shp_dir, 
+#     quiet = F, 
+#     stringsAsFactors=F
+#   )
+#   
+#   return(amazonialegal_raw)
+#   
+#   }
 
 
 # amazonialegal_raw <- targets::tar_read("amazonialegal_raw")
