@@ -27,6 +27,7 @@
 download_biomes <- function(year){ # year = 2019
 
   #### 0. Get the correct ftp link (UPDATE HERE IN CASE OF NEW YEAR IN THE DATA)
+  
   zip_dir <- paste0(tempdir(), "/biomes/", year)
   dir.create(zip_dir, showWarnings = FALSE, recursive = TRUE)
   dir.exists(zip_dir)

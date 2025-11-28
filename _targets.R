@@ -100,8 +100,8 @@ list(
   # year input
   tar_target(name = years_amazon,
              command = c(
-               #2014, 2019, 2020, 2021, 2022,
-               2024)),
+               #2014, 2019, 2020,
+               2021, 2022,2024)),
 
   # download
   tar_target(name = amazonialegal_raw,
@@ -185,91 +185,91 @@ list(
 
   #07. Regioes Intermediarias -----------------------------------------------------------------
 
-  # year input
-  tar_target(name = years_intermediateregions,
-             command = c(2019:2024)),
-
-  # download
-  tar_target(name = intermediateregions_raw,
-             command = download_intermediateregions(years_intermediateregions),
-             pattern = map(years_intermediateregions)),
-
-  # clean
-  tar_target(name = intermediateregions_clean,
-             command = clean_intermediateregions(intermediateregions_raw,
-                                                 years_intermediateregions),
-             pattern = map(intermediateregions_raw, years_intermediateregions),
-             format = 'file'),
+  # # year input
+  # tar_target(name = years_intermediateregions,
+  #            command = c(2019:2024)),
+  # 
+  # # download
+  # tar_target(name = intermediateregions_raw,
+  #            command = download_intermediateregions(years_intermediateregions),
+  #            pattern = map(years_intermediateregions)),
+  # 
+  # # clean
+  # tar_target(name = intermediateregions_clean,
+  #            command = clean_intermediateregions(intermediateregions_raw,
+  #                                                years_intermediateregions),
+  #            pattern = map(intermediateregions_raw, years_intermediateregions),
+  #            format = 'file'),
 
   #08. Regiões Imediatas -----------------------------------------------------------------
 
-  # year input
-  tar_target(name = years_immediateregions,
-             command = c(2019:2024)),
-
-  # download
-  tar_target(name = immediateregions_raw,
-             command = download_immediateregions(years_immediateregions),
-             pattern = map(years_immediateregions)),
-
-  # clean
-  tar_target(name = immediateregions_clean,
-             command = clean_immediateregions(immediateregions_raw, years_immediateregions),
-             pattern = map(immediateregions_raw, years_immediateregions),
-             format = 'file'),
+  # # year input
+  # tar_target(name = years_immediateregions,
+  #            command = c(2019:2024)),
+  # 
+  # # download
+  # tar_target(name = immediateregions_raw,
+  #            command = download_immediateregions(years_immediateregions),
+  #            pattern = map(years_immediateregions)),
+  # 
+  # # clean
+  # tar_target(name = immediateregions_clean,
+  #            command = clean_immediateregions(immediateregions_raw, years_immediateregions),
+  #            pattern = map(immediateregions_raw, years_immediateregions),
+  #            format = 'file'),
 
   #09. Escolas ----
 
-  # year input
-  tar_target(name = years_schools,
-             command = c(Sys.Date())),
-
-  # download
-  tar_target(name = schools_raw,
-             command = download_schools(years_schools),
-             pattern = map(years_schools)),
-
-  # clean
-  tar_target(name = schools_clean,
-             command = clean_schools(schools_raw, years_schools),
-             pattern = map(schools_raw, years_schools),
-             format = 'file'),
+  # # year input
+  # tar_target(name = years_schools,
+  #            command = c(Sys.Date())),
+  # 
+  # # download
+  # tar_target(name = schools_raw,
+  #            command = download_schools(years_schools),
+  #            pattern = map(years_schools)),
+  # 
+  # # clean
+  # tar_target(name = schools_clean,
+  #            command = clean_schools(schools_raw, years_schools),
+  #            pattern = map(schools_raw, years_schools),
+  #            format = 'file'),
 
   #10. Estados -----------------------------------------------------------------
-
-  #year input
-  tar_target(name = years_states,
-             command = c(2000, 2001, 2010,
-                         2013:2024)),
-
-  # download
-  tar_target(name = states_raw,
-             command = download_states(years_states),
-             pattern = map(years_states)),
-
-  # clean
-  tar_target(name = states_clean,
-             command = clean_states(states_raw, years_states),
-             pattern = map(states_raw, years_states),
-             format = 'file'),
+# 
+#   #year input
+#   tar_target(name = years_states,
+#              command = c(2000, 2001, 2010,
+#                          2013:2024)),
+# 
+#   # download
+#   tar_target(name = states_raw,
+#              command = download_states(years_states),
+#              pattern = map(years_states)),
+# 
+#   # clean
+#   tar_target(name = states_clean,
+#              command = clean_states(states_raw, years_states),
+#              pattern = map(states_raw, years_states),
+#              format = 'file'),
 
   #11. Regiões -----------------------------------------------------------------
 
-  # year input
-  tar_target(name = years_regions,
-             command = c(2000, 2001, 2010,
-                         2013:2024)),
-
-  # download
-  tar_target(name = regions_raw,
-             command = download_regions(years_regions),
-             pattern = map(years_regions)),
-
-  # clean
-  tar_target(name = regions_clean,
-             command = clean_regions(regions_raw, years_regions),
-             pattern = map(regions_raw, years_regions),
-             format = 'file'),
+  # # year input
+  # tar_target(name = years_regions,
+  #            command = c(2000, 2001, 2010,
+  #                        2013:2024)),
+  # 
+  # # download
+  # tar_target(name = regions_raw,
+  #            command = download_regions(years_regions),
+  #            pattern = map(years_regions)),
+  # 
+  # # clean
+  # tar_target(name = regions_clean,
+  #            command = clean_regions(regions_raw, years_regions),
+  #            pattern = map(regions_raw, years_regions),
+  #            format = 'file'),
 
   #12. País -----------------------------------------------------------------
 
@@ -291,43 +291,43 @@ list(
 
   #13. Meso Regiões -----------------------------------------------------------------
 
-  # year input
-  tar_target(name = years_mesoregions,
-             command = c(2000, 2001, #error in number of collumns
-                         #2005, 2007, # No mesoregions file
-                         2010, 2013, 2014, # mesorregioes sem BR folder
-                         2015:2018)),
-
-  # download
-  tar_target(name = mesoregions_raw,
-             command = download_mesoregions(years_mesoregions),
-             pattern = map(years_mesoregions)),
-
-  # clean
-  tar_target(name = mesoregions_clean,
-             command = clean_mesoregions(mesoregions_raw, years_mesoregions),
-             pattern = map(mesoregions_raw, years_mesoregions),
-             format = 'file'),
+  # # year input
+  # tar_target(name = years_mesoregions,
+  #            command = c(2000, 2001, #error in number of collumns
+  #                        #2005, 2007, # No mesoregions file
+  #                        2010, 2013, 2014, # mesorregioes sem BR folder
+  #                        2015:2018)),
+  # 
+  # # download
+  # tar_target(name = mesoregions_raw,
+  #            command = download_mesoregions(years_mesoregions),
+  #            pattern = map(years_mesoregions)),
+  # 
+  # # clean
+  # tar_target(name = mesoregions_clean,
+  #            command = clean_mesoregions(mesoregions_raw, years_mesoregions),
+  #            pattern = map(mesoregions_raw, years_mesoregions),
+  #            format = 'file'),
 
   #14. Microrregiões -----------------------------------------------------------------
 
-  # year input
-  tar_target(name = years_microregions,
-             command = c(2000, 2001, #error in number of collumns
-                         #2005, 2007, # No microregions file
-                         2010, 2013, 2014, # microrregioes sem BR folder
-                         2015:2018)),
-
-  # download
-  tar_target(name = microregions_raw,
-             command = download_microregions(years_microregions),
-             pattern = map(years_microregions)),
-
-  # clean
-  tar_target(name = microregions_clean,
-             command = clean_microregions(microregions_raw, years_microregions),
-             pattern = map(microregions_raw, years_microregions),
-             format = 'file'),
+  # # year input
+  # tar_target(name = years_microregions,
+  #            command = c(2000, 2001, #error in number of collumns
+  #                        #2005, 2007, # No microregions file
+  #                        2010, 2013, 2014, # microrregioes sem BR folder
+  #                        2015:2018)),
+  # 
+  # # download
+  # tar_target(name = microregions_raw,
+  #            command = download_microregions(years_microregions),
+  #            pattern = map(years_microregions)),
+  # 
+  # # clean
+  # tar_target(name = microregions_clean,
+  #            command = clean_microregions(microregions_raw, years_microregions),
+  #            pattern = map(microregions_raw, years_microregions),
+  #            format = 'file'),
 
   #15. Municipalidade -----------------------------------------------------------------
   
