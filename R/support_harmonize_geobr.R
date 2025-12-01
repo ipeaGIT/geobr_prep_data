@@ -465,7 +465,7 @@ folder_geobr <- function(folder_name = NULL, temp = FALSE) {
   
 }
 
-# Unzip geobr function -----------------
+# Unzip geobr function WORKING -----------------
 
 unzip_geobr <- function(zip_dir, in_zip, out_zip = NULL, is_shp = FALSE) {
   
@@ -528,7 +528,7 @@ unzip_geobr <- function(zip_dir, in_zip, out_zip = NULL, is_shp = FALSE) {
   }
 }
 
-# Collumns names geobr function -----------------
+# Collumns names geobr function UNFINISHED -----------------
 
 glimpse_geobr <- function(data = NULL, filenames = NULL,
                           multiple_files = FALSE) {
@@ -619,4 +619,36 @@ states_geobr <-  function() {
                    sgm_state = str_to_lower(sg_state))
   
   return(states)
-  }
+}
+
+# Table of collumns each year each target geobr function UNFINISHED -----------------
+
+summarycollumns_geobr <- function(files) {
+  
+  # Criar um target que lê todos os arquivos e monte uma tabela com os targets e cada ano que cada um tem, e com um vetor com os nomes de todas as colunas que os arquivos tem para que possamos checar as colunas.
+  
+  # 
+  # if (is.null(in_zip)) {
+  #   # unzip folder
+  #   in_zip <- paste0(zip_dir, "/unzipped/")
+  #   dir.create(in_zip, showWarnings = FALSE, recursive = TRUE)
+  #   dir.exists(in_zip)
+  # }
+  # 
+  # if (is.null(out_zip)) {
+  #   # unzip folder
+  #   out_zip <- paste0(zip_dir, "/zipped/")
+  #   dir.create(out_zip, showWarnings = FALSE, recursive = TRUE)
+  #   dir.exists(out_zip)
+  # }
+  # tibble(nome_coluna = colnames(df))
+
+  # 
+  # fwrite(file = tabela_colunas)
+  # 
+  
+}
+
+
+
+
