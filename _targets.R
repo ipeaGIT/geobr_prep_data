@@ -101,21 +101,21 @@ list(
   tar_target(name = years_amazon,
              command = c(
                #2014, 2019, 2020,
-               2021, 2022,2024)),
+               2021, 2022, 
+               2024)),
 
   # download
   tar_target(name = amazonialegal_raw,
              command = download_amazonialegal(years_amazon),
-             pattern = map(years_amazon)
-             ),
+             pattern = map(years_amazon)),
 
-  # # clean
-  # tar_target(name = amazonialegal_clean,
-  #            command = clean_amazonialegal(amazonialegal_raw),
-  #            format = 'file'
-  #            ),
+  # clean
+  tar_target(name = amazonialegal_clean,
+             command = clean_amazonialegal(amazonialegal_raw, years_amazon),
+             pattern = map(amazonialegal_raw, years_amazon),
+             format = 'file'),
 
-  #03. Biomas -----------------------------------------------------------------
+  #03. Biomas ----
 
   # year input
   tar_target(name = years_biomes,
@@ -273,21 +273,21 @@ list(
 
   #12. País -----------------------------------------------------------------
 
-  # year input
-  tar_target(name = years_country,
-             command = c(2000, 2001, 2010,
-                         2013:2024)),
-  
-  # download
-  tar_target(name = country_raw,
-             command = download_country(years_country),
-             pattern = map(years_country)),
-
-  # clean
-  tar_target(name = country_clean,
-             command = clean_country(country_raw, years_country),
-             pattern = map(country_raw, years_country),
-             format = 'file'),
+  # # year input
+  # tar_target(name = years_country,
+  #            command = c(2000, 2001, 2010,
+  #                        2013:2024)),
+  # 
+  # # download
+  # tar_target(name = country_raw,
+  #            command = download_country(years_country),
+  #            pattern = map(years_country)),
+  # 
+  # # clean
+  # tar_target(name = country_clean,
+  #            command = clean_country(country_raw, years_country),
+  #            pattern = map(country_raw, years_country),
+  #            format = 'file'),
 
   #13. Meso Regiões -----------------------------------------------------------------
 
@@ -533,12 +533,12 @@ list(
   #            pattern = map(poparrangements_raw, years_poparrangements),
   #            format = 'file'),
 
-  #27. Favelas e aglomerados urbanos -----------------------------------------------------------------
+  #27. Favelas e aglomerados urbanos ----
 
   # year input
-  tar_target(name = years_favela,
-             command = c(2010, 2022)
-             ),
+  # tar_target(name = years_favela,
+  #            command = c(2010, 2022)
+  #            ),
 
   # # download
   # tar_target(name = poparrangements_raw,
@@ -552,30 +552,47 @@ list(
   #            format = 'file')
 
   
+  # TEST COLLUMNS NAMES ----
+
+  #create read colluns each target
+# tar_target(name = summary_colunas,
+#            command = c(semiarid_clean)),
+# 
+# tar_target(name = ,
+#            command = ,
+#            map = )
+             
+  # TEST END ALTERNATIVE ----
+  # tar_target(name = todos_arquivos,
+  #            command = )
+
   # END. Upload files ----
   
   # all files input
   tar_target(name = all_files,
-             command = c(semiarid_clean,
-                         biomes_clean,
-                         statsgrid_clean,
-                         healthfacilities_clean, intermediateregions_clean, 
-                         immediateregions_clean, schools_clean, states_clean, 
-                         regions_clean, country_clean, mesoregions_clean, 
-                         microregions_clean)
-             
-               ),
+             command = c(
+               semiarid_clean,
+               amazonialegal_clean,
+               biomes_clean,
+               statsgrid_clean,
+               healthfacilities_clean
+               # intermediateregions_clean, 
+               # immediateregions_clean,
+               # schools_clean, states_clean, 
+               # regions_clean,
+               # country_clean,
+               # mesoregions_clean, 
+               # microregions_clean
+               )),
   
   tar_target(name = versao_dados,
              command = "v2.0.0"
-             ),
+             ) #add comma here
   
-  tar_target(name = upload,
-             command = upload_arquivos(files = all_files, versao_dados)
-             )
+  # tar_target(name = upload,
+  #            command = upload_arquivos(files = all_files, versao_dados)
+  #            )
 
-  
-  
 )
 
 ##################### UNTIL HERE UPDATED -----------------------------------------------------------------

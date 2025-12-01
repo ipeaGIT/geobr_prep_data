@@ -21,22 +21,22 @@
 
 ### Libraries (use any library as necessary) ----
 
-# library(arrow)
-# library(geoarrow)
-# library(stringr)
-# library(sf)
-# library(janitor)
-# library(dplyr)
-# library(readr)
-# library(data.table)
-# library(magrittr)
-# library(devtools)
-# library(lwgeom)
-# library(stringi)
-# library(tidyverse)
-# library(rvest)
-# source("./R/support_harmonize_geobr.R")
-# source("./R/support_fun.R")
+library(arrow)
+library(geoarrow)
+library(stringr)
+library(sf)
+library(janitor)
+library(dplyr)
+library(readr)
+library(data.table)
+library(magrittr)
+library(devtools)
+library(lwgeom)
+library(stringi)
+library(tidyverse)
+library(rvest)
+source("./R/support_harmonize_geobr.R")
+source("./R/support_fun.R")
 
 # Download the data  ----
 download_amazonialegal <- function(year){ #
@@ -98,38 +98,36 @@ download_amazonialegal <- function(year){ #
 }
   
 # Clean the data ----
-clean_amazonialegal <- function(amazonialegal_raw){
+clean_amazonialegal <- function(amazonialegal_raw, year){
   
   ## 0. create clean directory ----
   
   #create directory
-  dir_clean <- "./data/amazonia_legal/"
+  dir_clean <- paste0("./data/amazonia_legal/", year)
   dir.create(dir_clean, showWarnings = FALSE)
   dir.exists(dir_clean)
   
-  
   ## 1. rename column names ----
   
-  # Rename columns
-  amazonialegal_raw$GID0 <- NULL
-  amazonialegal_raw$ID1 <- NULL
-  
+  # # Rename columns
+  # amazonialegal_raw$GID0 <- NULL
+  # amazonialegal_raw$ID1 <- NULL
   
   ## 2. Apply geobr cleaning ----
   
   temp_sf <- harmonize_geobr(
-    temp_sf = amazonialegal_raw, 
-    add_state = F, 
-    add_region = F, 
-    add_snake_case = F, 
+    temp_sf = amazonialegal_raw,
+    add_state = F,
+    add_region = F,
+    add_snake_case = F,
     #snake_colname = snake_colname,
     projection_fix = T,
-    encoding_utf8 = F, 
+    encoding_utf8 = T,
     topology_fix = T,
     remove_z_dimension = T,
     use_multipolygon = T
   )
-  
+
   glimpse(temp_sf)
   
   ## 3. generate a lighter version of the dataset with simplified borders ----
@@ -137,7 +135,6 @@ clean_amazonialegal <- function(amazonialegal_raw){
   # simplify
   temp_sf2 <- simplify_temp_sf(temp_sf)
   head(temp_sf2)
-  
   
   ## 4. Clean data set and save it in geopackage format ----
   
@@ -149,14 +146,14 @@ clean_amazonialegal <- function(amazonialegal_raw){
   ## 5. Save original and simplified datasets in parquet ----
   arrow::write_parquet(
     x = temp_sf,
-    sink = paste0(dir_clean, "amazonialegal", ".parquet"),
+    sink = paste0(dir_clean, "amazonialegal_", year, ".parquet"),
     compression='zstd',
     compression_level = 22
   )
   
   arrow::write_parquet(
     x = temp_sf2,
-    sink = paste0(dir_clean, "amazonialegal","_simplified", ".parquet"),
+    sink = paste0(dir_clean, "amazonialegal_", year, "_simplified", ".parquet"),
     compression='zstd',
     compression_level = 22
   )
