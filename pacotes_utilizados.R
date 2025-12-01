@@ -1,5 +1,8 @@
 
+library(renv)
 
+# Onde cada pacote está sendo utilizado em cada script?
+tabela_pacotes <- renv::dependencies()
 
 # Lista de pacotes:
 
