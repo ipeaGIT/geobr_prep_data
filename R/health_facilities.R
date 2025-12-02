@@ -39,14 +39,9 @@
 # source("./R/support_fun.R")
 
 # Download the data  ----
-download_healthfacilities <- function(year){ #no year because only most recent avaidable
+download_healthfacilities <- function(year){ #no year because only most recent available
   
-  ## 0. Adjust date of last update ----
-  
-  date_month <- str_sub(year, start = 6, end = 8)
-  date_year <- str_sub(year, start = 1, end = 4)
-  
-  ## 1. Create temp folders and data folders ----
+  ## 0. Create temp folders and data folders ----
   
   #folder_geobr(folder_name = "health_facilities", temp = TRUE)
   
@@ -54,14 +49,14 @@ download_healthfacilities <- function(year){ #no year because only most recent a
   dir.create(zip_dir, showWarnings = FALSE, recursive = TRUE)
   dir.exists(zip_dir)
   
-  ## 2. Get download link ----
+  ## 1. Get download link ----
   
   # Source:
   # "https://dados.gov.br/dados/conjuntos-dados/cnes-cadastro-nacional-de-estabelecimentos-de-saude"
   file_url <- "s3.sa-east-1.amazonaws.com/ckan.saude.gov.br/CNES/cnes_estabelecimentos_csv.zip"
   #file_url = 'https://s3.sa-east-1.amazonaws.com/ckan.saude.gov.br/CNES/cnes_estabelecimentos.zip'
   
-  ## 3. Create direction for each download ----
+  ## 2. Create direction for each download ----
   
   #### zip folders
   in_zip <- paste0(zip_dir, "/unzipped/")
@@ -80,27 +75,26 @@ download_healthfacilities <- function(year){ #no year because only most recent a
   # dir.create(zip_dir, showWarnings = FALSE, recursive = TRUE)
   # dir.exists(zip_dir)
   
-  ## 4. Download Raw data ----
+  ## 3. Download Raw data ----
   
   httr::GET(url = file_url,
             httr::progress(),
             httr::write_disk(path = file_raw,
                              overwrite = T))
   
-  ## 5. Unzip Raw data ----
+  ## 4. Unzip Raw data ----
   
   file_unzipped <- paste0(in_zip, basename(file_raw))
-  
   unzip(file_unzipped, exdir = out_zip)
   
-  ## 6. Read file ----
+  ## 5. Read file and clean collumns names ----
   
   healthfacilities_raw <- fread(file = file_unzipped,
                                 encoding = "UTF-8",
                                 integer64 = "character") |> 
     clean_names()
   
-  ## 7. Show result ----
+  ## 6. Show result ----
   
   healthfacilities_raw <- st_as_sf(healthfacilities_raw, na.fail = FALSE,
                                    coords = c("nu_longitude","nu_latitude"))
@@ -110,21 +104,79 @@ download_healthfacilities <- function(year){ #no year because only most recent a
   return(healthfacilities_raw)
 }
 
-# Clean the data  -----------------
+# Clean the data  ----
 clean_healthfacilities <- function(healthfacilities_raw, year){
 
-  ## 0. Create folder to save clean data ----
+  ## 0. Adjust date of last update ----
+  
+  date_month <- str_sub(year, start = 6, end = 8)
+  date_year <- str_sub(year, start = 1, end = 4)
+  
+  ## 1. Create folder to save clean data ----
   
   dir_clean <- paste0("./data/health_facilities/", year)
   dir.create(dir_clean, recursive = T, showWarnings = FALSE)
   dir.exists(dir_clean)
   
-  ## 1. Preparation ----
+  ## 2. Adjusts ----
   
+  glimpse(healthfacilities_raw)
   
+  healthfacilities <- healthfacilities_raw |> 
+    rename(code_cnes = 'co_cnes', # rename collumns
+           code_state = 'co_uf',
+           code_muni6 = 'co_ibge') |> 
+    mutate(code_cnes = sprintf("%07d", code_cnes)) # fix code_cnes to 7 digits
+    
+  glimpse(healthfacilities)
+  
+  #   # fix code_muni to 7 digits
+  #   muni <- geobr::read_municipality(code_muni = 'all', year = as.numeric(year_update) - 1)
+  #   data.table::setDT(muni)
+  #   muni[, code_muni6 := as.numeric(substring(code_muni, 1, 6))]
+  #   muni <- muni[, .(code_muni6, code_muni)]
+  # 
+  #   dt[muni,  on = 'code_muni6', code_muni := i.code_muni]
+  #   dt[, code_muni6 := NULL]
+  # 
+  #   # add state and region
+  #   dt <- add_state_info(temp_sf = dt, column = 'code_state')
+  #   dt <- add_region_info(temp_sf = dt, column = 'code_state')
+  # 
+  #   # add update date columns
+  #   dt[, date_update := as.character(date_update)]
+  #   dt[, year_update := as.character(year_update)]
+  # 
+  #   # reorder columns
+  #   data.table::setcolorder(dt,
+  #                           c('code_cnes',
+  #                             'code_muni',
+  #                             'code_state', 'abbrev_state', 'name_state',
+  #                             'code_region', 'name_region',
+  #                             'date_update', 'year_update'))
+  # 
+  # 
+  #   # deal with points with missing coordinates
+  #   head(dt)
+  #   dt[is.na(lat) | is.na(lon),]
+  #   dt[lat==0,]
+  # 
+  #   # identify which points should have empty geo
+  #   dt[is.na(lat) | is.na(lon), empty_geo := T]
+  # 
+  #   dt[code_cnes=='0000930', lat]
+  #   dt[code_cnes=='0000930', lon]
+  # 
+  #   # replace NAs with 0
+  #   data.table::setnafill(dt,
+  #                         type = "const",
+  #                         fill = 0,
+  #                         cols=c("lat","lon")
+  #                         )
+  # 
   
 
-  ## 2. Apply harmonize geobr cleaning ----
+  ## 3. Apply harmonize geobr cleaning ----
   
   temp_sf <- harmonize_geobr(
     temp_sf = healthfacilities_raw,
@@ -141,33 +193,19 @@ clean_healthfacilities <- function(healthfacilities_raw, year){
   
   glimpse(temp_sf)
   
-  ## 3. lighter version ---- 
-  #temp_sf_simplified <- simplify_temp_sf(temp_sf, tolerance = 100)
-  
   ## 4. Save results  ----
   
-  # sf::st_write(temp_sf, dsn = paste0(dir_clean, "/healthfacilities_",  year,
+  # sf::st_write(temp_sf, dsn = paste0(dir_clean, "/healthfacilities_",  date_year, date_month,
   #                                    ".gpkg"), delete_dsn = TRUE)
-  # sf::st_write(temp_sf_simplified, dsn = paste0(dir_clean,
-  #                                               "/healthfacilities_",
-  #                                               year, "_simplified.gpkg"),
-  #              delete_dsn = TRUE )
   
   # Save in parquet
   arrow::write_parquet(
     x = temp_sf,
-    sink = paste0(dir_clean, "/healthfacilities_", year, ".parquet"),
+    sink = paste0(dir_clean, "/healthfacilities_", date_year, date_month, ".parquet"),
     compression = 'zstd',
     compression_level = 22
   )
   
-  arrow::write_parquet(
-    x = temp_sf_simplified,
-    sink = paste0(dir_clean,"/healthfacilities_", year, "_simplified",
-                  ".parquet"),
-    compression='zstd',
-    compression_level = 22
-  )
   ## 5. Create the files for geobr index  ----
   
   files <- list.files(path = dir_clean, 
