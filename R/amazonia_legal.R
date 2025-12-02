@@ -41,12 +41,25 @@ source("./R/support_fun.R")
 # Download the data  ----
 download_amazonialegal <- function(year){ #
 
-  ## 0. Set up the download links
+  ## 0. Set up the download links (UPDATE YEAR) ----
+  
+  base_link <- "https://geoftp.ibge.gov.br/organizacao_do_territorio/estrutura_territorial/amazonia_legal/"
+  
+  if (year == 2019) {
+    ftp_zip <- paste0(base_link, year,
+                      "/lista_de_municipios_da_amazonia_legal_", year,
+                      "_SHP.zip")
+  }
+  
+  if (year == 2020) {
+    ftp_zip <- paste0(base_link, year,
+                      "/lista_de_municipios_da_Amazonia_Legal_", year,
+                      "_SHP.zip")
+  }
   
   if (year %in% c(2021, 2022, 2024)) {
-    base_link <- "https://geoftp.ibge.gov.br/organizacao_do_territorio/estrutura_territorial/amazonia_legal/"
-    
-    ftp_zip <- paste0(base_link, year, "/Limites_Amazonia_Legal_", year,
+    ftp_zip <- paste0(base_link, year,
+                      "/Limites_Amazonia_Legal_", year,
                       "_shp.zip")
   }
   
@@ -70,28 +83,37 @@ download_amazonialegal <- function(year){ #
   file_raw <- fs::file_temp(tmp_dir = in_zip,
                             ext = fs::path_ext(ftp_zip))
   
-  # temp_download <- httr::GET(
-  #   url = ftp_zip, 
-  #   httr::write_disk(path = paste0(download_temp_dir, file_name),
-  #                    overwrite = T))
-  
   download.file(url = ftp_zip,
                 destfile = file_raw)
   
-  # ## 2. Save in the temp directory ----
-  # shp_file <- basename(ftp_shp)
-  # shp_dir <- paste0(download_temp_dir, shp_file)
+  file.exists(file_raw)
   
-  ## 2. Unzip the shape file ----
+  ## 3. Unzip the shape file ----
   
   unzip_geobr(zip_dir = zip_dir, in_zip = in_zip, out_zip = out_zip, is_shp = TRUE)
   
-  ## 3. Read data
-  amazonialegal_raw <- sf::st_read(
-    out_zip, 
-    quiet = F, 
-    stringsAsFactors=F
-  )
+  ## 4. Read data
+  
+  if (year %in% c(2019, 2020)) {
+  
+    # lista todos os .shp na pasta (busca recursiva opcional)
+    shp_files <- list.files(out_zip, pattern = "^[Aa].*\\.shp$", full.names = TRUE)
+    
+    amazonialegal_raw <- sf::st_read(
+      shp_files, 
+      quiet = F, 
+      stringsAsFactors=F
+    )
+    
+    }
+  
+  if (year %in% c(2021, 2022, 2024)) {
+    amazonialegal_raw <- sf::st_read(
+      out_zip, 
+      quiet = F, 
+      stringsAsFactors=F
+    )
+  }
   
   return(amazonialegal_raw)
   
@@ -146,14 +168,14 @@ clean_amazonialegal <- function(amazonialegal_raw, year){
   ## 5. Save original and simplified datasets in parquet ----
   arrow::write_parquet(
     x = temp_sf,
-    sink = paste0(dir_clean, "amazonialegal_", year, ".parquet"),
+    sink = paste0(dir_clean, "/amazonialegal_", year, ".parquet"),
     compression='zstd',
     compression_level = 22
   )
   
   arrow::write_parquet(
     x = temp_sf2,
-    sink = paste0(dir_clean, "amazonialegal_", year, "_simplified", ".parquet"),
+    sink = paste0(dir_clean, "/amazonialegal_", year, "_simplified", ".parquet"),
     compression='zstd',
     compression_level = 22
   )
