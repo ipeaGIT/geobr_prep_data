@@ -92,10 +92,9 @@ download_amazonialegal <- function(year){ #
   
   unzip_geobr(zip_dir = zip_dir, in_zip = in_zip, out_zip = out_zip, is_shp = TRUE)
   
-  ## 4. Read data
+  ## 4. Read data ----
   
   if (year %in% c(2019, 2020)) {
-  
     # lista todos os .shp na pasta (busca recursiva opcional)
     shp_files <- list.files(out_zip, pattern = "^[Aa].*\\.shp$", full.names = TRUE)
     
@@ -104,8 +103,7 @@ download_amazonialegal <- function(year){ #
       quiet = F, 
       stringsAsFactors=F
     )
-    
-    }
+  }
   
   if (year %in% c(2021, 2022, 2024)) {
     amazonialegal_raw <- sf::st_read(
@@ -114,6 +112,9 @@ download_amazonialegal <- function(year){ #
       stringsAsFactors=F
     )
   }
+  
+  ## 5. Show result ----
+  glimpse(amazonialegal_raw)
   
   return(amazonialegal_raw)
   
