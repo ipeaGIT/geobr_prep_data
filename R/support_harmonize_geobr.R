@@ -546,7 +546,7 @@ glimpse_geobr <- function(data = NULL, filenames = NULL,
   
 }
   
-# Robust sf read geobr function -----------------
+# Robust sf read geobr function WORKING -----------------
 
 readmerge_geobr <-  function(folder_path
                              #, encoding
