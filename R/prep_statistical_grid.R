@@ -24,10 +24,14 @@
 ### USE temporariamente ------
 # library(targets)
 # library(tidyverse)
+# library(sf)
 # library(data.table)
+# library(janitor)
 # library(mirai)
 # library(RCurl)
 # library(rvest)
+# library(arrow)
+# library(geoarrow)
 # source("./R/support_harmonize_geobr.R")
 # source("./R/support_fun.R")
 
@@ -102,10 +106,7 @@ download_statsgrid <- function(year){ # year = 2010
   dir.create(out_zip, showWarnings = FALSE, recursive = TRUE)
   dir.exists(out_zip)
   
-  pbapply::pblapply(
-    X = zip_names, 
-    FUN = function(x){ unzip(zipfile = x, exdir = out_zip) }
-  )
+  unzip_geobr(zip_dir = zip_dir, in_zip = in_zip, out_zip = out_zip, is_shp = TRUE)
   
   # #### 666 paralelizacao
   # # numero de cores
@@ -120,19 +121,24 @@ download_statsgrid <- function(year){ # year = 2010
   
   ## 5. Bind Raw data together ----
   
-  shp_names <- list.files(out_zip, pattern = "\\.shp$", full.names = TRUE)
+  statsgrid_raw <- readmerge_geobr(folder_path = out_zip)
+  glimpse(statsgrid_raw)
   
-  shp_names <- shp_names[c(1:2)] # 666 para testar, reduzir aqui o número de shp juntados
-  
-  # paralelizar ?
-  statsgrid_list <- pbapply::pblapply(
-    X = shp_names, 
-    FUN = function(x){ sf::st_read(x, quiet = T, stringsAsFactors=F) }
-  )
-  
-  statsgrid_raw <- data.table::rbindlist(statsgrid_list)
-  data.table::setDF(statsgrid_raw)
+  # shp_names <- list.files(out_zip, pattern = "\\.shp$", full.names = TRUE)
+  # 
+  # shp_names <- shp_names[c(1:2)] # 666 para testar, reduzir aqui o número de shp juntados
+  # 
+  # # paralelizar ?
+  # statsgrid_list <- pbapply::pblapply(
+  #   X = shp_names, 
+  #   FUN = function(x){ sf::st_read(x, quiet = T, stringsAsFactors=F) }
+  # )
+  # 
+  # statsgrid_raw <- data.table::rbindlist(statsgrid_list)
+  # data.table::setDF(statsgrid_raw)
   statsgrid_raw <- sf::st_as_sf(statsgrid_raw)
+  
+  glimpse(statsgrid_raw)
   
   return(statsgrid_raw)
 }
@@ -149,7 +155,7 @@ clean_statsgrid <- function(statsgrid_raw, year) {
   ## 1. Preparation ----
   
   if(year == 2010) {
-    
+
     # drop unecessary columns
     statsgrid_raw$Shape_Leng <- NULL
     statsgrid_raw$Shape_Area <- NULL
@@ -159,28 +165,28 @@ clean_statsgrid <- function(statsgrid_raw, year) {
   
   ## 2. Standarize the collum names and order ???? -----------------
   
-  if(year == 2010) {
-    # "ID_UNICO"   "nome_1KM"   "nome_5KM"   "nome_10KM"  "nome_50KM"  "nome_100KM" "nome_500KM"
-    # "QUADRANTE"  "MASC"       "FEM"        "POP"        "DOM_OCU"    "geometry"
-  }
+  # if(year == 2010) {
+  #   # "ID_UNICO"   "nome_1KM"   "nome_5KM"   "nome_10KM"  "nome_50KM"  "nome_100KM" "nome_500KM"
+  #   # "QUADRANTE"  "MASC"       "FEM"        "POP"        "DOM_OCU"    "geometry"
+  # }
+  # 
+  # if(year == 2022) {
+  #   #"ID_UNICO"   "nome_1km"   "nome_5KM"   "nome_10KM"  "nome_50KM"  "nome_100KM" "nome_500KM"
+  #   # "QUADRANTE"  "TOTAL"      "TOTAL_DOM"  "geometry" 
+  #   
+  # }
   
-  if(year == 2022) {
-    #"ID_UNICO"   "nome_1km"   "nome_5KM"   "nome_10KM"  "nome_50KM"  "nome_100KM" "nome_500KM"
-    # "QUADRANTE"  "TOTAL"      "TOTAL_DOM"  "geometry" 
-    
-  }
-  
-  statsgrid_raw <- janitor::clean_names(statsgrid_raw)    
+  statsgrid <- janitor::clean_names(statsgrid_raw)    
   
   ## 3. Apply harmonize geobr cleaning ----
   
   temp_sf <- harmonize_geobr(
-    temp_sf = statsgrid_raw,
+    temp_sf = statsgrid,
     add_state = F,
     add_region = F,
     add_snake_case = F,
     #snake_colname = snake_colname,
-    projection_fix = T,
+    projection_fix = F,
     encoding_utf8 = T,
     topology_fix = F,
     remove_z_dimension = T,
