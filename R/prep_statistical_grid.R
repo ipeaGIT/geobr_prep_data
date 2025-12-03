@@ -20,6 +20,7 @@
 #
 # Observações: 
 # Anos disponíveis: 2010, 2022
+# Este dataset não está salvando em parquet e o harmonize geobr demora muito.
 
 ### USE temporariamente ------
 # library(targets)

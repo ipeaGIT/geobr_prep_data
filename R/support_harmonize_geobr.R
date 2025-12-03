@@ -528,24 +528,52 @@ unzip_geobr <- function(zip_dir, in_zip, out_zip = NULL, is_shp = FALSE) {
   }
 }
 
-# Collumns names geobr function UNFINISHED -----------------
 
-glimpse_geobr <- function(data = NULL, filenames = NULL,
-                          multiple_files = FALSE) {
+# Collumns names geobr function DEVELOPING ----
+
+standarizecol_geobr <- function(df, dicionario) {
+  ## Dicionário de equivalências ----
+  #para cada dataset é preciso fazer um dicionário de padronização para coluna destino
+  # Modelo de dicionário de equivalências (a ser utilizado em cada script de dataset)
+  # Copiar deste dataframe long e ajustar
   
-  # if (multiple_files == TRUE){ 
-  #   
-  # } else {
-    
-    table_collumns <- tibble(name_collum = colnames(data),
-                             type_collum = sapply(data, class)) |> 
-      rownames_to_column(var = "num_collumn")
-  #}
+  # dicionario <- data.frame(
+  #   # Lista de nomes padronizados de colunas
+  #   padrao = c(
+  #     #ANO e número de variações associadas
+  #     rep("ano", 4),
+  #     #código do município e número de variações associadas
+  #     rep("code_mun", 8)
+  #   ),
+  #   # Lista de variações
+  #   variacao = c(
+  #     #Variações que convertem para "ano"
+  #     "ANO", "year",
+  #     #Variações que convertem para "cod_mun"
+  #     "POP"
+  #   ),
+  #   stringsAsFactors = FALSE,
+  # )
+
+  # Função para aplicar a padronização ----
   
-  return(table_collumns)
+  stopifnot(all(c(padrao, variacao) %in% names(dicionario)))
+  
+  # selecionar apenas as variações listadas no dataset
+  mapeamento <- dicionario |> 
+    filter(variacao %in% names(df))
+  
+  # se nenhuma coluna do dicionário estiver presente, retorna df sem alterações
+  if (nrow(mapeamento) == 0) return(df)
+  
+  # Criar named vector: novo_nome = nome antigo
+  rename_vec <- setNames(mapeamento$variacao, mapeamento$padrao)
+  
+  # Renomear apenas as colunas citadas no dicionário
+  df |> rename(!!!rename_vec)
   
 }
-  
+
 # Robust sf read geobr function WORKING -----------------
 
 readmerge_geobr <-  function(folder_path
