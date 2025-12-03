@@ -144,11 +144,11 @@ list(
              command = download_statsgrid(years_statsgrid),
              pattern = map(years_statsgrid)),
   
-  # clean
-  tar_target(name = statsgrid_clean,
-             command = clean_statsgrid(statsgrid_raw, years_statsgrid),
-             pattern = map(statsgrid_raw, years_statsgrid),
-             format = 'file'),
+  # # clean
+  # tar_target(name = statsgrid_clean,
+  #            command = clean_statsgrid(statsgrid_raw, years_statsgrid),
+  #            pattern = map(statsgrid_raw, years_statsgrid),
+  #            format = 'file'),
   
   #05. Estabelecimentos de saúde ----
   

@@ -161,9 +161,12 @@ clean_statsgrid <- function(statsgrid_raw, year) {
     statsgrid_raw$Shape_Area <- NULL
   }
   
+
   nomes_colunas <- names(statsgrid_raw)
   
   ## 2. Standarize the collum names and order ???? -----------------
+  
+  dicionario_colunas <- c("ID_UNICO")
   
   # if(year == 2010) {
   #   # "ID_UNICO"   "nome_1KM"   "nome_5KM"   "nome_10KM"  "nome_50KM"  "nome_100KM" "nome_500KM"
@@ -176,7 +179,16 @@ clean_statsgrid <- function(statsgrid_raw, year) {
   #   
   # }
   
-  statsgrid <- janitor::clean_names(statsgrid_raw)    
+  # Filtrar só as colunas em comum
+  # filter_collumns <- c("ID_UNICO", "nome_1km", "nome_5KM", "nome_10KM",
+  #                      "nome_50KM", "nome_100KM", "nome_500KM", "QUADRANTE",
+  #                      "geometry") |> 
+  #   clean_names()
+  # 
+  # statsgrid <- statsgrid_raw |> 
+  #   clean_names(statsgrid_raw) |> 
+  #   select(all_of(filter_collumns))
+    
   
   ## 3. Apply harmonize geobr cleaning ----
   
