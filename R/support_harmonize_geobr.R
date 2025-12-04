@@ -529,49 +529,96 @@ unzip_geobr <- function(zip_dir, in_zip, out_zip = NULL, is_shp = FALSE) {
 }
 
 
-# Collumns names geobr function DEVELOPING ----
+# Collumns names geobr function FINISHED ----
 
-standarizecol_geobr <- function(df, dicionario) {
-  ## Dicionário de equivalências ----
-  #para cada dataset é preciso fazer um dicionário de padronização para coluna destino
-  # Modelo de dicionário de equivalências (a ser utilizado em cada script de dataset)
-  # Copiar deste dataframe long e ajustar
-  
-  # dicionario <- data.frame(
-  #   # Lista de nomes padronizados de colunas
-  #   padrao = c(
-  #     #ANO e número de variações associadas
-  #     rep("ano", 4),
-  #     #código do município e número de variações associadas
-  #     rep("code_mun", 8)
-  #   ),
-  #   # Lista de variações
-  #   variacao = c(
-  #     #Variações que convertem para "ano"
-  #     "ANO", "year",
-  #     #Variações que convertem para "cod_mun"
-  #     "POP"
-  #   ),
-  #   stringsAsFactors = FALSE,
-  # )
+# Essa função padroniza os nomes das colunas de qualquer dataset de acordo com
+# um dicionario que deverá ser criado no script de cada dataset dentro das
+# funções clean. Abaixo um exemplo para ser copiado para o scritp do dataset.
 
-  # Função para aplicar a padronização ----
+## Dicionário de equivalências ----
+#para cada dataset é preciso fazer um dicionário de padronização para coluna destino
+# Modelo de dicionário de equivalências (a ser utilizado em cada script de dataset)
+# Copiar deste dataframe long e ajustar. Lista de padrões e variações precisam bater
+
+# dicionario <- data.frame(
+#   # Lista de nomes padronizados de colunas
+#   padrao = c(
+#     #ANO e número de variações associadas
+#     rep("ano", 3),
+#     #CÓDIGO DE MUNICÍPIO e número de variações associadas
+#     rep("code_mun", 3)
+#   ),
+#   # Lista de variações
+#   variacao = c(
+#     #Variações que convertem para "ano"
+#     "ANO", "year", "data_ano",
+#     #Variações que convertem para "cod_mun"
+#     "cd_mun", "code_mun", "codigo_municipio"),
+#   stringsAsFactors = FALSE)
+
+## Função para aplicar a padronização ----
+standarizecol_geobr <- function(dataset, dicionario) {
   
-  stopifnot(all(c(padrao, variacao) %in% names(dicionario)))
+  #checagens mínimas
+  if(!is.data.frame(dataset)) stop("o dataset deve ser um data.frame ou tibble")
+  if(!is.data.frame(dicionario)) stop("o dicionário deve ser um data.frame ou tibble")
+  if(!all(c("padrao", "variacao") %in% names(dicionario))) {
+    stop("dicionário precisa ter colunas 'padrao' e 'variacao'.")
+  }
+  # garantir tipos character
+  dicionario$padrao <- as.character(dicionario$padrao)
+  dicionario$variacao <- as.character(dicionario$variacao)
   
-  # selecionar apenas as variações listadas no dataset
-  mapeamento <- dicionario |> 
-    filter(variacao %in% names(df))
+  # quais variações do dicionario existem no dataset
+  variacoes_presentes <- intersect(dicionario$variacao, names(dataset))
   
-  # se nenhuma coluna do dicionário estiver presente, retorna df sem alterações
-  if (nrow(mapeamento) == 0) return(df)
+  if(length(variacoes_presentes) == 0) {
+    warning("Nenhuma coluna foi renomeada.", call. = FALSE)
+    attr(dataset, "alteracoes_realizadas") <- FALSE
+    attr(dataset, "alteracoes_n") <- 0L
+    return(dataset)
+  }
   
-  # Criar named vector: novo_nome = nome antigo
-  rename_vec <- setNames(mapeamento$variacao, mapeamento$padrao)
+  # para cada variação encontrada, buscar o padrão correspondente
+  # se houver duplicidade na correspondência (mesma variação repetida no dicionário),
+  # pegamos a primeira ocorrência
+  padrao_por_variacao <- vapply(
+    variacoes_presentes,
+    function(v) {
+      dicionario$padrao[which(dicionario$variacao == v)[1]]
+    },
+    FUN.VALUE = character(1)
+  )
   
-  # Renomear apenas as colunas citadas no dicionário
-  df |> rename(!!!rename_vec)
+  # nome atual das colunas
+  nomes_atual <- names(dataset)
   
+  # substituir o nomes que batem com variacoes_presentes pelos padroes
+  nomes_novos <- nomes_atual
+  idx <- match(variacoes_presentes, nomes_atual) # índices das colunas a renomear
+  nomes_novos[idx] <- padrao_por_variacao
+  
+  #verificar se haverá nomes duplicados após renomear
+  if (any(duplicated(nomes_novos))) {
+    # em vez de falhar, deixamos, mas avisamos o usuário qual será o problema
+    dup_names <- nomes_novos[duplicated(nomes_novos)]
+    warning(
+      "Após a renomeação haverá nomes de colunas duplicados: ",
+      paste(unique(dup_names), collapse = ","),
+      ". Verifique o dicionário da sua base de dados.", call. = FALSE
+    )
+  }
+  
+  # Aplicar a renomeação
+  names(dataset) <- nomes_novos
+  
+  # mensagens / atributos
+  n_changes <- length(variacoes_presentes)
+  warning(paste0(n_changes, " coluna(s) foram renomeadas para o padrão geobr."), call. = FALSE)
+  attr(dataset, "alteracoes_realizadas") <- TRUE
+  attr(dataset, "alteracoes_n") <- as.integer(n_changes)
+  
+  return(dataset)
 }
 
 # Robust sf read geobr function WORKING -----------------
