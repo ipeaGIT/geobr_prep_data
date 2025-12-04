@@ -3,7 +3,7 @@ library(tarchetypes)
 library(crew)
 
 
-# Set target options: ----
+# Set target options: ----------------------------------------------------------
 tar_option_set(
   format = "rds",
   memory = "transient",
@@ -11,7 +11,7 @@ tar_option_set(
   controller = crew_controller_local(workers = 8),
   
   
-  # Packages ----
+  # Packages -------------------------------------------------------------------
   packages = c('arrow',
                'collapse',
                'crew',
@@ -72,13 +72,13 @@ tar_option_set(
 # tar_source()
 targets::tar_source('./R')
 
-############# The Targets List #########
+############# The Targets List #########----------------------------------------
 
 # In case of error, run:
 # test_errors <- targets::tar_meta(fields = warnings, complete_only = TRUE)
 
 list(
-  #01. Semiárido ----
+  #01. Semiárido ---------------------------------------------------------------
   
   # year input
   tar_target(name = years_semiarid,
@@ -95,7 +95,7 @@ list(
              pattern = map(semiarid_raw, years_semiarid),
              format = 'file'),
   
-  #02. Amazonia Legal ----
+  #02. Amazonia Legal ----------------------------------------------------------
   
   # year input
   tar_target(name = years_amazon,
@@ -116,7 +116,7 @@ list(
              pattern = map(amazonialegal_raw, years_amazon),
              format = 'file'),
   
-  #03. Biomas ----
+  #03. Biomas ------------------------------------------------------------------
   
   # year input
   tar_target(name = years_biomes,
@@ -133,7 +133,7 @@ list(
              pattern = map(biomes_raw, years_biomes),
              format = 'file'),
   
-  #04. Grade estatística ----
+  #04. Grade estatística -------------------------------------------------------
   
   # # year input
   # tar_target(name = years_statsgrid,
@@ -150,7 +150,7 @@ list(
   #            pattern = map(statsgrid_raw, years_statsgrid),
   #            format = 'file'),
   
-  #05. Estabelecimentos de saúde ----
+  #05. Estabelecimentos de saúde -----------------------------------------------
   
   #year input
   tar_target(name = years_healthfacilities,
@@ -167,7 +167,7 @@ list(
              pattern = map(healthfacilities_raw, years_healthfacilities),
              format = 'file'),
   
-  #06. Terras Indígenas -----------------------------------------------------------------
+  #06. Terras Indígenas --------------------------------------------------------
   
   # # year imput
   # tar_target(name = years_indigenousland,
@@ -184,23 +184,23 @@ list(
   #            pattern = map(indigenousland_raw, years_indigenousland),
   #            format = 'file'),
   
-  #07. Regioes Intermediarias -----------------------------------------------------------------
+  #07. Regioes Intermediarias --------------------------------------------------
   
-  # # year input
-  # tar_target(name = years_intermediateregions,
-  #            command = c(2019:2024)),
-  # 
-  # # download
-  # tar_target(name = intermediateregions_raw,
-  #            command = download_intermediateregions(years_intermediateregions),
-  #            pattern = map(years_intermediateregions)),
-  # 
-  # # clean
-  # tar_target(name = intermediateregions_clean,
-  #            command = clean_intermediateregions(intermediateregions_raw,
-  #                                                years_intermediateregions),
-  #            pattern = map(intermediateregions_raw, years_intermediateregions),
-  #            format = 'file'),
+  # year input
+  tar_target(name = years_intermediateregions,
+             command = c(2019:2024)),
+
+  # download
+  tar_target(name = intermediateregions_raw,
+             command = download_intermediateregions(years_intermediateregions),
+             pattern = map(years_intermediateregions)),
+
+  # clean
+  tar_target(name = intermediateregions_clean,
+             command = clean_intermediateregions(intermediateregions_raw,
+                                                 years_intermediateregions),
+             pattern = map(intermediateregions_raw, years_intermediateregions),
+             format = 'file'),
   
   #08. Regiões Imediatas -----------------------------------------------------------------
   
@@ -552,7 +552,7 @@ list(
   #            pattern = map(poparrangements_raw, years_poparrangements),
   #            format = 'file')
   
-  #28. END. Upload files ----
+  #END. Upload files -------------------------------------------------------
   
   # all files input
   tar_target(name = all_files,
@@ -561,8 +561,8 @@ list(
                amazonialegal_clean,
                biomes_clean,
                #statsgrid_clean,
-               healthfacilities_clean
-               # intermediateregions_clean, 
+               healthfacilities_clean,
+               intermediateregions_clean 
                # immediateregions_clean,
                # schools_clean, states_clean, 
                # regions_clean,
@@ -580,9 +580,9 @@ list(
   # )
 )
 
-##################### UNTIL HERE UPDATED -----------------------------------------------------------------
+##################### UNTIL HERE UPDATED ---------------------------------------
 #
-# # 3. Municipios -----------------------------------------------------------------
+# # 3. Municipios --------------------------------------------------------------
 # 
 #   # year input
 #   tar_target(years_muni, c(2000, 2001, 2005, 2007, 2010,

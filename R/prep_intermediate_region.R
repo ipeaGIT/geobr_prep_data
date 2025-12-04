@@ -16,7 +16,7 @@
 # Palavras chaves descritivas:****
 # Informacao do Sistema de Referencia: SIRGAS 2000
 
-### Libraries (use any library as necessary) ----
+### Libraries (use any library as necessary) -----------------------------------
 
 # library(RCurl)
 # library(stringr)
@@ -38,10 +38,10 @@
 # source("./R/support_harmonize_geobr.R")
 # source("./R/support_fun.R")
 
-# Download the data  ----
+# Download the data  -----------------------------------------------------------
 download_intermediateregions <- function(year){ # year = 2024
   
-  ## 0. Generate the correct ftp link (UPDATE YEAR HERE) ----
+  ## 0. Generate the correct ftp link (UPDATE YEAR HERE) -----------------------
   
   ftp_start <- "https://geoftp.ibge.gov.br/organizacao_do_territorio/malhas_territoriais/malhas_municipais/municipio_"
     
@@ -69,7 +69,7 @@ download_intermediateregions <- function(year){ # year = 2024
     ftp_link <- paste0(ftp_start, year, "/Brasil/BR_RG_Intermediarias_2024.zip")
   }
   
-  ## 1. Create temp folder ----
+  ## 1. Create temp folder -----------------------------------------------------
   
   zip_dir <- paste0(tempdir(), "/intermediate_regions/", year)
   dir.create(zip_dir, showWarnings = FALSE, recursive = TRUE)
@@ -80,7 +80,7 @@ download_intermediateregions <- function(year){ # year = 2024
   # dir.create(zip_dir, showWarnings = FALSE, recursive = TRUE)
   # dir.exists(zip_dir)
   
-  ## 2. Create direction for each download ----
+  ## 2. Create direction for each download -------------------------------------
   
   # zip folder
   in_zip <- paste0(zip_dir, "/zipped/")
@@ -92,14 +92,14 @@ download_intermediateregions <- function(year){ # year = 2024
   
   #filenames <- basename(ftp_link)
   
-  ## 3. Download Raw data ----
+  ## 3. Download Raw data ------------------------------------------------------
   
   httr::GET(url = ftp_link,
             httr::progress(),
             httr::write_disk(path = file_raw,
                              overwrite = T))
   
-  ## 4. Unzip Raw data ----
+  ## 4. Unzip Raw data ---------------------------------------------------------
   
   ### unzip folder
   out_zip <- paste0(zip_dir, "/unzipped/")
@@ -108,11 +108,7 @@ download_intermediateregions <- function(year){ # year = 2024
   
   unzip_geobr(zip_dir = zip_dir, in_zip = in_zip, out_zip = out_zip, is_shp = TRUE)
   
-  ## 5. Bind Raw data together ----
-  
-  in_zip <- paste0(zip_dir, "/zipped/")
-  dir.create(in_zip, showWarnings = FALSE, recursive = TRUE)
-  dir.exists(in_zip)
+  ## 5. Bind Raw data together -------------------------------------------------
   
   shp_names <- list.files(out_zip, pattern = "\\.shp$",
                           full.names = TRUE)
@@ -124,32 +120,78 @@ download_intermediateregions <- function(year){ # year = 2024
   
   intermediateregions_raw <- data.table::rbindlist(intermediateregions_list)
   
-  ## 6. Show result ----
+  ## 6. Show result ------------------------------------------------------------
   
   data.table::setDF(intermediateregions_raw)
   intermediateregions_raw <- sf::st_as_sf(intermediateregions_raw) %>% 
     clean_names()
   
+  glimpse(intermediateregions_raw)
+  
   return(intermediateregions_raw)
   
 }
 
-# Clean the data  ----
+# Clean the data  --------------------------------------------------------------
 clean_intermediateregions <- function(intermediateregions_raw, year){ # year = 2024
   
-  ## 0. Create folder to save clean data ----
+  ## 0. Create folder to save clean data ---------------------------------------
   
   dir_clean <- paste0("./data/intermediate_regions/", year)
   dir.create(dir_clean, recursive = T, showWarnings = FALSE)
   dir.exists(dir_clean)
   
-  ## 1. Rename collumns names ----
+  ## 1. Remove unnecessary collumns and check states collums -------------------
   
+  statesgeobr <- states_geobr() |> 
+    select(2, 3)
   
-  ## 2. Apply harmonize geobr cleaning ----
+  if(year == 2023) {
+    intermediateregions_raw <- intermediateregions_raw |> 
+      inner_join(statesgeobr, by = c("cd_uf" = "cdc_uf")) |> 
+      select(-cd_uf, -cd_regiao) |> 
+      relocate(sg_uf, .after = nm_rgint)
+    
+    glimpse(intermediateregions_raw)
+  }
+    
+  
+  if(year == 2024) {
+    intermediateregions_raw <- intermediateregions_raw |> 
+      select(-cd_uf, -cd_regia, -sigla_rg) |> 
+      relocate(sigla_uf, .after = nm_rgint)
+    
+    glimpse(intermediateregions_raw)
+  }
+  
+  ## 2. Rename collumns names --------------------------------------------------
+  
+  names_2019 <- c("cd_rgint", "nm_rgint", "sigla_uf", "geometry")
+  names_2020 <- c("cd_rgint", "nm_rgint", "sigla_uf", "geometry")
+  names_2021 <- c("cd_rgint", "nm_rgint", "sigla", "geometry")
+  names_2022 <- c("cd_rgint", "nm_rgint", "sigla_uf", "area_km2", "geometry")
+  names_2023 <- c("cd_rgint", "nm_rgint", "cd_uf", "nm_uf", "cd_regiao", "nm_regiao", "area_km2", "geometry")
+  names_2024 <- c("cd_rgint", "nm_rgint", "cd_uf", "nm_uf", "sigla_uf", "cd_regia", "nm_regia", "sigla_rg", "area_km2", "geometry")
+  
+  dicionario <- data.frame(
+    # Lista de nomes padronizados de colunas
+    padrao = c(
+      #Sigla do estado e número de variações associadas
+      rep("sg_uf", 3)
+    ),
+    # Lista de variações
+    variacao = c(
+      #Variações que convertem para "sg_uf"
+      "sigla_uf", "sigla", "sg_state"
+    ),
+    stringsAsFactors = FALSE)
+  
+  intermediateregions <- standardcol_geobr(intermediateregions_raw, dicionario)
+  
+  ## 3. Apply harmonize geobr cleaning -----------------------------------------
   
   temp_sf <- harmonize_geobr(
-    temp_sf = intermediateregions_raw,
+    temp_sf = intermediateregions,
     add_state = F,
     add_region = F,
     add_snake_case = F,
@@ -163,10 +205,10 @@ clean_intermediateregions <- function(intermediateregions_raw, year){ # year = 2
   
   glimpse(temp_sf)
   
-  ## 3. lighter version ---- 
+  ## 4. lighter version --------------------------------------------------------
   temp_sf_simplified <- simplify_temp_sf(temp_sf, tolerance = 100)
   
-  ## 4. Save datasets  ----
+  ## 5. Save datasets  ---------------------------------------------------------
   
   # sf::st_write(temp_sf, dsn = paste0(dir_clean, "/intermediateregions_",  year,
   #                                    ".gpkg"), delete_dsn = TRUE)
