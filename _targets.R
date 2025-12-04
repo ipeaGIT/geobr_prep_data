@@ -202,22 +202,23 @@ list(
              pattern = map(intermediateregions_raw, years_intermediateregions),
              format = 'file'),
   
-  #08. Regiões Imediatas -----------------------------------------------------------------
+  #08. Regiões Imediatas -------------------------------------------------------
   
-  # # year input
-  # tar_target(name = years_immediateregions,
-  #            command = c(2019:2024)),
-  # 
-  # # download
-  # tar_target(name = immediateregions_raw,
-  #            command = download_immediateregions(years_immediateregions),
-  #            pattern = map(years_immediateregions)),
-  # 
-  # # clean
-  # tar_target(name = immediateregions_clean,
-  #            command = clean_immediateregions(immediateregions_raw, years_immediateregions),
-  #            pattern = map(immediateregions_raw, years_immediateregions),
-  #            format = 'file'),
+  # year input
+  tar_target(name = years_immediateregions,
+             command = c(2019:2024)),
+  
+  # download
+  tar_target(name = immediateregions_raw,
+             command = download_immediateregions(years_immediateregions),
+             pattern = map(years_immediateregions)),
+  
+  # clean
+  tar_target(name = immediateregions_clean,
+             command = clean_immediateregions(immediateregions_raw,
+                                              years_immediateregions),
+             pattern = map(immediateregions_raw, years_immediateregions),
+             format = 'file'),
   
   #09. Escolas ----
   
@@ -562,8 +563,8 @@ list(
                biomes_clean,
                #statsgrid_clean,
                healthfacilities_clean,
-               intermediateregions_clean 
-               # immediateregions_clean,
+               intermediateregions_clean,
+               immediateregions_clean
                # schools_clean, states_clean, 
                # regions_clean,
                # country_clean,
