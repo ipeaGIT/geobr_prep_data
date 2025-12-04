@@ -141,7 +141,7 @@ clean_intermediateregions <- function(intermediateregions_raw, year){ # year = 2
   dir.create(dir_clean, recursive = T, showWarnings = FALSE)
   dir.exists(dir_clean)
   
-  ## 1. Remove unnecessary collumns and check states collums -------------------
+  ## 1. Remove unnecessary columns and check states columns --------------------
   
   statesgeobr <- states_geobr() |> 
     select(2, 3)
@@ -164,25 +164,25 @@ clean_intermediateregions <- function(intermediateregions_raw, year){ # year = 2
     glimpse(intermediateregions_raw)
   }
   
-  ## 2. Rename collumns names --------------------------------------------------
+  ## 2. Rename columns names ---------------------------------------------------
   
-  names_2019 <- c("cd_rgint", "nm_rgint", "sigla_uf", "geometry")
-  names_2020 <- c("cd_rgint", "nm_rgint", "sigla_uf", "geometry")
-  names_2021 <- c("cd_rgint", "nm_rgint", "sigla", "geometry")
-  names_2022 <- c("cd_rgint", "nm_rgint", "sigla_uf", "area_km2", "geometry")
-  names_2023 <- c("cd_rgint", "nm_rgint", "cd_uf", "nm_uf", "cd_regiao", "nm_regiao", "area_km2", "geometry")
-  names_2024 <- c("cd_rgint", "nm_rgint", "cd_uf", "nm_uf", "sigla_uf", "cd_regia", "nm_regia", "sigla_rg", "area_km2", "geometry")
+  # names_2019 <- c("cd_rgint", "nm_rgint", "sigla_uf", "geometry")
+  # names_2020 <- c("cd_rgint", "nm_rgint", "sigla_uf", "geometry")
+  # names_2021 <- c("cd_rgint", "nm_rgint", "sigla", "geometry")
+  # names_2022 <- c("cd_rgint", "nm_rgint", "sigla_uf", "area_km2", "geometry")
+  # names_2023 <- c("cd_rgint", "nm_rgint", "cd_uf", "nm_uf", "cd_regiao", "nm_regiao", "area_km2", "geometry")
+  # names_2024 <- c("cd_rgint", "nm_rgint", "cd_uf", "nm_uf", "sigla_uf", "cd_regia", "nm_regia", "sigla_rg", "area_km2", "geometry")
   
   dicionario <- data.frame(
     # Lista de nomes padronizados de colunas
     padrao = c(
       #Sigla do estado e número de variações associadas
-      rep("sg_uf", 3)
+      rep("sg_uf", 2)
     ),
     # Lista de variações
     variacao = c(
       #Variações que convertem para "sg_uf"
-      "sigla_uf", "sigla", "sg_state"
+      "sigla_uf", "sigla"
     ),
     stringsAsFactors = FALSE)
   
