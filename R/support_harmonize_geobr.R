@@ -1,4 +1,4 @@
-# Harmonize Geobr -----------------
+# Harmonize Geobr --------------------------------------------------------------
 harmonize_geobr <- function(temp_sf, 
                             add_state = TRUE, 
                             state_column = c('name_state', 'code_state'),
@@ -71,7 +71,7 @@ harmonize_geobr <- function(temp_sf,
 
 
 
-# Add State abbreviation -----------------
+# Add State abbreviation -------------------------------------------------------
 add_state_info <- function(temp_sf, column){
   options(encoding = "UTF-8")
   
@@ -185,7 +185,7 @@ add_state_info <- function(temp_sf, column){
 }
 
 
-# Add Region info -----------------
+# Add Region info --------------------------------------------------------------
 add_region_info <- function(temp_sf, column){
   
   # add code_region
@@ -203,7 +203,7 @@ add_region_info <- function(temp_sf, column){
 }
 
 
-# snake case names ---------------------------------------------------
+# snake case names -------------------------------------------------------------
 snake_case_names <- function(temp_sf, colname){
   
   # Capitalize the first letter
@@ -222,7 +222,7 @@ snake_case_names <- function(temp_sf, colname){
 }
 
 
-# Harmonize spatial projection -----------------
+# Harmonize spatial projection -------------------------------------------------
 
 # Harmonize spatial projection CRS, using SIRGAS 2000 epsg (SRID): 4674
 
@@ -241,7 +241,7 @@ harmonize_projection <- function(temp_sf){
 
 
 
-# Use UTF-8 encoding -----------------
+# Use UTF-8 encoding -----------------------------------------------------------
 use_encoding_utf8 <- function(temp_sf){
   options(encoding = "UTF-8")
   
@@ -261,7 +261,7 @@ use_encoding_utf8 <- function(temp_sf){
 }
 
 
-# convert to MULTIPOLYGON -----------------
+# convert to MULTIPOLYGON ------------------------------------------------------
 
 # to_multipolygon <- function(temp_sf){
 # if( st_geometry_type(temp_sf) |> unique() |> as.character() |> length() > 1 |
@@ -310,7 +310,7 @@ to_multipolygon <- function(temp_sf){
 
 
 
-# Fix topology -----------------
+# Fix topology -----------------------------------------------------------------
 
 fix_topology <- function(temp_sf){
   
@@ -377,7 +377,7 @@ fix_topology <- function(temp_sf){
 
 
 
-# Dissolve borders temp_sf -----------------
+# Dissolve borders temp_sf -----------------------------------------------------
 
 ## Function to clean and dissolve the borders of polygons by groups
 dissolve_polygons <- function(mysf, group_column){
@@ -428,7 +428,7 @@ dissolve_polygons <- function(mysf, group_column){
 # a <- dissolve_polygons(states, group_column='code_region')
 # plot(a)
 
-# Folder creation geobr function -----------------
+# Folder creation geobr function -----------------------------------------------
 
 folder_geobr <- function(folder_name = NULL, temp = FALSE) {
   
@@ -465,7 +465,7 @@ folder_geobr <- function(folder_name = NULL, temp = FALSE) {
   
 }
 
-# Unzip geobr function WORKING -----------------
+# Unzip geobr function ---------------------------------------------------------
 
 unzip_geobr <- function(zip_dir, in_zip, out_zip = NULL, is_shp = FALSE) {
   
@@ -529,13 +529,13 @@ unzip_geobr <- function(zip_dir, in_zip, out_zip = NULL, is_shp = FALSE) {
 }
 
 
-# Collumns names geobr function FINISHED ----
+# Collumns names geobr function ------------------------------------------------
 
 # Essa função padroniza os nomes das colunas de qualquer dataset de acordo com
 # um dicionario que deverá ser criado no script de cada dataset dentro das
 # funções clean. Abaixo um exemplo para ser copiado para o scritp do dataset.
 
-## Dicionário de equivalências ----
+## Dicionário de equivalências -------------------------------------------------
 #para cada dataset é preciso fazer um dicionário de padronização para coluna destino
 # Modelo de dicionário de equivalências (a ser utilizado em cada script de dataset)
 # Copiar deste dataframe long e ajustar. Lista de padrões e variações precisam bater
@@ -556,8 +556,8 @@ unzip_geobr <- function(zip_dir, in_zip, out_zip = NULL, is_shp = FALSE) {
 #     "cd_mun", "code_mun", "codigo_municipio"),
 #   stringsAsFactors = FALSE)
 
-## Função para aplicar a padronização ----
-standarizecol_geobr <- function(dataset, dicionario) {
+## Função para aplicar a padronização ------------------------------------------
+standardcol_geobr <- function(dataset, dicionario) {
   
   #checagens mínimas
   if(!is.data.frame(dataset)) stop("o dataset deve ser um data.frame ou tibble")
@@ -621,7 +621,7 @@ standarizecol_geobr <- function(dataset, dicionario) {
   return(dataset)
 }
 
-# Robust sf read geobr function WORKING -----------------
+# Robust sf read geobr function ------------------------------------------------
 # Função para ler shp de multiplos arquivos e importá-los com
 #  apenas as colunas que existem em todos
 
@@ -669,36 +669,39 @@ readmerge_geobr <-  function(folder_path
   return(merged)
 }
 
-# States table codes for correction geobr function -----------------
+# States table codes for correction geobr function -----------------------------
 
 states_geobr <-  function() {
-  states <- tibble(cod_states = c(11, 12, 13, 14, 15, 16, 17, 21, 22, 23, 24,
-                                  25, 26, 27, 28, 29, 31, 32, 33, 35, 41, 42,
-                                  43, 50, 51, 52, 53),
-                   sg_state = c("RO", "AC", "AM", "RR", "PA", "AP", "TO",
-                                "MA", "PI", "CE", "RN", "PB", "PE", "AL",
-                                "SE", "BA", "MG", "ES", "RJ", "SP", "PR",
-                                "SC", "RS", "MS", "MT", "GO", "DF"),
-                   nm_state = c("Rondônia", "Acre", "Amazonas", "Roraima",
-                                "Pará", "Amapá", "Tocantins", "Maranhão",
-                                "Piauí", "Ceará", "Rio Grande do Norte",
-                                "Paraíba", "Pernambuco", "Alagoas", "Sergipe",
-                                "Bahia", "Minas Gerais", "Espírito Santo", 
-                                "Rio de Janeiro", "São Paulo", "Paraná",
-                                "Santa Catarina", "Rio Grande do Sul",
-                                "Mato Grosso do Sul", "Mato Grosso", "Goiás",
-                                "Distrito Federal"),
-                   cod_region = c(rep(1, 7), rep(2, 9), rep(3, 4), rep(4, 3),
-                                 rep(5, 4)),
-                   nm_region = c(rep("Norte", 7), rep("Nordeste", 9),
-                                 rep("Sudeste", 4), rep("Sul", 3), 
-                                 rep("Centro-Oeste", 4)),
-                   sgm_state = str_to_lower(sg_state))
+  states <- tibble(cd_uf = c(11, 12, 13, 14, 15, 16, 17, 21, 22, 23, 24, 25, 26,
+                             27, 28, 29, 31, 32, 33, 35, 41, 42, 43, 50, 51, 52,
+                             53),
+                   cdc_uf = as.character(c(11, 12, 13, 14, 15, 16, 17, 21, 22,
+                                           23, 24, 25, 26, 27, 28, 29, 31, 32,
+                                           33, 35, 41, 42, 43, 50, 51, 52, 53)),
+                   sg_uf = c("RO", "AC", "AM", "RR", "PA", "AP", "TO",
+                             "MA", "PI", "CE", "RN", "PB", "PE", "AL",
+                             "SE", "BA", "MG", "ES", "RJ", "SP", "PR",
+                             "SC", "RS", "MS", "MT", "GO", "DF"),
+                   nm_uf = c("Rondônia", "Acre", "Amazonas", "Roraima",
+                             "Pará", "Amapá", "Tocantins", "Maranhão",
+                             "Piauí", "Ceará", "Rio Grande do Norte",
+                             "Paraíba", "Pernambuco", "Alagoas", "Sergipe",
+                             "Bahia", "Minas Gerais", "Espírito Santo", 
+                             "Rio de Janeiro", "São Paulo", "Paraná",
+                             "Santa Catarina", "Rio Grande do Sul",
+                             "Mato Grosso do Sul", "Mato Grosso", "Goiás",
+                             "Distrito Federal"),
+                   cd_reg = c(rep(1, 7), rep(2, 9), rep(3, 4), rep(4, 3),
+                              rep(5, 4)),
+                   nm_reg = c(rep("Norte", 7), rep("Nordeste", 9),
+                              rep("Sudeste", 4), rep("Sul", 3), 
+                              rep("Centro-Oeste", 4)),
+                   sgm_uf = str_to_lower(sg_state))
   
   return(states)
 }
 
-# Table of collumns each year each target geobr function UNFINISHED -----------------
+# Table of collumns each year each target geobr function UNFINISHED ------------
 
 summarycollumns_geobr <- function(files) {
   
