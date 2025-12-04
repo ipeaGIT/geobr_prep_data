@@ -135,14 +135,14 @@ list(
   
   #04. Grade estatística ----
   
-  # year input
-  tar_target(name = years_statsgrid,
-             command = c(2010, 2022)),
-  
-  # download
-  tar_target(name = statsgrid_raw,
-             command = download_statsgrid(years_statsgrid),
-             pattern = map(years_statsgrid)),
+  # # year input
+  # tar_target(name = years_statsgrid,
+  #            command = c(2010, 2022)),
+  # 
+  # # download
+  # tar_target(name = statsgrid_raw,
+  #            command = download_statsgrid(years_statsgrid),
+  #            pattern = map(years_statsgrid)),
   
   # # clean
   # tar_target(name = statsgrid_clean,
@@ -560,7 +560,7 @@ list(
                semiarid_clean,
                amazonialegal_clean,
                biomes_clean,
-               statsgrid_clean,
+               #statsgrid_clean,
                healthfacilities_clean
                # intermediateregions_clean, 
                # immediateregions_clean,
@@ -577,8 +577,7 @@ list(
   
   # tar_target(name = upload,
   #            command = upload_arquivos(files = all_files, versao_dados)
-  #            )
-  
+  # )
 )
 
 ##################### UNTIL HERE UPDATED -----------------------------------------------------------------

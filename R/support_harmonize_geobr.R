@@ -575,6 +575,8 @@ standarizecol_geobr <- function(df, dicionario) {
 }
 
 # Robust sf read geobr function WORKING -----------------
+# Função para ler shp de multiplos arquivos e importá-los com
+#  apenas as colunas que existem em todos
 
 readmerge_geobr <-  function(folder_path
                              #, encoding
