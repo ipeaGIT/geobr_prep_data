@@ -696,7 +696,7 @@ states_geobr <-  function() {
                    nm_reg = c(rep("Norte", 7), rep("Nordeste", 9),
                               rep("Sudeste", 4), rep("Sul", 3), 
                               rep("Centro-Oeste", 4)),
-                   sgm_uf = str_to_lower(sg_state))
+                   sgm_uf = str_to_lower(sg_uf))
   
   return(states)
 }
