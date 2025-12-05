@@ -608,6 +608,43 @@ standardcol_geobr <- function(dataset, dicionario) {
     return(dataset)
   }
   
+  # Se for sf e a coluna da geometria está no mapeamento, tratá-la com cuidado:
+  rename_map <- dicionario[dicionario$variacao %in% variacoes_presentes, , drop = FALSE]
+  
+  if (!is.null(geom_col) && geom_col %in% rename_map$variacao) {
+    # pegar o novo nome desejado para a geometria (primeira ocorrência)
+    novo_geom <- rename_map$padrao[which(rename_map$variacao == geom_col)[1]]
+    # removemos a geometria do mapeamento normal para evitar problemas
+    rename_map <- rename_map[rename_map$variacao != geom_col, , drop = FALSE]
+    will_rename_geom <- TRUE
+  } else {
+    novo_geom <- NULL
+    will_rename_geom <- FALSE
+  }
+  
+  # construir vetor de renomeação para colunas não-espaciais
+  if (nrow(rename_map) > 0) {
+    #garantir primeira ocorrência em caso de duplicatas
+    rename_map_unique <- rename_map[!duplicated(rename_map$variacao), , drop = FALSE]
+    rename_vec <- setNames(rename_map_unique$variacao, rename_map_unique$padrao)
+  } else {
+    rename_vec <- character(0)
+  }
+  
+  # renomear via names() (base R) - evita NSE
+  nomes_atual <- names(dataset)
+  if (length(rename_vec) > 0 ){
+    # para cada par (novo = antigo), substituir em nomes_atual
+    for (i in seq_along(rename_vec)) {
+      antigo <- rename_vec[i]
+      novo <- names(rename_vec)[i]
+      idx <- which(nomes_atual == antigo)
+      if (length(idx) > 0) nomes_atual[idx] <- novo
+    }
+  }
+
+  # nova parte ----------------------
+  
   # para cada variação encontrada, buscar o padrão correspondente
   # se houver duplicidade na correspondência (mesma variação repetida no dicionário),
   # pegamos a primeira ocorrência
