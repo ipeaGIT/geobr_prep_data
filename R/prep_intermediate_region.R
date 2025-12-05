@@ -144,13 +144,13 @@ clean_intermediateregions <- function(intermediateregions_raw, year){ # year = 2
   ## 1. Remove unnecessary columns and check states columns --------------------
   
   statesgeobr <- states_geobr() |> 
-    select(2, 3)
+    select(1, 2)
   
   if(year == 2023) {
     intermediateregions_raw <- intermediateregions_raw |> 
-      inner_join(statesgeobr, by = c("cd_uf" = "cdc_uf")) |> 
-      select(-cd_uf, -cd_regiao) |> 
-      relocate(sg_uf, .after = nm_rgint)
+      inner_join(statesgeobr, by = c("cd_uf" = "code_state")) |> 
+      #select(-cd_uf, -cd_regiao) |> 
+      relocate(abbrev_state, .after = nm_rgint)
     
     glimpse(intermediateregions_raw)
   }
@@ -176,15 +176,22 @@ clean_intermediateregions <- function(intermediateregions_raw, year){ # year = 2
   dicionario <- data.frame(
     # Lista de nomes padronizados de colunas
     padrao = c(
-      #Sigla do estado e número de variações associadas
-      rep("sg_uf", 2)
+      #CÓDIGO DO ESTADO e número de variações associadas
+      rep("code_state", 5),
+      #ABREVIAÇÃO DO ESTADO e número de variações associadas
+      rep("abbrev_state", 4),
+      #GEOMETRIA e número de variações associadas
+      rep("geom", 1)
     ),
     # Lista de variações
     variacao = c(
-      #Variações que convertem para "sg_uf"
-      "sigla_uf", "sigla"
-    ),
-    stringsAsFactors = FALSE)
+      #Variações que convergem para "code_state"
+      "cod_uf", "cd_uf", "code_uf", "codigo_uf", "cod_state",
+      #Variações que convergem para "abbrev_state"
+      "sigla", "sigla_uf", "uf", "sg_uf",
+      #Variações que convergem para "geom"
+      "geometry"
+      ), stringsAsFactors = FALSE)
   
   intermediateregions <- standardcol_geobr(intermediateregions_raw, dicionario)
   

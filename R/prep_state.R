@@ -21,7 +21,7 @@
 # Observações: 
 # Anos disponíveis: 2010, 2022***
 
-### Libraries (use any library as necessary) ----
+### Libraries (use any library as necessary) -----------------------------------
 
 # library(RCurl)
 # library(arrow)
@@ -42,6 +42,18 @@
 # library(rvest)
 # source("./R/support_harmonize_geobr.R")
 # source("./R/support_fun.R")
+
+# Teste geobr collumns names  ----
+
+# library(tidyverse)
+# library(geobr)
+# 
+# cidades <- geobr::read_municipality(code_muni = "all", year = 2010,
+#                                     simplified = FALSE, showProgress = TRUE,
+#                                     cache = TRUE)
+# 
+# glimpse(cidades)
+
 
 # Download the data  ----
 download_states <- function(year){ # year = 2010

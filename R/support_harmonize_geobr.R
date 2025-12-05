@@ -529,38 +529,49 @@ unzip_geobr <- function(zip_dir, in_zip, out_zip = NULL, is_shp = FALSE) {
 }
 
 
-# Collumns names geobr function ------------------------------------------------
+# Columns names geobr function ------------------------------------------------
 
 # Essa função padroniza os nomes das colunas de qualquer dataset de acordo com
 # um dicionario que deverá ser criado no script de cada dataset dentro das
 # funções clean. Abaixo um exemplo para ser copiado para o scritp do dataset.
 
 ## Dicionário de equivalências -------------------------------------------------
-#para cada dataset é preciso fazer um dicionário de padronização para coluna destino
-# Modelo de dicionário de equivalências (a ser utilizado em cada script de dataset)
-# Copiar deste dataframe long e ajustar. Lista de padrões e variações precisam bater
+# para cada dataset é preciso fazer um dicionário de padronização para coluna destino. 
+# Modelo de dicionário de equivalências (a ser utilizado em cada script de dataset): Copiar deste dataframe long e ajustar. Lista de padrões e variações precisam formar uma tabela quadrada.
 
 # dicionario <- data.frame(
 #   # Lista de nomes padronizados de colunas
 #   padrao = c(
-#     #ANO e número de variações associadas
-#     rep("ano", 3),
 #     #CÓDIGO DE MUNICÍPIO e número de variações associadas
-#     rep("code_mun", 3)
+#     rep("code_muni", 2)
+#     #NOME DO MUNICÍPIO e número de variações associadas
+#     rep("name_muni", 4),
+#     #CÓDIGO DO ESTADO e número de variações associadas
+#     rep("code_state", 5),
+#     #ABREVIAÇÃO DO ESTADO e número de variações associadas
+#     rep("abbrev_state", 4),
+#     #GEOMETRIA e número de variações associadas
+#     rep("geom", 1),
 #   ),
 #   # Lista de variações
 #   variacao = c(
-#     #Variações que convertem para "ano"
-#     "ANO", "year", "data_ano",
-#     #Variações que convertem para "cod_mun"
-#     "cd_mun", "code_mun", "codigo_municipio"),
-#   stringsAsFactors = FALSE)
-
+#     #Variações que convergem para "code_muni"
+#     "cd_mun", "cod_mun",
+#     #Variações que convergem para "name_muni"
+#     "nome_cidade", "cidade", "nm_muni", "nome_muni",
+#     #Variações que convergem para "code_state"
+#     "cod_uf", "cd_uf", "code_uf", "codigo_uf", "cod_state",
+#     #Variações que convergem para "abbrev_state"
+#     "sigla", "sigla_uf", "uf", "sg_uf",
+#     #Variações que convergem para "geom"
+#     "geometry"
+#     ), stringsAsFactors = FALSE)
+  
 ## Função para aplicar a padronização ------------------------------------------
 standardcol_geobr <- function(dataset, dicionario) {
   
   #checagens mínimas
-  if(!is.data.frame(dataset)) stop("o dataset deve ser um data.frame ou tibble")
+  if(!is.data.frame(dataset)) stop("o dataset deve ser um data.frame/tibble/sf.")
   if(!is.data.frame(dicionario)) stop("o dicionário deve ser um data.frame ou tibble")
   if(!all(c("padrao", "variacao") %in% names(dicionario))) {
     stop("dicionário precisa ter colunas 'padrao' e 'variacao'.")
@@ -568,6 +579,24 @@ standardcol_geobr <- function(dataset, dicionario) {
   # garantir tipos character
   dicionario$padrao <- as.character(dicionario$padrao)
   dicionario$variacao <- as.character(dicionario$variacao)
+  
+  # tratamento sf
+  is_sf <- inherits(dataset, "sf")
+  geom_col <- NULL
+  if (is_sf) {
+    # nome da coluna de geometria (exemplo: "geometry" ou "geom")
+    geom_col <- attr(dataset, "sf_collumn")
+    # segurança: se não encontrarmos via atributo, tentar st_geometry
+    if (is.null(geom_col) && requireNamespace("sf", quietly = TRUE)) {
+      # st_geometry retorna a coluna sfc - obter nome comparando
+      g <- try(sf::st_geometry(dataset), silent = TRUE)
+      if (!inherits(g, "try-error")) {
+        # procurar a coluna cujo conteúdo tem classe sfc
+        possible <- names(dataset)[vapply(dataset, function(x) inherits(x, "sfc"), logical(1))]
+        if (lenght(possible) == 1) geom_col <- possible
+      }
+    }
+  }
   
   # quais variações do dicionario existem no dataset
   variacoes_presentes <- intersect(dicionario$variacao, names(dataset))
@@ -672,60 +701,39 @@ readmerge_geobr <-  function(folder_path
 # States table codes for correction geobr function -----------------------------
 
 states_geobr <-  function() {
-  states <- tibble(cd_uf = c(11, 12, 13, 14, 15, 16, 17, 21, 22, 23, 24, 25, 26,
-                             27, 28, 29, 31, 32, 33, 35, 41, 42, 43, 50, 51, 52,
-                             53),
-                   cdc_uf = as.character(c(11, 12, 13, 14, 15, 16, 17, 21, 22,
-                                           23, 24, 25, 26, 27, 28, 29, 31, 32,
-                                           33, 35, 41, 42, 43, 50, 51, 52, 53)),
-                   sg_uf = c("RO", "AC", "AM", "RR", "PA", "AP", "TO",
-                             "MA", "PI", "CE", "RN", "PB", "PE", "AL",
-                             "SE", "BA", "MG", "ES", "RJ", "SP", "PR",
-                             "SC", "RS", "MS", "MT", "GO", "DF"),
-                   nm_uf = c("Rondônia", "Acre", "Amazonas", "Roraima",
-                             "Pará", "Amapá", "Tocantins", "Maranhão",
-                             "Piauí", "Ceará", "Rio Grande do Norte",
-                             "Paraíba", "Pernambuco", "Alagoas", "Sergipe",
-                             "Bahia", "Minas Gerais", "Espírito Santo", 
-                             "Rio de Janeiro", "São Paulo", "Paraná",
-                             "Santa Catarina", "Rio Grande do Sul",
-                             "Mato Grosso do Sul", "Mato Grosso", "Goiás",
-                             "Distrito Federal"),
-                   cd_reg = c(rep(1, 7), rep(2, 9), rep(3, 4), rep(4, 3),
-                              rep(5, 4)),
-                   nm_reg = c(rep("Norte", 7), rep("Nordeste", 9),
-                              rep("Sudeste", 4), rep("Sul", 3), 
-                              rep("Centro-Oeste", 4)),
-                   sgm_uf = str_to_lower(sg_uf))
+  states <- tibble(code_state = as.character(c(11, 12, 13, 14, 15, 16, 17, 21, 22,
+                                               23, 24, 25, 26, 27, 28, 29, 31, 32,
+                                               33, 35, 41, 42, 43, 50, 51, 52, 53)),
+                   abbrev_state = c("RO", "AC", "AM", "RR", "PA", "AP", "TO",
+                                    "MA", "PI", "CE", "RN", "PB", "PE", "AL",
+                                    "SE", "BA", "MG", "ES", "RJ", "SP", "PR",
+                                    "SC", "RS", "MS", "MT", "GO", "DF"),
+                   name_state = c("Rondônia", "Acre", "Amazonas", "Roraima",
+                                  "Pará", "Amapá", "Tocantins", "Maranhão",
+                                  "Piauí", "Ceará", "Rio Grande do Norte",
+                                  "Paraíba", "Pernambuco", "Alagoas", "Sergipe",
+                                  "Bahia", "Minas Gerais", "Espírito Santo", 
+                                  "Rio de Janeiro", "São Paulo", "Paraná",
+                                  "Santa Catarina", "Rio Grande do Sul",
+                                  "Mato Grosso do Sul", "Mato Grosso", "Goiás",
+                                  "Distrito Federal"),
+                   code_region = c(rep(1, 7), rep(2, 9), rep(3, 4), rep(4, 3),
+                                   rep(5, 4)),
+                   name_region = c(rep("Norte", 7), rep("Nordeste", 9),
+                                   rep("Sudeste", 4), rep("Sul", 3), 
+                                   rep("Centro-Oeste", 4)),
+                   abbrevm_state = str_to_lower(abbrev_state))
   
   return(states)
 }
 
-# Table of collumns each year each target geobr function UNFINISHED ------------
+# Table of columns each year each target geobr function UNFINISHED ------------
 
-summarycollumns_geobr <- function(files) {
+summarycol_geobr <- function(files) {
   
   # Criar um target que lê todos os arquivos e monte uma tabela com os targets e cada ano que cada um tem, e com um vetor com os nomes de todas as colunas que os arquivos tem para que possamos checar as colunas.
   
-  # 
-  # if (is.null(in_zip)) {
-  #   # unzip folder
-  #   in_zip <- paste0(zip_dir, "/unzipped/")
-  #   dir.create(in_zip, showWarnings = FALSE, recursive = TRUE)
-  #   dir.exists(in_zip)
-  # }
-  # 
-  # if (is.null(out_zip)) {
-  #   # unzip folder
-  #   out_zip <- paste0(zip_dir, "/zipped/")
-  #   dir.create(out_zip, showWarnings = FALSE, recursive = TRUE)
-  #   dir.exists(out_zip)
-  # }
-  # tibble(nome_coluna = colnames(df))
 
-  # 
-  # fwrite(file = tabela_colunas)
-  # 
   
 }
 

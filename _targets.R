@@ -238,17 +238,17 @@ list(
   #            format = 'file'),
   
   #10. Estados -----------------------------------------------------------------
-  # 
-  #   #year input
-  #   tar_target(name = years_states,
-  #              command = c(2000, 2001, 2010,
-  #                          2013:2024)),
-  # 
-  #   # download
-  #   tar_target(name = states_raw,
-  #              command = download_states(years_states),
-  #              pattern = map(years_states)),
-  # 
+
+    # #year input
+    # tar_target(name = years_states,
+    #            command = c(2000, 2001, 2010,
+    #                        2013:2024)),
+    # 
+    # # download
+    # tar_target(name = states_raw,
+    #            command = download_states(years_states),
+    #            pattern = map(years_states)),
+
   #   # clean
   #   tar_target(name = states_clean,
   #              command = clean_states(states_raw, years_states),
@@ -552,7 +552,7 @@ list(
   #            command = clean_poparrangements(poparrangements_raw, years_poparrangements),
   #            pattern = map(poparrangements_raw, years_poparrangements),
   #            format = 'file')
-  
+  #28. Localidades? ----
   #END. Upload files -------------------------------------------------------
   
   # all files input
