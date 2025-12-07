@@ -179,18 +179,18 @@ clean_intermediateregions <- function(intermediateregions_raw, year){ # year = 2
       #CÓDIGO DO ESTADO e número de variações associadas
       rep("code_state", 5),
       #ABREVIAÇÃO DO ESTADO e número de variações associadas
-      rep("abbrev_state", 4),
+      rep("abbrev_state", 4)
       #GEOMETRIA e número de variações associadas
-      rep("geom", 1)
+      #rep("geom", 1)
     ),
     # Lista de variações
     variacao = c(
       #Variações que convergem para "code_state"
       "cod_uf", "cd_uf", "code_uf", "codigo_uf", "cod_state",
       #Variações que convergem para "abbrev_state"
-      "sigla", "sigla_uf", "uf", "sg_uf",
+      "sigla", "sigla_uf", "uf", "sg_uf"
       #Variações que convergem para "geom"
-      "geometry"
+      #"geometry"
       ), stringsAsFactors = FALSE)
   
   intermediateregions <- standardcol_geobr(intermediateregions_raw, dicionario)

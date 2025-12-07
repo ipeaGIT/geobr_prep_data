@@ -593,7 +593,7 @@ standardcol_geobr <- function(dataset, dicionario) {
       if (!inherits(g, "try-error")) {
         # procurar a coluna cujo conteúdo tem classe sfc
         possible <- names(dataset)[vapply(dataset, function(x) inherits(x, "sfc"), logical(1))]
-        if (lenght(possible) == 1) geom_col <- possible
+        if (length(possible) == 1) geom_col <- possible
       }
     }
   }
