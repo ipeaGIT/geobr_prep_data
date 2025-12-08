@@ -185,28 +185,61 @@ clean_immediateregions <- function(immediateregions_raw, year){ # year = 2024
   dicionario <- data.frame(
     # Lista de nomes padronizados de colunas
     padrao = c(
+      #CÓDIGO DA REGIÃO IMEDIATA
+      "code_immediate",
+      #NOME DA REGIÃO IMEDIATA
+      "name_immediate",
+      #CÓDIGO DA REGIÃO INTERMEDIÁRIA
+      "code_intermediate",
+      #NOME DA REGIÃO INTERMEDIÁRIA
+      "name_intermediate",
+      #CÓDIGO DE MUNICÍPIO e número de variações associadas
+      rep("code_muni", 7),
+      #NOME DO MUNICÍPIO e número de variações associadas
+      rep("name_muni", 4),
       #CÓDIGO DO ESTADO e número de variações associadas
       rep("code_state", 5),
       #ABREVIAÇÃO DO ESTADO e número de variações associadas
       rep("abbrev_state", 4),
-      #GEOMETRIA e número de variações associadas
-      rep("geom", 1)
+      #NOME DO ESTADO e número de variações associadas
+      rep("name_state", 2),
+      #CÓDIGO DA REGIÃO e número de variações associadas
+      rep("code_region", 2),
+      #NOME DA REGIÃO e número de variações associadas
+      rep("name_region", 2),
+      #ABREVIAÇÃO DA REGIÃO e número de variações associadas
+      rep("abbrev_region", 1)
     ),
     # Lista de variações
     variacao = c(
+      #Variações que convergem para "code_immediate"
+      "cd_rgi",
+      #Variações que convergem para "name_immediate"
+      "cd_rgi",
+      #Variações que convergem para "code_intermediate"
+      "cd_rgint",
+      #Variações que convergem para "name_intermediate"
+      "nm_rgint",
+      #Variações que convergem para "code_muni"
+      "cod_uf", "cd_uf", "code_uf", "codigo_uf", "cod_state", "cd_mun", "cod_mun",
+      #Variações que convergem para "name_muni"
+      "nome_cidade", "cidade", "nm_muni", "nome_muni",
       #Variações que convergem para "code_state"
       "cod_uf", "cd_uf", "code_uf", "codigo_uf", "cod_state",
       #Variações que convergem para "abbrev_state"
       "sigla", "sigla_uf", "uf", "sg_uf",
-      #Variações que convergem para "geom"
-      "geometry"
+      #Variações que convergem para "name_state"
+      "nm_uf", "nm_state",
+      #Variações que convergem para "code_region"
+      "cd_regia", "cd_regiao",
+      #Variações que convergem para "name_region"
+      "nm_regia", "nm_regiao",
+      #Variações que convergem para "abbrev_region"
+      "sigla_rg"
     ), stringsAsFactors = FALSE)
 
   immediateregions <- standardcol_geobr(immediateregions_raw, dicionario)
 
-  # Set geometry behavior to the new collum name
-  st_geometry(intermediateregions_raw$geom) <- "geom"
-  
   ## 3. Apply harmonize geobr cleaning -----------------------------------------
   
   immediateregions_raw <- clean_names(immediateregions_raw)
