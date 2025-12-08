@@ -555,7 +555,7 @@ unzip_geobr <- function(zip_dir, in_zip, out_zip = NULL, is_shp = FALSE) {
 #     #ABREVIAÇÃO DO ESTADO e número de variações associadas
 #     rep("abbrev_state", 4),
 #     #NOME DO ESTADO e número de variações associadas
-#     rep("name_state", 2),
+#     rep("name_state", 3),
 #     #CÓDIGO DA REGIÃO e número de variações associadas
 #     rep("code_region", 2),
 #     #NOME DA REGIÃO e número de variações associadas
@@ -574,7 +574,7 @@ unzip_geobr <- function(zip_dir, in_zip, out_zip = NULL, is_shp = FALSE) {
 #     #Variações que convergem para "abbrev_state"
 #     "sigla", "sigla_uf", "uf", "sg_uf",
 #     #Variações que convergem para "name_state"
-#     "nm_uf", "nm_state",
+#     "nm_uf", "nm_state", "nm_estado",
 #     #Variações que convergem para "code_region"
 #     "cd_regia", "cd_regiao",
 #     #Variações que convergem para "name_region"
