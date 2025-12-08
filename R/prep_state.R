@@ -43,22 +43,11 @@
 # source("./R/support_harmonize_geobr.R")
 # source("./R/support_fun.R")
 
-# Teste geobr collumns names  ----
 
-# library(tidyverse)
-# library(geobr)
-# 
-# cidades <- geobr::read_municipality(code_muni = "all", year = 2010,
-#                                     simplified = FALSE, showProgress = TRUE,
-#                                     cache = TRUE)
-# 
-# glimpse(cidades)
-
-
-# Download the data  ----
+# Download the data  -----------------------------------------------------------
 download_states <- function(year){ # year = 2010
   
-  ## 0. Generate the correct ftp link (UPDATE YEAR HERE) ----
+  ## 0. Generate the correct ftp link (UPDATE YEAR HERE) -----------------------
   
   url_start <- paste0("https://geoftp.ibge.gov.br/organizacao_do_territorio/",
                       "malhas_territoriais/malhas_municipais/municipio_")
@@ -72,31 +61,31 @@ download_states <- function(year){ # year = 2010
     
     #2000 ou 2010
     if(year %in% c(2000, 2010)) {
-      ftp_link <- paste0(url_start, year, "/", states$sgm_state, "/",
-                         states$sgm_state, "_unidades_da_federacao.zip")
+      ftp_link <- paste0(url_start, year, "/", states$abbrevm_state, "/",
+                         states$abbrevm_state, "_unidades_da_federacao.zip")
     }
     
     #2001
     if(year == 2001) {
-      ftp_link <- paste0(url_start, year, "/", states$sgm_state, "/",
-                         states$cod_states, "uf2500g.zip")
+      ftp_link <- paste0(url_start, year, "/", states$abbrevm_state, "/",
+                         states$code_state, "uf2500g.zip")
     }
     
     #2013
     if(year == 2013) {
-      ftp_link <- paste0(url_start, year, "/", states$sg_state, "/",
-                         states$sgm_state, "_unidades_da_federacao.zip")
+      ftp_link <- paste0(url_start, year, "/", states$abbrev_state, "/",
+                         states$abbrevm_state, "_unidades_da_federacao.zip")
     
       #correct spell error in AM
-      ftp_link[3] <- paste0(url_start, year, "/", states$sg_state[3], "/",
-                            states$sgm_state[3], "_unidades_da_fedecao.zip")
+      ftp_link[3] <- paste0(url_start, year, "/", states$abbrev_state[3], "/",
+                            states$abbrevm_state[3], "_unidades_da_fedecao.zip")
       
     }
     
     #2014
     if(year == 2014) {
-      ftp_link <- paste0(url_start, year, "/", states$sg_state, "/",
-                         states$sgm_state, "_unidades_da_federacao.zip")
+      ftp_link <- paste0(url_start, year, "/", states$abbrev_state, "/",
+                         states$abbrevm_state, "_unidades_da_federacao.zip")
     }
     
     filenames <- basename(ftp_link)
@@ -119,7 +108,7 @@ download_states <- function(year){ # year = 2010
     ftp_link <- paste0(url_start, year, "/Brasil/BR_UF_", year, ".zip")
   }
   
-  ## 1. Create temp folder ----
+  ## 1. Create temp folder -----------------------------------------------------
   
   zip_dir <- paste0(tempdir(), "/states/", year)
   dir.create(zip_dir, showWarnings = FALSE, recursive = TRUE)
@@ -130,7 +119,7 @@ download_states <- function(year){ # year = 2010
   # dir.create(zip_dir, showWarnings = FALSE, recursive = TRUE)
   # dir.exists(zip_dir)
   
-  ## 2. Create direction for each download ----
+  ## 2. Create direction for each download -------------------------------------
   
   ### zip folder
   in_zip <- paste0(zip_dir, "/zipped/")
@@ -144,7 +133,7 @@ download_states <- function(year){ # year = 2010
   dir.create(out_zip, showWarnings = FALSE, recursive = TRUE)
   dir.exists(out_zip)
   
-  ## 3. Download Raw data ----
+  ## 3. Download Raw data ------------------------------------------------------
   
   if(year %in% c(2000, 2001, 2010:2014)) {
     ### Download zipped files
@@ -161,11 +150,11 @@ download_states <- function(year){ # year = 2010
                                overwrite = T))
   }
   
-  ## 4. Unzip Raw data ----
+  ## 4. Unzip Raw data ---------------------------------------------------------
   
   unzip_geobr(zip_dir = zip_dir, in_zip = in_zip, out_zip = out_zip, is_shp = TRUE)
   
-  ## 5. Bind Raw data together ----
+  ## 5. Bind Raw data together -------------------------------------------------
   
   shp_names <- list.files(out_zip, pattern = "\\.shp$", full.names = TRUE)
   
@@ -189,7 +178,7 @@ download_states <- function(year){ # year = 2010
     states_raw <- st_read(shp_names, quiet = T, stringsAsFactors= F)
   }
   
-  ## 6. Integrity test ----
+  ## 6. Integrity test ---------------------------------------------------------
   
   #### Before 2015
   glimpse(states_raw)
@@ -204,75 +193,149 @@ download_states <- function(year){ # year = 2010
     glimpse(states_raw)
   }
   
-  ## 7. Show result ----
+  ## 7. Show result ------------------------------------------------------------
   
   data.table::setDF(states_raw)
   
-  states_raw <- sf::st_as_sf(states_raw) %>% 
+  states_raw <- sf::st_as_sf(states_raw) |> 
     clean_names()
+  
+  glimpse(states_raw)
   
   return(states_raw)
   
 }
 
-# Clean the data  ----
+# Clean the data  --------------------------------------------------------------
 clean_states <- function(states_raw, year){ # year = 2024
   
-  ## 0. Create folder to save clean data -----
+  ## 0. Create folder to save clean data ---------------------------------------
   
   dir_clean <- paste0("./data/states/", year)
   dir.create(dir_clean, recursive = T, showWarnings = FALSE)
   dir.exists(dir_clean)
   
-  ## 1. Create states names reference table -----
+  ## 1. Create states names reference table ------------------------------------
   
-  states <- states_geobr()
+  states_geobr <- states_geobr()
   
-  ## 2. Check names of the states -----
+  ## 2. Adjust and preparing for cleaning --------------------------------------
   
   #For years that have spelling problems
   if (year %in% c(2000, 2001, 2010, 2013:2018)){ 
     glimpse(states_raw)
-    glimpse(states)
+    glimpse(states_geobr)
     
-    states_thin <- states %>% 
-      select(cod_states, nm_state) %>% 
-      mutate(cod_states = as.character(cod_states))
+    states_thin <- states_geobr |> 
+      select(code_state, abbrev_state, name_state)
     
     if (year %in% c(2000, 2001)){ 
-      states_clean <- states_raw %>% 
-        select(-nome) %>% 
-        left_join(states_thin, by = c("codigo" = "cod_states")) %>% 
-        rename(nome = nm_state) %>% 
-        relocate(nome, .after = geocodigo)
+      states_clean <- states_raw |> 
+        select(-nome) |> 
+        left_join(states_thin, by = c("codigo" = "code_state")) |> 
+        relocate(name_state, .after = geocodigo)
     }
     if (year %in% c(2010)){ 
-      states_clean <- states_raw %>% 
-        left_join(states_thin, by = c("cd_geocodu" = "cod_states")) %>%
-        select(-nm_estado) %>% 
-        rename(nm_estado = nm_state) %>% 
-        relocate(nm_estado, .after = cd_geocodu)
+      states_clean <- states_raw |> 
+        left_join(states_thin, by = c("cd_geocodu" = "code_state")) |>
+        select(-nm_estado, -id) |> 
+        relocate(nm_regiao, .before = geometry) |> 
+        mutate(nm_regiao = str_to_title(nm_regiao))
     }
     
     # For years that have only uppercase
     if (year %in% c(2013:2018)){ 
-      states_clean <- states_raw %>% 
-        left_join(states_thin, by = c("cd_geocuf" = "cod_states")) %>%
-        select(-nm_estado) %>% 
-        rename(nm_estado = nm_state) %>% 
-        relocate(nm_estado)
+      states_clean <- states_raw |> 
+        left_join(states_thin, by = c("cd_geocuf" = "code_state")) |>
+        mutate(nm_regiao = str_to_title(nm_regiao),
+               nm_estado = str_to_title(nm_estado)) |> 
+        select(cd_geocuf, abbrev_state, nm_estado, nm_regiao)
     }
     glimpse(states_clean)
   }
+  
   #For years that have no spelling problems
   if (year %in% c(2019:2024)){ 
     glimpse(states_raw)
-    glimpse(states)
+    glimpse(states_geobr)
     states_clean <- states_raw
     glimpse(states_clean)
-    }
+  }
   
-  ## 3. Apply harmonize geobr cleaning ----
+  ## 3. Create dicionario de equivalências para dataset states -----------------
+  
+  # 2000
+  # c("mslink", "codigo", "area_1", "perimetro", "geocodigo", "nome", "area_tot_g", 
+  # "reservado", "geometry")
+  
+  # 2001
+  # c("mslink", "mapid", "codigo", "area_1", "perimetro", "geocodigo", "nome", 
+  # "area_tot_g", "geometry")
+  
+  # 2010
+  # c("id", "cd_geocodu", "nm_estado", "nm_regiao", "geometry")
+  
+  # 2013
+  # c("nm_estado", "nm_regiao", "cd_geocuf", "geometry")
+  
+  # 2023
+  # c([1] "cd_uf", "nm_uf", "sigla_uf", "cd_regiao", "nm_regiao", "area_km2",
+  # "geometry") 
+  
+  #Este é um dicionário padrão com as denominações GEOBR:
+  dicionario <- data.frame(
+    # Lista de nomes padronizados de colunas
+    padrao = c(
+      #CÓDIGO DE MUNICÍPIO e número de variações associadas
+      rep("code_muni", 7),
+      #NOME DO MUNICÍPIO e número de variações associadas
+      rep("name_muni", 4),
+      #CÓDIGO DO ESTADO e número de variações associadas
+      rep("code_state", 7),
+      #ABREVIAÇÃO DO ESTADO e número de variações associadas
+      rep("abbrev_state", 4),
+      #NOME DO ESTADO e número de variações associadas
+      rep("name_state", 3),
+      #CÓDIGO DA REGIÃO e número de variações associadas
+      rep("code_region", 2),
+      #NOME DA REGIÃO e número de variações associadas
+      rep("name_region", 2),
+      #ABREVIAÇÃO DA REGIÃO e número de variações associadas
+      rep("abbrev_region", 1)
+    ),
+    # Lista de variações
+    variacao = c(
+      #Variações que convergem para "code_muni"
+      "cod_uf", "cd_uf", "code_uf", "codigo_uf", "cod_state", "cd_mun", "cod_mun",
+      #Variações que convergem para "name_muni"
+      "nome_cidade", "cidade", "nm_muni", "nome_muni",
+      #Variações que convergem para "code_state"
+      "cod_uf", "cd_uf", "code_uf", "codigo_uf", "cod_state", "cd_geocodu",
+      "cd_geocuf",
+      #Variações que convergem para "abbrev_state"
+      "sigla", "sigla_uf", "uf", "sg_uf",
+      #Variações que convergem para "name_state"
+      "nm_uf", "nm_state", "nm_estado",
+      #Variações que convergem para "code_region"
+      "cd_regia", "cd_regiao",
+      #Variações que convergem para "name_region"
+      "nm_regia", "nm_regiao",
+      #Variações que convergem para "abbrev_region"
+      "sigla_rg"
+      ), stringsAsFactors = FALSE)
+  
+  ## 3. Rename collumns and reorder collumns -----------------------------------
+  
+  states_clean <- standardcol_geobr(states_clean, dicionario)
+  
+  glimpse(states_clean)
+  
+  # ordem recomendada
+  # c(temp_sf, 'code_state', 'abbrev_state', 'name_state', 'code_region',
+  #  'name_region', 'geom')
+  
+  
+  ## 3. Apply harmonize geobr cleaning -----------------------------------------
   
   temp_sf <- harmonize_geobr(
     temp_sf = states_clean,
@@ -289,10 +352,10 @@ clean_states <- function(states_raw, year){ # year = 2024
   
   glimpse(temp_sf)
   
-  ## 4. lighter version ----
+  ## 4. lighter version --------------------------------------------------------
   temp_sf_simplified <- simplify_temp_sf(temp_sf, tolerance = 100)
   
-  ## 5. Save datasets  ----
+  ## 5. Save datasets  ---------------------------------------------------------
   
   # sf::st_write(temp_sf, dsn = paste0(dir_clean, "/states_",  year,
   #                                   ".gpkg"), delete_dsn = TRUE)
@@ -315,7 +378,7 @@ clean_states <- function(states_raw, year){ # year = 2024
     compression_level = 22
   )
   
-  ## 6. Create the files for geobr index  ----
+  ## 6. Create the files for geobr index  --------------------------------------
   
   files <- list.files(path = dir_clean, 
                       pattern = ".parquet", 
@@ -387,7 +450,7 @@ clean_states <- function(states_raw, year){ # year = 2024
 # 
 #     # read sf file
 #     temp_sf <- st_read(i)
-#     names(temp_sf) <- names(temp_sf) %>% tolower()
+#     names(temp_sf) <- names(temp_sf) |> tolower()
 # 
 #     if (year %like% "2000|2001"){
 #       # dplyr::rename and subset columns
