@@ -324,7 +324,7 @@ clean_states <- function(states_raw, year){ # year = 2024
       "sigla_rg"
       ), stringsAsFactors = FALSE)
   
-  ## 3. Rename collumns and reorder collumns -----------------------------------
+  ## 4. Rename collumns and reorder collumns -----------------------------------
   
   states_clean <- standardcol_geobr(states_clean, dicionario)
   
@@ -335,7 +335,7 @@ clean_states <- function(states_raw, year){ # year = 2024
   #  'name_region', 'geom')
   
   
-  ## 3. Apply harmonize geobr cleaning -----------------------------------------
+  ## 5. Apply harmonize geobr cleaning -----------------------------------------
   
   temp_sf <- harmonize_geobr(
     temp_sf = states_clean,
@@ -352,10 +352,10 @@ clean_states <- function(states_raw, year){ # year = 2024
   
   glimpse(temp_sf)
   
-  ## 4. lighter version --------------------------------------------------------
+  ## 6. lighter version --------------------------------------------------------
   temp_sf_simplified <- simplify_temp_sf(temp_sf, tolerance = 100)
   
-  ## 5. Save datasets  ---------------------------------------------------------
+  ## 7. Save datasets  ---------------------------------------------------------
   
   # sf::st_write(temp_sf, dsn = paste0(dir_clean, "/states_",  year,
   #                                   ".gpkg"), delete_dsn = TRUE)
@@ -378,7 +378,7 @@ clean_states <- function(states_raw, year){ # year = 2024
     compression_level = 22
   )
   
-  ## 6. Create the files for geobr index  --------------------------------------
+  ## 8. Create the files for geobr index  --------------------------------------
   
   files <- list.files(path = dir_clean, 
                       pattern = ".parquet", 
