@@ -453,20 +453,14 @@ list(
   
   #22. Áreas de risco de desastre -----------------------------------------------------------------
   
-  # # year input
-  # tar_target(name = years_riskdisasterareas,
-  #            command = c(2010, 2022)),
-  #
-  # # download
-  # tar_target(name = riskdisasterareas_raw,
-  #            command = download_riskdisasterareas(years_riskdisasterareas),
-  #            pattern = map(years_riskdisasterareas)),
-  #
-  # # clean
-  # tar_target(name = riskdisasterareas_clean,
-  #            command = clean_riskdisasterareas(riskdisasterareas_raw, years_riskdisasterareas),
-  #            pattern = map(riskdisasterareas_raw, years_riskdisasterareas),
-  #            format = 'file'),
+  # download
+   tar_target(name = riskdisasterareas_raw,
+              command = download_riskdisasterareas()),
+  
+  # clean
+   tar_target(name = riskdisasterareas_clean,
+              command = clean_riskdisasterareas(riskdisasterareas_raw),
+              format = 'file'),
   
   #23. Região de Saúde -----------------------------------------------------------------
   
@@ -584,11 +578,12 @@ list(
                intermediateregions_clean,
                immediateregions_clean,
                # schools_clean,
-               states_clean
+               states_clean,
                # regions_clean,
                # country_clean,
                #mesoregions_clean
                # microregions_clean,
+               riskdisasterareas_clean
              )),
   
   tar_target(name = versao_dados,
