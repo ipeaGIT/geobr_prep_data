@@ -19,7 +19,7 @@
 # Observações: 
 # Anos disponíveis: 2000 a 2018
 
-### Libraries (use any library as necessary) ----
+### Libraries (use any library as necessary) -----------------------------------
 
 # library(RCurl)
 # library(arrow)
@@ -41,10 +41,10 @@
 # source("./R/support_harmonize_geobr.R")
 # source("./R/support_fun.R")
 
-# Download the data  ----
+# Download the data  -----------------------------------------------------------
 download_mesoregions <- function(year){ # year = 2001
   
-  ## 0. Generate the correct ftp link ----
+  ## 0. Generate the correct ftp link ------------------------------------------
   
   url_start <- paste0("https://geoftp.ibge.gov.br/organizacao_do_territorio/",
                       "malhas_territoriais/malhas_municipais/municipio_")
@@ -52,45 +52,38 @@ download_mesoregions <- function(year){ # year = 2001
   # Before 2015
   if(year %in% c(2000, 2001, 2010:2014)) {
     ### create states tibble
-    states <- tibble(cod_states = c(11, 12, 13, 14, 15, 16, 17, 21, 22, 23, 24,
-                                    25, 26, 27, 28, 29, 31, 32, 33, 35, 41, 42,
-                                    43, 50, 51, 52, 53),
-                     sg_state = c("RO", "AC", "AM", "RR", "PA", "AP", "TO",
-                                  "MA", "PI", "CE", "RN", "PB", "PE", "AL",
-                                  "SE", "BA", "MG", "ES", "RJ", "SP", "PR",
-                                  "SC", "RS", "MS", "MT", "GO", "DF"),
-                     sgm_state = str_to_lower(sg_state))
+    states <- states_geobr()
     
     ### parts of url
     
     #2000
     if(year == 2000) {
-      ftp_link <- paste0(url_start, year, "/", states$sgm_state, "/",
-                         states$sgm_state, "_mesorregioes.zip")
+      ftp_link <- paste0(url_start, year, "/", states$abbrevm_state, "/",
+                         states$abbrevm_state, "_mesorregioes.zip")
     }
     
     #2001
     if(year == 2001) {
-      ftp_link <- paste0(url_start, year, "/", states$sgm_state, "/",
-                         states$cod_states, "me2500g.zip")
+      ftp_link <- paste0(url_start, year, "/", states$abbrevm_state, "/",
+                         states$code_state, "me2500g.zip")
     }
     
     #2010 
     if(year == 2010) {
-      ftp_link <- paste0(url_start, year, "/", states$sgm_state, "/",
-                         states$sgm_state, "_mesorregioes.zip")
+      ftp_link <- paste0(url_start, year, "/", states$abbrevm_state, "/",
+                         states$abbrevm_state, "_mesorregioes.zip")
     }
     
     #2013 
     if(year == 2013) {
-      ftp_link <- paste0(url_start, year, "/", states$sg_state, "/",
-                         states$sgm_state, "_mesorregioes.zip")
+      ftp_link <- paste0(url_start, year, "/", states$abbrev_state, "/",
+                         states$abbrevm_state, "_mesorregioes.zip")
     }
     
     #2014
     if(year == 2014) {
-      ftp_link <- paste0(url_start, year, "/", states$sg_state, "/",
-                         states$sgm_state, "_mesorregioes.zip")
+      ftp_link <- paste0(url_start, year, "/", states$abbrev_state, "/",
+                         states$abbrevm_state, "_mesorregioes.zip")
     }
     
     filenames <- basename(ftp_link)
@@ -103,7 +96,7 @@ download_mesoregions <- function(year){ # year = 2001
     ftp_link <- paste0(url_start, year, "/Brasil/BR/br_mesorregioes.zip")
   }
   
-  ## 1. Create temp folder ----
+  ## 1. Create temp folder -----------------------------------------------------
   
   zip_dir <- paste0(tempdir(), "/meso_regions/", year)
   dir.create(zip_dir, showWarnings = FALSE, recursive = TRUE)
@@ -114,7 +107,7 @@ download_mesoregions <- function(year){ # year = 2001
   # dir.create(zip_dir, showWarnings = FALSE, recursive = TRUE)
   # dir.exists(zip_dir)
   
-  ## 2. Create direction for each download ----
+  ## 2. Create direction for each download -------------------------------------
   
   ### zip folder
   in_zip <- paste0(zip_dir, "/zipped/")
@@ -128,7 +121,7 @@ download_mesoregions <- function(year){ # year = 2001
   dir.create(out_zip, showWarnings = FALSE, recursive = TRUE)
   dir.exists(out_zip)
   
-  ## 3. Download Raw data ----
+  ## 3. Download Raw data ------------------------------------------------------
   
   if(year %in% c(2000, 2001, 2010:2014)) {
     ### Download zipped files
@@ -145,11 +138,11 @@ download_mesoregions <- function(year){ # year = 2001
                                overwrite = T))
   }
   
-  ## 4. Unzip Raw data ----
+  ## 4. Unzip Raw data ---------------------------------------------------------
   
   unzip_geobr(zip_dir = zip_dir, in_zip = in_zip, out_zip = out_zip, is_shp = TRUE)
   
-  ## 5. Bind Raw data together ----
+  ## 5. Bind Raw data together -------------------------------------------------
   
   shp_names <- list.files(out_zip, pattern = "\\.shp$", full.names = TRUE)
   
@@ -172,7 +165,7 @@ download_mesoregions <- function(year){ # year = 2001
     mesoregions_raw <- st_read(shp_names, quiet = T, stringsAsFactors= F)
   }
   
-  ## 6. Integrity test ----
+  ## 6. Integrity test ---------------------------------------------------------
   
   #### Before 2015
   
@@ -186,29 +179,185 @@ download_mesoregions <- function(year){ # year = 2001
     glimpse(mesoregions_raw)
   }
   
-  ## 7. Show result ----
+  ## 7. Show result ------------------------------------------------------------
   
   data.table::setDF(mesoregions_raw)
   mesoregions_raw <- sf::st_as_sf(mesoregions_raw) %>% 
     clean_names()
   
+  glimpse(mesoregions_raw)
+  
   return(mesoregions_raw)
   
 }
 
-####### Clean the data  -----------------
+# Clean the data  --------------------------------------------------------------
 clean_mesoregions <- function(mesoregions_raw, year){ # year = 2024
   
-  ###### 0. Create folder to save clean data -----
+  ## 0. Create folder to save clean data ---------------------------------------
   
   dir_clean <- paste0("./data/meso_regions/", year)
   dir.create(dir_clean, recursive = T, showWarnings = FALSE)
   dir.exists(dir_clean)
   
-  ## 1. Rename collumns names ----
+  
+  ## 1. Add state, code and region ---------------------------------------------
+  
+  states <- states_geobr()
+  
+  mesoregions_raw1 <- mesoregions_raw |> 
+    mutate(code_state = str_sub(codigo, start = 1, end = 2)) |>
+    left_join(states, by = "code_state")
   
   
-  ## 2. Apply harmonize geobr cleaning ----
+  ## 1. Duplicates -------------------------------------------------------------
+  
+  # Há duplicações?
+  get_dupes(mesoregions_raw)
+  # Não
+  
+  # Há duplicações no nome?  
+  mesoregions_raw |> 
+    count(nome) |> 
+    filter(n > 1)
+  # Sim
+    
+  # Há duplicações pela geometria?
+  eq_list <- st_equals(mesoregions_raw)
+  
+  duplicados_geom <- eq_list[lengths(eq_list) > 1]
+  duplicados_geom
+  
+  ## 1. Adjust IBGE errors -----------------------------------------------------
+  
+  states <- states_geobr()
+  
+  if (year == 2000) {
+    mesoregions <- mesoregions_raw |> 
+      mutate(code_state = str_sub(codigo, start = 1, end = 2)) |>
+      left_join(states, by = "code_state") |> 
+      relocate(where(is.numeric), .before = geometry) |> 
+      relocate(geocodigo, codigo, mslink, nome, code_state, abbrev_state, name_state,
+               code_region, name_region) |> 
+      select(-codigo, -reservado, -abbrevm_state) |> 
+      
+      # Pegar as shapes que estão com erro "0"
+      mutate(zero = case_when(nome == "0" ~ TRUE,
+                              TRUE ~ FALSE)) |> 
+      arrange(desc(zero)) |> 
+      filter(abbrev_state %in% c("MA", "PA", "TO", "PI") | zero == TRUE) |> 
+      select(nome, zero, abbrev_state)
+      
+      plot(mesoregions)
+      # Tem duas shapes vazias de dados 
+      
+  }
+      
+  ## 1. Duplicates -------------------------------------------------------------
+  
+  
+  
+  # Erros ano 2000
+  
+      ## 1.  ----
+    # Tem 2 ocorrências com ZERO, porém possuem geometria:
+    teste <- mesoregions |> 
+      filter(nome == "0") |> 
+      select(2, 6, 9, 9)
+    
+    plot(teste)
+               
+      
+    
+    
+  }
+  
+  
+  
+  
+  
+  # 2001
+  # c("mslink", "mapid", "codigo", "area_1", "perimetro", "geocodigo",
+  # "nome", "area_tot_g", "geometry")
+  # 
+  # 2010
+  # c("id", "nm_meso", "cd_geocodu", "geometry")
+  # 
+  # 2013
+  # "id"         "nm_meso"    "cd_geocodu" "geometry"  
+  # Os nomes das mesorregiões estão com grafia errada.
+  # "MADEIRA-GUAPOR\xc9",
+  # 
+  # 2015
+  # c("nm_meso"   "cd_geocme" "geometry" )
+  
+  ## 2. Create dicionario de equivalências ----
+  
+  # dicionario <- data.frame(
+  #   # Lista de nomes padronizados de colunas
+  #   padrao = c(
+  #     #CÓDIGO DE MUNICÍPIO e número de variações associadas
+  #     rep("code_muni", 7),
+  #     #NOME DO MUNICÍPIO e número de variações associadas
+  #     rep("name_muni", 4),
+  #     #CÓDIGO DO ESTADO e número de variações associadas
+  #     rep("code_state", 5),
+  #     #ABREVIAÇÃO DO ESTADO e número de variações associadas
+  #     rep("abbrev_state", 4),
+  #     #NOME DO ESTADO e número de variações associadas
+  #     rep("name_state", 3),
+  #     #CÓDIGO DA REGIÃO e número de variações associadas
+  #     rep("code_region", 2),
+  #     #NOME DA REGIÃO e número de variações associadas
+  #     rep("name_region", 2),
+  #     #ABREVIAÇÃO DA REGIÃO e número de variações associadas
+  #     rep("abbrev_region", 1)
+  #   ),
+  #   # Lista de variações
+  #   variacao = c(
+  #     #Variações que convergem para "code_muni"
+  #     "cod_uf", "cd_uf", "code_uf", "codigo_uf", "cod_state", "cd_mun", "cod_mun",
+  #     #Variações que convergem para "name_muni"
+  #     "nome_cidade", "cidade", "nm_muni", "nome_muni",
+  #     #Variações que convergem para "code_state"
+  #     "cod_uf", "cd_uf", "code_uf", "codigo_uf", "cod_state",
+  #     #Variações que convergem para "abbrev_state"
+  #     "sigla", "sigla_uf", "uf", "sg_uf",
+  #     #Variações que convergem para "name_state"
+  #     "nm_uf", "nm_state", "nm_estado",
+  #     #Variações que convergem para "code_region"
+  #     "cd_regia", "cd_regiao",
+  #     #Variações que convergem para "name_region"
+  #     "nm_regia", "nm_regiao",
+  #     #Variações que convergem para "abbrev_region"
+  #     "sigla_rg"
+  #     ), stringsAsFactors = FALSE)
+  
+  
+  ## 3. Rename collumns names ----
+  
+  #if (year %like% "2000|2001"){
+    #       # dplyr::rename and subset columns
+    #       temp_sf <- dplyr::select(temp_sf, c('code_meso'=geocodigo, 'name_meso'=nome, 'geom'))
+    #     }
+    # 
+    #     if (year %like% "2010"){
+    #       # dplyr::rename and subset columns
+    #       temp_sf <- dplyr::select(temp_sf, c('code_meso'=cd_geocodu, 'name_meso'=nm_meso, 'geom'))
+    #     }
+    # 
+    #     if (year %like% "2013|2014|2015|2016|2017|2018"){
+    #       # dplyr::rename and subset columns
+    #       temp_sf <- dplyr::select(temp_sf, c('code_meso'=cd_geocme, 'name_meso'=nm_meso, 'geom'))
+    #     }
+    # 
+    #     if (year %like% "2019|2020"){
+    #       # dplyr::rename and subset columns
+    #       temp_sf <- dplyr::select(temp_sf, c('code_meso'=cd_meso, 'name_meso'=nm_meso, 'geom'))
+    #     }
+  
+  
+  ## 4. Apply harmonize geobr cleaning -----------------------------------------
   
   temp_sf <- harmonize_geobr(
     temp_sf = mesoregions_raw,
@@ -225,10 +374,10 @@ clean_mesoregions <- function(mesoregions_raw, year){ # year = 2024
   
   glimpse(temp_sf)
   
-  ###### 3. lighter version --------------- 
+  ## 5. Lighter version -------------------------------------------------------- 
   temp_sf_simplified <- simplify_temp_sf(temp_sf, tolerance = 100)
   
-  ###### 4. Save datasets  -----------------
+  ## 4. Save datasets  ---------------------------------------------------------
   
   # sf::st_write(temp_sf, dsn = paste0(dir_clean, "/mesoregions_",  year,
   #                                    ".gpkg"), delete_dsn = TRUE)
@@ -252,6 +401,7 @@ clean_mesoregions <- function(mesoregions_raw, year){ # year = 2024
     compression='zstd',
     compression_level = 22
   )
+  ## 5. Create the files for geobr index  --------------------------------------
   
   files <- list.files(path = dir_clean, 
                       pattern = ".parquet", 

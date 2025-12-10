@@ -207,12 +207,12 @@ list(
   # year input
   tar_target(name = years_immediateregions,
              command = c(2019:2024)),
-  
+
   # download
   tar_target(name = immediateregions_raw,
              command = download_immediateregions(years_immediateregions),
              pattern = map(years_immediateregions)),
-  
+
   # clean
   tar_target(name = immediateregions_clean,
              command = clean_immediateregions(immediateregions_raw,
@@ -238,22 +238,22 @@ list(
   #            format = 'file'),
   
   #10. Estados -----------------------------------------------------------------
-
-    # #year input
-    # tar_target(name = years_states,
-    #            command = c(2000, 2001, 2010,
-    #                        2013:2024)),
-    # 
-    # # download
-    # tar_target(name = states_raw,
-    #            command = download_states(years_states),
-    #            pattern = map(years_states)),
-
-  #   # clean
-  #   tar_target(name = states_clean,
-  #              command = clean_states(states_raw, years_states),
-  #              pattern = map(states_raw, years_states),
-  #              format = 'file'),
+  
+  #year input
+  tar_target(name = years_states,
+             command = c(2000, 2001, 2010,
+                         2013:2024)),
+  
+  # download
+  tar_target(name = states_raw,
+             command = download_states(years_states),
+             pattern = map(years_states)),
+  
+  # clean
+  tar_target(name = states_clean,
+             command = clean_states(states_raw, years_states),
+             pattern = map(states_raw, years_states),
+             format = 'file'),
   
   #11. Regiões -----------------------------------------------------------------
   
@@ -334,188 +334,189 @@ list(
   #15. Municipalidade -----------------------------------------------------------------
   
   # # year input
-  # tar_target(name = years_statsgrid,
+  # tar_target(name = years_municipality,
   #            command = c(2010, 2022)),
   #
   # # download
-  # tar_target(name = statsgrid_raw,
-  #            command = download_statsgrid(years_statsgrid),
-  #            pattern = map(years_statsgrid)),
+  # tar_target(name = municipality_raw,
+  #            command = download_municipality(years_municipality),
+  #            pattern = map(years_municipality)),
   #
   # # clean
-  # tar_target(name = statsgrid_clean,
-  #            command = clean_statsgrid(statsgrid_raw, years_statsgrid),
-  #            pattern = map(statsgrid_raw, years_statsgrid),
+  # tar_target(name = municipality_clean,
+  #            command = clean_municipality(municipality_raw, years_municipality),
+  #            pattern = map(municipality_raw, years_municipality),
   #            format = 'file'),
   
   #16. Assento municipal -----------------------------------------------------------------
   
   # # year input
-  # tar_target(name = years_statsgrid,
+  # tar_target(name = years_cityseats,
   #            command = c(2010, 2022)),
   #
   # # download
-  # tar_target(name = statsgrid_raw,
-  #            command = download_statsgrid(years_statsgrid),
-  #            pattern = map(years_statsgrid)),
+  # tar_target(name = cityseats_raw,
+  #            command = download_cityseats(years_cityseats),
+  #            pattern = map(years_cityseats)),
   #
   # # clean
-  # tar_target(name = statsgrid_clean,
-  #            command = clean_statsgrid(statsgrid_raw, years_statsgrid),
-  #            pattern = map(statsgrid_raw, years_statsgrid),
+  # tar_target(name = cityseats_clean,
+  #            command = clean_cityseats(cityseats_raw, years_cityseats),
+  #            pattern = map(cityseats_raw, years_cityseats),
   #            format = 'file'),
   
   #17. Traço do Censo -----------------------------------------------------------------
   
   # # year input
-  # tar_target(name = years_statsgrid,
+  # tar_target(name = years_censustracker,
   #            command = c(2010, 2022)),
   #
   # # download
-  # tar_target(name = statsgrid_raw,
-  #            command = download_statsgrid(years_statsgrid),
-  #            pattern = map(years_statsgrid)),
+  # tar_target(name = censustracker_raw,
+  #            command = download_censustracker(years_censustracker),
+  #            pattern = map(years_censustracker)),
   #
   # # clean
-  # tar_target(name = statsgrid_clean,
-  #            command = clean_statsgrid(statsgrid_raw, years_statsgrid),
-  #            pattern = map(statsgrid_raw, years_statsgrid),
+  # tar_target(name = censustracker_clean,
+  #            command = clean_censustracker(censustracker_raw, years_censustracker),
+  #            pattern = map(censustracker_raw, years_censustracker),
   #            format = 'file'),
   
   #18. Área de peso -----------------------------------------------------------------
   
   # # year input
-  # tar_target(name = years_statsgrid,
+  # tar_target(name = years_weightarea,
   #            command = c(2010, 2022)),
   #
   # # download
-  # tar_target(name = statsgrid_raw,
-  #            command = download_statsgrid(years_statsgrid),
-  #            pattern = map(years_statsgrid)),
+  # tar_target(name = weightarea_raw,
+  #            command = download_weightarea(years_weightarea),
+  #            pattern = map(years_weightarea)),
   #
   # # clean
-  # tar_target(name = statsgrid_clean,
-  #            command = clean_statsgrid(statsgrid_raw, years_statsgrid),
-  #            pattern = map(statsgrid_raw, years_statsgrid),
+  # tar_target(name = weightarea_clean,
+  #            command = clean_weightarea(weightarea_raw, years_weightarea),
+  #            pattern = map(weightarea_raw, years_weightarea),
   #            format = 'file'),
   
   #19. Áreas metropolitanas -----------------------------------------------------------------
   
   # # year input
-  # tar_target(name = years_statsgrid,
+  # tar_target(name = years_metropolitanarea,
   #            command = c(2010, 2022)),
   #
   # # download
-  # tar_target(name = statsgrid_raw,
-  #            command = download_statsgrid(years_statsgrid),
-  #            pattern = map(years_statsgrid)),
+  # tar_target(name = metropolitanarea_raw,
+  #            command = download_metropolitanarea(years_metropolitanarea),
+  #            pattern = map(years_metropolitanarea)),
   #
   # # clean
-  # tar_target(name = statsgrid_clean,
-  #            command = clean_statsgrid(statsgrid_raw, years_statsgrid),
-  #            pattern = map(statsgrid_raw, years_statsgrid),
+  # tar_target(name = metropolitanarea_clean,
+  #            command = clean_metropolitanarea(metropolitanarea_raw,
+  #             years_metropolitanarea),
+  #            pattern = map(metropolitanarea_raw, years_metropolitanarea),
   #            format = 'file'),
   #
   #20. Áreas urbanas -----------------------------------------------------------------
   
   # # year input
-  # tar_target(name = years_statsgrid,
+  # tar_target(name = years_ubanarea,
   #            command = c(2010, 2022)),
   #
   # # download
-  # tar_target(name = statsgrid_raw,
-  #            command = download_statsgrid(years_statsgrid),
-  #            pattern = map(years_statsgrid)),
+  # tar_target(name = ubanarea_raw,
+  #            command = download_ubanarea(years_ubanarea),
+  #            pattern = map(years_ubanarea)),
   #
   # # clean
-  # tar_target(name = statsgrid_clean,
-  #            command = clean_statsgrid(statsgrid_raw, years_statsgrid),
-  #            pattern = map(statsgrid_raw, years_statsgrid),
+  # tar_target(name = ubanarea_clean,
+  #            command = clean_ubanarea(ubanarea_raw, years_ubanarea),
+  #            pattern = map(ubanarea_raw, years_ubanarea),
   #            format = 'file'),
   #
   #21. Unidades de conservação -----------------------------------------------------------------
   
   # # year input
-  # tar_target(name = years_statsgrid,
+  # tar_target(name = years_conservationunits,
   #            command = c(2010, 2022)),
   #
   # # download
-  # tar_target(name = statsgrid_raw,
-  #            command = download_statsgrid(years_statsgrid),
-  #            pattern = map(years_statsgrid)),
+  # tar_target(name = conservationunits_raw,
+  #            command = download_conservationunits(years_conservationunits),
+  #            pattern = map(years_conservationunits)),
   #
   # # clean
-  # tar_target(name = statsgrid_clean,
-  #            command = clean_statsgrid(statsgrid_raw, years_statsgrid),
-  #            pattern = map(statsgrid_raw, years_statsgrid),
+  # tar_target(name = conservationunits_clean,
+  #            command = clean_conservationunits(conservationunits_raw, years_conservationunits),
+  #            pattern = map(conservationunits_raw, years_conservationunits),
   #            format = 'file'),
   
   #22. Áreas de risco de desastre -----------------------------------------------------------------
   
   # # year input
-  # tar_target(name = years_statsgrid,
+  # tar_target(name = years_riskdisasterareas,
   #            command = c(2010, 2022)),
   #
   # # download
-  # tar_target(name = statsgrid_raw,
-  #            command = download_statsgrid(years_statsgrid),
-  #            pattern = map(years_statsgrid)),
+  # tar_target(name = riskdisasterareas_raw,
+  #            command = download_riskdisasterareas(years_riskdisasterareas),
+  #            pattern = map(years_riskdisasterareas)),
   #
   # # clean
-  # tar_target(name = statsgrid_clean,
-  #            command = clean_statsgrid(statsgrid_raw, years_statsgrid),
-  #            pattern = map(statsgrid_raw, years_statsgrid),
+  # tar_target(name = riskdisasterareas_clean,
+  #            command = clean_riskdisasterareas(riskdisasterareas_raw, years_riskdisasterareas),
+  #            pattern = map(riskdisasterareas_raw, years_riskdisasterareas),
   #            format = 'file'),
   
   #23. Região de Saúde -----------------------------------------------------------------
   
   # # year input
-  # tar_target(name = years_statsgrid,
+  # tar_target(name = years_healthregions,
   #            command = c(2010, 2022)),
   #
   # # download
-  # tar_target(name = statsgrid_raw,
-  #            command = download_statsgrid(years_statsgrid),
-  #            pattern = map(years_statsgrid)),
+  # tar_target(name = healthregions_raw,
+  #            command = download_healthregions(years_healthregions),
+  #            pattern = map(years_healthregions)),
   #
   # # clean
-  # tar_target(name = statsgrid_clean,
-  #            command = clean_statsgrid(statsgrid_raw, years_statsgrid),
-  #            pattern = map(statsgrid_raw, years_statsgrid),
+  # tar_target(name = healthregions_clean,
+  #            command = clean_healthregions(healthregions_raw, years_healthregions),
+  #            pattern = map(healthregions_raw, years_healthregions),
   #            format = 'file'),
   
   #24. Vizinhança -----------------------------------------------------------------
   
   # # year input
-  # tar_target(name = years_statsgrid,
+  # tar_target(name = years_neighborhoods,
   #            command = c(2010, 2022)),
   #
   # # download
-  # tar_target(name = statsgrid_raw,
-  #            command = download_statsgrid(years_statsgrid),
-  #            pattern = map(years_statsgrid)),
+  # tar_target(name = neighborhoods_raw,
+  #            command = download_neighborhoods(years_neighborhoods),
+  #            pattern = map(years_neighborhoods)),
   #
   # # clean
-  # tar_target(name = statsgrid_clean,
-  #            command = clean_statsgrid(statsgrid_raw, years_statsgrid),
-  #            pattern = map(statsgrid_raw, years_statsgrid),
+  # tar_target(name = neighborhoods_clean,
+  #            command = clean_neighborhoods(neighborhoods_raw, years_neighborhoods),
+  #            pattern = map(neighborhoods_raw, years_neighborhoods),
   #            format = 'file'),
   #
   #25. Concentrações urbanas -----------------------------------------------------------------
   
   # # year input
-  # tar_target(name = years_statsgrid,
+  # tar_target(name = years_urbanconcentrations,
   #            command = c(2010, 2022)),
   #
   # # download
-  # tar_target(name = statsgrid_raw,
-  #            command = download_statsgrid(years_statsgrid),
-  #            pattern = map(years_statsgrid)),
+  # tar_target(name = urbanconcentrations_raw,
+  #            command = download_urbanconcentrations(years_urbanconcentrations),
+  #            pattern = map(years_urbanconcentrations)),
   #
   # # clean
-  # tar_target(name = statsgrid_clean,
-  #            command = clean_statsgrid(statsgrid_raw, years_statsgrid),
-  #            pattern = map(statsgrid_raw, years_statsgrid),
+  # tar_target(name = urbanconcentrations_clean,
+  #            command = clean_urbanconcentrations(urbanconcentrations_raw, years_urbanconcentrations),
+  #            pattern = map(urbanconcentrations_raw, years_urbanconcentrations),
   #            format = 'file'),
   
   #26. Arranjos populacionais -----------------------------------------------------------------
@@ -543,16 +544,32 @@ list(
   #            ),
   
   # # download
-  # tar_target(name = poparrangements_raw,
-  #            command = download_poparrangements(years_poparrangements),
-  #            pattern = map(years_poparrangements)),
+  # tar_target(name = favela_raw,
+  #            command = download_favela(years_favela),
+  #            pattern = map(years_favela)),
   #
   # # clean
-  # tar_target(name = poparrangements_clean,
-  #            command = clean_poparrangements(poparrangements_raw, years_poparrangements),
-  #            pattern = map(poparrangements_raw, years_poparrangements),
+  # tar_target(name = favela_clean,
+  #            command = clean_favela(favela_raw, years_favela),
+  #            pattern = map(favela_raw, years_favela),
   #            format = 'file')
   #28. Localidades? ----
+  
+  # # year input
+  # tar_target(name = years_locality,
+  #            command = c(2010, 2022)),
+  #
+  # # download
+  # tar_target(name = locality_raw,
+  #            command = download_locality(years_locality),
+  #            pattern = map(years_locality)),
+  #
+  # # clean
+  # tar_target(name = locality_clean,
+  #            command = clean_locality(locality_raw, years_locality),
+  #            pattern = map(locality_raw, years_locality),
+  #            format = 'file'),
+  #
   #END. Upload files -------------------------------------------------------
   
   # all files input
@@ -563,13 +580,15 @@ list(
                biomes_clean,
                #statsgrid_clean,
                healthfacilities_clean,
+               #indigenousland_clean,
                intermediateregions_clean,
-               immediateregions_clean
-               # schools_clean, states_clean, 
+               immediateregions_clean,
+               # schools_clean,
+               states_clean
                # regions_clean,
                # country_clean,
-               # mesoregions_clean, 
-               # microregions_clean
+               #mesoregions_clean
+               # microregions_clean,
              )),
   
   tar_target(name = versao_dados,
