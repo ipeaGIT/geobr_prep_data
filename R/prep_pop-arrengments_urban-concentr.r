@@ -13,7 +13,27 @@
 #'
 #' Informacao do Sistema de Referencia: SIRGAS 2000
 
-### Libraries (use any library as necessary)
+### Libraries (use any library as necessary) ---------------------------
+
+# library(RCurl)
+# library(arrow)
+# library(geoarrow)
+# library(stringr)
+# library(sf)
+# library(purrr)
+# library(janitor)
+# library(dplyr)
+# library(readr)
+# library(data.table)
+# library(magrittr)
+# library(devtools)
+# library(lwgeom)
+# library(stringi)
+# library(tidyverse)
+# library(mirai)
+# library(rvest)
+# source("./R/support_harmonize_geobr.R")
+# source("./R/support_fun.R")
 
 library(RCurl)
 library(stringr)
@@ -24,6 +44,39 @@ library(data.table)
 library(magrittr)
 library(lwgeom)
 library(stringi)
+
+#
+download_poparrangements <- function(year){ # year = 2001
+   
+   ## 5. Create the files for geobr index
+   ## 5. Create the files for geobr index
+   ## 5. Create the files for geobr index
+   ## 5. Create the files for geobr index
+   ## 5. Create the files for geobr index
+   
+   
+}
+
+# Clean the data  --------------------------------------------------------------
+clean_mesoregions <- function(mesoregions_raw, year){ # year = 2024
+
+   ## 5. Create the files for geobr index
+   ## 5. Create the files for geobr index
+   ## 5. Create the files for geobr index
+}
+
+# OLD CODE BELOW ---------------------------------------------------------------
+### Libraries (use any library as necessary)
+# 
+# library(RCurl)
+# library(stringr)
+# library(sf)
+# library(dplyr)
+# library(readr)
+# library(data.table)
+# library(magrittr)
+# library(lwgeom)
+# library(stringi)
 
 ####### Load Support functions to use in the preprocessing of the data
 
