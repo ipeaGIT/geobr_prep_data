@@ -1,17 +1,17 @@
-#' DATASET: Arranjos Populacionais e Concentracoes Urbanas
-#' Source: IBGE
-#'         - https://www.ibge.gov.br/geociencias/organizacao-do-territorio/divisao-regional/15782-arranjos-populacionais-e-concentracoes-urbanas-do-brasil.html
-#'         - https://geoftp.ibge.gov.br/organizacao_do_territorio/divisao_regional/arranjos_populacionais
-#'
-#' scale 1:25.000
-#' Metadata:
-#' Titulo: Arranjos Populacionais e Concentracoes Urbanas
-#' Frequencia de atualizacao: 10 anos ?
-#'
-#' Linguagem: Pt-BR
-#' Character set: Utf-8
-#'
-#' Informacao do Sistema de Referencia: SIRGAS 2000
+# DATASET: Arranjos Populacionais e Concentracoes Urbanas
+# Source: IBGE
+#         - https://www.ibge.gov.br/geociencias/organizacao-do-territorio/divisao-regional/15782-arranjos-populacionais-e-concentracoes-urbanas-do-brasil.html
+#         - https://geoftp.ibge.gov.br/organizacao_do_territorio/divisao_regional/arranjos_populacionais
+#
+# scale 1:25.000
+# Metadata:
+# Titulo: Arranjos Populacionais e Concentracoes Urbanas
+# Frequencia de atualizacao: 10 anos ?(Censo)
+#
+# Linguagem: Pt-BR
+# Character set: Utf-8
+#
+# Informacao do Sistema de Referencia: SIRGAS 2000
 
 ### Libraries (use any library as necessary) ---------------------------
 
@@ -35,17 +35,6 @@
 # source("./R/support_harmonize_geobr.R")
 # source("./R/support_fun.R")
 
-library(RCurl)
-library(stringr)
-library(sf)
-library(dplyr)
-library(readr)
-library(data.table)
-library(magrittr)
-library(lwgeom)
-library(stringi)
-
-#
 download_poparrangements <- function(year){ # year = 2001
    
    ## 5. Create the files for geobr index
