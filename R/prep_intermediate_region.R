@@ -235,6 +235,7 @@ clean_intermediateregions <- function(intermediateregions_raw, year){ # year = 2
   
   temp_sf <- harmonize_geobr(
     temp_sf = intermediateregions,
+    year = year,
     add_state = F,
     add_region = F,
     add_snake_case = F,

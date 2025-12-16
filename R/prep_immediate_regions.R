@@ -246,6 +246,7 @@ clean_immediateregions <- function(immediateregions_raw, year){ # year = 2024
   
   temp_sf <- harmonize_geobr(
     temp_sf = immediateregions_raw,
+    year = year,
     add_state = F,
     add_region = F,
     add_snake_case = F,

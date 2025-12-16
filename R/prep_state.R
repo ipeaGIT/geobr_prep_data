@@ -45,6 +45,9 @@
 
 
 # Download the data  -----------------------------------------------------------
+
+# year <- tar_read(years_states, branches = 1)[1]
+
 download_states <- function(year){ # year = 2010
   
   ## 0. Generate the correct ftp link (UPDATE YEAR HERE) -----------------------
@@ -181,7 +184,7 @@ download_states <- function(year){ # year = 2010
   ## 6. Integrity test ---------------------------------------------------------
   
   #### Before 2015
-  glimpse(states_raw)
+  # glimpse(states_raw)
 
   #### After 2015
   if (length(shp_names) == 1) {
@@ -189,8 +192,8 @@ download_states <- function(year){ # year = 2010
                              type_collum = sapply(states_raw, class)) |> 
       rownames_to_column(var = "num_collumn")
     
-    glimpse(table_collumns)
-    glimpse(states_raw)
+    # glimpse(table_collumns)
+    # glimpse(states_raw)
   }
   
   ## 7. Show result ------------------------------------------------------------
@@ -200,13 +203,17 @@ download_states <- function(year){ # year = 2010
   states_raw <- sf::st_as_sf(states_raw) |> 
     clean_names()
   
-  glimpse(states_raw)
+  # glimpse(states_raw)
   
   return(states_raw)
   
 }
 
 # Clean the data  --------------------------------------------------------------
+
+# year <- tar_read(years_states, branches = 1)[1]
+# states_raw <- tar_read(states_raw, branches = 1)
+
 clean_states <- function(states_raw, year){ # year = 2024
   
   ## 0. Create folder to save clean data ---------------------------------------
@@ -223,8 +230,8 @@ clean_states <- function(states_raw, year){ # year = 2024
   
   #For years that have spelling problems
   if (year %in% c(2000, 2001, 2010, 2013:2018)){ 
-    glimpse(states_raw)
-    glimpse(states_geobr)
+    # glimpse(states_raw)
+    # glimpse(states_geobr)
     
     states_thin <- states_geobr |> 
       select(code_state, abbrev_state, name_state)
@@ -251,15 +258,15 @@ clean_states <- function(states_raw, year){ # year = 2024
                nm_estado = str_to_title(nm_estado)) |> 
         select(cd_geocuf, abbrev_state, nm_estado, nm_regiao)
     }
-    glimpse(states_clean)
+    # glimpse(states_clean)
   }
   
   #For years that have no spelling problems
   if (year %in% c(2019:2024)){ 
-    glimpse(states_raw)
-    glimpse(states_geobr)
+    # glimpse(states_raw)
+    # glimpse(states_geobr)
     states_clean <- states_raw
-    glimpse(states_clean)
+    # glimpse(states_clean)
   }
   
   ## 3. Create dicionario de equivalências para dataset states -----------------
@@ -328,7 +335,7 @@ clean_states <- function(states_raw, year){ # year = 2024
   
   states_clean <- standardcol_geobr(states_clean, dicionario)
   
-  glimpse(states_clean)
+  # glimpse(states_clean)
   
   # ordem recomendada
   # c(temp_sf, 'code_state', 'abbrev_state', 'name_state', 'code_region',
@@ -339,10 +346,11 @@ clean_states <- function(states_raw, year){ # year = 2024
   
   temp_sf <- harmonize_geobr(
     temp_sf = states_clean,
-    add_state = F,
-    add_region = F,
-    add_snake_case = F,
-    #snake_colname = snake_colname,
+    year = year,
+    add_state = T, state_column = "name_state",
+    add_region = T, region_column = "code_state",
+    add_snake_case = T,
+    snake_colname = c("name_state", "name_region"),
     projection_fix = T,
     encoding_utf8 = T,
     topology_fix = T,
@@ -350,7 +358,10 @@ clean_states <- function(states_raw, year){ # year = 2024
     use_multipolygon = T
   )
   
-  glimpse(temp_sf)
+  # glimpse(temp_sf)
+  
+  if (nrow(temp_sf) > 27) {stop("existem apenas 27 unidades da federacao")}
+  
   
   ## 6. lighter version --------------------------------------------------------
   temp_sf_simplified <- simplify_temp_sf(temp_sf, tolerance = 100)
