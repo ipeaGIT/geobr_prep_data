@@ -134,6 +134,9 @@ download_semiarid <- function(year){ # year = 2022
 }
 
 # Clean the data   ----
+
+# munis_semiarid <- tar_read(semiarid_raw, branches = 1)
+
 clean_semiarid <- function(munis_semiarid, year) { 
   
   ## 0. Create folders to save clean sf files  ----
@@ -162,10 +165,10 @@ clean_semiarid <- function(munis_semiarid, year) {
   
   temp_sf <- harmonize_geobr(
     temp_sf = all_munis2, 
-    add_state = F, 
-    add_region = F, 
-    add_snake_case = F, 
-    #snake_colname = snake_colname,
+    add_state = T, state_column = "code_muni",
+    add_region = T, region_column = "code_state", 
+    add_snake_case = T, 
+    snake_colname = c("name_muni", "name_state"),
     projection_fix = T, 
     encoding_utf8 = F, 
     topology_fix = T, 
