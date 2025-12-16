@@ -8,30 +8,30 @@ editor_options:
 
 Data sets currenly implemented in the targets pipeline:
 
--   [x] country
--   [x] region
--   [x] state
--   [x] meso_region
--   [R] micro_region
--   [x] intermediate_region
--   [x] immediate_region
+-   [ ] country
+-   [ ] region
+-   [ ] state
+-   [ ] meso_region
+-   [ ] micro_region
+-   [ ] intermediate_region
+-   [ ] immediate_region
 -   [ ] municipality
 -   [ ] municipal_seat
 -   [ ] weighting_area
 -   [ ] census_tract
--   [x] statistical_grid
+-   [ ] statistical_grid
 -   [ ] metro_area
 -   [ ] urban_area
--   [x] amazon
+-   [ ] amazon
 -   [x] biomes
 -   [ ] conservation_units
 -   [ ] disaster_risk_area
--   [P] indigenous_land
--   [x] semiarid
--   [x] health_facilities
+-   [ ] indigenous_land
+-   [ ] semiarid
+-   [ ] health_facilities
 -   [ ] health_region
 -   [ ] neighborhood
--   [x] schools
+-   [ ] schools
 -   [ ] comparable_areas
 -   [ ] urban_concentrations
 -   [ ] pop_arrangements
