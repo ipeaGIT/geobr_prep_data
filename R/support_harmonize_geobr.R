@@ -12,7 +12,7 @@ harmonize_geobr <- function(temp_sf,
                             remove_z_dimension = TRUE,
                             use_multipolygon = TRUE
                             ### dissolve
-){
+                            ){
   
 
   
@@ -20,7 +20,7 @@ harmonize_geobr <- function(temp_sf,
   if (isTRUE(add_state)) {
     
     ### check if "state_column" is in data
-    if(! state_column %in% names(temp_sf)){
+    if (!state_column %in% names(temp_sf)) {
       stop(paste("The data temp_sf does not have a columna named ", state_column))
     }
     temp_sf <- add_state_info(temp_sf, column = state_column)
@@ -88,7 +88,9 @@ add_state_info <- function(temp_sf, column){
   # IF only the "name_state" column is present
   # Add code_state
   if ("name_state" %in% col_names & !"code_state" %in% col_names) {
-      temp_sf <- dplyr::mutate(code_state = ifelse(name_state== "Rondonia" | name_state== "Territ\u00f3rio de Rondonia"  | name_state== "Territorio de Rondonia",11,
+      
+    temp_sf <- temp_sf |> 
+      dplyr::mutate(code_state = ifelse(name_state== "Rondonia" | name_state== "Territ\u00f3rio de Rondonia"  | name_state== "Territorio de Rondonia",11,
       ifelse(name_state== "Acre" | name_state== "Territ\u00f3rio do Acre",12,
       ifelse(name_state== "Amazonas",13,
       ifelse(name_state== "Roraima" | name_state=="Territ\u00f3rio de Roraima",14,
@@ -757,7 +759,7 @@ summarycol_geobr <- function(files) {
 # normalize "geometry" column  ------------------------------------------------
 
 # make sure geometry column is named "geometry"
-normalize_sf_geometry <- function(){
+normalize_sf_geometry <- function(temp_sf){
   
   if ("geom" %in% names(temp_sf)) {
     
@@ -778,5 +780,7 @@ normalize_sf_geometry <- function(){
     sf::st_geometry(temp_sf) |> inherits("sfc"),
     tail(names(temp_sf), 1) == "geometry"
   )
+  
+  return(temp_sf)
   
 }
