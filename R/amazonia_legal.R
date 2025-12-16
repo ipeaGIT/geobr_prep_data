@@ -141,8 +141,10 @@ clean_amazonialegal <- function(amazonialegal_raw, year){
   # glimpse(temp_sf)
   
   # select columns
+  temp_sf$year <- year
+  
   temp_sf <- temp_sf |> 
-    select(geometry)
+    select(year, geometry)
   
   ## 3. generate a lighter version of the dataset with simplified borders ------
   
