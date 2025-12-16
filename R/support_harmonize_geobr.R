@@ -14,6 +14,8 @@ harmonize_geobr <- function(temp_sf,
                             ### dissolve
 ){
   
+
+  
   ## add state colum
   if (isTRUE(add_state)) {
     
@@ -65,6 +67,11 @@ harmonize_geobr <- function(temp_sf,
   if (isTRUE(use_multipolygon)) {
     temp_sf <- to_multipolygon(temp_sf)
   }
+  
+  
+  # make sure geometry column is named "geometry"
+  temp_sf <- normalize_sf_geometry(temp_sf)
+
   
   return(temp_sf)
 }
@@ -747,3 +754,29 @@ summarycol_geobr <- function(files) {
 
 
 
+# normalize "geometry" column  ------------------------------------------------
+
+# make sure geometry column is named "geometry"
+normalize_sf_geometry <- function(){
+  
+  if ("geom" %in% names(temp_sf)) {
+    
+    temp_sf <- temp_sf |> 
+      rename(geometry = geom)
+    
+    # explicitly set geometry column
+    sf::st_geometry(temp_sf) <- "geometry"
+    
+  }
+  
+  # move geometry to the end
+  temp_sf <- temp_sf |> relocate(geometry, .after = last_col()) |> 
+    sf::st_as_sf()
+  
+  stopifnot(
+    inherits(temp_sf, "sf"),
+    sf::st_geometry(temp_sf) |> inherits("sfc"),
+    tail(names(temp_sf), 1) == "geometry"
+  )
+  
+}
