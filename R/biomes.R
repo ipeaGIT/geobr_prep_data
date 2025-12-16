@@ -154,7 +154,8 @@ clean_biomes <- function(biomes_raw, year) {
            'code_biome' = all_of(id_colname), # 666 tidyselect pedindo pra mudar: ""
            year, 
            geometry
-           )
+           ) |> 
+    arrange(name_biome)
     
     
   # 3. generate a lighter version of the dataset with simplified borders
