@@ -170,10 +170,10 @@ clean_semiarid <- function(munis_semiarid, year) {
     add_snake_case = T, 
     snake_colname = c("name_muni", "name_state"),
     projection_fix = T, 
-    encoding_utf8 = F, 
+    encoding_utf8 = T, 
     topology_fix = T, 
-    remove_z_dimension = F,
-    use_multipolygon = F
+    remove_z_dimension = T,
+    use_multipolygon = T
   )
   
   ## 3. lighter version ----

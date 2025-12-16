@@ -8,6 +8,8 @@ editor_options:
 
 Data sets currenly implemented in the targets pipeline:
 
+-   [x] biomes
+-   [x] semiarid
 -   [ ] country
 -   [ ] region
 -   [ ] state
@@ -23,11 +25,9 @@ Data sets currenly implemented in the targets pipeline:
 -   [ ] metro_area
 -   [ ] urban_area
 -   [ ] amazon
--   [x] biomes
 -   [ ] conservation_units
 -   [ ] disaster_risk_area
 -   [ ] indigenous_land
--   [ ] semiarid
 -   [ ] health_facilities
 -   [ ] health_region
 -   [ ] neighborhood
