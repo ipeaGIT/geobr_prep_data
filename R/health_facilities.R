@@ -180,6 +180,7 @@ clean_healthfacilities <- function(healthfacilities_raw, year){
   
   temp_sf <- harmonize_geobr(
     temp_sf = healthfacilities_raw,
+    year = year,
     add_state = F,
     add_region = F,
     add_snake_case = F,

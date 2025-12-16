@@ -341,12 +341,12 @@ clean_states <- function(states_raw, year){ # year = 2024
   # c(temp_sf, 'code_state', 'abbrev_state', 'name_state', 'code_region',
   #  'name_region', 'geom')
   
-  states_clean$year <- year
   
   ## 5. Apply harmonize geobr cleaning -----------------------------------------
   
   temp_sf <- harmonize_geobr(
     temp_sf = states_clean,
+    year = year,
     add_state = T, state_column = "name_state",
     add_region = T, region_column = "code_state",
     add_snake_case = T,
@@ -358,8 +358,10 @@ clean_states <- function(states_raw, year){ # year = 2024
     use_multipolygon = T
   )
   
-  glimpse(temp_sf)
-  nrow(temp_sf)
+  # glimpse(temp_sf)
+  
+  if (nrow(temp_sf) > 27) {stop("existem apenas 27 unidades da federacao")}
+  
   
   ## 6. lighter version --------------------------------------------------------
   temp_sf_simplified <- simplify_temp_sf(temp_sf, tolerance = 100)

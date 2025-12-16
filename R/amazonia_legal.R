@@ -127,6 +127,7 @@ clean_amazonialegal <- function(amazonialegal_raw, year){
   
   temp_sf <- harmonize_geobr(
     temp_sf = amazonialegal_raw,
+    year = year,
     add_state = F,
     add_region = F,
     add_snake_case = F,
@@ -141,8 +142,6 @@ clean_amazonialegal <- function(amazonialegal_raw, year){
   # glimpse(temp_sf)
   
   # select columns
-  temp_sf$year <- year
-  
   temp_sf <- temp_sf |> 
     select(year, geometry)
   

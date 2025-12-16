@@ -135,8 +135,8 @@ download_semiarid <- function(year){ # year = 2022
 
 # Clean the data   ----
 
-# year <- tar_read(years_semiarid, branches = 1)[1]
-# munis_semiarid <- tar_read(semiarid_raw, branches = 1)
+# year <- tar_read(years_semiarid, branches = 1)[4]
+# munis_semiarid <- tar_read(semiarid_raw, branches = 4)
 
 clean_semiarid <- function(munis_semiarid, year) { 
   
@@ -162,14 +162,14 @@ clean_semiarid <- function(munis_semiarid, year) {
   # subset municipalities
   all_munis2 <- subset(all_munis, code_muni %in% munis_semiarid$code_muni)
   
+  
+  
   ## 2. Apply geobr cleaning ----
   
-  # add year
-  temp_sf$year <- year
-  
-  
+
   temp_sf <- harmonize_geobr(
     temp_sf = all_munis2, 
+    year = year,
     add_state = T, state_column = "code_muni",
     add_region = T, region_column = "code_state", 
     add_snake_case = T, 

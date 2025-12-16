@@ -111,6 +111,9 @@ download_biomes <- function(year){ # year = 2019
 
 # Clean the data ----------------------------------
 
+# year <- tar_read("years_biomes")[1]
+# biomes_raw <- tar_read("biomes_raw",branches = 1)
+
 clean_biomes <- function(biomes_raw, year) {
   
   # 0. Create folder to save clean data
@@ -134,9 +137,19 @@ clean_biomes <- function(biomes_raw, year) {
     NA_character_
   )
   
+  # 2. Rename and reorder columns
+  biomes_raw <- biomes_raw |>
+    select('name_biome' = all_of(snake_colname), # 666 tidyselect pedindo pra mudar: tem que vir all_of() ou any_of() antes de snake selection
+           'code_biome' = all_of(id_colname), # 666 tidyselect pedindo pra mudar: ""
+           year, 
+           geometry
+    ) |> 
+    arrange(name_biome)
+  
   # 1. harmonize geobr data
   temp_sf <- harmonize_geobr(
     temp_sf = biomes_raw, 
+    year = year,
     add_state = F, 
     add_region = F, 
     add_snake_case = T, 
@@ -148,14 +161,6 @@ clean_biomes <- function(biomes_raw, year) {
     use_multipolygon = T
     )
 
-  # 2. Rename and reorder columns
-  temp_sf <- temp_sf |>
-    select('name_biome' = all_of(snake_colname), # 666 tidyselect pedindo pra mudar: tem que vir all_of() ou any_of() antes de snake selection
-           'code_biome' = all_of(id_colname), # 666 tidyselect pedindo pra mudar: ""
-           year, 
-           geometry
-           ) |> 
-    arrange(name_biome)
     
     
   # 3. generate a lighter version of the dataset with simplified borders

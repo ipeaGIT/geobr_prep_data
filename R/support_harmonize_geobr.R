@@ -1,5 +1,6 @@
 # Harmonize Geobr --------------------------------------------------------------
 harmonize_geobr <- function(temp_sf, 
+                            year = parent.frame()$year,
                             add_state = TRUE, 
                             state_column = c('name_state', 'code_state'),
                             add_region = TRUE, 
@@ -14,7 +15,6 @@ harmonize_geobr <- function(temp_sf,
                             ### dissolve
                             ){
   
-
   
   ## add state colum
   if (isTRUE(add_state)) {
@@ -68,6 +68,8 @@ harmonize_geobr <- function(temp_sf,
     temp_sf <- to_multipolygon(temp_sf)
   }
   
+  # add year column
+  temp_sf$year <- year
   
   # make sure geometry column is named "geometry"
   temp_sf <- normalize_sf_geometry(temp_sf)
@@ -312,6 +314,7 @@ to_multipolygon <- function(temp_sf){
   # merge polygons into single MULTIPOLYGON
   col_names <- names(temp_sf)
   col_names <- col_names[ !col_names %like% 'geometry|geom']
+  col_names <- col_names[col_names %like% "code_|name_"]
   
   temp_sf <- temp_sf |>
     dplyr::group_by(across(all_of(col_names))) |>
