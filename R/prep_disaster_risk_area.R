@@ -18,25 +18,25 @@
 
 ### Libraries (use any library as necessary) -----------------------------------
 
-library(RCurl)
-library(stringr)
-library(sf)
-library(janitor)
-library(dplyr)
-library(readr)
-library(data.table)
-library(magrittr)
-library(devtools)
-library(lwgeom)
-library(stringi)
-library(targets)
-library(tidyverse)
-library(mirai)
-library(rvest)
-library(arrow)
-library(geoarrow)
-source("./R/support_harmonize_geobr.R")
-source("./R/support_fun.R")
+# library(RCurl)
+# library(stringr)
+# library(sf)
+# library(janitor)
+# library(dplyr)
+# library(readr)
+# library(data.table)
+# library(magrittr)
+# library(devtools)
+# library(lwgeom)
+# library(stringi)
+# library(targets)
+# library(tidyverse)
+# library(mirai)
+# library(rvest)
+# library(arrow)
+# library(geoarrow)
+# source("./R/support_harmonize_geobr.R")
+# source("./R/support_fun.R")
 
 # Download the data  -----------------------------------------------------------
 download_riskdisasterareas <- function(){ # year = 2018
@@ -123,8 +123,11 @@ clean_riskdisasterareas <- function(riskdisasterareas_raw){ # year = 2018
     rename(code_state = geo_uf, code_muni = geo_mun, name_muni = municipio) |> 
     left_join(statesgeobr, by = "code_state") |> 
     select(-id, - abbrevm_state) |> 
-    relocate(geo_bater, origem , acuracia, obs, num, code_muni, name_muni,
-             code_state, abbrev_state, name_state, code_region, name_region)
+    relocate(code_muni, name_muni, code_state, abbrev_state, name_state,
+             code_region, name_region,
+             geo_bater, origem , acuracia, obs, num)
+  
+  glimpse(riskdisasterareas)
     
   ## 3. Apply harmonize geobr cleaning -----------------------------------------
   
@@ -138,7 +141,7 @@ clean_riskdisasterareas <- function(riskdisasterareas_raw){ # year = 2018
     encoding_utf8 = T,
     topology_fix = T,
     remove_z_dimension = T,
-    use_multipolygon = T
+    use_multipolygon = F
   )
   
   glimpse(temp_sf)
@@ -182,7 +185,7 @@ clean_riskdisasterareas <- function(riskdisasterareas_raw){ # year = 2018
 }
 
 
-# # OLD CODE BELOW ---------------------------------------------------------------
+# # OLD CODE BELOW -------------------------------------------------------------
 # 
 # ### Libraries (use any library as necessary) -----------------------------------
 # 
