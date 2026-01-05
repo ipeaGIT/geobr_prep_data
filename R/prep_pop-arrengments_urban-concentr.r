@@ -1,59 +1,107 @@
-# # DATASET: Arranjos Populacionais e Concentracoes Urbanas
-# # Source: IBGE
-# #         - https://www.ibge.gov.br/geociencias/organizacao-do-territorio/divisao-regional/15782-arranjos-populacionais-e-concentracoes-urbanas-do-brasil.html
-# #         - https://geoftp.ibge.gov.br/organizacao_do_territorio/divisao_regional/arranjos_populacionais
-# #
-# # scale 1:25.000
-# # Metadata:
-# # Titulo: Arranjos Populacionais e Concentracoes Urbanas
-# # Frequencia de atualizacao: 10 anos ?(Censo)
-# #
-# # Linguagem: Pt-BR
-# # Character set: Utf-8
-# #
-# # Informacao do Sistema de Referencia: SIRGAS 2000
-# 
-# ### Libraries (use any library as necessary) ---------------------------
-# 
-# # library(RCurl)
-# # library(arrow)
-# # library(geoarrow)
-# # library(stringr)
-# # library(sf)
-# # library(purrr)
-# # library(janitor)
-# # library(dplyr)
-# # library(readr)
-# # library(data.table)
-# # library(magrittr)
-# # library(devtools)
-# # library(lwgeom)
-# # library(stringi)
-# # library(tidyverse)
-# # library(mirai)
-# # library(rvest)
-# # source("./R/support_harmonize_geobr.R")
-# # source("./R/support_fun.R")
-# 
-# download_poparrangements <- function(year){ # year = 2001
-#    
-#    ## 5. Create the files for geobr index
-#    ## 5. Create the files for geobr index
-#    ## 5. Create the files for geobr index
-#    ## 5. Create the files for geobr index
-#    ## 5. Create the files for geobr index
-#    
-#    
-# }
-# 
-# # Clean the data  --------------------------------------------------------------
-# clean_mesoregions <- function(mesoregions_raw, year){ # year = 2024
-# 
-#    ## 5. Create the files for geobr index
-#    ## 5. Create the files for geobr index
-#    ## 5. Create the files for geobr index
-# }
-# 
+#> DATASET: Arranjos Populacionais e Concentracoes Urbanas
+#> Source: IBGE
+# - https://www.ibge.gov.br/geociencias/organizacao-do-territorio/divisao-regional/15782-arranjos-populacionais-e-concentracoes-urbanas-do-brasil.html
+# - https://geoftp.ibge.gov.br/organizacao_do_territorio/divisao_regional/arranjos_populacionais
+#> scale 1:25.000
+#> Metadata:
+# Título: Arranjos Populacionais
+# Frequência de atualização: 10 anos ?(Censo)
+# Título alternativo: population arrengments
+# Frequencia de atualizacao: decenal
+#
+# Forma de apresentacao: Shape
+# Linguagem: Pt-BR
+# Character set: Utf-8
+#
+# Resumo: Regiões Geográficas Intermediárias foram criadas pelo IBGE em 2017 para substituir a mesorregiões
+#
+# Estado: Em desenvolvimento
+# Palavras chaves descritivas:****
+# Informacao do Sistema de Referencia: SIRGAS 2000
+ 
+### Libraries (use any library as necessary) -----------------------------------
+
+# library(RCurl)
+# library(arrow)
+# library(geoarrow)
+# library(stringr)
+# library(sf)
+# library(purrr)
+# library(janitor)
+# library(dplyr)
+# library(readr)
+# library(data.table)
+# library(magrittr)
+# library(devtools)
+# library(lwgeom)
+# library(stringi)
+# library(tidyverse)
+# library(mirai)
+# library(rvest)
+# source("./R/support_harmonize_geobr.R")
+# source("./R/support_fun.R")
+
+# Download the data  ----------------------------------------------------------- 
+download_poparrangements <- function(){ # year = 2010
+
+  ## 0. Generate the correct ftp link (UPDATE YEAR HERE) -----------------------
+  
+  file_url <- "https://geoftp.ibge.gov.br/organizacao_do_territorio/divisao_regional/arranjos_populacionais/base_de_dados_2ed/ArranjosPopulacionais_mbd_2ed.zip"
+  
+  ## 1. Create temp folder -----------------------------------------------------
+  
+  zip_dir <- paste0(tempdir(), "/pop_arrangements/")
+  dir.create(zip_dir, showWarnings = FALSE, recursive = TRUE)
+  dir.exists(zip_dir)
+  
+  ## 2. Create direction for each download -------------------------------------
+  
+  in_zip <- paste0(zip_dir, "/unzipped/")
+  dir.create(in_zip, showWarnings = FALSE, recursive = TRUE)
+  dir.exists(in_zip)
+  
+  file_raw <- fs::file_temp(tmp_dir = in_zip,
+                            ext = fs::path_ext(file_url))
+  
+  out_zip <- paste0(zip_dir, "/zipped/")
+  dir.create(out_zip, showWarnings = FALSE, recursive = TRUE)
+  dir.exists(out_zip)
+  
+  ## 3. Download Raw data ------------------------------------------------------
+  
+  httr::GET(url = file_url,
+            httr::progress(),
+            httr::write_disk(path = file_raw,
+                             overwrite = T))
+  
+  ## 4. Unzip Raw data ---------------------------------------------------------
+  
+  unzip_geobr(zip_dir = zip_dir, in_zip = in_zip,
+              out_zip = out_zip, is_shp = TRUE)
+  
+# FUNCIONA ATÈ AQUI ------------------------------------------------------------
+  #### Arquivo access mds não possui shapefile.
+  
+  ## 5. Bind Raw data together -------------------------------------------------
+  
+  shp_names <- list.files(out_zip, pattern = "\\.shp$",
+                          full.names = TRUE)
+  
+  ## 6. Show result ------------------------------------------------------------
+  
+  glimpse(poparrangements_raw)
+  
+  return(poparrangements_raw)
+}
+
+# Clean the data  --------------------------------------------------------------
+clean_poparrangements <- function(poparrangements_raw, year){ # year = 2024
+  # 
+  #    ## 5. Create the files for geobr index
+  #    ## 5. Create the files for geobr index
+  #    ## 5. Create the files for geobr index
+}
+  # 
 # # OLD CODE BELOW ---------------------------------------------------------------
 # ### Libraries (use any library as necessary)
 # # 
@@ -277,7 +325,7 @@
 # 
 # 
 # 
-<<<<<<< HEAD
+#<<<<<<< HEAD
 # library(RCurl)
 # library(stringr)
 # library(sf)
@@ -498,5 +546,5 @@
 
 
 
-=======
->>>>>>> a80a88b7a22ec939daa791710d0daea8568a3347
+#=======
+#>>>>>>> a80a88b7a22ec939daa791710d0daea8568a3347
