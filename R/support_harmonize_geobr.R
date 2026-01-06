@@ -563,7 +563,7 @@ unzip_geobr <- function(zip_dir, in_zip, out_zip = NULL, is_shp = FALSE) {
 #   # Lista de nomes padronizados de colunas
 #   padrao = c(
 #     #CÓDIGO DE MUNICÍPIO e número de variações associadas
-#     rep("code_muni", 7),
+#     rep("code_muni", 4),
 #     #NOME DO MUNICÍPIO e número de variações associadas
 #     rep("name_muni", 4),
 #     #CÓDIGO DO ESTADO e número de variações associadas
@@ -582,7 +582,7 @@ unzip_geobr <- function(zip_dir, in_zip, out_zip = NULL, is_shp = FALSE) {
 #   # Lista de variações
 #   variacao = c(
 #     #Variações que convergem para "code_muni"
-#     "cod_uf", "cd_uf", "code_uf", "codigo_uf", "cod_state", "cd_mun", "cod_mun",
+#     "cod_muni", "cd_mun", "cod_mun", "cd_mun",
 #     #Variações que convergem para "name_muni"
 #     "nome_cidade", "cidade", "nm_muni", "nome_muni",
 #     #Variações que convergem para "code_state"
