@@ -2,6 +2,11 @@ library(targets)
 library(tarchetypes)
 library(crew)
 
+# See if the packages are updated:
+renv::status()
+
+# Update packages if needed:
+renv::snapshot()
 
 # Set target options: ----------------------------------------------------------
 tar_option_set(
@@ -11,7 +16,7 @@ tar_option_set(
   controller = crew_controller_local(workers = 8),
   
   
-  # Packages -------------------------------------------------------------------
+  # Packages essentials --------------------------------------------------------
   packages = c('arrow',
                'collapse',
                'crew',
@@ -21,6 +26,7 @@ tar_option_set(
                'furrr',
                'future',
                'geobr',
+               'geocodebr',
                'geos',
                'geoarrow',
                'httr',
@@ -135,10 +141,10 @@ list(
   
   #04. Grade estatística -------------------------------------------------------
   
-  # # year input
-  # tar_target(name = years_statsgrid,
-  #            command = c(2010, 2022)),
-  # 
+  # year input
+  tar_target(name = years_statsgrid,
+             command = c(2010, 2022)),
+
   # # download
   # tar_target(name = statsgrid_raw,
   #            command = download_statsgrid(years_statsgrid),
@@ -160,10 +166,11 @@ list(
   tar_target(name = healthfacilities_raw,
              command = download_healthfacilities(years_healthfacilities),
              pattern = map(years_healthfacilities)),
-
+  
   # clean
   tar_target(name = healthfacilities_clean,
-             command = clean_healthfacilities(healthfacilities_raw,years_healthfacilities),
+             command = clean_healthfacilities(healthfacilities_raw,
+                                              years_healthfacilities),
              pattern = map(healthfacilities_raw, years_healthfacilities),
              format = 'file'),
   
@@ -172,7 +179,7 @@ list(
   # # year imput
   # tar_target(name = years_indigenousland,
   #            command = c(2024, 2025)),
-  # 
+
   # # download
   # tar_target(name = indigenousland_raw,
   #            command = download_indigenousland(years_indigenousland),
@@ -220,12 +227,12 @@ list(
              pattern = map(immediateregions_raw, years_immediateregions),
              format = 'file'),
   
-  #09. Escolas ----
+  #09. Escolas -----------------------------------------------------------------
   
   # # year input
   # tar_target(name = years_schools,
   #            command = c(Sys.Date())),
-  # 
+
   # # download
   # tar_target(name = schools_raw,
   #            command = download_schools(years_schools),
@@ -239,21 +246,21 @@ list(
   
   #10. Estados -----------------------------------------------------------------
   
-  #year input
-  tar_target(name = years_states,
-             command = c(2000, 2001, 2010,
-                         2013:2024)),
-  
-  # download
-  tar_target(name = states_raw,
-             command = download_states(years_states),
-             pattern = map(years_states)),
-  
-  # clean
-  tar_target(name = states_clean,
-             command = clean_states(states_raw, years_states),
-             pattern = map(states_raw, years_states),
-             format = 'file'),
+  # #year input
+  # tar_target(name = years_states,
+  #            command = c(2000, 2001, 2010,
+  #                        2013:2024)),
+
+  # # download
+  # tar_target(name = states_raw,
+  #            command = download_states(years_states),
+  #            pattern = map(years_states)),
+  # 
+  # # clean
+  # tar_target(name = states_clean,
+  #            command = clean_states(states_raw, years_states),
+  #            pattern = map(states_raw, years_states),
+  #            format = 'file'),
   
   #11. Regiões -----------------------------------------------------------------
   
@@ -261,7 +268,7 @@ list(
   # tar_target(name = years_regions,
   #            command = c(2000, 2001, 2010,
   #                        2013:2024)),
-  # 
+
   # # download
   # tar_target(name = regions_raw,
   #            command = download_regions(years_regions),
@@ -273,13 +280,13 @@ list(
   #            pattern = map(regions_raw, years_regions),
   #            format = 'file'),
   
-  #12. País -----------------------------------------------------------------
+  #12. País --------------------------------------------------------------------
   
   # # year input
   # tar_target(name = years_country,
   #            command = c(2000, 2001, 2010,
   #                        2013:2024)),
-  # 
+
   # # download
   # tar_target(name = country_raw,
   #            command = download_country(years_country),
@@ -291,15 +298,15 @@ list(
   #            pattern = map(country_raw, years_country),
   #            format = 'file'),
   
-  #13. Meso Regiões -----------------------------------------------------------------
+  #13. Meso Regiões ------------------------------------------------------------
   
-  # # year input
-  # tar_target(name = years_mesoregions,
-  #            command = c(2000, 2001, #error in number of collumns
-  #                        #2005, 2007, # No mesoregions file
-  #                        2010, 2013, 2014, # mesorregioes sem BR folder
-  #                        2015:2018)),
-  # 
+  # year input
+  tar_target(name = years_mesoregions,
+             command = c(2000, 2001, #error in number of collumns
+                         #2005, 2007, # No mesoregions file
+                         2010, 2013, 2014, # mesorregioes sem BR folder
+                         2015:2018)),
+
   # # download
   # tar_target(name = mesoregions_raw,
   #            command = download_mesoregions(years_mesoregions),
@@ -311,14 +318,14 @@ list(
   #            pattern = map(mesoregions_raw, years_mesoregions),
   #            format = 'file'),
   
-  #14. Microrregiões -----------------------------------------------------------------
+  #14. Microrregiões -----------------------------------------------------------
   
-  # # year input
-  # tar_target(name = years_microregions,
-  #            command = c(2000, 2001, #error in number of collumns
-  #                        #2005, 2007, # No microregions file
-  #                        2010, 2013, 2014, # microrregioes sem BR folder
-  #                        2015:2018)),
+  # year input
+  tar_target(name = years_microregions,
+             command = c(2000, 2001, #error in number of collumns
+                         #2005, 2007, # No microregions file
+                         2010, 2013, 2014, # microrregioes sem BR folder
+                         2015:2018)),
   # 
   # # download
   # tar_target(name = microregions_raw,
@@ -331,12 +338,12 @@ list(
   #            pattern = map(microregions_raw, years_microregions),
   #            format = 'file'),
   
-  #15. Municipalidade -----------------------------------------------------------------
+  #15. Municipalidade ----------------------------------------------------------
   
-  # # year input
-  # tar_target(name = years_municipality,
-  #            command = c(2010, 2022)),
-  #
+  # year input
+  tar_target(name = years_municipality,
+             command = c(2010, 2022)),
+
   # # download
   # tar_target(name = municipality_raw,
   #            command = download_municipality(years_municipality),
@@ -348,7 +355,7 @@ list(
   #            pattern = map(municipality_raw, years_municipality),
   #            format = 'file'),
   
-  #16. Assento municipal -----------------------------------------------------------------
+  #16. Assento municipal -------------------------------------------------------
   
   # # year input
   # tar_target(name = years_cityseats,
@@ -365,12 +372,12 @@ list(
   #            pattern = map(cityseats_raw, years_cityseats),
   #            format = 'file'),
   
-  #17. Traço do Censo -----------------------------------------------------------------
+  #17. Traço do Censo ----------------------------------------------------------
   
   # # year input
   # tar_target(name = years_censustracker,
   #            command = c(2010, 2022)),
-  #
+
   # # download
   # tar_target(name = censustracker_raw,
   #            command = download_censustracker(years_censustracker),
@@ -382,12 +389,12 @@ list(
   #            pattern = map(censustracker_raw, years_censustracker),
   #            format = 'file'),
   
-  #18. Área de peso -----------------------------------------------------------------
+  #18. Área de peso ------------------------------------------------------------
   
   # # year input
   # tar_target(name = years_weightarea,
   #            command = c(2010, 2022)),
-  #
+
   # # download
   # tar_target(name = weightarea_raw,
   #            command = download_weightarea(years_weightarea),
@@ -399,7 +406,7 @@ list(
   #            pattern = map(weightarea_raw, years_weightarea),
   #            format = 'file'),
   
-  #19. Áreas metropolitanas -----------------------------------------------------------------
+  #19. Áreas metropolitanas ----------------------------------------------------
   
   # # year input
   # tar_target(name = years_metropolitanarea,
@@ -417,12 +424,12 @@ list(
   #            pattern = map(metropolitanarea_raw, years_metropolitanarea),
   #            format = 'file'),
   #
-  #20. Áreas urbanas -----------------------------------------------------------------
+  #20. Áreas urbanas -----------------------------------------------------------
   
   # # year input
   # tar_target(name = years_ubanarea,
   #            command = c(2010, 2022)),
-  #
+
   # # download
   # tar_target(name = ubanarea_raw,
   #            command = download_ubanarea(years_ubanarea),
@@ -434,7 +441,7 @@ list(
   #            pattern = map(ubanarea_raw, years_ubanarea),
   #            format = 'file'),
   #
-  #21. Unidades de conservação -----------------------------------------------------------------
+  #21. Unidades de conservação -------------------------------------------------
   
   # # year input
   # tar_target(name = years_conservationunits,
@@ -451,7 +458,7 @@ list(
   #            pattern = map(conservationunits_raw, years_conservationunits),
   #            format = 'file'),
   
-  #22. Áreas de risco de desastre -----------------------------------------------------------------
+  #22. Áreas de risco de desastre ----------------------------------------------
   
   # download
    tar_target(name = riskdisasterareas_raw,
@@ -496,7 +503,7 @@ list(
   #            pattern = map(neighborhoods_raw, years_neighborhoods),
   #            format = 'file'),
   #
-  #25. Concentrações urbanas -----------------------------------------------------------------
+  #25. Concentrações urbanas ---------------------------------------------------
   
   # # year input
   # tar_target(name = years_urbanconcentrations,
@@ -513,31 +520,26 @@ list(
   #            pattern = map(urbanconcentrations_raw, years_urbanconcentrations),
   #            format = 'file'),
   
-  #26. Arranjos populacionais -----------------------------------------------------------------
-  
-  # # year input
-  # tar_target(name = years_poparrangements,
-  #            command = c(2010, 2022)),
+  #26. Arranjos populacionais --------------------------------------------------
   
   # # download
   # tar_target(name = poparrangements_raw,
-  #            command = download_poparrangements(years_poparrangements),
-  #            pattern = map(years_poparrangements)),
-  #
+  #            command = download_poparrangements()),
+  # 
   # # clean
   # tar_target(name = poparrangements_clean,
-  #            command = clean_poparrangements(poparrangements_raw, years_poparrangements),
-  #            pattern = map(poparrangements_raw, years_poparrangements),
+  #            command = clean_poparrangements(poparrangements_raw),
+  #            pattern = map(poparrangements_raw),
   #            format = 'file'),
   
-  #27. Favelas e aglomerados urbanos ----
+  #27. Favelas e aglomerados urbanos -------------------------------------------
   
-  # year input
+  # # year input
   # tar_target(name = years_favela,
   #            command = c(2010, 2022)
   #            ),
-  
-  # # download
+  # 
+  # # # download
   # tar_target(name = favela_raw,
   #            command = download_favela(years_favela),
   #            pattern = map(years_favela)),
@@ -547,13 +549,14 @@ list(
   #            command = clean_favela(favela_raw, years_favela),
   #            pattern = map(favela_raw, years_favela),
   #            format = 'file')
-  #28. Localidades? ----
+  
+  #28. Localidades -------------------------------------------------------------
   
   # # year input
   # tar_target(name = years_locality,
   #            command = c(2010, 2022)),
-  #
-  # # download
+  # 
+  # # # download
   # tar_target(name = locality_raw,
   #            command = download_locality(years_locality),
   #            pattern = map(years_locality)),
@@ -563,27 +566,46 @@ list(
   #            command = clean_locality(locality_raw, years_locality),
   #            pattern = map(locality_raw, years_locality),
   #            format = 'file'),
+
+  #29. Zonas Eleitorais --------------------------------------------------------
+  
+  # # year input
+  # tar_target(name = years_electoraldistrits,
+  #            command = c(2010, 2020, 2022, 2024)),
+  # 
+  # # # download
+  # tar_target(name = electoraldistrits_raw,
+  #            command = download_electoraldistrits(years_electoraldistrits),
+  #            pattern = map(years_electoraldistrits)),
   #
-  #END. Upload files -------------------------------------------------------
+  # # clean
+  # tar_target(name = locality_clean,
+  #            command = clean_locality(locality_raw, years_locality),
+  #            pattern = map(locality_raw, years_locality),
+  #            format = 'file'),
+  #
+  
+  #END. Upload files -----------------------------------------------------------
   
   # all files input
   tar_target(name = all_files,
              command = c(
-               semiarid_clean,
-               amazonialegal_clean,
-               biomes_clean,
-               #statsgrid_clean,
-               healthfacilities_clean,
-               #indigenousland_clean,
+               semiarid_clean, #01
+               amazonialegal_clean, #02
+               biomes_clean, #03
+               #statsgrid_clean, #04
+               healthfacilities_clean, #05
+               #indigenousland_clean, #06
                intermediateregions_clean,
                immediateregions_clean,
                # schools_clean,
-               states_clean,
+               # states_clean,
                # regions_clean,
                # country_clean,
-               #mesoregions_clean
+               # mesoregions_clean
                # microregions_clean,
-               riskdisasterareas_clean
+               riskdisasterareas_clean #22
+               #clean_poparrangements #26
              )),
   
   tar_target(name = versao_dados,
