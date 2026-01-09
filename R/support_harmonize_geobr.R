@@ -572,7 +572,7 @@ check_collumns_geobr <- function(dir_data = "./data") {
       arquivo   = fs::path_file(arquivo_path),
       n_linhas  = nrow(ds),
       n_colunas = length(nomes_colunas),
-      colunas   = list(nomes_colunas)
+      colunas = paste(nomes_colunas, collapse = ", ")
     )
   })
 }
