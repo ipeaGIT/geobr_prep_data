@@ -152,25 +152,56 @@ clean_immediateregions <- function(immediateregions_raw, year){ # year = 2024
   
   ## 1. Remove unnecessary columns and check states columns --------------------
   
+  glimpse(immediateregions_raw)
+  
+  if(year %in% c(2019, 2020, 2022)) {
+    
   statesgeobr <- states_geobr() |> 
-    select(1, 2)
+    select(1, 2, 5)
+  
+  immediateregions_edit <- immediateregions_raw |> 
+    inner_join(statesgeobr, by = c("sigla_uf" = "abbrev_state")) |> 
+    relocate(sigla_uf, .after = code_state)
+  
+  glimpse(immediateregions_edit)
+  }
+  
+  if(year == 2021) {
+    
+    statesgeobr <- states_geobr() |> 
+      select(1, 2, 5)
+    
+    immediateregions_edit <- immediateregions_raw |> 
+      inner_join(statesgeobr, by = c("sigla" = "abbrev_state")) |> 
+      relocate(sigla, .after = code_state)
+    
+    glimpse(immediateregions_edit)
+  }
   
   if(year == 2023) {
-    immediateregions_raw <- immediateregions_raw |> 
+    
+    statesgeobr <- states_geobr() |> 
+      select(1, 2)
+    
+    immediateregions_edit <- immediateregions_raw |> 
       inner_join(statesgeobr, by = c("cd_uf" = "code_state")) |> 
       select(-cd_uf, -cd_regiao) |> 
       relocate(abbrev_state, .after = nm_rgi)
     
-    glimpse(immediateregions_raw)
+    glimpse(immediateregions_edit)
   }
   
   
   if(year == 2024) {
-    immediateregions_raw <- immediateregions_raw |> 
+    
+    statesgeobr <- states_geobr() |> 
+      select(1, 2)
+    
+    immediateregions_edit <- immediateregions_raw |> 
       select(-cd_uf, -cd_regia, -sigla_rg) |> 
       relocate(sigla_uf, .after = nm_rgi)
     
-    glimpse(immediateregions_raw)
+    glimpse(immediateregions_edit)
   }
   
   ## 2. Rename columns names ---------------------------------------------------
@@ -215,7 +246,7 @@ clean_immediateregions <- function(immediateregions_raw, year){ # year = 2024
       #Variações que convergem para "code_immediate"
       "cd_rgi",
       #Variações que convergem para "name_immediate"
-      "cd_rgi",
+      "nm_rgi",
       #Variações que convergem para "code_intermediate"
       "cd_rgint",
       #Variações que convergem para "name_intermediate"
@@ -238,14 +269,14 @@ clean_immediateregions <- function(immediateregions_raw, year){ # year = 2024
       "sigla_rg"
     ), stringsAsFactors = FALSE)
 
-  immediateregions <- standardcol_geobr(immediateregions_raw, dicionario)
+  immediateregions <- standardcol_geobr(immediateregions_edit, dicionario)
 
   ## 3. Apply harmonize geobr cleaning -----------------------------------------
   
-  immediateregions_raw <- clean_names(immediateregions_raw)
+  glimpse(immediateregions)
   
   temp_sf <- harmonize_geobr(
-    temp_sf = immediateregions_raw,
+    temp_sf = immediateregions,
     year = year,
     add_state = F,
     add_region = F,
@@ -255,7 +286,7 @@ clean_immediateregions <- function(immediateregions_raw, year){ # year = 2024
     encoding_utf8 = T,
     topology_fix = T,
     remove_z_dimension = T,
-    use_multipolygon = T
+    use_multipolygon = F
   )
   
   glimpse(temp_sf)

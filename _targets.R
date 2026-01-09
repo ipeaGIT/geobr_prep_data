@@ -8,6 +8,10 @@ renv::status()
 # Update packages if needed:
 renv::snapshot()
 
+# Check collumn names ----------------------------------------------------------
+
+# colunas <- check_collumns_geobr(dir_data = "./data")
+
 # Set target options: ----------------------------------------------------------
 tar_option_set(
   format = "rds",
@@ -596,8 +600,8 @@ list(
                #statsgrid_clean, #04
                healthfacilities_clean, #05
                #indigenousland_clean, #06
-               intermediateregions_clean,
-               immediateregions_clean,
+               intermediateregions_clean, #07
+               immediateregions_clean, #08
                # schools_clean,
                # states_clean,
                # regions_clean,
@@ -605,7 +609,7 @@ list(
                # mesoregions_clean
                # microregions_clean,
                riskdisasterareas_clean #22
-               #clean_poparrangements #26
+               # poparrangements_clean #26
              )),
   
   tar_target(name = versao_dados,

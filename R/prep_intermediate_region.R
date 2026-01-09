@@ -277,6 +277,9 @@ clean_intermediateregions <- function(intermediateregions_raw, year){ # year = 2
     compression_level = 22
   )
   
+
+  ## 6. Create the files for geobr index  --------------------------------------
+  
   files <- list.files(path = dir_clean, 
                       pattern = ".parquet", 
                       recursive = TRUE, 
