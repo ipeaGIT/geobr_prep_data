@@ -544,6 +544,39 @@ unzip_geobr <- function(zip_dir, in_zip, out_zip = NULL, is_shp = FALSE) {
   }
 }
 
+# Columns names check geobr function -------------------------------------------
+
+check_collumns_geobr <- function(dir_data = "./data") {
+  
+  arquivos <- list.files(
+    dir_data,
+    pattern = "\\.parquet$",
+    recursive = TRUE,
+    full.names = TRUE
+  )
+  
+  map_dfr(arquivos, function(arquivo_path) {
+    
+    partes <- fs::path_split(
+      fs::path_rel(arquivo_path, start = dir_data)
+    )[[1]]
+    
+    # dataset lazy (Arrow)
+    ds <- arrow::open_dataset(arquivo_path)
+    
+    nomes_colunas <- names(ds)
+    
+    tibble(
+      tema      = partes[1],
+      ano       = partes[2],
+      arquivo   = fs::path_file(arquivo_path),
+      n_linhas  = nrow(ds),
+      n_colunas = length(nomes_colunas),
+      colunas   = list(nomes_colunas)
+    )
+  })
+}
+
 
 # Columns names geobr function ------------------------------------------------
 
