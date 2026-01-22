@@ -2,15 +2,17 @@ library(targets)
 library(tarchetypes)
 library(crew)
 
-# See if the packages are updated:
-renv::status()
-
-# Update packages if needed:
-renv::snapshot()
-
 # Check collumn names ----------------------------------------------------------
 
 # colunas <- check_collumns_geobr(dir_data = "./data")
+# só rodar isso depois de carregar os pacotes direto de um script de target
+
+# RENV -------------------------------------------------------------------------
+
+# See if the packages are updated:
+renv::status()
+# Update packages if needed:
+renv::snapshot()
 
 # Set target options: ----------------------------------------------------------
 tar_option_set(
@@ -66,6 +68,7 @@ tar_option_set(
                'tibble',
                'tidyverse',
                'utils',
+               'varhandle',
                'visNetwork'
                #'xlsx'
   )
@@ -250,21 +253,21 @@ list(
   
   #10. Estados -----------------------------------------------------------------
   
-  # #year input
-  # tar_target(name = years_states,
-  #            command = c(2000, 2001, 2010,
-  #                        2013:2024)),
+  #year input
+  tar_target(name = years_states,
+             command = c(2000, 2001, 2010,
+                         2013:2024)),
 
-  # # download
-  # tar_target(name = states_raw,
-  #            command = download_states(years_states),
-  #            pattern = map(years_states)),
-  # 
-  # # clean
-  # tar_target(name = states_clean,
-  #            command = clean_states(states_raw, years_states),
-  #            pattern = map(states_raw, years_states),
-  #            format = 'file'),
+  # download
+  tar_target(name = states_raw,
+             command = download_states(years_states),
+             pattern = map(years_states)),
+
+  # clean
+  tar_target(name = states_clean,
+             command = clean_states(states_raw, years_states),
+             pattern = map(states_raw, years_states),
+             format = 'file'),
   
   #11. Regiões -----------------------------------------------------------------
   
@@ -603,7 +606,7 @@ list(
                intermediateregions_clean, #07
                immediateregions_clean, #08
                # schools_clean,
-               # states_clean,
+               # states_clean, #10
                # regions_clean,
                # country_clean,
                # mesoregions_clean

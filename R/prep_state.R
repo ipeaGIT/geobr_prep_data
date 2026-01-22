@@ -184,7 +184,7 @@ download_states <- function(year){ # year = 2010
   ## 6. Integrity test ---------------------------------------------------------
   
   #### Before 2015
-  # glimpse(states_raw)
+  glimpse(states_raw)
 
   #### After 2015
   if (length(shp_names) == 1) {
@@ -203,7 +203,7 @@ download_states <- function(year){ # year = 2010
   states_raw <- sf::st_as_sf(states_raw) |> 
     clean_names()
   
-  # glimpse(states_raw)
+  glimpse(states_raw)
   
   return(states_raw)
   
@@ -228,26 +228,28 @@ clean_states <- function(states_raw, year){ # year = 2024
   
   ## 2. Adjust and preparing for cleaning --------------------------------------
   
+  glimpse(states_raw)
+  
   #For years that have spelling problems
   if (year %in% c(2000, 2001, 2010, 2013:2018)){ 
-    # glimpse(states_raw)
+    glimpse(states_raw)
     # glimpse(states_geobr)
     
     states_thin <- states_geobr |> 
-      select(code_state, abbrev_state, name_state)
+      select(1:5)
     
     if (year %in% c(2000, 2001)){ 
       states_clean <- states_raw |> 
-        select(-nome) |> 
+        filter(geocodigo != 0) |> 
+        select(-nome, -mslink, -geocodigo, -area_1, -reservado) |> # remover colunas originais
         left_join(states_thin, by = c("codigo" = "code_state")) |> 
-        relocate(name_state, .after = geocodigo)
+        relocate(abbrev_state, name_state, code_region,
+                 name_region, .after = codigo)
     }
-    if (year %in% c(2010)){ 
+    if (year == 2010){ 
       states_clean <- states_raw |> 
         left_join(states_thin, by = c("cd_geocodu" = "code_state")) |>
-        select(-nm_estado, -id) |> 
-        relocate(nm_regiao, .before = geometry) |> 
-        mutate(nm_regiao = str_to_title(nm_regiao))
+        select(-nm_estado, -id, -nm_regiao)
     }
     
     # For years that have only uppercase
@@ -258,7 +260,7 @@ clean_states <- function(states_raw, year){ # year = 2024
                nm_estado = str_to_title(nm_estado)) |> 
         select(cd_geocuf, abbrev_state, nm_estado, nm_regiao)
     }
-    # glimpse(states_clean)
+    glimpse(states_clean)
   }
   
   #For years that have no spelling problems
@@ -298,7 +300,7 @@ clean_states <- function(states_raw, year){ # year = 2024
       #NOME DO MUNICÍPIO e número de variações associadas
       rep("name_muni", 4),
       #CÓDIGO DO ESTADO e número de variações associadas
-      rep("code_state", 7),
+      rep("code_state", 8),
       #ABREVIAÇÃO DO ESTADO e número de variações associadas
       rep("abbrev_state", 4),
       #NOME DO ESTADO e número de variações associadas
@@ -313,12 +315,13 @@ clean_states <- function(states_raw, year){ # year = 2024
     # Lista de variações
     variacao = c(
       #Variações que convergem para "code_muni"
-      "cod_uf", "cd_uf", "code_uf", "codigo_uf", "cod_state", "cd_mun", "cod_mun",
+      "cod_uf", "cd_uf", "code_uf", "codigo_uf", "cod_state", "cd_mun",
+      "cod_mun", 
       #Variações que convergem para "name_muni"
       "nome_cidade", "cidade", "nm_muni", "nome_muni",
       #Variações que convergem para "code_state"
       "cod_uf", "cd_uf", "code_uf", "codigo_uf", "cod_state", "cd_geocodu",
-      "cd_geocuf",
+      "codigo", "cd_geocuf",
       #Variações que convergem para "abbrev_state"
       "sigla", "sigla_uf", "uf", "sg_uf",
       #Variações que convergem para "name_state"
@@ -331,26 +334,43 @@ clean_states <- function(states_raw, year){ # year = 2024
       "sigla_rg"
       ), stringsAsFactors = FALSE)
   
-  ## 4. Rename collumns and reorder collumns -----------------------------------
+  ## 4. Rename collumns and reorder collumns and other post corrections --------
   
   states_clean <- standardcol_geobr(states_clean, dicionario)
   
-  # glimpse(states_clean)
+  glimpse(states_clean)
   
   # ordem recomendada
   # c(temp_sf, 'code_state', 'abbrev_state', 'name_state', 'code_region',
   #  'name_region', 'geom')
   
+  if (year == 2000) {
+    
+    glimpse(states_clean)
+    states_corrigido <- states_clean |> 
+      group_by(code_state, abbrev_state, name_state, code_region, name_region) |> 
+      summarise(total_peri = sum(perimetro),
+                total_area = sum(area_tot_g)) |> 
+      mutate(teste_peri = as.numeric(sf::st_perimeter(geometry)),
+             teste_area = as.numeric(sf::st_area(geometry))/1e6) |> 
+      ungroup()
+    
+    glimpse(states_corrigido)
+    nrow(states_corrigido)
+    st_geometry_type(states_corrigido)
+    
+    states_clean <- states_corrigido
+  }
   
   ## 5. Apply harmonize geobr cleaning -----------------------------------------
   
   temp_sf <- harmonize_geobr(
     temp_sf = states_clean,
     year = year,
-    add_state = T, state_column = "name_state",
-    add_region = T, region_column = "code_state",
-    add_snake_case = T,
-    snake_colname = c("name_state", "name_region"),
+    add_state = F, #state_column = "name_state",
+    add_region = F,# region_column = "code_state",
+    add_snake_case = F,
+    #snake_colname = c("name_state", "name_region"),
     projection_fix = T,
     encoding_utf8 = T,
     topology_fix = T,
@@ -358,15 +378,33 @@ clean_states <- function(states_raw, year){ # year = 2024
     use_multipolygon = T
   )
   
-  # glimpse(temp_sf)
+  glimpse(temp_sf)
+  
+  ## 6. Check integrity and do post corrections --------------------------------
+  
+  # o ano de 2010 a coluna abbrev_state é removida com uso de use_multipolygon
+  # após passar pelo harmonize o code_state é convertido em dbl
+  # ao passar harmonize, colunas originais de area e perímetro são removidas.
+  if (year == 2010) {
+  
+    temp_sf$code_state <- as.character(temp_sf$code_state)
+    states_thin <- states_thin |> select(1:2)
+
+    temp_sf <- temp_sf |> 
+      ungroup() |> 
+      inner_join(states_thin, by = "code_state") |> 
+      relocate(abbrev_state, .before = name_state)
+  
+    glimpse(temp_sf)  
+  }
   
   if (nrow(temp_sf) > 27) {stop("existem apenas 27 unidades da federacao")}
   
   
-  ## 6. lighter version --------------------------------------------------------
+  ## 7. lighter version --------------------------------------------------------
   temp_sf_simplified <- simplify_temp_sf(temp_sf, tolerance = 100)
   
-  ## 7. Save datasets  ---------------------------------------------------------
+  ## 8. Save datasets  ---------------------------------------------------------
   
   # sf::st_write(temp_sf, dsn = paste0(dir_clean, "/states_",  year,
   #                                   ".gpkg"), delete_dsn = TRUE)
@@ -389,7 +427,7 @@ clean_states <- function(states_raw, year){ # year = 2024
     compression_level = 22
   )
   
-  ## 8. Create the files for geobr index  --------------------------------------
+  ## 9. Create the files for geobr index  --------------------------------------
   
   files <- list.files(path = dir_clean, 
                       pattern = ".parquet", 
