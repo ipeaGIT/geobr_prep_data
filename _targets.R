@@ -2,10 +2,10 @@ library(targets)
 library(tarchetypes)
 library(crew)
 
-# Check collumn names ----------------------------------------------------------
+# Check collumn names, order, size and schema ----------------------------------
 
 # colunas <- check_collumns_geobr(dir_data = "./data")
-# só rodar isso depois de carregar os pacotes direto de um script de target
+# só rodar isso depois de carregar as funções harmonize_geobr
 
 # RENV -------------------------------------------------------------------------
 
@@ -256,7 +256,11 @@ list(
   #year input
   tar_target(name = years_states,
              command = c(2000, 2001, 2010,
-                         2013:2024)),
+                         2013:2018,
+                         2019:2021,
+                         2022
+                         #:2024
+                         )),
 
   # download
   tar_target(name = states_raw,
@@ -606,7 +610,7 @@ list(
                intermediateregions_clean, #07
                immediateregions_clean, #08
                # schools_clean,
-               # states_clean, #10
+               states_clean, #10
                # regions_clean,
                # country_clean,
                # mesoregions_clean

@@ -43,6 +43,8 @@
 # source("./R/support_harmonize_geobr.R")
 # source("./R/support_fun.R")
 
+# rm(list = setdiff(ls(), lsf.str()))
+
 
 # Download the data  -----------------------------------------------------------
 
@@ -224,21 +226,20 @@ clean_states <- function(states_raw, year){ # year = 2024
   
   ## 1. Create states names reference table ------------------------------------
   
-  states_geobr <- states_geobr()
+  states <- states_geobr()
   
   ## 2. Adjust and preparing for cleaning --------------------------------------
   
   glimpse(states_raw)
+  states_thin <- states |> 
+    select(1:5)
   
   #For years that have spelling problems
   if (year %in% c(2000, 2001, 2010, 2013:2018)){ 
     glimpse(states_raw)
     # glimpse(states_geobr)
     
-    states_thin <- states_geobr |> 
-      select(1:5)
-    
-    if (year %in% c(2000, 2001)){ 
+    if (year == 2000){ 
       states_clean <- states_raw |> 
         filter(geocodigo != 0) |> 
         select(-nome, -mslink, -geocodigo, -area_1, -reservado) |> # remover colunas originais
@@ -246,6 +247,16 @@ clean_states <- function(states_raw, year){ # year = 2024
         relocate(abbrev_state, name_state, code_region,
                  name_region, .after = codigo)
     }
+    
+    if (year == 2001){ 
+      states_clean <- states_raw |> 
+        filter(geocodigo != 0) |> 
+        select(-mslink, -mapid, -nome, -geocodigo, -area_1) |> # remover colunas originais
+        left_join(states_thin, by = c("codigo" = "code_state")) |> 
+        relocate(abbrev_state, name_state, code_region,
+                 name_region, .after = codigo)
+    }
+    
     if (year == 2010){ 
       states_clean <- states_raw |> 
         left_join(states_thin, by = c("cd_geocodu" = "code_state")) |>
@@ -258,7 +269,7 @@ clean_states <- function(states_raw, year){ # year = 2024
         left_join(states_thin, by = c("cd_geocuf" = "code_state")) |>
         mutate(nm_regiao = str_to_title(nm_regiao),
                nm_estado = str_to_title(nm_estado)) |> 
-        select(cd_geocuf, abbrev_state, nm_estado, nm_regiao)
+        select(cd_geocuf, abbrev_state, nm_estado, code_region, nm_regiao)
     }
     glimpse(states_clean)
   }
@@ -344,16 +355,16 @@ clean_states <- function(states_raw, year){ # year = 2024
   # c(temp_sf, 'code_state', 'abbrev_state', 'name_state', 'code_region',
   #  'name_region', 'geom')
   
-  if (year == 2000) {
+  if (year %in% c(2000, 2001)) {
     
     glimpse(states_clean)
     states_corrigido <- states_clean |> 
       group_by(code_state, abbrev_state, name_state, code_region, name_region) |> 
       summarise(total_peri = sum(perimetro),
-                total_area = sum(area_tot_g)) |> 
-      mutate(teste_peri = as.numeric(sf::st_perimeter(geometry)),
-             teste_area = as.numeric(sf::st_area(geometry))/1e6) |> 
-      ungroup()
+                total_area = sum(area_tot_g),
+                .groups = "drop") #|> 
+      # mutate(teste_peri = as.numeric(sf::st_perimeter(geometry)),
+      #        teste_area = as.numeric(sf::st_area(geometry))/1e6)
     
     glimpse(states_corrigido)
     nrow(states_corrigido)
@@ -362,7 +373,11 @@ clean_states <- function(states_raw, year){ # year = 2024
     states_clean <- states_corrigido
   }
   
+  
   ## 5. Apply harmonize geobr cleaning -----------------------------------------
+  
+  glimpse(states_raw)
+  glimpse(states_clean)
   
   temp_sf <- harmonize_geobr(
     temp_sf = states_clean,
@@ -382,24 +397,40 @@ clean_states <- function(states_raw, year){ # year = 2024
   
   ## 6. Check integrity and do post corrections --------------------------------
   
-  # o ano de 2010 a coluna abbrev_state é removida com uso de use_multipolygon
-  # após passar pelo harmonize o code_state é convertido em dbl
-  # ao passar harmonize, colunas originais de area e perímetro são removidas.
-  if (year == 2010) {
-  
+  # 2000, 2001, 2010:2018
+  # harmonize_geobr remove: abbrev_state, colunas de perímetro e área
+  # converte code_state em dbl
+  if (year %in% c(2000, 2001, 2010, 2013:2018)) {
+    
     temp_sf$code_state <- as.character(temp_sf$code_state)
-    states_thin <- states_thin |> select(1:2)
-
+    states_thin <- states |> select(1:2)
+    
     temp_sf <- temp_sf |> 
       ungroup() |> 
       inner_join(states_thin, by = "code_state") |> 
       relocate(abbrev_state, .before = name_state)
-  
+    
     glimpse(temp_sf)  
   }
   
+  if (year %in% c(2019:2024)) {
+    states_thin <- states |> select(1:2,4)
+    
+    temp_sf <- temp_sf |> 
+      ungroup() |> 
+      rename(code_state = "code_muni") 
+    
+    temp_sf$code_state <- as.character(temp_sf$code_state)
+    
+    temp_sf <- temp_sf |> 
+      inner_join(states_thin, by = "code_state") |> 
+      relocate(abbrev_state, .before = name_state) |> 
+      relocate(code_region, .before = name_region)
+    
+    glimpse(temp_sf)  
+  }
+ 
   if (nrow(temp_sf) > 27) {stop("existem apenas 27 unidades da federacao")}
-  
   
   ## 7. lighter version --------------------------------------------------------
   temp_sf_simplified <- simplify_temp_sf(temp_sf, tolerance = 100)
