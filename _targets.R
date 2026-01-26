@@ -256,11 +256,7 @@ list(
   #year input
   tar_target(name = years_states,
              command = c(2000, 2001, 2010,
-                         2013:2018,
-                         2019:2021,
-                         2022
-                         #:2024
-                         )),
+                         2013:2024)),
 
   # download
   tar_target(name = states_raw,
@@ -579,6 +575,24 @@ list(
   #            format = 'file'),
 
   #29. Zonas Eleitorais --------------------------------------------------------
+  
+  # # year input
+  # tar_target(name = years_electoraldistrits,
+  #            command = c(2010, 2020, 2022, 2024)),
+  # 
+  # # # download
+  # tar_target(name = electoraldistrits_raw,
+  #            command = download_electoraldistrits(years_electoraldistrits),
+  #            pattern = map(years_electoraldistrits)),
+  #
+  # # clean
+  # tar_target(name = locality_clean,
+  #            command = clean_locality(locality_raw, years_locality),
+  #            pattern = map(locality_raw, years_locality),
+  #            format = 'file'),
+  #
+  
+  #30. Brazilian Empire --------------------------------------------------------
   
   # # year input
   # tar_target(name = years_electoraldistrits,

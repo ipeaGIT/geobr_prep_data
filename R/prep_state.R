@@ -413,8 +413,25 @@ clean_states <- function(states_raw, year){ # year = 2024
     glimpse(temp_sf)  
   }
   
-  if (year %in% c(2019:2024)) {
+  if (year %in% c(2019:2022)) {
     states_thin <- states |> select(1:2,4)
+    
+    temp_sf <- temp_sf |> 
+      ungroup() |> 
+      rename(code_state = "code_muni") 
+    
+    temp_sf$code_state <- as.character(temp_sf$code_state)
+    
+    temp_sf <- temp_sf |> 
+      inner_join(states_thin, by = "code_state") |> 
+      relocate(abbrev_state, .before = name_state) |> 
+      relocate(code_region, .before = name_region)
+    
+    glimpse(temp_sf)  
+  }
+  
+  if (year %in% c(2023:2024)) {
+    states_thin <- states |> select(1:2)
     
     temp_sf <- temp_sf |> 
       ungroup() |> 
