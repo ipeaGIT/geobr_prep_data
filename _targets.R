@@ -351,11 +351,11 @@ list(
   tar_target(name = years_municipality,
              command = c(2010, 2022)),
 
-  # # download
-  # tar_target(name = municipality_raw,
-  #            command = download_municipality(years_municipality),
-  #            pattern = map(years_municipality)),
-  #
+  # download
+  tar_target(name = municipality_raw,
+             command = download_municipality(years_municipality),
+             pattern = map(years_municipality)),
+
   # # clean
   # tar_target(name = municipality_clean,
   #            command = clean_municipality(municipality_raw, years_municipality),
@@ -592,7 +592,7 @@ list(
   #            format = 'file'),
   #
   
-  #30. Brazilian Empire --------------------------------------------------------
+  #30. Historical Brazilian Empire --------------------------------------------------------
   
   # # year input
   # tar_target(name = years_electoraldistrits,
