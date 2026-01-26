@@ -564,12 +564,15 @@ check_collumns_geobr <- function(dir_data = "./data") {
     # dataset lazy (Arrow)
     ds <- arrow::open_dataset(arquivo_path)
     
+    tamanho_mb <- file.info(arquivo_path)$size / 1024^2
+    
     nomes_colunas <- names(ds)
     
     tibble(
       tema      = partes[1],
       ano       = partes[2],
       arquivo   = fs::path_file(arquivo_path),
+      tamanho_mb = round(tamanho_mb, 2),
       n_linhas  = nrow(ds),
       n_colunas = length(nomes_colunas),
       colunas = paste(nomes_colunas, collapse = ", ")
@@ -775,19 +778,6 @@ states_geobr <-  function() {
   
   return(states)
 }
-
-# Table of columns each year each target geobr function UNFINISHED ------------
-
-summarycol_geobr <- function(files) {
-  
-  # Criar um target que lê todos os arquivos e monte uma tabela com os targets e cada ano que cada um tem, e com um vetor com os nomes de todas as colunas que os arquivos tem para que possamos checar as colunas.
-  
-
-  
-}
-
-
-
 
 # normalize "geometry" column  ------------------------------------------------
 

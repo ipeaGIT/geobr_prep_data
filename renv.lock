@@ -396,7 +396,7 @@
     },
     "arrow": {
       "Package": "arrow",
-      "Version": "22.0.0.1",
+      "Version": "23.0.0",
       "Source": "Repository",
       "Title": "Integration to 'Apache' 'Arrow'",
       "Authors@R": "c( person(\"Neal\", \"Richardson\", email = \"neal.p.richardson@gmail.com\", role = c(\"aut\")), person(\"Ian\", \"Cook\", email = \"ianmcook@gmail.com\", role = c(\"aut\")), person(\"Nic\", \"Crane\", email = \"thisisnic@gmail.com\", role = c(\"aut\")), person(\"Dewey\", \"Dunnington\", role = c(\"aut\"), email = \"dewey@fishandwhistle.net\", comment = c(ORCID = \"0000-0002-9415-4582\")), person(\"Romain\", \"Fran\\u00e7ois\", role = c(\"aut\"), comment = c(ORCID = \"0000-0002-2444-4226\")), person(\"Jonathan\", \"Keane\", email = \"jkeane@gmail.com\", role = c(\"aut\", \"cre\")), person(\"Bryce\", \"Mecum\", email = \"brycemecum@gmail.com\", role = c(\"aut\")), person(\"Drago\\u0219\", \"Moldovan-Gr\\u00fcnfeld\", email = \"dragos.mold@gmail.com\", role = c(\"aut\")), person(\"Jeroen\", \"Ooms\", email = \"jeroen@berkeley.edu\", role = c(\"aut\")), person(\"Jacob\", \"Wujciak-Jens\", email = \"jacob@wujciak.de\", role = c(\"aut\")), person(\"Javier\", \"Luraschi\", email = \"javier@rstudio.com\", role = c(\"ctb\")), person(\"Karl\", \"Dunkle Werner\", email = \"karldw@users.noreply.github.com\", role = c(\"ctb\"), comment = c(ORCID = \"0000-0003-0523-7309\")), person(\"Jeffrey\", \"Wong\", email = \"jeffreyw@netflix.com\", role = c(\"ctb\")), person(\"Apache Arrow\", email = \"dev@arrow.apache.org\", role = c(\"aut\", \"cph\")) )",
@@ -409,7 +409,7 @@
       "BugReports": "https://github.com/apache/arrow/issues",
       "Encoding": "UTF-8",
       "Language": "en-US",
-      "SystemRequirements": "C++17; for AWS S3 support on Linux, libcurl and openssl (optional); cmake >= 3.26 (build-time only, and only for full source build)",
+      "SystemRequirements": "C++20; for AWS S3 support on Linux, libcurl and openssl (optional); cmake >= 3.26 (build-time only, and only for full source build)",
       "Biarch": "true",
       "Imports": [
         "assertthat",
@@ -2683,11 +2683,11 @@
     },
     "geocodebr": {
       "Package": "geocodebr",
-      "Version": "0.5.0",
+      "Version": "0.6.0",
       "Source": "Repository",
       "Type": "Package",
       "Title": "Geolocalização De Endereços Brasileiros (Geocoding Brazilian Addresses)",
-      "Authors@R": "c( person(\"Rafael H. M.\", \"Pereira\", , \"rafa.pereira.br@gmail.com\", role = c(\"aut\", \"cre\"), comment = c(ORCID = \"0000-0003-2125-7465\")), person(\"Daniel\", \"Herszenhut\", , \"dhersz@gmail.com\", role = \"aut\", comment = c(ORCID = \"0000-0001-8066-1105\")), person(\"Arthur\", \"Bazolli\", , \"baz.arthur@gmail.com\", role = \"ctb\"), person(\"Pedro\", \"Milreu Cunha\", , \"pedro.cunha@ipea.gov.br\", role = \"ctb\"), person(\"ITpS - Instituto Todos pela Saúde\", role = \"fnd\"), person(\"Ipea - Instituto de Pesquisa Econômica Aplicada\", role = c(\"cph\", \"fnd\")) )",
+      "Authors@R": "c( person(\"Rafael H. M.\", \"Pereira\", , \"rafa.pereira.br@gmail.com\", role = c(\"aut\", \"cre\"), comment = c(ORCID = \"0000-0003-2125-7465\")), person(\"Daniel\", \"Herszenhut\", , \"dhersz@gmail.com\", role = \"aut\", comment = c(ORCID = \"0000-0001-8066-1105\")), person(\"Gabriel\", \"Garcia de Almeida\", role = \"aut\", comment = c(ORCID = \"0009-0003-3557-7328\")), person(\"Arthur\", \"Bazolli\", , \"baz.arthur@gmail.com\", role = \"ctb\"), person(\"Pedro\", \"Milreu Cunha\", , \"pedro.cunha@ipea.gov.br\", role = \"ctb\"), person(\"ITpS - Instituto Todos pela Saúde\", role = \"fnd\"), person(\"Ipea - Instituto de Pesquisa Econômica Aplicada\", role = c(\"cph\", \"fnd\")) )",
       "Description": "Método simples e eficiente de geolocalizar dados no Brasil. O  pacote é baseado em conjuntos de dados espaciais abertos de endereços  brasileiros, utilizando como fonte principal o Cadastro Nacional de Endereços  para Fins Estatísticos (CNEFE). O CNEFE é publicado pelo Instituto Brasileiro  de Geografia e Estatística (IBGE), órgão oficial de estatísticas e geografia  do Brasil. (A simple and efficient method for geolocating data in Brazil. The  package is based on open spatial datasets of Brazilian addresses, primarily  using the Cadastro Nacional de Endereços para Fins Estatísticos (CNEFE),  published by the Instituto Brasileiro de Geografia e Estatística (IBGE),  Brazil's official statistics and geography agency.)",
       "License": "MIT + file LICENSE",
       "URL": "https://github.com/ipeaGIT/geocodebr, https://ipeagit.github.io/geocodebr/",
@@ -2704,7 +2704,7 @@
         "DBI",
         "dplyr",
         "duckdb",
-        "enderecobr (>= 0.4.1)",
+        "enderecobr (>= 0.5.0)",
         "fs",
         "glue",
         "h3r",
@@ -2732,7 +2732,7 @@
       "Encoding": "UTF-8",
       "RoxygenNote": "7.3.3",
       "NeedsCompilation": "no",
-      "Author": "Rafael H. M. Pereira [aut, cre] (ORCID: <https://orcid.org/0000-0003-2125-7465>), Daniel Herszenhut [aut] (ORCID: <https://orcid.org/0000-0001-8066-1105>), Arthur Bazolli [ctb], Pedro Milreu Cunha [ctb], ITpS - Instituto Todos pela Saúde [fnd], Ipea - Instituto de Pesquisa Econômica Aplicada [cph, fnd]",
+      "Author": "Rafael H. M. Pereira [aut, cre] (ORCID: <https://orcid.org/0000-0003-2125-7465>), Daniel Herszenhut [aut] (ORCID: <https://orcid.org/0000-0001-8066-1105>), Gabriel Garcia de Almeida [aut] (ORCID: <https://orcid.org/0009-0003-3557-7328>), Arthur Bazolli [ctb], Pedro Milreu Cunha [ctb], ITpS - Instituto Todos pela Saúde [fnd], Ipea - Instituto de Pesquisa Econômica Aplicada [cph, fnd]",
       "Maintainer": "Rafael H. M. Pereira <rafa.pereira.br@gmail.com>",
       "Repository": "CRAN"
     },
@@ -8096,10 +8096,10 @@
     },
     "uuid": {
       "Package": "uuid",
-      "Version": "1.2-1",
+      "Version": "1.2-2",
       "Source": "Repository",
       "Title": "Tools for Generating and Handling of UUIDs",
-      "Author": "Simon Urbanek [aut, cre, cph] (https://urbanek.org, <https://orcid.org/0000-0003-2297-1732>), Theodore Ts'o [aut, cph] (libuuid)",
+      "Author": "Simon Urbanek [aut, cre, cph] (https://urbanek.org, ORCID: <https://orcid.org/0000-0003-2297-1732>), Theodore Ts'o [aut, cph] (libuuid)",
       "Maintainer": "Simon Urbanek <Simon.Urbanek@r-project.org>",
       "Authors@R": "c(person(\"Simon\", \"Urbanek\", role=c(\"aut\",\"cre\",\"cph\"), email=\"Simon.Urbanek@r-project.org\", comment=c(\"https://urbanek.org\", ORCID=\"0000-0003-2297-1732\")), person(\"Theodore\",\"Ts'o\", email=\"tytso@thunk.org\", role=c(\"aut\",\"cph\"), comment=\"libuuid\"))",
       "Depends": [
@@ -8139,7 +8139,7 @@
     },
     "vctrs": {
       "Package": "vctrs",
-      "Version": "0.7.0",
+      "Version": "0.7.1",
       "Source": "Repository",
       "Title": "Vector Helpers",
       "Authors@R": "c( person(\"Hadley\", \"Wickham\", , \"hadley@posit.co\", role = \"aut\"), person(\"Lionel\", \"Henry\", , \"lionel@posit.co\", role = \"aut\"), person(\"Davis\", \"Vaughan\", , \"davis@posit.co\", role = c(\"aut\", \"cre\")), person(\"data.table team\", role = \"cph\", comment = \"Radix sort based on data.table's forder() and their contribution to R's order()\"), person(\"Posit Software, PBC\", role = c(\"cph\", \"fnd\")) )",
