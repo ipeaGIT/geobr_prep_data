@@ -349,18 +349,19 @@ list(
   
   # year input
   tar_target(name = years_municipality,
-             command = c(2010, 2022)),
+             command = c(2000, 2001, 2010,
+                         2013:2024)),
 
   # download
   tar_target(name = municipality_raw,
              command = download_municipality(years_municipality),
              pattern = map(years_municipality)),
 
-  # # clean
-  # tar_target(name = municipality_clean,
-  #            command = clean_municipality(municipality_raw, years_municipality),
-  #            pattern = map(municipality_raw, years_municipality),
-  #            format = 'file'),
+  # clean
+  tar_target(name = municipality_clean,
+             command = clean_municipality(municipality_raw, years_municipality),
+             pattern = map(municipality_raw, years_municipality),
+             format = 'file'),
   
   #16. Assento municipal -------------------------------------------------------
   
@@ -629,6 +630,7 @@ list(
                # country_clean,
                # mesoregions_clean
                # microregions_clean,
+               # municipality_clean, #15
                riskdisasterareas_clean #22
                # poparrangements_clean #26
              )),
