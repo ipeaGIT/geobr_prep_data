@@ -216,32 +216,108 @@ clean_municipality <- function(municipality_raw, year){ # year = 2024
   dir.create(dir_clean, recursive = T, showWarnings = FALSE)
   dir.exists(dir_clean)
   
+  ## 1. Adjusts ------------------------------------
+  
+  # Corrections in datasets that have spelling problems
+  if (year %in% c(2000)) {
+    
+    municipality_raw$nome |> head(100)
+    
+    # Detect all the cases with strange characters for special characters
+    # regex that takes everything that is not a letter, a space or a hífen
+    suspect <- municipality_raw |>
+      filter(str_detect(nome, "[^[:alpha:] '\\-]"))
+    
+    municipality_raw <- municipality_raw |>
+      mutate(caractere_estranho = str_detect(nome, "[^[:alpha:] \\-']"))
+    
+    # Find a solution
+    
+    corrigir_texto <- function(x) {
+      stringi::stri_trans_general(x, "latin-ascii")
+    }
+    
+    suspect <- suspect |>
+      mutate(nome_corrigido = corrigir_texto(nome))
+    
+    
+    
+    
+  }
+  
+  
   ## 1. Create states names reference table ------------------------------------
   
   states <- states_geobr()
   
+  teste <- municipality_raw |> 
+    filter(str_detect(nome, pattern = "\\"))
+  
+  suspeitos <- municipality_raw |>
+    filter(str_detect(nome, "[^[:alpha:] \\-]"))
+  
+  any(str_detect(municipality_raw$nome, "\u00A0"))
+  
+  any(str_detect(municipality_raw$nome, "\\p{Cc}"))
+  
+  municipality_raw |>
+    filter(str_detect(nome, "[áéíóúãõçÁÉÍÓÚÃÕÇ]")) |>
+    slice(1:5)
+  
+  suspeitos <- municipality_raw |>
+    filter(str_detect(nome, "[^\\p{L} \\-]"))
+  
+  corrigir_municipio <- function(x) {
+    x <- gsub("\xa0", "á", x, fixed = TRUE)
+    x <- gsub("\xe1", "á", x, fixed = TRUE)
+    x <- gsub("\xe3", "ã", x, fixed = TRUE)
+    x <- gsub("\xe9", "é", x, fixed = TRUE)
+    x <- gsub("\xea", "ê", x, fixed = TRUE)
+    x <- gsub("\xed", "í", x, fixed = TRUE)
+    x <- gsub("\xf3", "ó", x, fixed = TRUE)
+    x <- gsub("\xf4", "ô", x, fixed = TRUE)
+    x <- gsub("\xf5", "õ", x, fixed = TRUE)
+    x <- gsub("\xfa", "ú", x, fixed = TRUE)
+    x <- gsub("\xe7", "ç", x, fixed = TRUE)
+    x
+  }
+  glimpse(municipality_raw)
+  
+  ex <- suspeitos$nome[which(suspeitos$nome != "")][1]
+  
+  municipality_raw$nome <- corrigir_municipio(municipality_raw$nome)
+  
+  
   ## 2. Adjust and preparing for cleaning --------------------------------------
   
   glimpse(municipality_raw)
+  
+  states <- states_geobr()
+  
   states_thin <- states |> 
     select(1:5)
   
   #For years that have spelling problems
   if (year %in% c(2000, 2001, 2010, 2013:2018)){ 
-    glimpse(states_raw)
-    # glimpse(states_geobr)
+    glimpse(municipality_raw)
+    # glimpse(states)
     
     if (year == 2000){ 
-      states_clean <- states_raw |> 
+      municipality_clean <- municipality_raw |> 
         filter(geocodigo != 0) |> 
-        select(-nome, -mslink, -geocodigo, -area_1, -reservado) |> # remover colunas originais
-        left_join(states_thin, by = c("codigo" = "code_state")) |> 
-        relocate(abbrev_state, name_state, code_region,
-                 name_region, .after = codigo)
+        mutate(code_state = str_sub(codigo, start = 1, end = 2)) |> 
+        left_join(states_thin, by = c("code_state")) |> 
+        select(-area_1, -perimetro, -sede, -latitudese, -longitudes,
+               -area_tot_g, -reservado, # colunas com infos originais
+               -mslink, -geocodigo) |> # colunas inuteis
+        relocate(code_region, name_region, code_state, abbrev_state, name_state, .before = codigo)
+      
+      glimpse(municipality_clean)
+      
     }
     
     if (year == 2001){ 
-      states_clean <- states_raw |> 
+      municipality_clean <- municipality_raw |> 
         filter(geocodigo != 0) |> 
         select(-mslink, -mapid, -nome, -geocodigo, -area_1) |> # remover colunas originais
         left_join(states_thin, by = c("codigo" = "code_state")) |> 
@@ -250,28 +326,28 @@ clean_municipality <- function(municipality_raw, year){ # year = 2024
     }
     
     if (year == 2010){ 
-      states_clean <- states_raw |> 
+      municipality_clean <- municipality_raw |> 
         left_join(states_thin, by = c("cd_geocodu" = "code_state")) |>
         select(-nm_estado, -id, -nm_regiao)
     }
     
     # For years that have only uppercase
     if (year %in% c(2013:2018)){ 
-      states_clean <- states_raw |> 
+      municipality_clean <- municipality_raw |> 
         left_join(states_thin, by = c("cd_geocuf" = "code_state")) |>
         mutate(nm_regiao = str_to_title(nm_regiao),
                nm_estado = str_to_title(nm_estado)) |> 
         select(cd_geocuf, abbrev_state, nm_estado, code_region, nm_regiao)
     }
-    glimpse(states_clean)
+    glimpse(municipality_clean)
   }
   
   #For years that have no spelling problems
   if (year %in% c(2019:2024)){ 
-    # glimpse(states_raw)
+    # glimpse(municipality_raw)
     # glimpse(states_geobr)
-    states_clean <- states_raw
-    # glimpse(states_clean)
+    municipality_clean <- municipality_raw
+    # glimpse(municipality_clean)
   }
   
   ## 3. Create dicionario de equivalências para dataset states -----------------
@@ -339,9 +415,9 @@ clean_municipality <- function(municipality_raw, year){ # year = 2024
   
   ## 4. Rename collumns and reorder collumns and other post corrections --------
   
-  states_clean <- standardcol_geobr(states_clean, dicionario)
+  municipality_clean <- standardcol_geobr(municipality_clean, dicionario)
   
-  glimpse(states_clean)
+  glimpse(municipality_clean)
   
   # ordem recomendada
   # c(temp_sf, 'code_state', 'abbrev_state', 'name_state', 'code_region',
