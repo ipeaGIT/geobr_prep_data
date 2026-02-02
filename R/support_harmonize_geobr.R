@@ -326,6 +326,8 @@ to_multipolygon <- function(temp_sf){
   return(temp_sf)
 }
 
+### OBS: é possível que esse trecho da função esteja apagando certas colunas
+
 # Fix topology -----------------------------------------------------------------
 
 fix_topology <- function(temp_sf){
