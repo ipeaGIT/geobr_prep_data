@@ -163,14 +163,14 @@ clean_amazonialegal <- function(amazonialegal_raw, year){
     x = temp_sf,
     sink = paste0(dir_clean, "/amazonialegal_", year, ".parquet"),
     compression='zstd',
-    compression_level = 22
+    compression_level = 7
   )
   
   arrow::write_parquet(
     x = temp_sf2,
     sink = paste0(dir_clean, "/amazonialegal_", year, "_simplified", ".parquet"),
     compression='zstd',
-    compression_level = 22
+    compression_level = 7
   )
   
   files <- list.files(path = dir_clean, 

@@ -266,7 +266,7 @@ clean_intermediateregions <- function(intermediateregions_raw, year){ # year = 2
     x = temp_sf,
     sink = paste0(dir_clean, "/intermediateregions_", year, ".parquet"),
     compression = 'zstd',
-    compression_level = 22
+    compression_level = 7
   )
   
   arrow::write_parquet(
@@ -274,7 +274,7 @@ clean_intermediateregions <- function(intermediateregions_raw, year){ # year = 2
     sink = paste0(dir_clean,"/intermediateregions_", year, "_simplified",
                   ".parquet"),
     compression='zstd',
-    compression_level = 22
+    compression_level = 7
   )
   
 

@@ -178,14 +178,14 @@ clean_biomes <- function(biomes_raw, year) {
     x = temp_sf,
     sink = paste0(dir_clean, "/", "biomes_", year, ".parquet"),
     compression='zstd',
-    compression_level = 22
+    compression_level = 7
   )
 
   arrow::write_parquet(
     x = temp_sf_simplified,
     sink = paste0(dir_clean, "/", "biomes_", year, "_simplified", ".parquet"),
     compression='zstd',
-    compression_level = 22
+    compression_level = 7
   )
   
   files <- list.files(path = dir_clean, 

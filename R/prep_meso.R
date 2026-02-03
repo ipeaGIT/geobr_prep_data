@@ -391,7 +391,7 @@ clean_mesoregions <- function(mesoregions_raw, year){ # year = 2024
     x = temp_sf,
     sink = paste0(dir_clean, "/mesoregions_", year, ".parquet"),
     compression = 'zstd',
-    compression_level = 22
+    compression_level = 7
   )
   
   arrow::write_parquet(
@@ -399,7 +399,7 @@ clean_mesoregions <- function(mesoregions_raw, year){ # year = 2024
     sink = paste0(dir_clean,"/mesoregions_", year, "_simplified",
                   ".parquet"),
     compression='zstd',
-    compression_level = 22
+    compression_level = 7
   )
   ## 5. Create the files for geobr index  --------------------------------------
   

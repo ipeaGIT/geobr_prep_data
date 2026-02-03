@@ -163,7 +163,7 @@ clean_riskdisasterareas <- function(riskdisasterareas_raw){ # year = 2018
     x = temp_sf,
     sink = paste0(dir_clean, "/riskdisasterareas_", ".parquet"),
     compression = 'zstd',
-    compression_level = 22
+    compression_level = 7
   )
   
   arrow::write_parquet(
@@ -171,7 +171,7 @@ clean_riskdisasterareas <- function(riskdisasterareas_raw){ # year = 2018
     sink = paste0(dir_clean,"/riskdisasterareas_", "_simplified",
                   ".parquet"),
     compression='zstd',
-    compression_level = 22
+    compression_level = 7
   )
   
   ## 6. Create the files for geobr index  --------------------------------------

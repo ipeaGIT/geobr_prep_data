@@ -465,14 +465,14 @@ clean_states <- function(states_raw, year){ # year = 2024
     x = temp_sf,
     sink = paste0(dir_clean, "/states_", year, ".parquet"),
     compression = 'zstd',
-    compression_level = 22
+    compression_level = 7
   )
   
   arrow::write_parquet(
     x = temp_sf_simplified,
     sink = paste0(dir_clean,"/states_", year, "_simplified", ".parquet"),
     compression='zstd',
-    compression_level = 22
+    compression_level = 7
   )
   
   ## 9. Create the files for geobr index  --------------------------------------

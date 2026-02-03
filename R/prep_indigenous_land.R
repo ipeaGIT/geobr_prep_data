@@ -197,7 +197,7 @@ download_indigenousland <- function(year){ # year == 2025
 #   x = temp_sf,
 #   sink = paste0(dir_clean,"/indigenousland_", year, ".parquet"),
 #   compression='zstd',
-#   compression_level = 22
+#   compression_level = 7
 # )
 # 
 # return(dir_clean)

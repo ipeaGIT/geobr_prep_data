@@ -171,14 +171,14 @@ clean_schools <- function(schools_raw, year){ # year = 2025
     x = temp_sf,
     sink = paste0(dir_clean, "/schools_", year, ".parquet"),
     compression = 'zstd',
-    compression_level = 22
+    compression_level = 7
   )
   
   arrow::write_parquet(
     x = temp_sf_simplified,
     sink = paste0(dir_clean,"/schools_", year, "_simplified", ".parquet"),
     compression='zstd',
-    compression_level = 22
+    compression_level = 7
   )
   
   ## 8. Create the files for geobr index  ----

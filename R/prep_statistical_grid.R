@@ -217,7 +217,7 @@ clean_statsgrid <- function(statsgrid_raw, year) {
     x = temp_sf,
     sink = paste0(dir_clean,"/statsgrid_", year, ".parquet"),
     compression='zstd',
-    compression_level = 22
+    compression_level = 7
   )
   
   files <- list.files(path = dir_clean, 
