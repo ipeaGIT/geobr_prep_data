@@ -221,21 +221,7 @@ clean_municipality <- function(municipality_raw, year){ # year = 2024
 
   glimpse(municipality_raw)
   
-  # número de municípios por estado está ok?
-  teste <- municipality_raw |> 
-    filter(geocodigo != 0) |> 
-    mutate(codigo_estado_uf = str_sub(codigo, start = 1, end = 2)) |> 
-    group_by(codigo_estado_uf) |> 
-    summarize(contagem = n())
-  
-  teste <- municipality_raw |> 
-    filter(geocodigo != 0) |> 
-    mutate(codigo_estado_uf = str_sub(codigo, start = 1, end = 2),
-           cidade_original = as.character(nome)) |> 
-    group_by(codigo_estado_uf, cidade_original) |> 
-    summarize(areatot = sum(st_area(geometry))) |> 
-    ungroup()
-  
+  if (year == 2000){
   # Detect all the cases with strange characters for special characters
   # regex that takes everything that is not a letter, a space or a hífen
   
@@ -261,7 +247,13 @@ clean_municipality <- function(municipality_raw, year){ # year = 2024
   
   sobrou <- suspect |> filter(estranho_remanecente == TRUE)
   sobrou$nome |> head(200)
+  }
   
+  suspect <- municipality_raw |> 
+    #mutate(code_state = str_sub(cd_geocodm, start = 1, end = 2)) |> 
+    filter(str_detect(nm_municip, "[^[:alpha:] \\-']"))
+  
+  head(suspect$nm_municip, 200)
            
   # Find a solution
   
@@ -353,21 +345,87 @@ clean_municipality <- function(municipality_raw, year){ # year = 2024
         ungroup()
       
     }
-   
-    ### 2001 -------------------------------------------------------------------
-    if (year == 2001){ 
-      municipality_clean <- municipality_raw |> 
-        filter(geocodigo != 0) |> 
-        select(-mslink, -mapid, -nome, -geocodigo, -area_1) |> # remover colunas originais
-        left_join(states_thin, by = c("codigo" = "code_state")) |> 
-        relocate(abbrev_state, name_state, code_region,
-                 name_region, .after = codigo)
-    }
+    
+    ### 2010 -------------------------------------------------------------------
     
     if (year == 2010){ 
+      
+      head(municipality_raw$nm_municip, 100)
+      
+      # create mapa de substituições
+      mapa <- c(
+        "\xe1" = "á",
+        "\xe2" = "â",
+        "\xa1" = "á",
+        "\x87" = "ç",
+        "\x83" = "ã"
+      )
+      
+      suspect <- municipality_raw |> 
+        mutate(code_state = str_sub(cd_geocodm, start = 1, end = 2),
+               caractere_estranho = str_detect(nm_municip, "[^[:alpha:] \\-']")) |> 
+        mutate(nome_corrigido = nm_municip |>
+                 
+                 str_replace_all(fixed("\x82"), "Ê") |>  #Ê
+                 str_replace_all(fixed("\xca"), "Ê") |>  #Ê
+                 str_replace_all(fixed("\xc7"), "Ç") |> #Ç
+                 str_replace_all(fixed("\xda"), "Ú") |> #Ú
+                 str_replace_all(fixed("\xd3"), "Ó") |> #Ó
+                 str_replace_all(fixed("\xd4"), "Ô") |> #Ô
+                 str_replace_all(fixed("\xc9"), "É") |> #É
+                 str_replace_all(fixed("\xcd"), "Í") |> #Í
+                 str_replace_all(fixed("\xc2"), "Â") |> #Â
+                 str_replace_all(fixed("\xc3"), "Ã") |>  #ã
+                 str_replace_all(fixed("\xd5"), "Õ") |>  #Õ
+                 str_replace_all(fixed("\xc1"), "Á") , #ã
+               
+
+               estranho_remanecente = str_detect(nome_corrigido, "[^[:alpha:] '\\-]")) |> 
+        arrange(estranho_remanecente)
+      
+      sobrou <- suspect |> filter(estranho_remanecente == TRUE)
+      sobrou$nm_municip |> head(200)
+      sobrou$nome_corrigido |> head(200)
+      
+      arrumou <- suspect |> filter(caractere_estranho == TRUE,
+                                   estranho_remanecente == FALSE)
+      arrumou$nome_corrigido |> head(400)
+      arrumou$nome_corrigido |> tail(40)
+      arrumou$nm_municip |> tail(40)
+      
+      
+    }
+    
+    suspect <- municipality_raw |> 
+      #mutate(code_state = str_sub(cd_geocodm, start = 1, end = 2)) |> 
+      filter(str_detect(nm_municip, "[^[:alpha:] \\-']"))
+    
+    head(suspect$nm_municip, 200)
+      
+      tabyl(suspect$code_state)  
+      
+      
       municipality_clean <- municipality_raw |> 
+        mutate(caractere_estranho = str_detect(nome, "[^[:alpha:] \\-']"),
+               code_state = str_sub(codigo, start = 1, end = 2),
+               name_muni = nome |>
+                 str_replace_all(fixed("\xc6"), "a") |> #ã
+                 str_replace_all(fixed("\xb6"), "A") |> #Â
+                 str_replace_all(fixed("\x90"), "E") |> #É
+                 str_replace_all(fixed("\x83"), "a") |> #ã
+                 str_replace_all(fixed("\xa0"), "a") |> #á
+                 str_replace_all(fixed("\xa3"), "u") |> #ú
+                 str_replace_all(fixed("\xa1"), "i") |> #í
+                 str_replace_all(fixed("\x82"), "é") |> #é
+                 str_replace_all(fixed("\x88"), "e") |> #ê
+                 str_replace_all(fixed("\xa2"), "o") |> #ó
+                 str_replace_all(fixed("\x93"), "o") |> #ô
+                 str_replace_all(fixed("\x87"), "ç"),
+               estranho_remanecente = str_detect(name_muni, "[^[:alpha:] '\\-]"))
+        
+        
         left_join(states_thin, by = c("cd_geocodu" = "code_state")) |>
-        select(-nm_estado, -id, -nm_regiao)
+        select(-id)
     }
     
     # For years that have only uppercase
@@ -379,7 +437,7 @@ clean_municipality <- function(municipality_raw, year){ # year = 2024
         select(cd_geocuf, abbrev_state, nm_estado, code_region, nm_regiao)
     }
     glimpse(municipality_clean)
-  }
+  
   
   #For years that have no spelling problems
   if (year %in% c(2019:2024)){ 
