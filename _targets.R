@@ -347,21 +347,24 @@ list(
   
   #15. Municipalidade ----------------------------------------------------------
   
-  # year input
-  tar_target(name = years_municipality,
-             command = c(2000, 2001, 2010,
-                         2013:2024)),
-
-  # download
-  tar_target(name = municipality_raw,
-             command = download_municipality(years_municipality),
-             pattern = map(years_municipality)),
-
-  # clean
-  tar_target(name = municipality_clean,
-             command = clean_municipality(municipality_raw, years_municipality),
-             pattern = map(municipality_raw, years_municipality),
-             format = 'file'),
+  # # year input
+  # tar_target(name = years_municipality,
+  #            command = c(2000,
+  #                        #2001 #só tem geometria
+  #                        #2010,
+  #                        #2013:2024
+  #                        )),
+  # 
+  # # download
+  # tar_target(name = municipality_raw,
+  #            command = download_municipality(years_municipality),
+  #            pattern = map(years_municipality)),
+  # 
+  # # clean
+  # tar_target(name = municipality_clean,
+  #            command = clean_municipality(municipality_raw, years_municipality),
+  #            pattern = map(municipality_raw, years_municipality),
+  #            format = 'file'),
   
   #16. Assento municipal -------------------------------------------------------
   
@@ -479,10 +482,10 @@ list(
   
   #23. Região de Saúde -----------------------------------------------------------------
   
-  # # year input
+  # year input
   # tar_target(name = years_healthregions,
-  #            command = c(2010, 2022)),
-  #
+  #            command = c(1991, 1994, 1997, 2001, 2005, 2013)),
+
   # # download
   # tar_target(name = healthregions_raw,
   #            command = download_healthregions(years_healthregions),

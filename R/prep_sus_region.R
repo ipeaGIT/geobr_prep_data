@@ -32,28 +32,6 @@
 # Observações: 
 # Anos disponíveis: 2000 a 2024
   
-### Libraries (use any library as necessary) ----
-
-# library(arrow)
-# library(geoarrow)
-# library(data.table)
-# library(tidyverse)
-# library(sf)
-# source("./R/support_harmonize_geobr.R")
-# source("./R/support_fun.R")
-
-download_healthregions <- function(year){ # year = 2010
-  
-  ## 0. Generate the correct ftp link (UPDATE YEAR HERE) ----
-  
-  url_start <- paste0("https://geoftp.ibge.gov.br/organizacao_do_territorio/",
-                      "malhas_territoriais/malhas_municipais/municipio_")
-  
-}
-
-
-## 8. Create the files for geobr index  ----
-
 
 ######### OLD CODE BELOW ######## ----
 
