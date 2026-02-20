@@ -112,11 +112,7 @@ list(
   
   # year input
   tar_target(name = years_amazon,
-             command = c(
-               #2014,
-               2019, 2020,
-               2021, 2022, 
-               2024)),
+             command = c(2012, 2019:2022, 2024)),
   
   # download
   tar_target(name = amazonialegal_raw,
@@ -345,7 +341,7 @@ list(
   #            pattern = map(microregions_raw, years_microregions),
   #            format = 'file'),
   
-  #15. Municipalidade ----------------------------------------------------------
+  #15. Municípios  -------------------------------------------------------------
   
   # # year input
   # tar_target(name = years_municipality,
@@ -454,15 +450,15 @@ list(
   #
   #21. Unidades de conservação -------------------------------------------------
   
-  # # year input
-  # tar_target(name = years_conservationunits,
-  #            command = c(2010, 2022)),
-  #
-  # # download
-  # tar_target(name = conservationunits_raw,
-  #            command = download_conservationunits(years_conservationunits),
-  #            pattern = map(years_conservationunits)),
-  #
+  # year input
+  tar_target(name = years_conservationunits,
+             command = c(2024, 2025)),
+
+  # download
+  tar_target(name = conservationunits_raw,
+             command = download_conservationunits(years_conservationunits),
+             pattern = map(years_conservationunits)),
+
   # # clean
   # tar_target(name = conservationunits_clean,
   #            command = clean_conservationunits(conservationunits_raw, years_conservationunits),
@@ -634,6 +630,7 @@ list(
                # mesoregions_clean
                # microregions_clean,
                # municipality_clean, #15
+               # conservationunits_clean, #21
                riskdisasterareas_clean #22
                # poparrangements_clean #26
              )),
