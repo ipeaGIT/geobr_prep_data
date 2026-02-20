@@ -4,7 +4,7 @@
 #> Metadata:
 # Título: Amazônia Legal
 # Título alternativo: Amazonia legal
-# Frequência de atualização: Nunca
+# Frequência de atualização: ???
 #
 # Forma de apresentação: Shape
 # Linguagem: Pt-BR
@@ -19,29 +19,64 @@
 # Informação do Sistema de Referência: SIRGAS 2000
 # Observações: 2014 a 2020 sem shape. 2021 a 2024 com shape.
 
+### Libraries (use any library as necessary) -----------------------------------
+
+# library(RCurl)
+# library(stringr)
+# library(sf)
+# library(janitor)
+# library(dplyr)
+# library(readr)
+# library(data.table)
+# library(magrittr)
+# library(devtools)
+# library(lwgeom)
+# library(stringi)
+# library(targets)
+# library(tidyverse)
+# library(mirai)
+# library(rvest)
+# library(arrow)
+# library(geoarrow)
+# source("./R/support_harmonize_geobr.R")
+# source("./R/support_fun.R")
+
 # Download the data  -----------------------------------------------------------
 download_amazonialegal <- function(year){ #
 
   ## 0. Set up the download links (UPDATE YEAR) --------------------------------
   
-  base_link <- "https://geoftp.ibge.gov.br/organizacao_do_territorio/estrutura_territorial/amazonia_legal/"
-  
-  if (year == 2019) {
-    ftp_zip <- paste0(base_link, year,
-                      "/lista_de_municipios_da_amazonia_legal_", year,
-                      "_SHP.zip")
+  if (year == 2012) { #The original source that went down and then came back again
+    ftp_shp <- 'http://mapas.mma.gov.br/ms_tmp/amazlegal.shp'
+    ftp_shx <- 'http://mapas.mma.gov.br/ms_tmp/amazlegal.shx'
+    ftp_dbf <- 'http://mapas.mma.gov.br/ms_tmp/amazlegal.dbf'
+    ftp_link <- c(ftp_shp, ftp_shx, ftp_dbf)
+    
+    ftp_link
   }
   
-  if (year == 2020) {
-    ftp_zip <- paste0(base_link, year,
-                      "/lista_de_municipios_da_Amazonia_Legal_", year,
-                      "_SHP.zip")
-  }
-  
-  if (year %in% c(2021, 2022, 2024)) {
-    ftp_zip <- paste0(base_link, year,
-                      "/Limites_Amazonia_Legal_", year,
-                      "_shp.zip")
+ 
+  if (year %in% c(2019:2024)) {
+    
+    base_link <- "https://geoftp.ibge.gov.br/organizacao_do_territorio/estrutura_territorial/amazonia_legal/"
+    
+    if (year == 2019) {
+      ftp_link <- paste0(base_link, year,
+                        "/lista_de_municipios_da_amazonia_legal_", year,
+                        "_SHP.zip")
+    }
+    
+    if (year == 2020) {
+      ftp_link <- paste0(base_link, year,
+                        "/lista_de_municipios_da_Amazonia_Legal_", year,
+                        "_SHP.zip")
+    }
+    
+    if (year %in% c(2021, 2022, 2024)) {
+      ftp_link <- paste0(base_link, year,
+                        "/Limites_Amazonia_Legal_", year,
+                        "_shp.zip")
+    }
   }
   
   ## 1. Directions do download the file ----------------------------------------
@@ -61,17 +96,42 @@ download_amazonialegal <- function(year){ #
  
   ## 2. Download and save in the temp directory --------------------------------
   
-  file_raw <- fs::file_temp(tmp_dir = in_zip,
-                            ext = fs::path_ext(ftp_zip))
-  
-  download.file(url = ftp_zip,
-                destfile = file_raw)
-  
-  file.exists(file_raw)
+  #2012
+  if (year == 2012) {
+    
+    # file_raw <- fs::file_temp(tmp_dir = in_zip,
+    #                           ext = fs::path_ext(ftp_shp))
+    
+    for(i in 1:length(ftp_link)){
+      file_name <- basename(ftp_link[i])
+      
+      temp_download <-  httr::GET(
+        url = ftp_link[i], 
+        httr::write_disk(path = paste0(out_zip, file_name),
+                         overwrite = T)
+      )
+    }
+    
+    # # Save in the temp directory
+    # shp_file <- basename(ftp_shp)
+    # shp_dir <- paste0(in_zip, shp_file)
+   
+  }
+
+  # After 2019  
+  if (year %in% c(2019:2024)) {
+    file_raw <- fs::file_temp(tmp_dir = in_zip,
+                              ext = fs::path_ext(ftp_link))
+    
+    download.file(url = ftp_link,
+                  destfile = file_raw)
+    
+    file.exists(file_raw)
   
   ## 3. Unzip the shape file ---------------------------------------------------
   
-  unzip_geobr(zip_dir = zip_dir, in_zip = in_zip, out_zip = out_zip, is_shp = TRUE)
+    unzip_geobr(zip_dir = zip_dir, in_zip = in_zip, out_zip = out_zip, is_shp = TRUE)
+  }
   
   ## 4. Read data --------------------------------------------------------------
   
@@ -86,7 +146,7 @@ download_amazonialegal <- function(year){ #
     )
   }
   
-  if (year %in% c(2021, 2022, 2024)) {
+  if (year %in% c(2012, 2021, 2022, 2024)) {
     amazonialegal_raw <- sf::st_read(
       out_zip, 
       quiet = F, 
@@ -101,9 +161,6 @@ download_amazonialegal <- function(year){ #
   
 }
   
-
-
-
 # Clean the data ---------------------------------------------------------------
 
 # amazonialegal_raw <- tar_read("amazonialegal_raw", branches = 1)
@@ -139,26 +196,28 @@ clean_amazonialegal <- function(amazonialegal_raw, year){
     use_multipolygon = T
   )
 
-  # glimpse(temp_sf)
+  glimpse(temp_sf)
   
-  # select columns
+  ## 3. Post adjustments after harmonizing -------------------------------------
+  
+  # select columns that matters
   temp_sf <- temp_sf |> 
     select(year, geometry)
   
-  ## 3. generate a lighter version of the dataset with simplified borders ------
+  ## 4. generate a lighter version of the dataset with simplified borders ------
   
   # simplify
   temp_sf2 <- simplify_temp_sf(temp_sf)
   head(temp_sf2)
   
-  ## 4. Clean data set and save it in geopackage format ------------------------
+  ## 5. Clean data set and save it in geopackage format ------------------------
   
   #save original and simplified datasets
   # sf::st_write(temp_sf, append = FALSE, dsn = paste0(dir_clean, "amazonialegal", ".gpkg") )
   # sf::st_write(temp_sf2, append = FALSE, dsn = paste0(dir_clean, "amazonialegal","_simplified", ".gpkg"))
   
   
-  ## 5. Save original and simplified datasets in parquet -----------------------
+  ## 6. Save original and simplified datasets in parquet -----------------------
   arrow::write_parquet(
     x = temp_sf,
     sink = paste0(dir_clean, "/amazonialegal_", year, ".parquet"),
@@ -172,6 +231,8 @@ clean_amazonialegal <- function(amazonialegal_raw, year){
     compression='zstd',
     compression_level = 7
   )
+  
+  ## 7. Create the files for geobr index  --------------------------------------
   
   files <- list.files(path = dir_clean, 
                       pattern = ".parquet", 
