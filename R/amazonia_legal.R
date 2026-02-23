@@ -112,7 +112,7 @@ download_amazonialegal <- function(year){ #
       )
     }
     
-    # # Save in the temp directory
+    # Save in the temp directory
     # shp_file <- basename(ftp_shp)
     # shp_dir <- paste0(in_zip, shp_file)
    
@@ -127,9 +127,12 @@ download_amazonialegal <- function(year){ #
                   destfile = file_raw)
     
     file.exists(file_raw)
+  }
   
   ## 3. Unzip the shape file ---------------------------------------------------
   
+  if (year %in% c(2019:2024)) {
+    
     unzip_geobr(zip_dir = zip_dir, in_zip = in_zip, out_zip = out_zip, is_shp = TRUE)
   }
   
