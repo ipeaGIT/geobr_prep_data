@@ -23,25 +23,25 @@
 
 ### Libraries (use any library as necessary) -----------------------------------
 
-library(RCurl)
-library(stringr)
-library(sf)
-library(janitor)
-library(dplyr)
-library(readr)
-library(data.table)
-library(magrittr)
-library(devtools)
-library(lwgeom)
-library(stringi)
-library(targets)
-library(tidyverse)
-library(mirai)
-library(rvest)
-library(arrow)
-library(geoarrow)
-source("./R/support_harmonize_geobr.R")
-source("./R/support_fun.R")
+# library(RCurl)
+# library(stringr)
+# library(sf)
+# library(janitor)
+# library(dplyr)
+# library(readr)
+# library(data.table)
+# library(magrittr)
+# library(devtools)
+# library(lwgeom)
+# library(stringi)
+# library(targets)
+# library(tidyverse)
+# library(mirai)
+# library(rvest)
+# library(arrow)
+# library(geoarrow)
+# source("./R/support_harmonize_geobr.R")
+# source("./R/support_fun.R")
 
 # Download the data  -----------------------------------------------------------
 download_conservationunits <- function(year){ # year = 2024
@@ -100,10 +100,15 @@ download_conservationunits <- function(year){ # year = 2024
   
   unzip_geobr(zip_dir = zip_dir, in_zip = in_zip, out_zip = out_zip, is_shp = TRUE)
   
-  ## 5. Bind Raw data together -------------------------------------------------
+  ## 5. Check files ------------------------------------------------------------
+  
+  list.files(out_zip)
   
   shp_names <- list.files(out_zip, pattern = "\\.shp$",
-                          full.names = TRUE)
+                          full.names = TRUE) |> 
+    str_subset(pattern = "pontos", negate = TRUE) # Deny files with "pontos"
+  
+  ## 6. Bind Raw data together -------------------------------------------------
   
   conservationunits_list <- pbapply::pblapply(
     X = shp_names, 
@@ -112,7 +117,7 @@ download_conservationunits <- function(year){ # year = 2024
   
   conservationunits_raw <- data.table::rbindlist(conservationunits_list)
   
-  ## 6. Show result ------------------------------------------------------------
+  ## 7. Show result ------------------------------------------------------------
   
   data.table::setDF(conservationunits_raw)
   conservationunits_raw <- sf::st_as_sf(conservationunits_raw) %>% 
@@ -133,100 +138,10 @@ clean_conservationunits <- function(conservationunits_raw, year){ # year = 2024
   dir.create(dir_clean, recursive = T, showWarnings = FALSE)
   dir.exists(dir_clean)
   
-  ## 1. Remove unnecessary columns and check states columns --------------------
-  
-  statesgeobr <- states_geobr() |> 
-    select(1, 2)
-  
-  if(year == 2023) {
-    conservationunits_raw <- conservationunits_raw |> 
-      inner_join(statesgeobr, by = c("cd_uf" = "code_state")) |> 
-      #select(-cd_uf, -cd_regiao) |> 
-      relocate(abbrev_state, .after = nm_rgint)
-    
-    glimpse(conservationunits_raw)
-  }
-  
-  
-  if(year == 2024) {
-    conservationunits_raw <- conservationunits_raw |> 
-      select(-cd_uf, -cd_regia, -sigla_rg) |> 
-      relocate(sigla_uf, .after = nm_rgint)
-    
-    glimpse(conservationunits_raw)
-  }
-  
-  ## 2. Rename columns names ---------------------------------------------------
-  
-  # #
-  # # # reorder columns
-  # # temp_sf <- dplyr::select(temp_sf, 'code_intermediate', 'name_intermediate','code_state', 'abbrev_state',
-  # #                          'name_state', 'code_region', 'name_region', 'geometry')
-  # 
-  # 
-  
-  
-  # names_2019 <- c("cd_rgint", "nm_rgint", "sigla_uf", "geometry")
-  # names_2020 <- c("cd_rgint", "nm_rgint", "sigla_uf", "geometry")
-  # names_2021 <- c("cd_rgint", "nm_rgint", "sigla", "geometry")
-  # names_2022 <- c("cd_rgint", "nm_rgint", "sigla_uf", "area_km2", "geometry")
-  # names_2023 <- c("cd_rgint", "nm_rgint", "cd_uf", "nm_uf", "cd_regiao", "nm_regiao", "area_km2", "geometry")
-  # names_2024 <- c("cd_rgint", "nm_rgint", "cd_uf", "nm_uf", "sigla_uf", "cd_regia", "nm_regia", "sigla_rg", "area_km2", "geometry")
-  
-  dicionario <- data.frame(
-    # Lista de nomes padronizados de colunas
-    padrao = c(
-      #CÓDIGO DA REGIÃO INTERMEDIÁRIA
-      "code_intermediate",
-      #NOME DA REGIÃO INTERMEDIÁRIA
-      "name_intermediate",
-      #CÓDIGO DE MUNICÍPIO e número de variações associadas
-      rep("code_muni", 7),
-      #NOME DO MUNICÍPIO e número de variações associadas
-      rep("name_muni", 4),
-      #CÓDIGO DO ESTADO e número de variações associadas
-      rep("code_state", 5),
-      #ABREVIAÇÃO DO ESTADO e número de variações associadas
-      rep("abbrev_state", 4),
-      #NOME DO ESTADO e número de variações associadas
-      rep("name_state", 2),
-      #CÓDIGO DA REGIÃO e número de variações associadas
-      rep("code_region", 2),
-      #NOME DA REGIÃO e número de variações associadas
-      rep("name_region", 2),
-      #ABREVIAÇÃO DA REGIÃO e número de variações associadas
-      rep("abbrev_region", 1)
-    ),
-    # Lista de variações
-    variacao = c(
-      #Variações que convergem para "code_intermediate"
-      "cd_rgint",
-      #Variações que convergem para "name_intermediate"
-      "nm_rgint",
-      #Variações que convergem para "code_muni"
-      "cod_uf", "cd_uf", "code_uf", "codigo_uf", "cod_state", "cd_mun", "cod_mun",
-      #Variações que convergem para "name_muni"
-      "nome_cidade", "cidade", "nm_muni", "nome_muni",
-      #Variações que convergem para "code_state"
-      "cod_uf", "cd_uf", "code_uf", "codigo_uf", "cod_state",
-      #Variações que convergem para "abbrev_state"
-      "sigla", "sigla_uf", "uf", "sg_uf",
-      #Variações que convergem para "name_state"
-      "nm_uf", "nm_state",
-      #Variações que convergem para "code_region"
-      "cd_regia", "cd_regiao",
-      #Variações que convergem para "name_region"
-      "nm_regia", "nm_regiao",
-      #Variações que convergem para "abbrev_region"
-      "sigla_rg"
-    ), stringsAsFactors = FALSE)
-  
-  conservationunits <- standardcol_geobr(conservationunits_raw, dicionario)
-  
-  ## 3. Apply harmonize geobr cleaning -----------------------------------------
+  ## 1. Apply harmonize geobr cleaning -----------------------------------------
   
   temp_sf <- harmonize_geobr(
-    temp_sf = conservationunits,
+    temp_sf = conservationunits_raw,
     year = year,
     add_state = F,
     add_region = F,
@@ -236,7 +151,7 @@ clean_conservationunits <- function(conservationunits_raw, year){ # year = 2024
     encoding_utf8 = T,
     topology_fix = T,
     remove_z_dimension = T,
-    use_multipolygon = T
+    use_multipolygon = F
   )
   
   glimpse(temp_sf)

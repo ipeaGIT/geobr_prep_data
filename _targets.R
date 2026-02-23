@@ -459,11 +459,11 @@ list(
              command = download_conservationunits(years_conservationunits),
              pattern = map(years_conservationunits)),
 
-  # # clean
-  # tar_target(name = conservationunits_clean,
-  #            command = clean_conservationunits(conservationunits_raw, years_conservationunits),
-  #            pattern = map(conservationunits_raw, years_conservationunits),
-  #            format = 'file'),
+  # clean
+  tar_target(name = conservationunits_clean,
+             command = clean_conservationunits(conservationunits_raw, years_conservationunits),
+             pattern = map(conservationunits_raw, years_conservationunits),
+             format = 'file'),
   
   #22. Áreas de risco de desastre ----------------------------------------------
   
