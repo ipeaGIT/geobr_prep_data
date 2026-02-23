@@ -157,25 +157,25 @@ download_municipality <- function(year){ # year = 2010
   
   shp_names <- list.files(out_zip, pattern = "\\.shp$", full.names = TRUE)
   
-  #### Before 2015
-  if (year == 2000) { #years without number of collumns errors
-    municipality_list <- pbapply::pblapply(
-      X = shp_names,
-      FUN = function(x){ sf::st_read(x, quiet = T, stringsAsFactors= F)
-      }
-    )
-    
-    municipality_raw <- data.table::rbindlist(municipality_list)
+  # determine encoding for different years
+  if (year == 2000) {
+    encode <- "ENCODING=IBM437"
   }
   
-  if (year %in% c(2001, 2010:2014))  {#years with error in number of collumns
-    municipality_raw <- readmerge_geobr(folder_path = out_zip)
+  if (year %in% c(2001, 2005, 2007, 2010)) {
+    encode <- "ENCODING=WINDOWS-1252"
   }
   
-  #### After 2015
-  if (length(shp_names) == 1) {
-    municipality_raw <- st_read(shp_names, quiet = T, stringsAsFactors= F)
+  if (year >= 2013) {
+    encode =  "ENCODING=UTF8"
   }
+  
+  
+  #### leitura dos arquivos
+  municipality_raw <- readmerge_geobr(
+      folder_path = out_zip, 
+      encoding = encode
+      )
   
   ## 6. Integrity test ---------------------------------------------------------
   
