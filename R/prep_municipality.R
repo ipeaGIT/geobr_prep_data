@@ -49,6 +49,7 @@
 
 # year <- tar_read(years_municipality, branches = 1)[1]
 
+<<<<<<< HEAD
 # download_municipality <- function(year){ # year = 2010
 #   
 #   ## 0. Generate the correct ftp link (UPDATE YEAR HERE) -----------------------
@@ -179,6 +180,162 @@
 #   
 #   ## 6. Integrity test ---------------------------------------------------------
 #   
+=======
+download_municipality <- function(year){ # year = 2010
+  
+  ## 0. Generate the correct ftp link (UPDATE YEAR HERE) -----------------------
+  
+  url_start <- paste0("https://geoftp.ibge.gov.br/organizacao_do_territorio/",
+                      "malhas_territoriais/malhas_municipais/municipio_")
+  
+  ### create states tibble
+  states <- states_geobr()
+  
+  # Before 2015
+  if(year %in% c(2000, 2001, 2010:2014)) {
+    
+    ### parts of url
+    
+    #2000 ou 2010
+    if(year %in% c(2000, 2010)) {
+      ftp_link <- paste0(url_start, year, "/", states$abbrevm_state, "/",
+                         states$abbrevm_state, "_municipios.zip")
+    }
+    
+    #2001
+    if(year == 2001) {
+      ftp_link <- paste0(url_start, year, "/", states$abbrevm_state, "/",
+                         states$code_state, "mu2500g.zip")
+    }
+    
+    #2013 e 2014
+    if(year %in% c(2013:2014)) {
+      ftp_link <- paste0(url_start, year, "/", states$abbrev_state, "/",
+                         states$abbrevm_state, "_municipios.zip")
+    }
+    
+    filenames <- basename(ftp_link)
+    
+    names(ftp_link) <- filenames
+  } 
+  
+  # 2015 until 2018
+  if(year %in% c(2015:2018)) {
+    ftp_link <- paste0(url_start, year, "/Brasil/BR/br_municipios.zip")
+  }
+  
+  # 2019 
+  if(year %in% c(2019)) {
+    ftp_link <- paste0(url_start, year, "/Brasil/BR/br_municipios_20200807.zip")
+  }
+  
+  # 2020 until 2022
+  if(year %in% c(2020:2022)) {
+    ftp_link <- paste0(url_start, year, "/Brasil/BR/BR_Municipios_", year, ".zip")
+  }
+  
+  # After 2023
+  if(year >= 2023) {
+    ftp_link <- paste0(url_start, year, "/Brasil/BR_Municipios_", year, ".zip")
+  }
+  
+  ## 1. Create temp folder -----------------------------------------------------
+  
+  zip_dir <- paste0(tempdir(), "/municipality/", year)
+  dir.create(zip_dir, showWarnings = FALSE, recursive = TRUE)
+  dir.exists(zip_dir)
+  
+  ### Alternative folder
+  # zip_dir <- paste0("./data_raw/", "/municipality/", year)
+  # dir.create(zip_dir, showWarnings = FALSE, recursive = TRUE)
+  # dir.exists(zip_dir)
+  
+  ## 2. Create direction for each download -------------------------------------
+  
+  ### zip folder
+  in_zip <- paste0(zip_dir, "/zipped/")
+  dir.create(in_zip, showWarnings = FALSE, recursive = TRUE)
+  dir.exists(in_zip)
+  
+  file_raw <- fs::file_temp(tmp_dir = in_zip,
+                            ext = fs::path_ext(ftp_link))
+  
+  out_zip <- paste0(zip_dir, "/unzipped/")
+  dir.create(out_zip, showWarnings = FALSE, recursive = TRUE)
+  dir.exists(out_zip)
+  
+  ## 3. Download Raw data ------------------------------------------------------
+  
+  if(year %in% c(2000, 2001, 2010:2014)) {
+    ### Download zipped files
+    for (name_file in filenames) {
+      download.file(ftp_link[name_file],
+                    paste(in_zip, name_file, sep = "\\"))
+    }
+  }
+  
+  if(year %in% 2015:2024) {
+    httr::GET(url = ftp_link,
+              httr::progress(),
+              httr::write_disk(path = file_raw,
+                               overwrite = T))
+  }
+  
+  ## 4. Unzip Raw data ---------------------------------------------------------
+  
+  unzip_geobr(zip_dir = zip_dir, in_zip = in_zip, out_zip = out_zip, is_shp = TRUE)
+  
+  ## 5. Bind Raw data together -------------------------------------------------
+  
+  shp_names <- list.files(out_zip, pattern = "\\.shp$", full.names = TRUE)
+  
+  # determine encoding for different years
+  if (year == 2000) {
+    encode <- "ENCODING=IBM437"
+  }
+  
+  if (year %in% c(2001, 2005, 2007, 2010)) {
+    encode <- "ENCODING=WINDOWS-1252"
+  }
+  
+  if (year >= 2013) {
+    encode =  "ENCODING=UTF8"
+  }
+  
+  
+  #### leitura dos arquivos
+  municipality_raw <- readmerge_geobr(
+      folder_path = out_zip, 
+      encoding = encode
+      )
+  
+  ## 6. Integrity test ---------------------------------------------------------
+  
+  #### Before 2015
+  glimpse(municipality_raw)
+  
+  #### After 2015
+  if (length(shp_names) == 1) {
+    table_collumns <- tibble(name_collum = colnames(municipality_raw),
+                             type_collum = sapply(municipality_raw, class)) |> 
+      rownames_to_column(var = "num_collumn")
+    
+    # glimpse(table_collumns)
+    # glimpse(municipality_raw)
+  }
+  
+  ## 7. Show result ------------------------------------------------------------
+  
+  data.table::setDF(municipality_raw)
+  
+  municipality_raw <- sf::st_as_sf(municipality_raw) |> 
+    clean_names()
+  
+  glimpse(municipality_raw)
+  
+  return(municipality_raw)
+  }
+>>>>>>> 9ea5331d375dd1ce3c89837fcfd57ba21c12db50
 
 # Encoding for different years
 # if (year == 2000) {
