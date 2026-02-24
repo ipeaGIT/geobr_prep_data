@@ -623,14 +623,14 @@ list(
                #indigenousland_clean, #06
                intermediateregions_clean, #07
                immediateregions_clean, #08
-               # schools_clean,
+               # schools_clean, #09
                states_clean, #10
                # regions_clean,
                # country_clean,
                # mesoregions_clean
                # microregions_clean,
                # municipality_clean, #15
-               # conservationunits_clean, #21
+               conservationunits_clean, #21
                riskdisasterareas_clean #22
                # poparrangements_clean #26
              )),

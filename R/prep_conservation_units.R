@@ -112,7 +112,7 @@ download_conservationunits <- function(year){ # year = 2024
   
   conservationunits_list <- pbapply::pblapply(
     X = shp_names, 
-    FUN = function(x){ sf::st_read(x, quiet = T, stringsAsFactors=F) }
+    FUN = function(x){ sf::st_read(x, quiet = T, stringsAsFactors= F) }
   )
   
   conservationunits_raw <- data.table::rbindlist(conservationunits_list)
@@ -120,8 +120,7 @@ download_conservationunits <- function(year){ # year = 2024
   ## 7. Show result ------------------------------------------------------------
   
   data.table::setDF(conservationunits_raw)
-  conservationunits_raw <- sf::st_as_sf(conservationunits_raw) %>% 
-    clean_names()
+  conservationunits_raw <- sf::st_as_sf(conservationunits_raw)
   
   glimpse(conservationunits_raw)
   
@@ -138,10 +137,54 @@ clean_conservationunits <- function(conservationunits_raw, year){ # year = 2024
   dir.create(dir_clean, recursive = T, showWarnings = FALSE)
   dir.exists(dir_clean)
   
-  ## 1. Apply harmonize geobr cleaning -----------------------------------------
+  ## 1. Rename columns and remove collumns -------------------------------------
+  
+  glimpse(conservationunits_raw)
+  
+  if (year == 2025) {
+    conservationunits_raw <- subset(conservationunits_raw, select = -c(docleg_id))
+  }
+  
+  conservationunits <- conservationunits_raw |> 
+    clean_names() |> 
+    select(-gml_id,
+           -situacao,
+           code_uc_last = uc_id,
+           code_conservation_unit = cd_cnuc,
+           code_wdpa = wdpa_pid,
+           name_conservation_unit = nome_uc,
+           creation_year = cria_ano,
+           legislation = cria_ato,
+           outro_ato,
+           desc_manejo = pl_manejo,
+           conselho_gestor = co_gestor,
+           quality = quali_pol, 
+           ppgr,
+           ha_total,
+           ha_ato, 
+           government_level = esfera,
+           name_uf = uf,
+           municipios = municipio,
+           name_organization = org_gestor,
+           group_manejo = grupo,
+           category_conservation_unit = categoria,
+           category_iucn = cat_iucn,
+           amazonia,
+           caatinga, 
+           cerrado, 
+           matlantica, 
+           pampa, 
+           pantanal, 
+           marinho, 
+           limite, 
+           geometry) 
+           
+  glimpse(conservationunits)
+  
+  ## 2. Apply harmonize geobr cleaning -----------------------------------------
   
   temp_sf <- harmonize_geobr(
-    temp_sf = conservationunits_raw,
+    temp_sf = conservationunits,
     year = year,
     add_state = F,
     add_region = F,
@@ -156,10 +199,10 @@ clean_conservationunits <- function(conservationunits_raw, year){ # year = 2024
   
   glimpse(temp_sf)
   
-  ## 4. lighter version --------------------------------------------------------
+  ## 3. lighter version --------------------------------------------------------
   temp_sf_simplified <- simplify_temp_sf(temp_sf, tolerance = 100)
   
-  ## 5. Save datasets  ---------------------------------------------------------
+  ## 4. Save datasets  ---------------------------------------------------------
   
   # sf::st_write(temp_sf, dsn = paste0(dir_clean, "/conservationunits_",  year,
   #                                    ".gpkg"), delete_dsn = TRUE)
@@ -185,7 +228,7 @@ clean_conservationunits <- function(conservationunits_raw, year){ # year = 2024
   )
   
   
-  ## 6. Create the files for geobr index  --------------------------------------
+  ## 5. Create the files for geobr index  --------------------------------------
   
   files <- list.files(path = dir_clean, 
                       pattern = ".parquet", 
