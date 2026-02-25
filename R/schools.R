@@ -22,40 +22,43 @@
 # Observações: 
 # Anos disponíveis: ****************
 
-### Libraries (use any library as necessary) ----
+### Libraries (use any library as necessary) -----------------------------------
 
-library(stringr)
-library(sf)
-library(janitor)
-library(dplyr)
-library(readr)
-library(data.table)
-library(magrittr)
-library(lwgeom)
-library(tidyverse)
-library(arrow)
-library(geoarrow)
-source("./R/support_harmonize_geobr.R")
-source("./R/support_fun.R")
+# library(stringr)
+# library(sf)
+# library(janitor)
+# library(dplyr)
+# library(readr)
+# library(data.table)
+# library(magrittr)
+# library(lwgeom)
+# library(tidyverse)
+# library(arrow)
+# library(geoarrow)
+# source("./R/support_harmonize_geobr.R")
+# source("./R/support_fun.R")
 
-# Download the data  ----
+# Download the data  -----------------------------------------------------------
 download_schools <- function(year){ # year = 2024
   
-  ## 0. Set year ----
+  ## 0. Set year ---------------------------------------------------------------
   
   year <- lubridate::year(Sys.Date())
   
-  date_update <- paste0(lubridate::year(Sys.Date()), "_",
-                        lubridate::month(Sys.Date()))
+  date_update <- format(Sys.Date(), "%Y_%m")
   
-  ## 1. After manual download, bring the file to R ----
+  ## 1. After manual download, bring the file to R -----------------------------
   
   #### manual download manual and standarize the collumns names
   # https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/inep-data/catalogo-de-escolas
-  dt <- fread("./data_raw/schools/Análise - Tabela da lista das escolas - Detalhado.csv",
-              encoding = 'UTF-8')
   
-  ## 2. Test integrity ----
+  dir_raw <- paste0("./data_raw/schools/", date_update)
+
+  dt <- fread(paste0(dir_raw, "/",
+                     "Análise - Tabela da lista das escolas - Detalhado.csv"),
+                     encoding = 'UTF-8')
+              
+  ## 2. Test integrity ---------------------------------------------------------
   glimpse(dt)
   
   ## 3. Show result ----
