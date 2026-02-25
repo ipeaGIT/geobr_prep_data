@@ -167,20 +167,23 @@ download_states <- function(year){ # year = 2010
   if (year == 2000) { #years without number of collumns errors
     states_list <- pbapply::pblapply(
       X = shp_names,
-      FUN = function(x){ sf::st_read(x, quiet = T, stringsAsFactors= F)
-        }
+      FUN = function(x){ sf::st_read(x, quiet = T, stringsAsFactors = F,
+                                     options = "ENCODING=WINDOWS-1252")
+      }
     )
     
     states_raw <- data.table::rbindlist(states_list)
   }
   
   if (year %in% c(2001, 2010:2014))  {#years with error in number of collumns
-    states_raw <- readmerge_geobr(folder_path = out_zip)
+    states_raw <- readmerge_geobr(folder_path = out_zip,
+                                  encoding = "ENCODING=WINDOWS-1252")
   }
   
   #### After 2015
   if (length(shp_names) == 1) {
-    states_raw <- st_read(shp_names, quiet = T, stringsAsFactors= F)
+    states_raw <- st_read(shp_names, quiet = T, stringsAsFactors = F,
+                          options = "ENCODING=WINDOWS-1252")
   }
   
   ## 6. Integrity test ---------------------------------------------------------
