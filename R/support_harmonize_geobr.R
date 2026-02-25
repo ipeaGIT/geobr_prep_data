@@ -708,45 +708,21 @@ standardcol_geobr <- function(dataset, dicionario) {
 # Função para ler shp de multiplos arquivos e importá-los com
 #  apenas as colunas que existem em todos
 
-readmerge_geobr <-  function(folder_path
-                             #, encoding
+readmerge_geobr <-  function(folder_path,
+                             encoding
                              ) {
   
   # lista todos os .shp na pasta (busca recursiva opcional)
   shp_files <- list.files(folder_path, pattern = "\\.shp$", full.names = TRUE)
   
-  # choose the encoding
-  
-  #if (encoding == NULL){
-    shp_list <- map(shp_files, function(f) {
+
+  # read files
+  shp_list <- map(shp_files, function(f) {
       message("Lendo: ", f)
-      st_read(f, quiet = TRUE)
+      st_read(f, quiet = TRUE, stringsAsFactors=F, options = encoding)
     })
-  #}
-  
-  # #UTF8
-  # if (encoding == "UTF-8"){ 
-  #   shp_list <- map(shp_files, function(f) {
-  #     message("Lendo: ", f)
-  #     st_read(f, quiet = TRUE, options = "ENCODING=UTF8")
-  #   })
-  # }
-  # 
-  # #Latin1
-  # if (encoding == "Latin-1"){ 
-  #   shp_list <- map(shp_files, function(f) {
-  #     message("Lendo: ", f)
-  #     st_read(f, quiet = TRUE, options = "ENCODING=LATIN1")
-  #   })
-  # }
-  
-  # encontra colunas que estão em todos os shapefiles
-  common_cols <- reduce(map(shp_list, names), intersect)
-  
-  # mantém só as colunas comuns
-  shp_list <- map(shp_list, ~ .x[, common_cols])
-  
-  # une tudo
+
+    # une tudo
   merged <- bind_rows(shp_list)
   
   return(merged)
@@ -800,12 +776,53 @@ normalize_sf_geometry <- function(temp_sf){
   temp_sf <- temp_sf |> relocate(geometry, .after = last_col()) |> 
     sf::st_as_sf()
   
-  stopifnot(
-    inherits(temp_sf, "sf"),
-    sf::st_geometry(temp_sf) |> inherits("sfc"),
-    tail(names(temp_sf), 1) == "geometry"
-  )
-  
-  return(temp_sf)
-  
 }
+
+
+
+# rename columns -----------------
+
+
+
+# dicionario de colunas
+rename_dict <- list(
+  code_muni  = c("cod_mun", "codmunic", "mun", "municipio_codigo"),
+  code_state = c("cd_estado", "uf", "coduf", "estado_codigo"),
+  year       = c("ano", "year_ref", "ano_referencia")
+)
+
+
+rename_cols_geobr <- function(df, dict) {
+  
+  # original names
+  original_names <- names(df)
+  
+  # normalized version for flexible matching
+  normalize <- function(x) gsub("[^a-z0-9]", "", tolower(x))
+  
+  normalized_names <- normalize(original_names)
+  
+  # iterate over dictionary
+  for (new_name in names(dict)) {
+    candidates <- dict[[new_name]]
+    normalized_candidates <- normalize(candidates)
+    
+    # find match
+    idx <- match(normalized_candidates, normalized_names)
+    idx <- idx[!is.na(idx)]  # keep only matches
+    
+    if (length(idx) > 0) {
+      # rename: only first match if several exist
+      names(df)[idx[1]] <- new_name  
+    }
+  }
+  
+  df
+}
+
+
+
+
+
+
+
