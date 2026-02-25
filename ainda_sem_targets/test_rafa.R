@@ -17,4 +17,4 @@ lapply(X= f, FUN = check_names)
 x <- lapply(X = f, FUN = check_names) |> 
  dplyr::bind_rows()
 
-table(x$)
+table(x)
