@@ -148,16 +148,16 @@ list(
   tar_target(name = years_statsgrid,
              command = c(2010, 2022)),
 
-  # download
-  tar_target(name = statsgrid_raw,
-             command = download_statsgrid(years_statsgrid),
-             pattern = map(years_statsgrid)),
+  # # download
+  # tar_target(name = statsgrid_raw,
+  #            command = download_statsgrid(years_statsgrid),
+  #            pattern = map(years_statsgrid)),
   
-  # clean
-  tar_target(name = statsgrid_clean,
-             command = clean_statsgrid(statsgrid_raw, years_statsgrid),
-             pattern = map(statsgrid_raw, years_statsgrid),
-             format = 'file'),
+  # # clean
+  # tar_target(name = statsgrid_clean,
+  #            command = clean_statsgrid(statsgrid_raw, years_statsgrid),
+  #            pattern = map(statsgrid_raw, years_statsgrid),
+  #            format = 'file'),
   
   #05. Estabelecimentos de saúde -----------------------------------------------
   
@@ -618,7 +618,7 @@ list(
                semiarid_clean, #01
                amazonialegal_clean, #02
                biomes_clean, #03
-               statsgrid_clean, #04
+               #statsgrid_clean, #04
                healthfacilities_clean, #05
                #indigenousland_clean, #06
                intermediateregions_clean, #07

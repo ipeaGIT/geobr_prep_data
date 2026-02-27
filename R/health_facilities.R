@@ -112,12 +112,12 @@ clean_healthfacilities <- function(healthfacilities_raw, year){
 
   ## 0. Adjust date of last update ---------------------------------------------
   
-  date_month <- str_sub(year, start = 6, end = 8)
-  date_year <- str_sub(year, start = 1, end = 4)
+  date_update <- year
+  year <- lubridate::year(Sys.Date())
   
   ## 1. Create folder to save clean data ---------------------------------------
   
-  dir_clean <- paste0("./data/health_facilities/", year)
+  dir_clean <- paste0("./data/health_facilities/", date_update)
   dir.create(dir_clean, recursive = T, showWarnings = FALSE)
   dir.exists(dir_clean)
   
@@ -125,7 +125,7 @@ clean_healthfacilities <- function(healthfacilities_raw, year){
   
   glimpse(healthfacilities_raw)
   
-  states <- states_geobr() |> select(1, 2, 4, 5)
+  states <- states_geobr() |> select(1:5)
   states$code_state <- as.integer(states$code_state)
   
   glimpse(states)
@@ -161,14 +161,15 @@ clean_healthfacilities <- function(healthfacilities_raw, year){
            code_natureza_jur = 'co_natureza_jur',
            code_motivo_desab = 'co_motivo_desab',
            code_ambulatorial_sus = 'co_ambulatorial_sus') |> 
-    left_join(states, by = "code_state") |> # add state and region
+    inner_join(states, by = "code_state") |> # add state and region
     mutate(code_cnes = sprintf("%07d", code_cnes), # fix code_cnes to 7 digits
-           date_update = date_month,
-           year_update = date_year) |> 
-    relocate(any_of(c("code_muni", "code_state", "abbrev_state", "code_region",
-                      "name_region", "year_update", "date_update")),
+           month_update = format(Sys.Date(), "%m"),
+           year_update = format(Sys.Date(), "%Y")) |> 
+    relocate(any_of(c("code_muni", "code_state", "abbrev_state", "name_state",
+                      "code_region", "name_region", "year_update", "month_update")),
              .after = code_unidade) # reorder collumns
     
+  
   glimpse(healthfacilities)
   
   #   # fix code_muni to 7 digits
@@ -228,9 +229,10 @@ clean_healthfacilities <- function(healthfacilities_raw, year){
   # Save in parquet
   arrow::write_parquet(
     x = temp_sf,
-    sink = paste0(dir_clean, "/healthfacilities_", date_year, date_month, ".parquet"),
+    sink = paste0(dir_clean, "/healthfacilities_", year,
+                  format(Sys.Date(), "%m"), ".parquet"),
     compression = 'zstd',
-    compression_level = 22
+    compression_level = 7
   )
   
   ## 5. Create the files for geobr index  --------------------------------------
