@@ -59,10 +59,8 @@ download_municipality <- function(year){ # year = 2010
   ### create states tibble
   states <- states_geobr()
   
-  # Before 2015
+  ### Year with parts of URL splitted in states --------------------------------
   if(year %in% c(2000, 2001, 2010:2014)) {
-    
-    ### parts of url
     
     #2000 ou 2010
     if(year %in% c(2000, 2010)) {
@@ -85,6 +83,17 @@ download_municipality <- function(year){ # year = 2010
     filenames <- basename(ftp_link)
     
     names(ftp_link) <- filenames
+  }
+  
+  ### Years with br URL --------------------------------------------------------
+  #2005 
+  if(year == 2005) {
+    ftp_link <- paste0(url_start, year, "/escala_2500mil/proj_geografica/arcview_shp/brasil/55mu2500gc.zip")
+    }
+  
+  # 2007
+  if(year == 2007) {
+    ftp_link <- paste0(url_start, year, "//escala_2500mil/proj_geografica_sirgas2000/brasil/55mu2500gsr.zip")
   }
   
   # 2015 until 2018
@@ -142,7 +151,7 @@ download_municipality <- function(year){ # year = 2010
     }
   }
   
-  if(year %in% 2015:2024) {
+  if(year %in% c(2005, 2007, 2015:2024)) {
     httr::GET(url = ftp_link,
               httr::progress(),
               httr::write_disk(path = file_raw,
@@ -151,7 +160,8 @@ download_municipality <- function(year){ # year = 2010
   
   ## 4. Unzip Raw data ---------------------------------------------------------
   
-  unzip_geobr(zip_dir = zip_dir, in_zip = in_zip, out_zip = out_zip, is_shp = TRUE)
+  unzip_geobr(zip_dir = zip_dir, in_zip = in_zip,
+              out_zip = out_zip, is_shp = TRUE)
   
   ## 5. Bind Raw data together -------------------------------------------------
   
@@ -202,6 +212,8 @@ clean_municipality <- function(municipality_raw, year){ # year = 2024
   ## 1. Checks and detect possible problems ------------------------------------
 
   glimpse(municipality_raw)
+  ### create states tibble
+  states <- states_geobr()
 
   ## 1. Adjust and preparing for cleaning --------------------------------------
   
@@ -209,18 +221,42 @@ clean_municipality <- function(municipality_raw, year){ # year = 2024
   # Get dupes, merge island geometries, remove wrong rows
   
   names(municipality_raw)
+  glimpse(municipality_raw)
+  
   
   municipality_raw <- municipality_raw |> 
     clean_names()
   
   ### 2000
   if (year %in% c(2000)) {
-    # c("MSLINK", "CODIGO", "AREA_1", "PERIMETRO_", "GEOCODIGO", "NOME", "SEDE", "LATITUDESE", "LONGITUDES", "AREA_TOT_G", "RESERVADO", "geometry")
+    # names_2000 <- c("mslink", "codigo", "area_1", "perimetro", "geocodigo", "nome", "sede", "latitudese", "longitudes", "area_tot_g", "reservado", "geometry")
+    
+    tabyl(municipality_raw$sede)
+    tabyl(municipality_raw$reservado)
+    
+    glimpse(municipality_raw)
     
     test <- municipality_raw |> 
-      get_dupes(geocodigo)
+      #get_dupes(geocodigo, nome)
+      group_by() |> 
+      summarise(ocorrencias = n())
+    glimpse(test)
+    
+    # Apply the adjstments
+    municipality <- municipality_raw |> 
+      filter(geocodigo != "0") |> 
+      select(geocodigo, nome, geometry) |> # remove collumns
+      #select(-mslink, -codigo, -area_1, -perimetro, -sede, -latitudese,
+             #-longitudes, -area_tot_g, -reservado)
+      group_by(geocodigo, nome) |> 
+      summarise(multi_poli = n())
+    
+    glimpse(municipality)
     
   }
+  
+  
+  ## #. old code ---------------------------------------------------------------
   
   # #For years that have spelling problems
   # if (year %in% c(2000, 2001, 2010, 2013:2018)){
@@ -383,7 +419,7 @@ clean_municipality <- function(municipality_raw, year){ # year = 2024
     encoding_utf8 = T,
     topology_fix = T,
     remove_z_dimension = T,
-    use_multipolygon = T
+    use_multipolygon = F
   )
   
   glimpse(temp_sf)
