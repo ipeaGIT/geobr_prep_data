@@ -88,6 +88,8 @@ download_municipality <- function(year){ # year = 2010
   ### Years with br URL --------------------------------------------------------
   #2005 
   if(year == 2005) {
+    options(timeout = 600)
+    
     ftp_link <- paste0(url_start, year, "/escala_2500mil/proj_geografica/arcview_shp/brasil/55mu2500gc.zip")
     }
   
@@ -191,8 +193,6 @@ download_municipality <- function(year){ # year = 2010
   # municipality_raw <- sf::st_as_sf(municipality_raw) |>
   #   clean_names()
   
-  glimpse(municipality_raw)
-  
   return(municipality_raw)
 }
 
@@ -211,205 +211,254 @@ clean_municipality <- function(municipality_raw, year){ # year = 2024
 
   ## 1. Checks and detect possible problems ------------------------------------
 
-  glimpse(municipality_raw)
   ### create states tibble
   states <- states_geobr()
+  states_clean <- states |> select(1:5)
 
-  ## 1. Adjust and preparing for cleaning --------------------------------------
+  ## 2. Adjust and preparing for cleaning (UPDATE YEAR HERE) -------------------
   
   # Remove, rename, reorder collumns
   # Get dupes, merge island geometries, remove wrong rows
-  
-  names(municipality_raw)
+  # Give states codes, names and regions
+
   glimpse(municipality_raw)
   
-  
+  # Check projection
+  st_crs(municipality_raw)
+    
+  names(municipality_raw)
   municipality_raw <- municipality_raw |> 
     clean_names()
+  glimpse(municipality_raw)
   
-  ### 2000
-  if (year %in% c(2000)) {
-    # names_2000 <- c("mslink", "codigo", "area_1", "perimetro", "geocodigo", "nome", "sede", "latitudese", "longitudes", "area_tot_g", "reservado", "geometry")
+  ### 2000 ----
+  if (year == 2000) {
+    # names_2000 <- c("mslink", "codigo", "area_1", "perimetro", "geocodigo",
+    #                 "nome", "sede", "latitudese", "longitudes", "area_tot_g",
+    #                 "reservado", "geometry")
     
-    tabyl(municipality_raw$sede)
-    tabyl(municipality_raw$reservado)
+    # tabyl(municipality_raw$sede)
+    # tabyl(municipality_raw$reservado)
     
     glimpse(municipality_raw)
+    st_crs(municipality_raw)
     
-    test <- municipality_raw |> 
-      #get_dupes(geocodigo, nome)
-      group_by() |> 
-      summarise(ocorrencias = n())
-    glimpse(test)
-    
-    # Apply the adjstments
-    municipality <- municipality_raw |> 
-      filter(geocodigo != "0") |> 
+    # Apply the adjustments and set projection 
+
+    municipality <-  municipality_raw |> 
       select(geocodigo, nome, geometry) |> # remove collumns
       #select(-mslink, -codigo, -area_1, -perimetro, -sede, -latitudese,
-             #-longitudes, -area_tot_g, -reservado)
-      group_by(geocodigo, nome) |> 
-      summarise(multi_poli = n())
+      #-longitudes, -area_tot_g, -reservado)
+      rename(code_muni = geocodigo, name_muni = nome) |>  # rename collumns
+      filter(code_muni != "0") |> # remove empty entries 
+      mutate(name_muni = if_else(name_muni == "CANANEIA",
+                                 "Cananéia", name_muni)) |> # remover erro em CANANEIA
+      group_by(code_muni, name_muni) |> # dissolve island geometries
+      summarise(.groups = "drop") |> # code_muni unique
+      mutate(code_state = str_sub(code_muni, start = 1, end = 2)) |> # gerar coluna code_state
+      inner_join(states_clean, by = c("code_state")) |> 
+      relocate(geometry, .after = name_region)
     
     glimpse(municipality)
+    st_crs(municipality)
+    
+    municipality_clean <- municipality |> 
+    st_set_crs(4674)
+    st_crs(municipality_clean)
     
   }
   
+  ### 2001 ----
+  if (year %in% c(2001, 2005)) {
+    # "mslink"       "mapid"        "codigo"       "area_1"       "perimetro"   
+    # "geocodigo"    "nome"         "sede"         "latitudese"   "longitudes"  
+    # "area_tot_g"   "mslink_2"     "mapid_2"      "codigo_2"     "area_1_2"    
+    # "perimetro_2"  "geocodigo_2"  "nome_2"       "sede_2"       "latitude_se" 
+    # "longitude_s"  "area_tot_g_2" "gavprimary"   "gavprima_1"   "geometry_s"  
+    # "latitude"     "longitude"    "areamunici"   "geometry"
   
-  ## #. old code ---------------------------------------------------------------
+    # tabyl(municipality_raw$sede)
+    # tabyl(municipality_raw$reservado)
+    
+    glimpse(municipality_raw)
+    st_crs(municipality_raw)
+    
+    # Apply the adjustments and set projection 
+    
+    municipality <-  municipality_raw |> 
+      select(geocodigo, nome, geometry) |> # remove collumns
+      rename(code_muni = geocodigo, name_muni = nome) |>  # rename collumns
+      filter(code_muni != "0", !is.na(code_muni)) |> # remove empty entries 
+      group_by(code_muni, name_muni) |> # dissolve island geometries
+      summarise(.groups = "drop") |> # code_muni unique
+      mutate(code_state = str_sub(code_muni, start = 1, end = 2)) |> # gerar coluna code_state
+      inner_join(states_clean, by = c("code_state")) |> 
+      relocate(geometry, .after = name_region)
+    
+    glimpse(municipality)
+    st_crs(municipality)
+    
+    municipality_clean <- municipality |> 
+      st_set_crs(4674)
+    st_crs(municipality_clean)
+    
+    #check integrity
+    test <- municipality_clean |> get_dupes(code_muni)
+    
+    }
   
-  # #For years that have spelling problems
-  # if (year %in% c(2000, 2001, 2010, 2013:2018)){
-  #   glimpse(municipality_raw)
-  # 
-  #   ### create states tibble
-  #   states <- states_geobr()
-  # 
-  #   states_thin <- states |>
-  #     select(1:5)
+  ### 2005 ----
+  if (year %in% c(2005)) {
+    # "geocodigo"  "nome"       "uf"         "id_uf"      "regiao"     "mesoregiao"
+    # [7] "microregia" "latitude"   "longitude"  "sede"       "geometry"  
+    
+    # tabyl(municipality_raw$sede)
+    # tabyl(municipality_raw$reservado)
+    
+    glimpse(municipality_raw)
+    st_crs(municipality_raw)
   
-  ### 2000 -------------------------------------------------------------------
-  #     if (year %in% c(2000)) {
-  #       
-  #       glimpse(municipality_raw)
-  #       
-  #       municipality_raw$nome[municipality_raw$nome == "CANANEIA"] <- "Cananeia"
-  #       
-  #       municipality_clean <- municipality_raw |> 
-  #         filter(geocodigo != 0) |> 
-  #         select(-area_1, -perimetro, -sede, -latitudese, -longitudes,
-  #                -area_tot_g, -reservado, # colunas com infos originais
-  #                -mslink) |> # colunas que não há em todos os anos
-  #         mutate(caractere_estranho = str_detect(nome, "[^[:alpha:] \\-']"),
-  #                code_state = str_sub(codigo, start = 1, end = 2),
-  #                name_muni = nome |>
-  #                  str_replace_all(fixed("\xc6"), "a") |> #ã
-  #                  str_replace_all(fixed("\xb6"), "A") |> #Â
-  #                  str_replace_all(fixed("\x90"), "E") |> #É
-  #                  str_replace_all(fixed("\x83"), "a") |> #ã
-  #                  str_replace_all(fixed("\xa0"), "a") |> #á
-  #                  str_replace_all(fixed("\xa3"), "u") |> #ú
-  #                  str_replace_all(fixed("\xa1"), "i") |> #í
-  #                  str_replace_all(fixed("\x82"), "é") |> #é
-  #                  str_replace_all(fixed("\x88"), "e") |> #ê
-  #                  str_replace_all(fixed("\xa2"), "o") |> #ó
-  #                  str_replace_all(fixed("\x93"), "o") |> #ô
-  #                  str_replace_all(fixed("\x87"), "ç"),
-  #                estranho_remanecente = str_detect(name_muni, "[^[:alpha:] '\\-]")) |> 
-  #         group_by(code_state, codigo, geocodigo, nome,
-  #                  name_muni, caractere_estranho, estranho_remanecente) |> 
-  #         summarise(total_area = sum(st_area(geometry))) |> 
-  #         ungroup()
-  #       
-  #     }
-  #     
-  #     ### 2010 -------------------------------------------------------------------
-  #     
-  #     if (year == 2010){ 
-  #       
-  #       head(municipality_raw$nm_municip, 100)
-  #       
-  #       # create mapa de substituições
-  #       mapa <- c(
-  #         "\xe1" = "á",
-  #         "\xe2" = "â",
-  #         "\xa1" = "á",
-  #         "\x87" = "ç",
-  #         "\x83" = "ã"
-  #       )
-  #       
-  #       suspect <- municipality_raw |> 
-  #         mutate(code_state = str_sub(cd_geocodm, start = 1, end = 2),
-  #                caractere_estranho = str_detect(nm_municip, "[^[:alpha:] \\-']")) |> 
-  #         mutate(nome_corrigido = nm_municip |>
-  #                  
-  #                  str_replace_all(fixed("\x82"), "Ê") |>  #Ê
-  #                  str_replace_all(fixed("\xca"), "Ê") |>  #Ê
-  #                  str_replace_all(fixed("\xc7"), "Ç") |> #Ç
-  #                  str_replace_all(fixed("\xda"), "Ú") |> #Ú
-  #                  str_replace_all(fixed("\xd3"), "Ó") |> #Ó
-  #                  str_replace_all(fixed("\xd4"), "Ô") |> #Ô
-  #                  str_replace_all(fixed("\xc9"), "É") |> #É
-  #                  str_replace_all(fixed("\xcd"), "Í") |> #Í
-  #                  str_replace_all(fixed("\xc2"), "Â") |> #Â
-  #                  str_replace_all(fixed("\xc3"), "Ã") |>  #ã
-  #                  str_replace_all(fixed("\xd5"), "Õ") |>  #Õ
-  #                  str_replace_all(fixed("\xc1"), "Á") , #ã
-  #                
-  # 
-  #                estranho_remanecente = str_detect(nome_corrigido, "[^[:alpha:] '\\-]")) |> 
-  #         arrange(estranho_remanecente)
-  #       
-  #       sobrou <- suspect |> filter(estranho_remanecente == TRUE)
-  #       sobrou$nm_municip |> head(200)
-  #       sobrou$nome_corrigido |> head(200)
-  #       
-  #       arrumou <- suspect |> filter(caractere_estranho == TRUE,
-  #                                    estranho_remanecente == FALSE)
-  #       arrumou$nome_corrigido |> head(400)
-  #       arrumou$nome_corrigido |> tail(40)
-  #       arrumou$nm_municip |> tail(40)
-  #       
-  #       
-  #     }
-  #     
-  #     suspect <- municipality_raw |> 
-  #       #mutate(code_state = str_sub(cd_geocodm, start = 1, end = 2)) |> 
-  #       filter(str_detect(nm_municip, "[^[:alpha:] \\-']"))
-  #     
-  #     head(suspect$nm_municip, 200)
-  #       
-  #       tabyl(suspect$code_state)  
-  #       
-  #       
-  #       municipality_clean <- municipality_raw |> 
-  #         mutate(caractere_estranho = str_detect(nome, "[^[:alpha:] \\-']"),
-  #                code_state = str_sub(codigo, start = 1, end = 2),
-  #                name_muni = nome |>
-  #                  str_replace_all(fixed("\xc6"), "a") |> #ã
-  #                  str_replace_all(fixed("\xb6"), "A") |> #Â
-  #                  str_replace_all(fixed("\x90"), "E") |> #É
-  #                  str_replace_all(fixed("\x83"), "a") |> #ã
-  #                  str_replace_all(fixed("\xa0"), "a") |> #á
-  #                  str_replace_all(fixed("\xa3"), "u") |> #ú
-  #                  str_replace_all(fixed("\xa1"), "i") |> #í
-  #                  str_replace_all(fixed("\x82"), "é") |> #é
-  #                  str_replace_all(fixed("\x88"), "e") |> #ê
-  #                  str_replace_all(fixed("\xa2"), "o") |> #ó
-  #                  str_replace_all(fixed("\x93"), "o") |> #ô
-  #                  str_replace_all(fixed("\x87"), "ç"),
-  #                estranho_remanecente = str_detect(name_muni, "[^[:alpha:] '\\-]"))
-  #         
-  #         
-  #         left_join(states_thin, by = c("cd_geocodu" = "code_state")) |>
-  #         select(-id)
-  #     }
-  #     
-  #     # For years that have only uppercase
-  #     if (year %in% c(2013:2018)){ 
-  #       municipality_clean <- municipality_raw |> 
-  #         left_join(states_thin, by = c("cd_geocuf" = "code_state")) |>
-  #         mutate(nm_regiao = str_to_title(nm_regiao),
-  #                nm_estado = str_to_title(nm_estado)) |> 
-  #         select(cd_geocuf, abbrev_state, nm_estado, code_region, nm_regiao)
-  #     }
-  #     glimpse(municipality_clean)
-  #   
-  #   
-  #   #For years that have no spelling problems
-  #   if (year %in% c(2019:2024)){ 
-  #     # glimpse(municipality_raw)
-  #     # glimpse(states_geobr)
-  #     municipality_clean <- municipality_raw
-  #     # glimpse(municipality_clean)
-  #   }
-  #   
-  ## 2. Apply harmonize geobr cleaning -----------------------------------------
+    
+  }
   
-  glimpse(municipality)
+  ### 2007 ----
+  if (year %in% c(2007)) {
+    # "geocodig_m"  "uf"          "sigla"       "nome_munic"  "reg_iao"    
+    # "mesorreg_ia" "nome_meso"   "microrregi"  "nome_micro"  "geometry"
+  
+    # tabyl(municipality_raw$sede)
+    # tabyl(municipality_raw$reservado)
+    
+    glimpse(municipality_raw)
+    st_crs(municipality_raw)
+    
+    # Apply the adjustments and set projection 
+    
+    municipality <-  municipality_raw |> 
+      select(geocodig_m, nome_munic, geometry) |> # remove collumns
+      rename(code_muni = geocodig_m, name_muni = nome_munic) |>  # rename collumns
+      filter(code_muni != "0", !is.na(code_muni)) |> # remove empty entries 
+      group_by(code_muni, name_muni) |> # dissolve island geometries
+      summarise(.groups = "drop") |> # code_muni unique
+      mutate(code_state = str_sub(code_muni, start = 1, end = 2)) |> # gerar coluna code_state
+      inner_join(states_clean, by = c("code_state")) |> 
+      relocate(geometry, .after = name_region)
+    
+    glimpse(municipality)
+    st_crs(municipality)
+    
+    municipality_clean <- municipality |> 
+      st_set_crs(4674)
+    st_crs(municipality_clean)
+    
+    #check integrity
+    test <- municipality_clean |> get_dupes(code_muni)
+    
+    }
+  
+  ### 2010 ----
+  if (year %in% c(2010)) {
+    #"id"         "cd_geocodm" "nm_municip" "geometry" 
+  
+    glimpse(municipality_raw)
+    st_crs(municipality_raw)
+    
+    # Apply the adjustments and set projection 
+    
+    municipality <-  municipality_raw |> 
+      st_set_crs(NA) |> 
+      select(cd_geocodm, nm_municip, geometry) |> # remove collumns
+      rename(code_muni = cd_geocodm, name_muni = nm_municip) |>  # rename collumns
+      filter(code_muni != "0", !is.na(code_muni)) |> # remove empty entries 
+      group_by(code_muni, name_muni) |> # dissolve island geometries
+      summarise(.groups = "drop") |> # code_muni unique
+      mutate(code_state = str_sub(code_muni, start = 1, end = 2),
+             name_muni = str_to_title(name_muni)) |> # gerar coluna code_state
+      inner_join(states_clean, by = c("code_state")) |> 
+      relocate(geometry, .after = name_region)
+    
+    glimpse(municipality)
+    st_crs(municipality)
+    
+    municipality_clean <- municipality |> 
+      st_set_crs(4674)
+    st_crs(municipality_clean)
+    
+    #check integrity
+    test <- municipality_clean |> get_dupes(code_muni)
+  }
+  
+  ### 2013 until 2018 ----
+  if (year %in% c(2013:2018)) {
+    #"nm_municip" "cd_geocmu"  "geometry"  
+    
+    glimpse(municipality_raw)
+    st_crs(municipality_raw)
+    
+    # Apply the adjustments and set projection 
+    
+    municipality <-  municipality_raw |> 
+      st_set_crs(NA) |> 
+      select(cd_geocmu, nm_municip, geometry) |> # remove collumns
+      rename(code_muni = cd_geocmu, name_muni = nm_municip) |>  # rename collumns
+      filter(code_muni != "0", !is.na(code_muni)) |> # remove empty entries 
+      group_by(code_muni, name_muni) |> # dissolve island geometries
+      summarise(.groups = "drop") |> # code_muni unique
+      mutate(code_state = str_sub(code_muni, start = 1, end = 2),
+             name_muni = str_to_title(name_muni)) |> # gerar coluna code_state
+      inner_join(states_clean, by = c("code_state")) |> 
+      relocate(geometry, .after = name_region)
+    
+    glimpse(municipality)
+    st_crs(municipality)
+    
+    municipality_clean <- municipality |> 
+      st_set_crs(4674)
+    st_crs(municipality_clean)
+    
+    #check integrity
+    test <- municipality_clean |> get_dupes(code_muni)
+  }
+  
+  ### 2019 ----
+    if (year %in% c(2019:2024)) {
+      #2019 "nm_municip" "cd_geocmu"  "geometry"
+      # 2020 "cd_mun"   "nm_mun"   "sigla_uf" "area_km2" "geometry"
+      
+      glimpse(municipality_raw)
+      st_crs(municipality_raw)
+      
+      # Apply the adjustments and set projection 
+      
+      municipality <-  municipality_raw |> 
+        st_set_crs(NA) |> 
+        select(cd_mun, nm_mun, geometry) |> # remove collumns
+        rename(code_muni = cd_mun, name_muni = nm_mun) |>  # rename collumns
+        filter(code_muni != "0", !is.na(code_muni)) |> # remove empty entries 
+        group_by(code_muni, name_muni) |> # dissolve island geometries
+        summarise(.groups = "drop") |> # code_muni unique
+        mutate(code_state = str_sub(code_muni, start = 1, end = 2),
+               name_muni = str_to_title(name_muni)) |> # gerar coluna code_state
+        inner_join(states_clean, by = c("code_state")) |> 
+        relocate(geometry, .after = name_region)
+      
+      glimpse(municipality)
+      st_crs(municipality)
+      
+      municipality_clean <- municipality |> 
+        st_set_crs(4674)
+      st_crs(municipality_clean)
+      
+      #check integrity
+      test <- municipality_clean |> get_dupes(code_muni)
+    }
+  
+  ## 3. Apply harmonize geobr cleaning -----------------------------------------
+  
+  glimpse(municipality_clean)
   
   temp_sf <- harmonize_geobr(
-    temp_sf = municipality,
+    temp_sf = municipality_clean,
     year = year,
     add_state = F, #state_column = "name_state",
     add_region = F,# region_column = "code_state",
@@ -419,77 +468,21 @@ clean_municipality <- function(municipality_raw, year){ # year = 2024
     encoding_utf8 = T,
     topology_fix = T,
     remove_z_dimension = T,
-    use_multipolygon = F
-  )
+    use_multipolygon = T)
   
   glimpse(temp_sf)
   
-  ## #. Check integrity, reorder and do post corrections -----------------------
-  #   
-  #   # 2000, 2001, 2010:2018 ------------------------------------------------------
-  #   # harmonize_geobr remove: abbrev_state, colunas de perímetro e área
-  #   # converte code_state em dbl
-  #   if (year %in% c(2000, 2001, 2010, 2013:2018)) {
-  #     
-  #     temp_sf2$code_state <- as.character(temp_sf2$code_state)
-  #         
-  #     states <- states_geobr()
-  #     
-  #     states_thin <- states |> select(1:5)
-  #     
-  #     municipality <- temp_sf2 |> 
-  #       ungroup() |> 
-  #       select(-caractere_estranho, -estranho_remanecente,
-  #              -nome, -total_area, -geocodigo) |> 
-  #       inner_join(states_thin, by = "code_state") |> 
-  #       relocate(code_region, name_region, code_state, abbrev_state,
-  #                code_muni, name_muni, year, .before = geometry)
-  #     
-  #     glimpse(municipality)  
-  #     
-  #     tabyl(municipality$abbrev_state)
-  #   }
-  #   
-  #   # 2019 até 2022 --------------------------------------------------------------
-  #   if (year %in% c(2019:2022)) {
-  #     states_thin <- states |> select(1:2,4)
-  #     
-  #     temp_sf <- temp_sf |> 
-  #       ungroup() |> 
-  #       rename(code_state = "code_muni") 
-  #     
-  #     temp_sf$code_state <- as.character(temp_sf$code_state)
-  #     
-  #     temp_sf <- temp_sf |> 
-  #       inner_join(states_thin, by = "code_state") |> 
-  #       relocate(abbrev_state, .before = name_state) |> 
-  #       relocate(code_region, .before = name_region)
-  #     
-  #     glimpse(temp_sf)  
-  #   }
-  #   
-  #   # 2023 em diante -------------------------------------------------------------
-  #   if (year %in% c(2023:2024)) {
-  #     states_thin <- states |> select(1:2)
-  #     
-  #     temp_sf <- temp_sf |> 
-  #       ungroup() |> 
-  #       rename(code_state = "code_muni") 
-  #     
-  #     temp_sf$code_state <- as.character(temp_sf$code_state)
-  #     
-  #     temp_sf <- temp_sf |> 
-  #       inner_join(states_thin, by = "code_state") |> 
-  #       relocate(abbrev_state, .before = name_state) |> 
-  #       relocate(code_region, .before = name_region)
-  #     
-  #     glimpse(temp_sf)  
-  #   }
-  #   
-  ## 3. lighter version --------------------------------------------------------
-  temp_sf_simplified <- simplify_temp_sf(municipality, tolerance = 100)
+  ## 4. Check integrity and do post corrections --------------------------------
   
-  ## 4. Save datasets  ---------------------------------------------------------
+  temp_sf <- temp_sf |> 
+    ungroup()
+  glimpse(temp_sf)
+  st_crs(temp_sf)
+  
+  ## 5. lighter version --------------------------------------------------------
+  temp_sf_simplified <- simplify_temp_sf(temp_sf, tolerance = 100)
+  
+  ## 6. Save datasets  ---------------------------------------------------------
   
   # sf::st_write(temp_sf, dsn = paste0(dir_clean, "/states_",  year,
   #                                   ".gpkg"), delete_dsn = TRUE)
@@ -499,7 +492,7 @@ clean_municipality <- function(municipality_raw, year){ # year = 2024
   
   ### Save in parquet
   arrow::write_parquet(
-    x = municipality,
+    x = temp_sf,
     sink = paste0(dir_clean, "/municipality_", year, ".parquet"),
     compression = 'zstd',
     compression_level = 7
@@ -512,7 +505,7 @@ clean_municipality <- function(municipality_raw, year){ # year = 2024
     compression_level = 7
   )
   
-  ## 5. Create the files for geobr index  --------------------------------------
+  ## 7. Create the files for geobr index  --------------------------------------
   
   files <- list.files(path = dir_clean,
                       pattern = ".parquet",
