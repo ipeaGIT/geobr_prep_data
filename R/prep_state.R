@@ -159,7 +159,21 @@ download_states <- function(year){ # year = 2010
   
   unzip_geobr(zip_dir = zip_dir, in_zip = in_zip, out_zip = out_zip, is_shp = TRUE)
   
-  ## 5. Bind Raw data together -------------------------------------------------
+  ## 5. Set corret encoding ----------------------------------------------------
+  
+  if (year == 2000) { #years without number of collumns errors
+    encode <- "ENCODING=IBM437"
+  }
+  
+  if (year %in% c(2001, 2005, 2007, 2010)) {
+    encode <- "ENCODING=WINDOWS-1252"
+  }
+  
+  if (year >= 2013) {
+    encode =  "ENCODING=UTF8"
+  }
+  
+  ## 6. Bind Raw data together -------------------------------------------------
   
   shp_names <- list.files(out_zip, pattern = "\\.shp$", full.names = TRUE)
   
@@ -168,7 +182,7 @@ download_states <- function(year){ # year = 2010
     states_list <- pbapply::pblapply(
       X = shp_names,
       FUN = function(x){ sf::st_read(x, quiet = T, stringsAsFactors = F,
-                                     options = "ENCODING=WINDOWS-1252")
+                                     options = encode)
       }
     )
     
@@ -177,13 +191,13 @@ download_states <- function(year){ # year = 2010
   
   if (year %in% c(2001, 2010:2014))  {#years with error in number of collumns
     states_raw <- readmerge_geobr(folder_path = out_zip,
-                                  encoding = "ENCODING=WINDOWS-1252")
+                                  encoding = encode)
   }
   
   #### After 2015
   if (length(shp_names) == 1) {
     states_raw <- st_read(shp_names, quiet = T, stringsAsFactors = F,
-                          options = "ENCODING=WINDOWS-1252")
+                          options = encode)
   }
   
   ## 6. Integrity test ---------------------------------------------------------

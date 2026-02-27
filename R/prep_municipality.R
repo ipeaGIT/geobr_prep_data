@@ -165,9 +165,7 @@ download_municipality <- function(year){ # year = 2010
   unzip_geobr(zip_dir = zip_dir, in_zip = in_zip,
               out_zip = out_zip, is_shp = TRUE)
   
-  ## 5. Bind Raw data together -------------------------------------------------
-  
-  shp_names <- list.files(out_zip, pattern = "\\.shp$", full.names = TRUE)
+  ## 5. Set corret encoding ----------------------------------------------------
   
   if (year == 2000) { #years without number of collumns errors
     encode <- "ENCODING=IBM437"
@@ -181,12 +179,16 @@ download_municipality <- function(year){ # year = 2010
     encode =  "ENCODING=UTF8"
   }
   
+  ## 6. Bind Raw data together -------------------------------------------------
+  
+  shp_names <- list.files(out_zip, pattern = "\\.shp$", full.names = TRUE)
+  
   ### Read and merge
   municipality_raw <- readmerge_geobr(folder_path = out_zip,
                                       encoding = encode)
   glimpse(municipality_raw)
   
-  ## 6. Show result ------------------------------------------------------------
+  ## 7. Show result ------------------------------------------------------------
   
   # data.table::setDF(municipality_raw)
   # 
