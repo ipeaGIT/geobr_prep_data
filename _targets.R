@@ -148,16 +148,16 @@ list(
   tar_target(name = years_statsgrid,
              command = c(2010, 2022)),
 
-  # # download
-  # tar_target(name = statsgrid_raw,
-  #            command = download_statsgrid(years_statsgrid),
-  #            pattern = map(years_statsgrid)),
+  # download
+  tar_target(name = statsgrid_raw,
+             command = download_statsgrid(years_statsgrid),
+             pattern = map(years_statsgrid)),
   
-  # # clean
-  # tar_target(name = statsgrid_clean,
-  #            command = clean_statsgrid(statsgrid_raw, years_statsgrid),
-  #            pattern = map(statsgrid_raw, years_statsgrid),
-  #            format = 'file'),
+  # clean
+  tar_target(name = statsgrid_clean,
+             command = clean_statsgrid(statsgrid_raw, years_statsgrid),
+             pattern = map(statsgrid_raw, years_statsgrid),
+             format = 'file'),
   
   #05. Estabelecimentos de saúde -----------------------------------------------
   
@@ -348,8 +348,7 @@ list(
   # year input
   tar_target(name = years_municipality,
              command = c(2000, 2001, 2005, 2007, 2010, 
-                         2013:2019, 
-                         2020: 2024)),
+                         2013:2024)),
 
   # download
   tar_target(name = municipality_raw,
@@ -619,7 +618,7 @@ list(
                semiarid_clean, #01
                amazonialegal_clean, #02
                biomes_clean, #03
-               #statsgrid_clean, #04
+               statsgrid_clean, #04
                healthfacilities_clean, #05
                #indigenousland_clean, #06
                intermediateregions_clean, #07
@@ -630,7 +629,7 @@ list(
                #country_clean, #12
                #mesoregions_clean, #13
                #microregions_clean, #14
-               #municipality_clean, #15
+               municipality_clean, #15
                #cityseats_clean, #16
                #censustracker_clean, #17
                #weightarea_clean, #18
