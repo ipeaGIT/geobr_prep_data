@@ -19,7 +19,7 @@ tar_option_set(
   format = "rds",
   memory = "transient",
   garbage_collection = TRUE,
-  controller = crew_controller_local(workers = 16),
+  controller = crew_controller_local(workers = 8),
   
   
   # Packages essentials --------------------------------------------------------
@@ -152,7 +152,7 @@ list(
   # tar_target(name = statsgrid_raw,
   #            command = download_statsgrid(years_statsgrid),
   #            pattern = map(years_statsgrid)),
-  
+  # 
   # # clean
   # tar_target(name = statsgrid_clean,
   #            command = clean_statsgrid(statsgrid_raw, years_statsgrid),
@@ -262,23 +262,23 @@ list(
              pattern = map(years_states)),
 
   # clean
-  tar_target(name = states_clean,
+  tar_target(name = states_clean, # This target is with memory issues
              command = clean_states(states_raw, years_states),
              pattern = map(states_raw, years_states),
              format = 'file'),
 
   #11. Regiões -----------------------------------------------------------------
   
-  # # year input
-  # tar_target(name = years_regions,
-  #            command = c(2000, 2001, 2010,
-  #                        2013:2024)),
+  # year input
+  tar_target(name = years_regions,
+             command = c(2000, 2001, 2010,
+                         2013:2024)),
 
-  # # download
-  # tar_target(name = regions_raw,
-  #            command = download_regions(years_regions),
-  #            pattern = map(years_regions)),
-  # 
+  # download
+  tar_target(name = regions_raw,
+             command = download_regions(years_regions),
+             pattern = map(years_regions)),
+
   # # clean
   # tar_target(name = regions_clean,
   #            command = clean_regions(regions_raw, years_regions),
@@ -305,12 +305,12 @@ list(
   
   #13. Meso Regiões ------------------------------------------------------------
   
-  # year input
-  tar_target(name = years_mesoregions,
-             command = c(2000, 2001, #error in number of collumns
-                         #2005, 2007, # No mesoregions file
-                         2010, 2013, 2014, # mesorregioes sem BR folder
-                         2015:2018)),
+  # # year input
+  # tar_target(name = years_mesoregions,
+  #            command = c(2000, 2001, #error in number of collumns
+  #                        #2005, 2007, # No mesoregions file
+  #                        2010, 2013, 2014, # mesorregioes sem BR folder
+  #                        2015:2018)),
 
   # # download
   # tar_target(name = mesoregions_raw,
@@ -325,12 +325,12 @@ list(
   
   #14. Microrregiões -----------------------------------------------------------
   
-  # year input
-  tar_target(name = years_microregions,
-             command = c(2000, 2001, #error in number of collumns
-                         #2005, 2007, # No microregions file
-                         2010, 2013, 2014, # microrregioes sem BR folder
-                         2015:2018)),
+  # # year input
+  # tar_target(name = years_microregions,
+  #            command = c(2000, 2001, #error in number of collumns
+  #                        #2005, 2007, # No microregions file
+  #                        2010, 2013, 2014, # microrregioes sem BR folder
+  #                        2015:2018)),
   # 
   # # download
   # tar_target(name = microregions_raw,

@@ -21,7 +21,7 @@
 # Observações: 
 # Anos disponíveis: 2000 a 2024
 
-### Libraries (use any library as necessary) ----
+### Libraries (use any library as necessary) -----------------------------------
 
 # library(RCurl)
 # library(arrow)
@@ -43,10 +43,10 @@
 # source("./R/support_harmonize_geobr.R")
 # source("./R/support_fun.R")
 
-# Download the data  ----
+# Download the data  -----------------------------------------------------------
 download_regions <- function(year){ # year = 2010
   
-  ## 0. Generate the correct ftp link (UPDATE YEAR HERE) ----
+  ## 0. Generate the correct ftp link (UPDATE YEAR HERE) -----------------------
   
   url_start <- paste0("https://geoftp.ibge.gov.br/organizacao_do_territorio/",
                       "malhas_territoriais/malhas_municipais/municipio_")
@@ -60,31 +60,31 @@ download_regions <- function(year){ # year = 2010
     
     #2000 ou 2010
     if(year %in% c(2000, 2010)) {
-      ftp_link <- paste0(url_start, year, "/", states$sgm_state, "/",
-                         states$sgm_state, "_unidades_da_federacao.zip")
+      ftp_link <- paste0(url_start, year, "/", states$abbrevm_state, "/",
+                         states$abbrevm_state, "_unidades_da_federacao.zip")
     }
     
     #2001
     if(year == 2001) {
-      ftp_link <- paste0(url_start, year, "/", states$sgm_state, "/",
-                         states$cod_states, "uf2500g.zip")
+      ftp_link <- paste0(url_start, year, "/", states$abbrevm_state, "/",
+                         states$code_state, "uf2500g.zip")
     }
     
     #2013
     if(year == 2013) {
-      ftp_link <- paste0(url_start, year, "/", states$sg_state, "/",
-                         states$sgm_state, "_unidades_da_federacao.zip")
+      ftp_link <- paste0(url_start, year, "/", states$abbrev_state, "/",
+                         states$abbrevm_state, "_unidades_da_federacao.zip")
       
       #correct spell error in AM
-      ftp_link[3] <- paste0(url_start, year, "/", states$sg_state[3], "/",
-                            states$sgm_state[3], "_unidades_da_fedecao.zip")
+      ftp_link[3] <- paste0(url_start, year, "/", states$abbrev_state[3], "/",
+                            states$abbrevm_state[3], "_unidades_da_fedecao.zip")
       
     }
     
     #2014
     if(year == 2014) {
-      ftp_link <- paste0(url_start, year, "/", states$sg_state, "/",
-                         states$sgm_state, "_unidades_da_federacao.zip")
+      ftp_link <- paste0(url_start, year, "/", states$abbrev_state, "/",
+                         states$abbrevm_state, "_unidades_da_federacao.zip")
     }
     
     filenames <- basename(ftp_link)
@@ -107,7 +107,7 @@ download_regions <- function(year){ # year = 2010
     ftp_link <- paste0(url_start, year, "/Brasil/BR_UF_", year, ".zip")
   }
   
-  ## 1. Create temp folder ----
+  ## 1. Create temp folder -----------------------------------------------------
   
   zip_dir <- paste0(tempdir(), "/regions/", year)
   dir.create(zip_dir, showWarnings = FALSE, recursive = TRUE)
@@ -118,7 +118,7 @@ download_regions <- function(year){ # year = 2010
   # dir.create(zip_dir, showWarnings = FALSE, recursive = TRUE)
   # dir.exists(zip_dir)
   
-  ## 2. Create direction for each download ----
+  ## 2. Create direction for each download -------------------------------------
   
   ### zip folder
   in_zip <- paste0(zip_dir, "/zipped/")
@@ -132,7 +132,7 @@ download_regions <- function(year){ # year = 2010
   dir.create(out_zip, showWarnings = FALSE, recursive = TRUE)
   dir.exists(out_zip)
   
-  ## 3. Download Raw data (UPDATE YEAR) ----
+  ## 3. Download Raw data (UPDATE YEAR) ----------------------------------------
   
   if(year %in% c(2000, 2001, 2010:2014)) {
     ### Download zipped files
@@ -149,26 +149,36 @@ download_regions <- function(year){ # year = 2010
                                overwrite = T))
   }
   
-  ## 4. Unzip Raw data ----
+  ## 4. Unzip Raw data ---------------------------------------------------------
   
   unzip_geobr(zip_dir = zip_dir, in_zip = in_zip, out_zip = out_zip, is_shp = TRUE)
   
-  ## 5. Bind Raw data together (UPDATE YEAR) ----
+  ## 5. Set corret encoding ----------------------------------------------------
+  
+  if (year == 2000) { #years without number of collumns errors
+    encode <- "ENCODING=IBM437"
+  }
+  
+  if (year %in% c(2001, 2005, 2007, 2010)) {
+    encode <- "ENCODING=WINDOWS-1252"
+  }
+  
+  if (year >= 2013) {
+    encode =  "ENCODING=UTF8"
+  }
+  
+  ## 6. Bind Raw data together (UPDATE YEAR) -----------------------------------
   
   shp_names <- list.files(out_zip, pattern = "\\.shp$", full.names = TRUE)
   
-  #### Before 2015
-  if (year == 2000) { #years without IBGE errors
-    regions_list <- pbapply::pblapply(
-      X = shp_names,
-      FUN = function(x){ sf::st_read(x, quiet = T, stringsAsFactors= F) }
-    )
-    
-    regions_raw <- data.table::rbindlist(regions_list)
+  if (year == 2000)  {#years with error in number of collumns
+    regions_raw <- readmerge_geobr(folder_path = out_zip,
+                                   encoding = encode)
   }
   
   if (year %in% c(2001, 2010:2014))  {#years with error in number of collumns
-    regions_raw <- readmerge_geobr(folder_path = out_zip)
+    regions_raw <- readmerge_geobr(folder_path = out_zip,
+                                   encoding = encode)
   }
   
   #### After 2015
@@ -176,7 +186,7 @@ download_regions <- function(year){ # year = 2010
     regions_raw <- st_read(shp_names, quiet = T, stringsAsFactors= F)
   }
   
-  ## 6. Integrity test ----
+  ## 7. Integrity test ---------------------------------------------------------
   
   #### Before 2015
   glimpse(regions_raw)
@@ -191,41 +201,60 @@ download_regions <- function(year){ # year = 2010
     glimpse(regions_raw)
   }
   
-  ## 7. Show result ----
+  ## 8. Show result ------------------------------------------------------------
   
   data.table::setDF(regions_raw)
   
   regions_raw <- sf::st_as_sf(regions_raw) %>% 
     clean_names()
   
+  glimpse(regions_raw)
+  
   return(regions_raw)
   
 }
 
-# Clean the data  ----
+# Clean the data  --------------------------------------------------------------
 clean_regions <- function(regions_raw, year){ # year = 2024
   
-  ## 0. Create folder to save clean data -----
+  ## 0. Create folder to save clean data ---------------------------------------
   
   dir_clean <- paste0("./data/regions/", year)
   dir.create(dir_clean, recursive = T, showWarnings = FALSE)
   dir.exists(dir_clean)
   
-  ## 1. Check names of the states (UPDATE YEAR) -----
+  ## 1. Check names of the states ----------------------------------------------
   
   states <- states_geobr()
-  states <- states %>% 
-    select(cod_states, cod_region) %>% 
-    mutate(cod_states = as.character(cod_states))
+  states_thin <- states %>% 
+    select(1:5) %>% 
+    mutate(code_state = as.character(code_state))
   
   glimpse(regions_raw)
+  
+  ## 2. Adjustments (UPDATE YEAR) ------------------------------------------
+  
+  # remove collumns
+  # remove empty raws
+  # Fix case
+  # Prepare for dissolving
+  
+  if (year %in% c(2000) {
+    
+    test <- regions_raw |> get_dupes(nome)
+    
+    regions <- regions_raw |> 
+      filter(codigo != "0",)
+                               
+    
+  }
   
   #For years that have spelling problems
   if (year %in% c(2000, 2001, 2010, 2013:2018)){ 
     
     if (year %in% c(2000, 2001)){ 
       regions_clean <- regions_raw %>% 
-        left_join(states, by = c("codigo" = "cod_states"))  |> 
+        left_join(states, by = c("codigo" = "code_state"))  |> 
         select(cod_region)
     }
     
@@ -257,7 +286,7 @@ clean_regions <- function(regions_raw, year){ # year = 2024
   # store original crs
   original_crs <- st_crs(regions_clean)
   
-  ## 2. Transform states in regions -----
+  ## 2. Transform states in regions --------------------------------------------
   
   ### Dissolve each region
   all_regions <- dissolve_polygons(mysf=regions_clean, group_column='cod_region')
@@ -272,7 +301,7 @@ clean_regions <- function(regions_raw, year){ # year = 2024
   glimpse(all_regions)
   plot(all_regions)
   
-  ## 3. Apply harmonize geobr cleaning ----
+  ## 3. Apply harmonize geobr cleaning -----------------------------------------
   
   temp_sf <- harmonize_geobr(
     temp_sf = all_regions,
@@ -290,10 +319,10 @@ clean_regions <- function(regions_raw, year){ # year = 2024
   
   glimpse(temp_sf)
   
-  ## 4. lighter version ----
+  ## 4. lighter version --------------------------------------------------------
   temp_sf_simplified <- simplify_temp_sf(temp_sf, tolerance = 100)
   
-  ## 5. Save datasets  ----
+  ## 5. Save datasets  ---------------------------------------------------------
   
   # sf::st_write(temp_sf, dsn = paste0(dir_clean, "/regions_",  year,
   #                                   ".gpkg"), delete_dsn = TRUE)
@@ -316,7 +345,7 @@ clean_regions <- function(regions_raw, year){ # year = 2024
     compression_level = 7
   )
   
-  ## 6. Create the files for geobr index  ----
+  ## 6. Create the files for geobr index  --------------------------------------
   
   files <- list.files(path = dir_clean, 
                       pattern = ".parquet", 
