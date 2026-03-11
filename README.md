@@ -8,37 +8,42 @@ editor_options:
 
 Data sets currenly implemented in the targets pipeline:
 
--   [x] biomes
+
 -   [x] semiarid
--   [ ] country
--   [ ] region
--   [ ] state
+-   [X] amazon
+-   [x] biomes
+-   [X] statistical_grid
+-   [X] health_facilities
+-   [ ] indigenous_land
+-   [X] intermediate_region
+-   [X] immediate_region
+-   [X] schools
+-   [X] state
+-   [X] region
+-   [X] country
 -   [ ] meso_region
 -   [ ] micro_region
--   [ ] intermediate_region
--   [ ] immediate_region
--   [ ] municipality
+-   [X] municipality
 -   [ ] municipal_seat
--   [ ] weighting_area
 -   [ ] census_tract
--   [ ] statistical_grid
+-   [ ] weighting_area
 -   [ ] metro_area
 -   [ ] urban_area
--   [ ] amazon
--   [ ] conservation_units
--   [ ] disaster_risk_area
--   [ ] indigenous_land
--   [ ] health_facilities
+-   [X] conservation_units
+-   [X] disaster_risk_area
 -   [ ] health_region
 -   [ ] neighborhood
--   [ ] schools
--   [ ] comparable_areas
 -   [ ] urban_concentrations
 -   [ ] pop_arrangements
 -   [ ] favelas
+-   [ ] comparable_areas
+-   [ ] electoral zones
+-   [ ] river basins
+-   [ ] historic brazilian empire
+
 
 Functions used: - [x] harmonize_geobr - [x] unzip_geobr - [x]
-readmerge_geobr - [R] folder_geobr - [P] glimpse_geobr
+readmerge_geobr 
 
 P = parcial x = done R = in review
 
