@@ -227,84 +227,110 @@ clean_regions <- function(regions_raw, year){ # year = 2024
   
   states <- states_geobr()
   states_thin <- states %>% 
-    select(1:5) %>% 
+    select(1, 4, 5) %>% 
     mutate(code_state = as.character(code_state))
   
+  glimpse(states_thin)
   glimpse(regions_raw)
   
-  ## 2. Adjustments (UPDATE YEAR) ------------------------------------------
+  ## 2. Adjustments (UPDATE YEAR) ----------------------------------------------
   
   # remove collumns
   # remove empty raws
   # Fix case
   # Prepare for dissolving
   
-  if (year %in% c(2000) {
-    
+  if (year %in% c(2000, 2001)) {
     test <- regions_raw |> get_dupes(nome)
     
     regions <- regions_raw |> 
-      filter(codigo != "0",)
+      filter(codigo != "0") |> 
+      select(codigo, geometry) |> 
+      group_by(codigo) |> 
+      summarise() |> 
+      ungroup() |> 
+      inner_join(states_thin, by = c("codigo" = "code_state")) |> 
+      rename(code_state = codigo) |> 
+      relocate(geometry, .after = name_region) |> 
+      select(-code_state) |> 
+      group_by(code_region) |>
+      summarise() |>
+      ungroup()
                                
-    
+    glimpse(regions)
+    #plot(regions)
   }
   
-  #For years that have spelling problems
-  if (year %in% c(2000, 2001, 2010, 2013:2018)){ 
+  if (year %in% c(2010)) {
+    #test <- regions_raw |> get_dupes(nome)
     
-    if (year %in% c(2000, 2001)){ 
-      regions_clean <- regions_raw %>% 
-        left_join(states, by = c("codigo" = "code_state"))  |> 
-        select(cod_region)
-    }
+    regions <- regions_raw |> 
+      filter(cd_geocodu != "0") |> 
+      select(cd_geocodu, geometry) |> 
+      st_make_valid() |> 
+      group_by(cd_geocodu) |> 
+      summarise() |> 
+      ungroup() |> 
+      inner_join(states_thin, by = c("cd_geocodu" = "code_state")) |> 
+      rename(code_state = cd_geocodu) |> 
+      relocate(geometry, .after = name_region) |> 
+      select(-code_state) |> 
+      group_by(code_region) |>
+      summarise() |>
+      ungroup()
     
-    if (year %in% c(2010)){
-      regions_clean <- regions_raw %>% 
-        left_join(states, by = c("cd_geocodu" = "cod_states")) |> 
-        select(cod_region)
-    }
-    
-    # For years that have only uppercase
-    if (year %in% c(2013:2018)){ 
-      regions_clean <- regions_raw %>% 
-        left_join(states, by = c("cd_geocuf" = "cod_states")) |> 
-        select(cod_region)
-    }
-    glimpse(regions_clean)
+    glimpse(regions)
+    #plot(regions)
   }
   
-  #For years that have no spelling problems
-  if (year %in% c(2019:2024)){ 
-    regions_clean <- regions_raw |> 
-      left_join(states, by = c("cd_uf" = "cod_states")) |> 
-      select(cod_region)
+  if (year %in% c(2013:2018)) {
+    #test <- regions_raw |> get_dupes(nome)
+    
+    regions <- regions_raw |> 
+      filter(cd_geocuf != "0") |> 
+      select(cd_geocuf, geometry) |> 
+      st_make_valid() |> 
+      group_by(cd_geocuf) |> 
+      summarise() |> 
+      ungroup() |> 
+      inner_join(states_thin, by = c("cd_geocuf" = "code_state")) |> 
+      rename(code_state = cd_geocuf) |> 
+      relocate(geometry, .after = name_region) |> 
+      select(-code_state) |> 
+      group_by(code_region) |>
+      summarise() |>
+      ungroup()
+    
+    glimpse(regions)
+    #plot(regions)
   }
   
-  # remove wrong-coded regions
-  regions_clean <- subset(regions_clean, cod_region %in% c(1:5))
-
-  # store original crs
-  original_crs <- st_crs(regions_clean)
-  
-  ## 2. Transform states in regions --------------------------------------------
-  
-  ### Dissolve each region
-  all_regions <- dissolve_polygons(mysf=regions_clean, group_column='cod_region')
-  
-  glimpse(all_regions)
-  
-  ### add region names
-  
-  all_regions <- add_region_info(temp_sf = all_regions, column = 'cod_region')
-  all_regions <- select(all_regions, c('cod_region', 'name_region', 'geometry'))
-  
-  glimpse(all_regions)
-  plot(all_regions)
+  if (year %in% c(2019:2024)) {
+    #test <- regions_raw |> get_dupes(nome)
+    
+    regions <- regions_raw |> 
+      filter(cd_uf != "0") |> 
+      select(cd_uf, geometry) |> 
+      st_make_valid() |> 
+      group_by(cd_uf) |> 
+      summarise() |> 
+      ungroup() |> 
+      inner_join(states_thin, by = c("cd_uf" = "code_state")) |> 
+      rename(code_state = cd_uf) |> 
+      relocate(geometry, .after = name_region) |> 
+      select(-code_state) |> 
+      group_by(code_region) |>
+      summarise() |>
+      ungroup()
+    
+    glimpse(regions)
+    #plot(regions)
+  }
   
   ## 3. Apply harmonize geobr cleaning -----------------------------------------
   
   temp_sf <- harmonize_geobr(
-    temp_sf = all_regions,
+    temp_sf = regions,
     year = year,
     add_state = F,
     add_region = F,
@@ -318,11 +344,43 @@ clean_regions <- function(regions_raw, year){ # year = 2024
   )
   
   glimpse(temp_sf)
+  plot(temp_sf)
   
-  ## 4. lighter version --------------------------------------------------------
-  temp_sf_simplified <- simplify_temp_sf(temp_sf, tolerance = 100)
+  ## 4. Dissolve polygons ------------------------------------------------------
   
-  ## 5. Save datasets  ---------------------------------------------------------
+  ## add name regions
+  ## add year
+  
+  states_thin <- states_thin |> 
+    group_by(code_region, name_region) |> 
+    summarise() |> 
+    ungroup()
+  
+  all_regions <- dissolve_polygons(mysf = temp_sf,
+                                   group_column = "code_region") |> 
+    inner_join(states_thin, by = c("code_region")) |> 
+    mutate(year = year) |> 
+    relocate(geometry, .after = year)
+    
+  glimpse(all_regions)
+  plot(all_regions)
+  
+  # remove wrong-coded regions
+  regions_clean <- subset(all_regions, code_region %in% c(1:5))
+  
+  # store original crs
+  original_crs <- st_crs(regions_clean)
+  
+  # correct the crs
+  if (is.na(original_crs) == TRUE) {
+    
+    st_set_crs(regions_clean, 4674)
+    }
+  
+  ## 5. lighter version --------------------------------------------------------
+  temp_sf_simplified <- simplify_temp_sf(regions_clean, tolerance = 100)
+  
+  ## 6. Save datasets  ---------------------------------------------------------
   
   # sf::st_write(temp_sf, dsn = paste0(dir_clean, "/regions_",  year,
   #                                   ".gpkg"), delete_dsn = TRUE)
@@ -345,7 +403,7 @@ clean_regions <- function(regions_raw, year){ # year = 2024
     compression_level = 7
   )
   
-  ## 6. Create the files for geobr index  --------------------------------------
+  ## 7. Create the files for geobr index  --------------------------------------
   
   files <- list.files(path = dir_clean, 
                       pattern = ".parquet", 
@@ -358,7 +416,7 @@ clean_regions <- function(regions_raw, year){ # year = 2024
 # 
 ###### OLD CODE BELOW ####################
 # 
-# ###### 0. Create Root folder to save the data -----------------
+# ###### 0. Create Root folder to save the data
 # root_dir <- "L:\\# DIRUR #\\ASMEQ\\geobr\\data-raw"
 # setwd(root_dir)
 # dir.create("./regions")
