@@ -171,12 +171,7 @@ download_regions <- function(year){ # year = 2010
   
   shp_names <- list.files(out_zip, pattern = "\\.shp$", full.names = TRUE)
   
-  if (year == 2000)  {#years with error in number of collumns
-    regions_raw <- readmerge_geobr(folder_path = out_zip,
-                                   encoding = encode)
-  }
-  
-  if (year %in% c(2001, 2010:2014))  {#years with error in number of collumns
+  if (year %in% c(2000, 2001, 2010:2014))  { #years with error in number of collumns
     regions_raw <- readmerge_geobr(folder_path = out_zip,
                                    encoding = encode)
   }
@@ -241,7 +236,7 @@ clean_regions <- function(regions_raw, year){ # year = 2024
   # Prepare for dissolving
   
   if (year %in% c(2000, 2001)) {
-    test <- regions_raw |> get_dupes(nome)
+    #test <- regions_raw |> get_dupes(nome)
     
     regions <- regions_raw |> 
       filter(codigo != "0") |> 
@@ -344,7 +339,7 @@ clean_regions <- function(regions_raw, year){ # year = 2024
   )
   
   glimpse(temp_sf)
-  plot(temp_sf)
+  #plot(temp_sf)
   
   ## 4. Dissolve polygons ------------------------------------------------------
   
@@ -390,7 +385,7 @@ clean_regions <- function(regions_raw, year){ # year = 2024
   
   ### Save in parquet
   arrow::write_parquet(
-    x = temp_sf,
+    x = regions_clean,
     sink = paste0(dir_clean, "/regions_", year, ".parquet"),
     compression = 'zstd',
     compression_level = 7
