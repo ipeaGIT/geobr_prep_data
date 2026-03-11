@@ -19,7 +19,7 @@ tar_option_set(
   format = "rds",
   memory = "transient",
   garbage_collection = TRUE,
-  controller = crew_controller_local(workers = 8),
+  controller = crew_controller_local(workers = 16),
   
   
   # Packages essentials --------------------------------------------------------
@@ -271,37 +271,35 @@ list(
   
   # year input
   tar_target(name = years_regions,
-             command = c(2000, 2001, 2010,
-                         2013:2024)),
+             command = c(2000, 2001, 2010, 2013:2024)),
 
   # download
   tar_target(name = regions_raw,
              command = download_regions(years_regions),
              pattern = map(years_regions)),
 
-  # # clean
-  # tar_target(name = regions_clean,
-  #            command = clean_regions(regions_raw, years_regions),
-  #            pattern = map(regions_raw, years_regions),
-  #            format = 'file'),
+  # clean
+  tar_target(name = regions_clean,
+             command = clean_regions(regions_raw, years_regions),
+             pattern = map(regions_raw, years_regions),
+             format = 'file'),
   
   #12. País --------------------------------------------------------------------
   
-  # # year input
-  # tar_target(name = years_country,
-  #            command = c(2000, 2001, 2010,
-  #                        2013:2024)),
-
-  # # download
-  # tar_target(name = country_raw,
-  #            command = download_country(years_country),
-  #            pattern = map(years_country)),
-  # 
-  # # clean
-  # tar_target(name = country_clean,
-  #            command = clean_country(country_raw, years_country),
-  #            pattern = map(country_raw, years_country),
-  #            format = 'file'),
+  # year input
+  tar_target(name = years_country,
+             command = c(2000, 2001, 2010, 2013:2024)),
+  
+  # download
+  tar_target(name = country_raw,
+             command = download_country(years_country),
+             pattern = map(years_country)),
+  
+  # clean
+  tar_target(name = country_clean,
+             command = clean_country(country_raw, years_country),
+             pattern = map(country_raw, years_country),
+             format = 'file'),
   
   #13. Meso Regiões ------------------------------------------------------------
   
@@ -625,8 +623,8 @@ list(
                immediateregions_clean, #08
                schools_clean, #09
                states_clean, #10
-               #regions_clean, #11
-               #country_clean, #12
+               regions_clean, #11
+               country_clean, #12
                #mesoregions_clean, #13
                #microregions_clean, #14
                municipality_clean, #15
