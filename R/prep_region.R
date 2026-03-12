@@ -153,7 +153,7 @@ download_regions <- function(year){ # year = 2010
   
   unzip_geobr(zip_dir = zip_dir, in_zip = in_zip, out_zip = out_zip, is_shp = TRUE)
   
-  ## 5. Set corret encoding ----------------------------------------------------
+  ## 5. Set correct encoding ---------------------------------------------------
   
   if (year == 2000) { #years without number of collumns errors
     encode <- "ENCODING=IBM437"
