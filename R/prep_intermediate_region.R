@@ -108,7 +108,13 @@ download_intermediateregions <- function(year){ # year = 2024
   
   unzip_geobr(zip_dir = zip_dir, in_zip = in_zip, out_zip = out_zip, is_shp = TRUE)
   
-  ## 5. Bind Raw data together -------------------------------------------------
+  ## 5. Set correct encoding ---------------------------------------------------
+  
+  if (year >= 2019) {
+    encode =  "ENCODING=UTF8"
+  }
+  
+  ## 6. Bind Raw data together -------------------------------------------------
   
   shp_names <- list.files(out_zip, pattern = "\\.shp$",
                           full.names = TRUE)
@@ -120,7 +126,7 @@ download_intermediateregions <- function(year){ # year = 2024
   
   intermediateregions_raw <- data.table::rbindlist(intermediateregions_list)
   
-  ## 6. Show result ------------------------------------------------------------
+  ## 7. Show result ------------------------------------------------------------
   
   data.table::setDF(intermediateregions_raw)
   intermediateregions_raw <- sf::st_as_sf(intermediateregions_raw) %>% 
