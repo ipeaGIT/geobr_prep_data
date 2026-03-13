@@ -303,18 +303,16 @@ list(
   
   #13. Meso Regiões ------------------------------------------------------------
   
-  # # year input
-  # tar_target(name = years_mesoregions,
-  #            command = c(2000, 2001, #error in number of collumns
-  #                        #2005, 2007, # No mesoregions file
-  #                        2010, 2013, 2014, # mesorregioes sem BR folder
-  #                        2015:2018)),
+  # year input
+  tar_target(name = years_mesoregions,
+             command = c(2000, 2001, 2010,
+                         2013, 2018)),
+  
+  # download
+  tar_target(name = mesoregions_raw,
+             command = download_mesoregions(years_mesoregions),
+             pattern = map(years_mesoregions)),
 
-  # # download
-  # tar_target(name = mesoregions_raw,
-  #            command = download_mesoregions(years_mesoregions),
-  #            pattern = map(years_mesoregions)),
-  # 
   # # clean
   # tar_target(name = mesoregions_clean,
   #            command = clean_mesoregions(mesoregions_raw, years_mesoregions),
@@ -379,18 +377,18 @@ list(
   #17. Traço do Censo ----------------------------------------------------------
   
   # # year input
-  # tar_target(name = years_censustracker,
+  # tar_target(name = years_censustract,
   #            command = c(2010, 2022)),
 
   # # download
-  # tar_target(name = censustracker_raw,
-  #            command = download_censustracker(years_censustracker),
-  #            pattern = map(years_censustracker)),
+  # tar_target(name = censustract_raw,
+  #            command = download_censustracker(years_censustract),
+  #            pattern = map(years_censustract)),
   #
   # # clean
-  # tar_target(name = censustracker_clean,
-  #            command = clean_censustracker(censustracker_raw, years_censustracker),
-  #            pattern = map(censustracker_raw, years_censustracker),
+  # tar_target(name = censustrackt_clean,
+  #            command = clean_censustract(censustract_raw, years_censustract),
+  #            pattern = map(censustract_raw, years_censustract),
   #            format = 'file'),
   
   #18. Área de peso ------------------------------------------------------------
@@ -590,7 +588,25 @@ list(
   #            format = 'file'),
   #
   
-  #30. Historical Brazilian Empire --------------------------------------------------------
+  #30. Bacias Hidrográficas ----------------------------------------------------
+  
+  # # year input
+  # tar_target(name = years_riverbasins,
+  #            command = c(2010, 2020, 2022, 2024)),
+  # 
+  # # # download
+  # tar_target(name = riverbasins_raw,
+  #            command = download_riverbasins(years_riverbasins),
+  #            pattern = map(years_riverbasins)),
+  #
+  # # clean
+  # tar_target(name = riverbasins_clean,
+  #            command = clean_riverbasins(riverbasins_raw, years_riverbasins),
+  #            pattern = map(riverbasins_raw, years_riverbasins),
+  #            format = 'file'),
+  #
+  
+  #31. Historical Brazilian Empire ---------------------------------------------
   
   # # year input
   # tar_target(name = years_electoraldistrits,
@@ -641,7 +657,8 @@ list(
                #poparrangements_clean, #26
                #favela_clean, #27
                #locality_clean, #28
-               #electoraldistrits_clean #29
+               #electoraldistrits_clean, #29
+               #riverbasins_clan #30
              )),
   
   tar_target(name = versao_dados,

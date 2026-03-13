@@ -142,7 +142,21 @@ download_mesoregions <- function(year){ # year = 2001
   
   unzip_geobr(zip_dir = zip_dir, in_zip = in_zip, out_zip = out_zip, is_shp = TRUE)
   
-  ## 5. Bind Raw data together -------------------------------------------------
+  ## 5. Set correct encoding ---------------------------------------------------
+  
+  if (year == 2000) { #years without number of collumns errors
+    encode <- "ENCODING=IBM437"
+  }
+  
+  if (year %in% c(2001, 2005, 2007, 2010)) {
+    encode <- "ENCODING=WINDOWS-1252"
+  }
+  
+  if (year >= 2013) {
+    encode =  "ENCODING=UTF8"
+  }
+  
+  ## 6. Bind Raw data together -------------------------------------------------
   
   shp_names <- list.files(out_zip, pattern = "\\.shp$", full.names = TRUE)
   
@@ -157,7 +171,7 @@ download_mesoregions <- function(year){ # year = 2001
   }
   
   if (year %in% c(2001, 2010:2014))  {#years with error in number of collumns
-    mesoregions_raw <- readmerge_geobr(folder_path = out_zip)
+    mesoregions_raw <- readmerge_geobr(folder_path = out_zip, encoding = encode)
     }
   
   #### After 2015
@@ -165,9 +179,10 @@ download_mesoregions <- function(year){ # year = 2001
     mesoregions_raw <- st_read(shp_names, quiet = T, stringsAsFactors= F)
   }
   
-  ## 6. Integrity test ---------------------------------------------------------
+  ## 7. Integrity test ---------------------------------------------------------
   
   #### Before 2015
+  
   
   #### After 2015
   if (length(shp_names) == 1) {
@@ -179,7 +194,7 @@ download_mesoregions <- function(year){ # year = 2001
     glimpse(mesoregions_raw)
   }
   
-  ## 7. Show result ------------------------------------------------------------
+  ## 8. Show result ------------------------------------------------------------
   
   data.table::setDF(mesoregions_raw)
   mesoregions_raw <- sf::st_as_sf(mesoregions_raw) %>% 
@@ -200,14 +215,30 @@ clean_mesoregions <- function(mesoregions_raw, year){ # year = 2024
   dir.create(dir_clean, recursive = T, showWarnings = FALSE)
   dir.exists(dir_clean)
   
-  
-  ## 1. Add state, code and region ---------------------------------------------
+  ## 1. Prepare for cleaning ---------------------------------------------
   
   states <- states_geobr()
   
-  mesoregions_raw1 <- mesoregions_raw |> 
-    mutate(code_state = str_sub(codigo, start = 1, end = 2)) |>
-    left_join(states, by = "code_state")
+  if (year == 2000) {
+  
+    # este ano tem 2 mesos no maranhão vazias de dados
+    
+    glimpse(mesoregions_raw)
+    
+    mesoregions <- mesoregions_raw |> 
+      select(codigo, nome) |> 
+      #filter(!codigo == "0") |> 
+    
+      mutate(code_state = str_sub(codigo, start = 1, end = 2)) |>
+      left_join(states, by = "code_state") |> 
+      select(code_state) |> 
+      filter(code_state %in% c("21", "0"))
+      #filter(nome %in% c("Leste Maranhense","Centro Maranhense"))
+    
+    glimpse(mesoregions)
+    plot(mesoregions)
+  }
+  
   
   
   ## 1. Duplicates -------------------------------------------------------------
