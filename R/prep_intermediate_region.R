@@ -119,18 +119,22 @@ download_intermediateregions <- function(year){ # year = 2024
   shp_names <- list.files(out_zip, pattern = "\\.shp$",
                           full.names = TRUE)
   
-  intermediateregions_list <- pbapply::pblapply(
-    X = shp_names, 
-    FUN = function(x){ sf::st_read(x, quiet = T, stringsAsFactors=F) }
-  )
-  
-  intermediateregions_raw <- data.table::rbindlist(intermediateregions_list)
-  
-  ## 7. Show result ------------------------------------------------------------
-  
-  data.table::setDF(intermediateregions_raw)
-  intermediateregions_raw <- sf::st_as_sf(intermediateregions_raw) %>% 
+  intermediateregions_raw <- readmerge_geobr(folder_path = out_zip,
+                                             encoding = encode) |> 
     clean_names()
+  
+  # intermediateregions_list <- pbapply::pblapply(
+  #   X = shp_names, 
+  #   FUN = function(x){ sf::st_read(x, quiet = T, stringsAsFactors=F) }
+  # )
+  # 
+  # intermediateregions_raw <- data.table::rbindlist(intermediateregions_list)
+  # 
+  # ## 7. Show result ------------------------------------------------------------
+  # 
+  # data.table::setDF(intermediateregions_raw)
+  # intermediateregions_raw <- sf::st_as_sf(intermediateregions_raw) %>% 
+  #   clean_names()
   
   glimpse(intermediateregions_raw)
   
@@ -149,25 +153,54 @@ clean_intermediateregions <- function(intermediateregions_raw, year){ # year = 2
   
   ## 1. Remove unnecessary columns and check states columns --------------------
   
-  statesgeobr <- states_geobr() |> 
-    select(1, 2)
+  if(year %in% c(2019:2022)) {
+    glimpse(intermediateregions_raw)
+    
+    statesgeobr <- states_geobr() |> 
+      select(1:5)
+    
+    intermediateregions <- intermediateregions_raw |> 
+      st_make_valid() |> 
+      group_by(cd_rgint, nm_rgint, sigla_uf) |> 
+      summarise() |> 
+      ungroup() |> 
+      mutate(code_state = str_sub(cd_rgint, start = 1, end = 2)) |>
+      inner_join(statesgeobr, by = c("code_state")) |> 
+      relocate(geometry, .after = name_region)
+    
+    glimpse(intermediateregions)
+  }
   
   if(year == 2023) {
-    intermediateregions_raw <- intermediateregions_raw |> 
-      inner_join(statesgeobr, by = c("cd_uf" = "code_state")) |> 
-      #select(-cd_uf, -cd_regiao) |> 
-      relocate(abbrev_state, .after = nm_rgint)
     
     glimpse(intermediateregions_raw)
+    
+    statesgeobr <- states_geobr() |> 
+      select(1, 2)
+    
+    intermediateregions <- intermediateregions_raw |> 
+      st_make_valid() |> 
+      group_by(cd_rgint, nm_rgint, cd_uf, cd_regiao, nm_regiao) |> 
+      summarise() |> 
+      ungroup() |> 
+      inner_join(statesgeobr, by = c("cd_uf" = "code_state")) |> 
+      #select(-cd_uf, -cd_regiao) |> 
+      relocate(abbrev_state, .after = cd_uf)
+      
+    glimpse(intermediateregions)
   }
     
-  
   if(year == 2024) {
-    intermediateregions_raw <- intermediateregions_raw |> 
+    
+    statesgeobr <- states_geobr() |> 
+      select(1, 2)
+    
+    intermediateregions <- intermediateregions_raw |> 
+      st_make_valid() |> 
       select(-cd_uf, -cd_regia, -sigla_rg) |> 
       relocate(sigla_uf, .after = nm_rgint)
     
-    glimpse(intermediateregions_raw)
+    glimpse(intermediateregions)
   }
   
   ## 2. Rename columns names ---------------------------------------------------
@@ -191,11 +224,11 @@ clean_intermediateregions <- function(intermediateregions_raw, year){ # year = 2
     # Lista de nomes padronizados de colunas
     padrao = c(
       #CÓDIGO DA REGIÃO INTERMEDIÁRIA
-      "code_intermediate",
+      "code_meso",
       #NOME DA REGIÃO INTERMEDIÁRIA
-      "name_intermediate",
+      "name_meso",
       #CÓDIGO DE MUNICÍPIO e número de variações associadas
-      rep("code_muni", 7),
+      rep("code_muni", 2),
       #NOME DO MUNICÍPIO e número de variações associadas
       rep("name_muni", 4),
       #CÓDIGO DO ESTADO e número de variações associadas
@@ -218,7 +251,7 @@ clean_intermediateregions <- function(intermediateregions_raw, year){ # year = 2
       #Variações que convergem para "name_intermediate"
       "nm_rgint",
       #Variações que convergem para "code_muni"
-      "cod_uf", "cd_uf", "code_uf", "codigo_uf", "cod_state", "cd_mun", "cod_mun",
+      "cd_mun", "cod_mun",
       #Variações que convergem para "name_muni"
       "nome_cidade", "cidade", "nm_muni", "nome_muni",
       #Variações que convergem para "code_state"
@@ -235,12 +268,14 @@ clean_intermediateregions <- function(intermediateregions_raw, year){ # year = 2
       "sigla_rg"
     ), stringsAsFactors = FALSE)
   
-  intermediateregions <- standardcol_geobr(intermediateregions_raw, dicionario)
+  intermediateregions_clean <- standardcol_geobr(intermediateregions, dicionario)
+  
+  glimpse(intermediateregions_clean)
   
   ## 3. Apply harmonize geobr cleaning -----------------------------------------
   
   temp_sf <- harmonize_geobr(
-    temp_sf = intermediateregions,
+    temp_sf = intermediateregions_clean,
     year = year,
     add_state = F,
     add_region = F,
