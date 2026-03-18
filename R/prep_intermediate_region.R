@@ -161,7 +161,7 @@ clean_intermediateregions <- function(intermediateregions_raw, year){ # year = 2
     
     intermediateregions <- intermediateregions_raw |> 
       st_make_valid() |> 
-      group_by(cd_rgint, nm_rgint, sigla_uf) |> 
+      group_by(cd_rgint, nm_rgint) |> 
       summarise() |> 
       ungroup() |> 
       mutate(code_state = str_sub(cd_rgint, start = 1, end = 2)) |>
