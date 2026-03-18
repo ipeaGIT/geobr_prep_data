@@ -21,7 +21,6 @@ tar_option_set(
   garbage_collection = TRUE,
   controller = crew_controller_local(workers = 16),
   
-  
   # Packages essentials --------------------------------------------------------
   packages = c('arrow',
                'collapse',
@@ -305,19 +304,18 @@ list(
   
   # year input
   tar_target(name = years_mesoregions,
-             command = c(2000, 2001, 2010,
-                         2013, 2018)),
+             command = c(2000, 2001, 2010, 2013:2018)),
   
   # download
   tar_target(name = mesoregions_raw,
              command = download_mesoregions(years_mesoregions),
              pattern = map(years_mesoregions)),
 
-  # # clean
-  # tar_target(name = mesoregions_clean,
-  #            command = clean_mesoregions(mesoregions_raw, years_mesoregions),
-  #            pattern = map(mesoregions_raw, years_mesoregions),
-  #            format = 'file'),
+  # clean
+  tar_target(name = mesoregions_clean,
+             command = clean_mesoregions(mesoregions_raw, years_mesoregions),
+             pattern = map(mesoregions_raw, years_mesoregions),
+             format = 'file'),
   
   #14. Microrregiões -----------------------------------------------------------
   
@@ -641,7 +639,7 @@ list(
                states_clean, #10
                regions_clean, #11
                country_clean, #12
-               #mesoregions_clean, #13
+               mesoregions_clean, #13
                #microregions_clean, #14
                municipality_clean, #15
                #cityseats_clean, #16

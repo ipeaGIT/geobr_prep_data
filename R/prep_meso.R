@@ -92,7 +92,7 @@ download_mesoregions <- function(year){ # year = 2001
   } 
   
   # After 2015
-  if(year >= 2015) {
+  if(year %in% c(2015:2018)) {
     ftp_link <- paste0(url_start, year, "/Brasil/BR/br_mesorregioes.zip")
   }
   
@@ -181,9 +181,6 @@ download_mesoregions <- function(year){ # year = 2001
   
   ## 7. Integrity test ---------------------------------------------------------
   
-  #### Before 2015
-  
-  
   #### After 2015
   if (length(shp_names) == 1) {
     table_collumns <- tibble(name_collum = colnames(mesoregions_raw),
@@ -215,183 +212,170 @@ clean_mesoregions <- function(mesoregions_raw, year){ # year = 2024
   dir.create(dir_clean, recursive = T, showWarnings = FALSE)
   dir.exists(dir_clean)
   
-  ## 1. Prepare for cleaning ---------------------------------------------
+  ## 1. Checking ---------------------------------------------------------------
   
-  states <- states_geobr()
+  # duplicates
+  # empty data real shapes
+  # real data empty shapes
   
+  
+  # há shapes estranhos?
+  # test <- mesoregions_raw |> 
+  #   mutate(n_vertices = map_int(geometry, ~ nrow(st_coordinates(.x)))) |> 
+  #   arrange(n_vertices) |> filter(n_vertices < 5)
+  # 
+  # plot(test$geometry)
+  
+  #dupes
+  get_dupes(mesoregions_raw)
+  
+  # Há duplicações no nome? Ilhas
+  # mesoregions_raw |> count(nm_meso) |> filter(n > 1)
+  
+  # test <- mesoregions_raw |>
+  #   mutate(code_state = str_sub(cd_geocodu, start = 1, end = 2)) |> 
+  #   select(code_state, nome, geometry) 
+  
+  # mapa_test <- ggplot(data = test) +
+  #   geom_sf(aes(fill = code_state), color = "black") + # Desenha o mapa
+  #   geom_sf_text(aes(label = nome), size = 3, color = "darkred") + 
+  #   theme_minimal() 
+  # plot(mapa_test)
+  
+  # Há duplicações pela geometria?
+  # eq_list <- st_equals(mesoregions_raw)
+  # duplicados_geom <- eq_list[lengths(eq_list) > 1]
+  
+  ## 2. Prepare for cleaning ---------------------------------------------------
+  
+  states <- states_geobr() |> select(1:5)
+  
+  # add state abbrev and code
+  # add region and code
+  # merge islands
+
   if (year == 2000) {
-  
-    # este ano tem 2 mesos no maranhão vazias de dados
+    # este ano tem 2 mesos no maranhão vazias de dados (Leste e Sul)
+    # localizar os codes corretos do Sul e Leste Maranhense
+    # a shape do centro está nomeada como Sul
+    # uma pequena shape quadrada está nomeada como Centro
     
     glimpse(mesoregions_raw)
+    st_crs(mesoregions_raw) #NA
+    
+    # test <- mesoregions_raw |>
+    #   mutate(code_state = str_sub(codigo, start = 1, end = 2)) |> 
+    #   #filter(code_state %in% c("21", NA, "0")) |> 
+    #   select(code_state, nome, geometry) |> 
+    #   filter(code_state == "35")
+    # #filter(str_detect(nome, pattern = "Maranhense")) 
+    
+    # mapa_test <- ggplot(data = mesoregions) +
+    #   geom_sf(aes(fill = code_state), color = "black") + # Desenha o mapa
+    #   geom_sf_text(aes(label = name_meso), size = 3, color = "darkred") + 
+    #   theme_minimal()
+    #plot(mapa_test)
+    
+    # preparar as shapes trocadas e erradas
+    shp_trocada <- mesoregions_raw |> 
+      mutate(code_state = str_sub(codigo, start = 1, end = 2)) |>
+      filter(code_state == "21", str_detect(nome, pattern = "Sul")) |> 
+      mutate(name_meso = "Centro Maranhense",
+             code_meso = "2103") |>
+      select(code_state, code_meso, name_meso, geometry)
+    glimpse(shp_trocada)
+      
+    shp_erradas <- mesoregions_raw |>
+      filter(codigo == "0") |>
+      mutate(code_state = "21",
+             code_meso = c("2105", "2104"),
+             name_meso = as.character(seq(1:2))) |>
+      select(code_state, code_meso, name_meso, geometry) |>
+      #filter(name_meso == "2")
+      mutate(name_meso = case_when(name_meso == "1" ~ "Sul Maranhense",
+                                   name_meso == "2" ~ "Leste Maranhense"))
+    glimpse(shp_erradas)
+
+   # corrigir
+    mesoregions <- mesoregions_raw |> 
+      st_make_valid() |> 
+      filter(!str_detect(nome, pattern = "Sul Maranhense"),
+             codigo != "0") |> 
+      mutate(code_state = str_sub(codigo, start = 1, end = 2)) |> 
+      rename(code_meso = codigo, name_meso = nome) |> 
+      select(code_meso, name_meso, code_state, geometry) |> 
+      rbind(shp_erradas, shp_trocada) |> 
+      group_by(code_meso, name_meso, code_state) |> 
+      summarise() |> 
+      ungroup() |> 
+      left_join(states, by = c("code_state")) |> 
+      relocate(geometry, .after = name_region)
+  
+    glimpse(mesoregions)
+    #plot(mesoregions)
+  }
+  
+  if (year == 2001) {
+    glimpse(mesoregions_raw)
+    st_crs(mesoregions_raw) #NA
     
     mesoregions <- mesoregions_raw |> 
-      select(codigo, nome) |> 
-      #filter(!codigo == "0") |> 
-    
-      mutate(code_state = str_sub(codigo, start = 1, end = 2)) |>
-      left_join(states, by = "code_state") |> 
-      select(code_state) |> 
-      filter(code_state %in% c("21", "0"))
-      #filter(nome %in% c("Leste Maranhense","Centro Maranhense"))
+      st_make_valid() |> 
+      mutate(code_state = str_sub(codigo, start = 1, end = 2),
+             name_meso = str_to_title(nome)) |> 
+      rename(code_meso = codigo) |> 
+      select(code_meso, name_meso, code_state, geometry) |> 
+      group_by(code_meso, name_meso, code_state) |> 
+      summarise() |> 
+      ungroup() |> 
+      left_join(states, by = c("code_state")) |> 
+      relocate(geometry, .after = name_region)
     
     glimpse(mesoregions)
-    plot(mesoregions)
   }
   
-  
-  
-  ## 1. Duplicates -------------------------------------------------------------
-  
-  # Há duplicações?
-  get_dupes(mesoregions_raw)
-  # Não
-  
-  # Há duplicações no nome?  
-  mesoregions_raw |> 
-    count(nome) |> 
-    filter(n > 1)
-  # Sim
+  if (year == 2010) {
+    glimpse(mesoregions_raw)
+    st_crs(mesoregions_raw) #sirgas 2000
     
-  # Há duplicações pela geometria?
-  eq_list <- st_equals(mesoregions_raw)
-  
-  duplicados_geom <- eq_list[lengths(eq_list) > 1]
-  duplicados_geom
-  
-  ## 1. Adjust IBGE errors -----------------------------------------------------
-  
-  states <- states_geobr()
-  
-  if (year == 2000) {
     mesoregions <- mesoregions_raw |> 
-      mutate(code_state = str_sub(codigo, start = 1, end = 2)) |>
-      left_join(states, by = "code_state") |> 
-      relocate(where(is.numeric), .before = geometry) |> 
-      relocate(geocodigo, codigo, mslink, nome, code_state, abbrev_state, name_state,
-               code_region, name_region) |> 
-      select(-codigo, -reservado, -abbrevm_state) |> 
-      
-      # Pegar as shapes que estão com erro "0"
-      mutate(zero = case_when(nome == "0" ~ TRUE,
-                              TRUE ~ FALSE)) |> 
-      arrange(desc(zero)) |> 
-      filter(abbrev_state %in% c("MA", "PA", "TO", "PI") | zero == TRUE) |> 
-      select(nome, zero, abbrev_state)
-      
-      plot(mesoregions)
-      # Tem duas shapes vazias de dados 
-      
+      st_make_valid() |> 
+      mutate(code_state = str_sub(cd_geocodu, start = 1, end = 2),
+             name_meso = str_to_title(nm_meso)) |> 
+      rename(code_meso = cd_geocodu) |> 
+      select(code_meso, name_meso, code_state, geometry) |> 
+      group_by(code_meso, name_meso, code_state) |> 
+      summarise() |> 
+      ungroup() |> 
+      left_join(states, by = c("code_state")) |> 
+      relocate(geometry, .after = name_region)
+    
+    glimpse(mesoregions)
   }
-      
-  ## 1. Duplicates -------------------------------------------------------------
   
-  
-  
-  # Erros ano 2000
-  
-      ## 1.  ----
-    # Tem 2 ocorrências com ZERO, porém possuem geometria:
-    teste <- mesoregions |> 
-      filter(nome == "0") |> 
-      select(2, 6, 9, 9)
+  if (year %in% C(2013:2018)) {
+    glimpse(mesoregions_raw)
+    st_crs(mesoregions_raw) #NA
     
-    plot(teste)
-               
-      
+    mesoregions <- mesoregions_raw |> 
+      st_make_valid() |> 
+      mutate(code_state = str_sub(cd_geocme, start = 1, end = 2),
+             name_meso = str_to_title(nm_meso)) |> 
+      rename(code_meso = cd_geocme) |> 
+      select(code_meso, name_meso, code_state, geometry) |> 
+      group_by(code_meso, name_meso, code_state) |> 
+      summarise() |> 
+      ungroup() |> 
+      left_join(states, by = c("code_state")) |> 
+      relocate(geometry, .after = name_region)
     
-    
+    glimpse(mesoregions)
+  }
   
-  
-  
-  
-  
-  
-  # 2001
-  # c("mslink", "mapid", "codigo", "area_1", "perimetro", "geocodigo",
-  # "nome", "area_tot_g", "geometry")
-  # 
-  # 2010
-  # c("id", "nm_meso", "cd_geocodu", "geometry")
-  # 
-  # 2013
-  # "id"         "nm_meso"    "cd_geocodu" "geometry"  
-  # Os nomes das mesorregiões estão com grafia errada.
-  # "MADEIRA-GUAPOR\xc9",
-  # 
-  # 2015
-  # c("nm_meso"   "cd_geocme" "geometry" )
-  
-  ## 2. Create dicionario de equivalências ----
-  
-  # dicionario <- data.frame(
-  #   # Lista de nomes padronizados de colunas
-  #   padrao = c(
-  #     #CÓDIGO DE MUNICÍPIO e número de variações associadas
-  #     rep("code_muni", 7),
-  #     #NOME DO MUNICÍPIO e número de variações associadas
-  #     rep("name_muni", 4),
-  #     #CÓDIGO DO ESTADO e número de variações associadas
-  #     rep("code_state", 5),
-  #     #ABREVIAÇÃO DO ESTADO e número de variações associadas
-  #     rep("abbrev_state", 4),
-  #     #NOME DO ESTADO e número de variações associadas
-  #     rep("name_state", 3),
-  #     #CÓDIGO DA REGIÃO e número de variações associadas
-  #     rep("code_region", 2),
-  #     #NOME DA REGIÃO e número de variações associadas
-  #     rep("name_region", 2),
-  #     #ABREVIAÇÃO DA REGIÃO e número de variações associadas
-  #     rep("abbrev_region", 1)
-  #   ),
-  #   # Lista de variações
-  #   variacao = c(
-  #     #Variações que convergem para "code_muni"
-  #     "cod_uf", "cd_uf", "code_uf", "codigo_uf", "cod_state", "cd_mun", "cod_mun",
-  #     #Variações que convergem para "name_muni"
-  #     "nome_cidade", "cidade", "nm_muni", "nome_muni",
-  #     #Variações que convergem para "code_state"
-  #     "cod_uf", "cd_uf", "code_uf", "codigo_uf", "cod_state",
-  #     #Variações que convergem para "abbrev_state"
-  #     "sigla", "sigla_uf", "uf", "sg_uf",
-  #     #Variações que convergem para "name_state"
-  #     "nm_uf", "nm_state", "nm_estado",
-  #     #Variações que convergem para "code_region"
-  #     "cd_regia", "cd_regiao",
-  #     #Variações que convergem para "name_region"
-  #     "nm_regia", "nm_regiao",
-  #     #Variações que convergem para "abbrev_region"
-  #     "sigla_rg"
-  #     ), stringsAsFactors = FALSE)
-  
-  
-  ## 3. Rename collumns names ----
-  
-  #if (year %like% "2000|2001"){
-    #       # dplyr::rename and subset columns
-    #       temp_sf <- dplyr::select(temp_sf, c('code_meso'=geocodigo, 'name_meso'=nome, 'geom'))
-    #     }
-    # 
-    #     if (year %like% "2010"){
-    #       # dplyr::rename and subset columns
-    #       temp_sf <- dplyr::select(temp_sf, c('code_meso'=cd_geocodu, 'name_meso'=nm_meso, 'geom'))
-    #     }
-    # 
-    #     if (year %like% "2013|2014|2015|2016|2017|2018"){
-    #       # dplyr::rename and subset columns
-    #       temp_sf <- dplyr::select(temp_sf, c('code_meso'=cd_geocme, 'name_meso'=nm_meso, 'geom'))
-    #     }
-    # 
-    #     if (year %like% "2019|2020"){
-    #       # dplyr::rename and subset columns
-    #       temp_sf <- dplyr::select(temp_sf, c('code_meso'=cd_meso, 'name_meso'=nm_meso, 'geom'))
-    #     }
-  
-  
-  ## 4. Apply harmonize geobr cleaning -----------------------------------------
+  ## 3. Apply harmonize geobr cleaning -----------------------------------------
   
   temp_sf <- harmonize_geobr(
-    temp_sf = mesoregions_raw,
+    temp_sf = mesoregions,
     add_state = F,
     add_region = F,
     add_snake_case = F,
@@ -400,15 +384,25 @@ clean_mesoregions <- function(mesoregions_raw, year){ # year = 2024
     encoding_utf8 = T,
     topology_fix = T,
     remove_z_dimension = T,
-    use_multipolygon = F
+    use_multipolygon = T
   )
   
   glimpse(temp_sf)
   
+  ## 4. Post checking ----------------------------------------------------------
+  
+  # check crs
+  is.na(st_crs(temp_sf))
+  
+  # Check which geometries are empty
+  is_empty <- st_is_empty(temp_sf)
+  # Count empty geometries
+  sum(is_empty)
+  
   ## 5. Lighter version -------------------------------------------------------- 
   temp_sf_simplified <- simplify_temp_sf(temp_sf, tolerance = 100)
   
-  ## 4. Save datasets  ---------------------------------------------------------
+  ## 6. Save datasets  ---------------------------------------------------------
   
   # sf::st_write(temp_sf, dsn = paste0(dir_clean, "/mesoregions_",  year,
   #                                    ".gpkg"), delete_dsn = TRUE)
@@ -432,7 +426,7 @@ clean_mesoregions <- function(mesoregions_raw, year){ # year = 2024
     compression='zstd',
     compression_level = 7
   )
-  ## 5. Create the files for geobr index  --------------------------------------
+  ## 7. Create the files for geobr index  --------------------------------------
   
   files <- list.files(path = dir_clean, 
                       pattern = ".parquet", 
