@@ -319,23 +319,20 @@ list(
   
   #14. Microrregiões -----------------------------------------------------------
   
-  # # year input
-  # tar_target(name = years_microregions,
-  #            command = c(2000, 2001, #error in number of collumns
-  #                        #2005, 2007, # No microregions file
-  #                        2010, 2013, 2014, # microrregioes sem BR folder
-  #                        2015:2018)),
-  # 
-  # # download
-  # tar_target(name = microregions_raw,
-  #            command = download_microregions(years_microregions),
-  #            pattern = map(years_microregions)),
-  # 
-  # # clean
-  # tar_target(name = microregions_clean,
-  #            command = clean_microregions(microregions_raw, years_microregions),
-  #            pattern = map(microregions_raw, years_microregions),
-  #            format = 'file'),
+  # year input
+  tar_target(name = years_microregions,
+             command = c(2000, 2001, 2010, 2013:2018)),
+
+  # download
+  tar_target(name = microregions_raw,
+             command = download_microregions(years_microregions),
+             pattern = map(years_microregions)),
+
+  # clean
+  tar_target(name = microregions_clean,
+             command = clean_microregions(microregions_raw, years_microregions),
+             pattern = map(microregions_raw, years_microregions),
+             format = 'file'),
   
   #15. Municípios  -------------------------------------------------------------
   

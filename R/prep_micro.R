@@ -19,7 +19,7 @@
 # Observações: 
 # Anos disponíveis: 2000 a 2018
 
-### Libraries (use any library as necessary) ----
+### Libraries (use any library as necessary) -----------------------------------
 
 # library(RCurl)
 # library(arrow)
@@ -41,10 +41,10 @@
 # source("./R/support_harmonize_geobr.R")
 # source("./R/support_fun.R")
 
-# Download the data  -----------------
+# Download the data  -----------------------------------------------------------
 download_microregions <- function(year){ # year = 2001
   
-  ## 0. Generate the correct ftp link ----
+  ## 0. Generate the correct ftp link ------------------------------------------
   
   url_start <- paste0("https://geoftp.ibge.gov.br/organizacao_do_territorio/",
                       "malhas_territoriais/malhas_municipais/municipio_")
@@ -103,7 +103,7 @@ download_microregions <- function(year){ # year = 2001
     ftp_link <- paste0(url_start, year, "/Brasil/BR/br_microrregioes.zip")
   }
   
-  ## 1. Create temp folder ----
+  ## 1. Create temp folder -----------------------------------------------------
   
   zip_dir <- paste0(tempdir(), "/micro_regions/", year)
   dir.create(zip_dir, showWarnings = FALSE, recursive = TRUE)
@@ -114,7 +114,7 @@ download_microregions <- function(year){ # year = 2001
   # dir.create(zip_dir, showWarnings = FALSE, recursive = TRUE)
   # dir.exists(zip_dir)
   
-  ## 2. Create direction for each download ----
+  ## 2. Create direction for each download -------------------------------------
   
   ### zip folder
   in_zip <- paste0(zip_dir, "/zipped/")
@@ -128,7 +128,7 @@ download_microregions <- function(year){ # year = 2001
   dir.create(out_zip, showWarnings = FALSE, recursive = TRUE)
   dir.exists(out_zip)
   
-  ## 3. Download Raw data ----
+  ## 3. Download Raw data ------------------------------------------------------
   
   if(year %in% c(2000, 2001, 2010:2014)) {
     ### Download zipped files
@@ -145,75 +145,53 @@ download_microregions <- function(year){ # year = 2001
                                overwrite = T))
   }
   
-  ## 4. Unzip Raw data ----
+  ## 4. Unzip Raw data ---------------------------------------------------------
   
   unzip_geobr(zip_dir = zip_dir, in_zip = in_zip, out_zip = out_zip, is_shp = TRUE)
   
-  ## 5. Bind Raw data together ----
+  ## 5. Set correct encoding ---------------------------------------------------
   
-  shp_names <- list.files(out_zip, pattern = "\\.shp$", full.names = TRUE)
-  
-  #### Before 2015
-  if (year == 2000) { #years without IBGE errors
-    microregions_list <- pbapply::pblapply(
-      X = shp_names,
-      FUN = function(x){ sf::st_read(x, quiet = T, stringsAsFactors= F) }
-    )
-    
-    microregions_raw <- data.table::rbindlist(microregions_list)
+  if (year == 2000) { #years without number of collumns errors
+    encode <- "ENCODING=IBM437"
   }
   
-  if (year %in% c(2001, 2010:2014))  {#years with error in number of collumns
-    microregions_raw <- readmerge_geobr(folder_path = out_zip)
+  if (year %in% c(2001, 2005, 2007, 2010)) {
+    encode <- "ENCODING=WINDOWS-1252"
   }
   
-  #### After 2015
-  if (length(shp_names) == 1) {
-    microregions_raw <- st_read(shp_names, quiet = T, stringsAsFactors= F)
+  if (year >= 2013) {
+    encode =  "ENCODING=UTF8"
   }
   
-  ## 6. Integrity test ----
+  ## 6. Bind Raw data together -------------------------------------------------
   
-  #### Before 2015
-  
-  
-  
-  #### After 2015
-  if (length(shp_names) == 1) {
-    table_collumns <- tibble(name_collum = colnames(microregions_raw),
-                             type_collum = sapply(microregions_raw, class)) |> 
-      rownames_to_column(var = "num_collumn")
-    
-    glimpse(table_collumns)
-    glimpse(microregions_raw)
-  }
-
-  ## 7. Show result ----
-  
-  data.table::setDF(microregions_raw)
-  
-  microregions_raw <- sf::st_as_sf(microregions_raw) %>% 
+  microregions_raw <- readmerge_geobr(folder_path = out_zip,
+                                      encoding = encode) |> 
     clean_names()
+  
+  ## 7. Show result ------------------------------------------------------------
+  
+  glimpse(microregions_raw)
   
   return(microregions_raw)
 }
 
-# Clean the data  -----------------
+# Clean the data  --------------------------------------------------------------
 clean_microregions <- function(microregions_raw, year){ # year = 2024
   
-  ## 0. Create folder to save clean data -----
+  ## 0. Create folder to save clean data ---------------------------------------
   
   dir_clean <- paste0("./data/micro_regions/", year)
   dir.create(dir_clean, recursive = T, showWarnings = FALSE)
   dir.exists(dir_clean)
   
-  ## 1. Rename collumns names -----
+  ## 1. Rename collumns names --------------------------------------------------
   
   
-  ## 2. Apply harmonize geobr cleaning -----------------
+  ## 2. Apply harmonize geobr cleaning -----------------------------------------
   
   temp_sf <- harmonize_geobr(
-    temp_sf = microregions_raw,
+    temp_sf = microregions_clean,
     add_state = F,
     add_region = F,
     add_snake_case = F,
@@ -227,10 +205,10 @@ clean_microregions <- function(microregions_raw, year){ # year = 2024
   
   glimpse(temp_sf)
   
-  ## 3. lighter version --------------- 
+  ## 3. lighter version --------------------------------------------------------
   temp_sf_simplified <- simplify_temp_sf(temp_sf, tolerance = 100)
   
-  ## 4. Save datasets  -----------------
+  ## 4. Save datasets  ---------------------------------------------------------
   
   # sf::st_write(temp_sf, dsn = paste0(dir_clean, "/microregions_",  year,
   #                                   ".gpkg"), delete_dsn = TRUE)
@@ -252,6 +230,8 @@ clean_microregions <- function(microregions_raw, year){ # year = 2024
     compression='zstd',
     compression_level = 7
   )
+  
+  ## 5. Create the files for geobr index  --------------------------------------
   
   files <- list.files(path = dir_clean, 
                       pattern = ".parquet", 

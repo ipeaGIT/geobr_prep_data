@@ -114,27 +114,19 @@ download_immediateregions <- function(year){ # year = 2024
   
   unzip_geobr(zip_dir = zip_dir, in_zip = in_zip, out_zip = out_zip, is_shp = TRUE)
   
-  ## 5. Bind Raw data together -------------------------------------------------
+  ## 5. Set correct encoding ---------------------------------------------------
   
-  in_zip <- paste0(zip_dir, "/zipped/")
-  dir.create(in_zip, showWarnings = FALSE, recursive = TRUE)
-  dir.exists(in_zip)
+  if (year >= 2019) {
+    encode =  "ENCODING=UTF8"
+  }
   
-  shp_names <- list.files(out_zip, pattern = "\\.shp$",
-                          full.names = TRUE)
+  ## 6. Bind Raw data together -------------------------------------------------
   
-  immediateregions_list <- pbapply::pblapply(
-    X = shp_names, 
-    FUN = function(x){ sf::st_read(x, quiet = T, stringsAsFactors=F) }
-  )
-  
-  immediateregions_raw <- data.table::rbindlist(immediateregions_list)
-  
-  ## 6. Show result ------------------------------------------------------------
-  
-  data.table::setDF(immediateregions_raw)
-  immediateregions_raw <- sf::st_as_sf(immediateregions_raw) %>% 
+  immediateregions_raw <- readmerge_geobr(folder_path = out_zip,
+                                          encoding = encode) |> 
     clean_names()
+  
+  ## 7. Show result ------------------------------------------------------------
   
   glimpse(immediateregions_raw)
   
