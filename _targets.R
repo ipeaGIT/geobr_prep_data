@@ -637,7 +637,7 @@ list(
                regions_clean, #11
                country_clean, #12
                mesoregions_clean, #13
-               #microregions_clean, #14
+               microregions_clean, #14
                municipality_clean, #15
                #cityseats_clean, #16
                #censustracker_clean, #17
