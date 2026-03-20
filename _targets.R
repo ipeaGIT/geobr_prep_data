@@ -566,20 +566,21 @@ list(
 
   #29. Zonas Eleitorais --------------------------------------------------------
   
-  # # year input
-  # tar_target(name = years_electoraldistrits,
-  #            command = c(2010, 2020, 2022, 2024)),
-  # 
-  # # # download
-  # tar_target(name = electoraldistrits_raw,
-  #            command = download_electoraldistrits(years_electoraldistrits),
-  #            pattern = map(years_electoraldistrits)),
-  #
+  # year input
+  tar_target(name = years_electoraldistricts,
+             command = c(2010, 2012, 2014, 2016,
+                         2018, 2020, 2022, 2024)),
+
+  # download
+  tar_target(name = electoraldistricts_raw,
+             command = download_electoraldistricts(years_electoraldistricts),
+             pattern = map(years_electoraldistricts)),
+
   # clean
-  # tar_target(name = electoraldistrits_clean,
-  #            command = clean_electoraldistrits(electoraldistrits_raw,
-  #                                              years_electoraldistrits),
-  #            pattern = map(electoraldistrits_raw, years_electoraldistrits),
+  # tar_target(name = electoraldistricts_clean,
+  #            command = clean_electoraldistricts(electoraldistricts_raw,
+  #                                              years_electoraldistricts),
+  #            pattern = map(electoraldistricts_raw, years_electoraldistricts),
   #            format = 'file'),
   #
   
@@ -653,7 +654,8 @@ list(
                #favela_clean, #27
                #locality_clean, #28
                #electoraldistrits_clean, #29
-               #riverbasins_clan #30
+               #riverbasins_clan #30,
+               #historicalempire #31
              )),
   
   tar_target(name = versao_dados,
