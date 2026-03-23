@@ -564,27 +564,26 @@ list(
   #            pattern = map(locality_raw, years_locality),
   #            format = 'file'),
 
-  #29. Zonas Eleitorais --------------------------------------------------------
+  #29. Locais de votação -------------------------------------------------------
   
   # year input
-  tar_target(name = years_electoraldistricts,
+  tar_target(name = years_poolingplaces,
              command = c(2010, 2012, 2014, 2016,
                          2018, 2020, 2022, 2024)),
-
-  # download
-  tar_target(name = electoraldistricts_raw,
-             command = download_electoraldistricts(years_electoraldistricts),
-             pattern = map(years_electoraldistricts)),
-
-  # clean
-  # tar_target(name = electoraldistricts_clean,
-  #            command = clean_electoraldistricts(electoraldistricts_raw,
-  #                                              years_electoraldistricts),
-  #            pattern = map(electoraldistricts_raw, years_electoraldistricts),
-  #            format = 'file'),
-  #
   
-  #30. Bacias Hidrográficas ----------------------------------------------------
+  # download
+  tar_target(name = poolingplaces_raw,
+             command = download_poolingplaces(years_poolingplaces),
+             pattern = map(years_poolingplaces)),
+  
+  # clean
+  tar_target(name = poolingplaces_clean,
+             command = clean_poolingplaces(poolingplaces_raw,
+                                           years_poolingplaces),
+             pattern = map(poolingplaces_raw, years_poolingplaces),
+             format = 'file'),
+  
+  #31. Bacias Hidrográficas ----------------------------------------------------
   
   # # year input
   # tar_target(name = years_riverbasins,
@@ -602,7 +601,7 @@ list(
   #            format = 'file'),
   #
   
-  #31. Historical Brazilian Empire ---------------------------------------------
+  #32. Historical Brazilian Empire ---------------------------------------------
   
   # # year input
   # tar_target(name = years_electoraldistrits,
@@ -646,16 +645,16 @@ list(
                #metropolitanarea_clean, #19
                #ubanarea_clean, #20
                conservationunits_clean, #21
-               riskdisasterareas_clean #22
+               riskdisasterareas_clean, #22
                #healthregions_clean, #23
                #neighborhoods_clean, #24
                #urbanconcentrations_clean, #25
                #poparrangements_clean, #26
                #favela_clean, #27
                #locality_clean, #28
-               #electoraldistrits_clean, #29
-               #riverbasins_clan #30,
-               #historicalempire #31
+               poolingplaces_clean #29
+               #riverbasins_clean, #31,
+               #historicalempire #32
              )),
   
   tar_target(name = versao_dados,

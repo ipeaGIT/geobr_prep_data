@@ -1,9 +1,9 @@
-#> DATASET: electoral districts
+#> DATASET: pooling places
 #> Source: TSE  - ??????????????????
 #> scale 1:250.000
 #> Metadata: #####
-# Título: Locais de votação e zonas eleitorais
-# Título alternativo: pooling places
+# Título: Locais de votação
+# Título alternativo: electoral places
 # Frequência de atualização: a cada 2 anos
 #
 # Forma de apresentação: Shape
@@ -11,8 +11,8 @@
 # Character set: UTF-8
 #
 # Resumo: Pontos dos locais de votação do Brasil
-# Informações adicionais: Dados de estados produzidos pelo TSE, e utilizados na elaboração do shape das regiões com a melhor base oficial disponível.
-# Propósito: Disponibilização das fronteiras eleitorais do Brasil com base em geolocalização geocodebr
+# Informações adicionais: Dados de estados produzidos pelo TSE, e utilizados na elaboração do shape das regiões com a melhor base oficial disponível com base nos dados abertos de eleitorado.
+# Propósito: Disponibilização dos pontos de locais de votação do Brasil com base em geolocalização geocodebr
 #
 # Estado: Em desenvolvimento
 # Palavras-chaves descritivas: ****
@@ -46,7 +46,7 @@
 # source("./R/support_fun.R")
 
 # Download the data  -----------------------------------------------------------
-download_electoraldistricts <- function(year){ # year = 2024
+download_poolingplaces <- function(year){ # year = 2024
   
   ## 0. Generate the correct ftp link ------------------------------------------
 
@@ -56,12 +56,12 @@ download_electoraldistricts <- function(year){ # year = 2024
   
   ## 1. Create temp folder -----------------------------------------------------
   
-  zip_dir <- paste0(tempdir(), "/electoral_districts/", year)
+  zip_dir <- paste0(tempdir(), "/pooling_places/", year)
   dir.create(zip_dir, showWarnings = FALSE, recursive = TRUE)
   dir.exists(zip_dir)
   
   ### Alternative folder
-  # zip_dir <- paste0("./data_raw/", "/electoral_districts/", year)
+  # zip_dir <- paste0("./data_raw/", "/pooling_places/", year)
   # dir.create(zip_dir, showWarnings = FALSE, recursive = TRUE)
   # dir.exists(zip_dir)
   
@@ -94,35 +94,62 @@ download_electoraldistricts <- function(year){ # year = 2024
   
   csv_file <- list.files(path = out_zip, pattern = "csv", full.names = TRUE)
   
-  electoraldistricts_raw <- fread(csv_file, encoding = "Latin-1", sep = ";") |> 
+  poolingplaces_raw <- fread(csv_file, encoding = "Latin-1", sep = ";") |> 
     clean_names()
   
   ## 7. Show result ------------------------------------------------------------
   
-  glimpse(electoraldistricts_raw)
+  glimpse(poolingplaces_raw)
   
-  return(electoraldistricts_raw)
+  return(poolingplaces_raw)
   }
 
 # Clean the data  --------------------------------------------------------------
-clean_electoraldistricts <- function(electoraldistricts_raw, year){ # year = 2024
+clean_poolingplaces <- function(poolingplaces_raw, year){ # year = 2024
   
   ## 0. Create folder to save clean data ---------------------------------------
   
-  dir_clean <- paste0("./data/electoral_districts/", year)
+  dir_clean <- paste0("./data/pooling_places/", year)
   dir.create(dir_clean, recursive = T, showWarnings = FALSE)
   dir.exists(dir_clean)
   
-  ## 1. Prepare the data  ------------------------------------------------------
+  ## 1. Check the data  --------------------------------------------------------
   
-  glimpse(electoraldistricts_raw)
+  glimpse(poolingplaces_raw)
+  
+  tabyl(poolingplaces_raw$nr_turno)
+  tabyl(poolingplaces_raw$ds_tipo_secao_agregada)       
+  tabyl(poolingplaces_raw$ds_situ_local_votacao)
+  tabyl(poolingplaces_raw$ds_situ_localidade)
+  tabyl(poolingplaces_raw$ds_situ_secao_acessibilidade)
+  tabyl(poolingplaces_raw$ds_situ_localidade)
+  tabyl(poolingplaces_raw$ds_situ_localidade)
+  
+  
+  ## 2. Tidy the data  ---------------------------------------------------------
+  
+  table_collumns <- tibble(nome_coluna = names(poolingplaces_raw),
+                           classe_coluna = sapply(poolingplaces_raw, class))
+  
+  poolingplaces <- poolingplaces_raw |> 
+    filter(nr_turno == 1, cd_situ_local_votacao == 1) |> 
+    select(10, 15:21, 8, 9, 7, 23:26, 35, 39:41) |> unique()
+  
+  glimpse(poolingplaces)
   
   ## 3. Add geocoding collumn and create a sf dataset --------------------------
+  
+  poolingplaces_clean <- st_as_sf(x = poolingplaces,
+                                  coords = c("nr_longitude", "nr_latitude"),
+                                  crs = 4674,
+                                  remove = FALSE)
+  
+  glimpse(poolingplaces_clean)
   
   ## 4. Apply harmonize geobr cleaning -----------------------------------------
   
   temp_sf <- harmonize_geobr(
-    temp_sf = electoraldistricts,
+    temp_sf = poolingplaces_clean,
     add_state = F,
     add_region = F,
     add_snake_case = F,
@@ -135,28 +162,29 @@ clean_electoraldistricts <- function(electoraldistricts_raw, year){ # year = 202
   )
   
   glimpse(temp_sf)
+  
   ## 5. lighter version --------------------------------------------------------
   temp_sf_simplified <- simplify_temp_sf(temp_sf, tolerance = 100)
   
   ## 6. Save datasets  ---------------------------------------------------------
   
-  # sf::st_write(temp_sf, dsn = paste0(dir_clean, "/electoraldistricts_",  year,
+  # sf::st_write(temp_sf, dsn = paste0(dir_clean, "/poolingplaces_",  year,
   #                                   ".gpkg"), delete_dsn = TRUE)
-  # sf::st_write(temp_sf_simplified, dsn = paste0(dir_clean, "/electoraldistricts_",
+  # sf::st_write(temp_sf_simplified, dsn = paste0(dir_clean, "/poolingplaces_",
   #                                               year, "_simplified.gpkg"),
   #              delete_dsn = TRUE )
   
   ### Save in parquet
   arrow::write_parquet(
     x = temp_sf,
-    sink = paste0(dir_clean, "/electoraldistricts_", year, ".parquet"),
+    sink = paste0(dir_clean, "/poolingplaces_", year, ".parquet"),
     compression = 'zstd',
     compression_level = 7
   )
   
   arrow::write_parquet(
     x = temp_sf_simplified,
-    sink = paste0(dir_clean,"/electoraldistricts_", year, "_simplified", ".parquet"),
+    sink = paste0(dir_clean,"/poolingplaces_", year, "_simplified", ".parquet"),
     compression='zstd',
     compression_level = 7
   )
