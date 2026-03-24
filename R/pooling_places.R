@@ -50,6 +50,13 @@ download_poolingplaces <- function(year){ # year = 2024
   
   ## 0. Generate the correct ftp link ------------------------------------------
 
+  # Error conditions
+  if(year < 2010){
+    stop("Polling place data is available for all general and local elections starting in 2010.")}
+  if(year %% 2 != 0){
+    stop("Please review the year input.")
+    }
+  
   url_start <- "https://cdn.tse.jus.br/estatistica/sead/odsele/eleitorado_locais_votacao/eleitorado_local_votacao"
   
   ftp_link <- paste0(url_start, "_", year, ".zip")
@@ -94,9 +101,14 @@ download_poolingplaces <- function(year){ # year = 2024
   
   csv_file <- list.files(path = out_zip, pattern = "csv", full.names = TRUE)
   
-  poolingplaces_raw <- fread(csv_file, encoding = "Latin-1", sep = ";") |> 
+  poolingplaces_raw <- fread(csv_file, encoding = "Latin-1", sep = ";") |>
+    mutate(NR_LONGITUDE = ifelse(NR_LONGITUDE == "-1", NA, NR_LONGITUDE),
+           NR_LATITUDE  = ifelse(NR_LATITUDE  == "-1", NA, NR_LATITUDE)) |> 
     clean_names()
   
+  # Remove downloaded files
+  file.remove(file_raw)
+
   ## 7. Show result ------------------------------------------------------------
   
   glimpse(poolingplaces_raw)
@@ -123,10 +135,8 @@ clean_poolingplaces <- function(poolingplaces_raw, year){ # year = 2024
   tabyl(poolingplaces_raw$ds_situ_localidade)
   tabyl(poolingplaces_raw$ds_situ_secao_acessibilidade)
   tabyl(poolingplaces_raw$ds_situ_localidade)
-  tabyl(poolingplaces_raw$ds_situ_localidade)
-  
-  
-  ## 2. Tidy the data  ---------------------------------------------------------
+
+  ## 2. Pre clean the data  ----------------------------------------------------
   
   table_collumns <- tibble(nome_coluna = names(poolingplaces_raw),
                            classe_coluna = sapply(poolingplaces_raw, class))
@@ -137,12 +147,19 @@ clean_poolingplaces <- function(poolingplaces_raw, year){ # year = 2024
   
   glimpse(poolingplaces)
   
+  ## 3. Separate the data with no spatial --------------------------------------
+  
+  # Filters observations that do not have recorded coordinates
+  na_dados_latlon <- poolingplaces |>
+    filter(is.na(nr_longitude))
+  
   ## 3. Add geocoding collumn and create a sf dataset --------------------------
   
-  poolingplaces_clean <- st_as_sf(x = poolingplaces,
-                                  coords = c("nr_longitude", "nr_latitude"),
-                                  crs = 4674,
-                                  remove = FALSE)
+  poolingplaces_clean <- poolingplaces |> 
+    filter(!is.na(nr_longitude)) |> 
+    st_as_sf(coords = c("nr_longitude", "nr_latitude"),
+             crs = 4674,
+             remove = FALSE)
   
   glimpse(poolingplaces_clean)
   
@@ -189,6 +206,14 @@ clean_poolingplaces <- function(poolingplaces_raw, year){ # year = 2024
     compression_level = 7
   )
   
+  ### Save in parquet the NA data
+  arrow::write_parquet(
+    x = na_dados_latlon,
+    sink = paste0(dir_clean, "/poolingplaces_no_coords_", year, ".parquet"),
+    compression = 'zstd',
+    compression_level = 7
+  )
+  
   ## 7. Create the files for geobr index  --------------------------------------
   
   files <- list.files(path = dir_clean, 
@@ -199,3 +224,18 @@ clean_poolingplaces <- function(poolingplaces_raw, year){ # year = 2024
   return(files)
 }
 
+# -----------------------------------------
+
+
+
+# Creates a sf object with only non-NA coordinates observations
+dados_latlon <- dados |>
+  filter(!is.na(NR_LONGITUDE)) |>
+  st_as_sf(
+    coords = c("NR_LONGITUDE", "NR_LATITUDE"),
+    # Assumes WGS84 as crs, given that TSE does not publicize it
+    crs = 4326) 
+
+# Creates a list with the spatial object, and the object with NAs
+lista <- list(dados_latlon, na_dados_latlon)
+return(lista)

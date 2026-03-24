@@ -19,7 +19,7 @@ tar_option_set(
   format = "rds",
   memory = "transient",
   garbage_collection = TRUE,
-  controller = crew_controller_local(workers = 16),
+  controller = crew_controller_local(workers = 8),
   
   # Packages essentials --------------------------------------------------------
   packages = c('arrow',
@@ -577,11 +577,11 @@ list(
              pattern = map(years_poolingplaces)),
   
   # clean
-  tar_target(name = poolingplaces_clean,
-             command = clean_poolingplaces(poolingplaces_raw,
-                                           years_poolingplaces),
-             pattern = map(poolingplaces_raw, years_poolingplaces),
-             format = 'file'),
+  # tar_target(name = poolingplaces_clean,
+  #            command = clean_poolingplaces(poolingplaces_raw,
+  #                                          years_poolingplaces),
+  #            pattern = map(poolingplaces_raw, years_poolingplaces),
+  #            format = 'file'),
   
   #31. Bacias Hidrográficas ----------------------------------------------------
   
