@@ -194,7 +194,7 @@
 #                                           "abbrev_state","geometry")]
 # 
 # # Convert data.table back into sf
-# region_sus_1991_sf <- st_as_sf(region_sus_1991, crs=original_crs)
+# region_sus_1991_sf <- sf::st_as_sf(region_sus_1991, crs=original_crs)
 # 
 # # Test the shape
 # mapview(region_sus_1991_sf)
@@ -253,7 +253,7 @@
 #                                           "abbrev_state","geometry")]
 # 
 # # Convert data.table back into sf
-# region_sus_1994_sf <- st_as_sf(region_sus_1994, crs=original_crs)
+# region_sus_1994_sf <- sf::st_as_sf(region_sus_1994, crs=original_crs)
 # 
 # # Test the shape
 # mapview(region_sus_1994_sf)
@@ -307,7 +307,7 @@
 #                                           "abbrev_state","geometry")]
 # 
 # # Convert data.table back into sf
-# region_sus_1997_sf <- st_as_sf(region_sus_1997, crs=original_crs)
+# region_sus_1997_sf <- sf::st_as_sf(region_sus_1997, crs=original_crs)
 # 
 # # Test the shape
 # mapview(region_sus_1997_sf)
@@ -361,7 +361,7 @@
 #                                           "abbrev_state","geometry")]
 # 
 # # Convert data.table back into sf
-# region_sus_2001_sf <- st_as_sf(region_sus_2001, crs=original_crs)
+# region_sus_2001_sf <- sf::st_as_sf(region_sus_2001, crs=original_crs)
 # 
 # # Test the shape
 # mapview(region_sus_2001_sf)
@@ -416,7 +416,7 @@
 # 
 # 
 # # Convert data.table back into sf
-# region_sus_2005_sf <- st_as_sf(region_sus_2005, crs=original_crs)
+# region_sus_2005_sf <- sf::st_as_sf(region_sus_2005, crs=original_crs)
 # 
 # # Test the shape
 # mapview(region_sus_2005_sf)
@@ -470,7 +470,7 @@
 #                                           "abbrev_state","geometry")]
 # 
 # # Convert data.table back into sf
-# region_sus_2013_sf <- st_as_sf(region_sus_2013, crs=original_crs)
+# region_sus_2013_sf <- sf::st_as_sf(region_sus_2013, crs=original_crs)
 # 
 # # Test the shape
 # mapview(region_sus_2013_sf)
