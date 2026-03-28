@@ -759,7 +759,7 @@ states_geobr <-  function() {
 
 # Glimpse geobr ----------------------------------------------------------------
 
-glimpse_geobr(dataset)
+# glimpse_geobr(dataset)
 
 glimpse_geobr <- function(dataset) {
   

@@ -562,18 +562,7 @@ list(
   #            pattern = map(locality_raw, years_locality),
   #            format = 'file'),
 
-<<<<<<< HEAD
-  #29. Locais de votação e Zonas eleitorais ------------------------------------
-  
-  # year input
-  tar_target(name = years_poolingplaces,
-             command = seq(from = 2010, to = 2024, by = 2)),
-  
-  # download
-  tar_target(name = poolingplaces_raw,
-             command = download_poolingplaces(years_poolingplaces),
-             pattern = map(years_poolingplaces)),
-=======
+
   #29. Locais de votacao -------------------------------------------------------
   
   # # year input
@@ -585,8 +574,7 @@ list(
   # tar_target(name = poolingplaces_raw,
   #            command = download_poolingplaces(years_poolingplaces),
   #            pattern = map(years_poolingplaces)),
->>>>>>> e51f840041e4250916990cc98d96414a24a6e337
-  
+
   # clean pooling places
   tar_target(name = poolingplaces_clean,
              command = clean_poolingplaces(poolingplaces_raw,
