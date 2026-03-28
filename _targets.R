@@ -147,11 +147,11 @@ list(
   tar_target(name = years_statsgrid,
              command = c(2010, 2022)),
 
-  # # download
-  # tar_target(name = statsgrid_raw,
-  #            command = download_statsgrid(years_statsgrid),
-  #            pattern = map(years_statsgrid)),
-  # 
+  # download
+  tar_target(name = statsgrid_raw,
+             command = download_statsgrid(years_statsgrid),
+             pattern = map(years_statsgrid)),
+  
   # # clean
   # tar_target(name = statsgrid_clean,
   #            command = clean_statsgrid(statsgrid_raw, years_statsgrid),
@@ -252,8 +252,7 @@ list(
   
   #year input
   tar_target(name = years_states,
-             command = c(2000, 2001, 2010,
-                         2013:2024)),
+             command = c(2000, 2001, 2010, 2013:2024)),
 
   # download
   tar_target(name = states_raw,
@@ -338,8 +337,7 @@ list(
   
   # year input
   tar_target(name = years_municipality,
-             command = c(2000, 2001, 2005, 2007, 2010, 
-                         2013:2024)),
+             command = c(2000, 2001, 2005, 2007, 2010, 2013:2024)),
 
   # download
   tar_target(name = municipality_raw,
@@ -564,6 +562,18 @@ list(
   #            pattern = map(locality_raw, years_locality),
   #            format = 'file'),
 
+<<<<<<< HEAD
+  #29. Locais de votação e Zonas eleitorais ------------------------------------
+  
+  # year input
+  tar_target(name = years_poolingplaces,
+             command = seq(from = 2010, to = 2024, by = 2)),
+  
+  # download
+  tar_target(name = poolingplaces_raw,
+             command = download_poolingplaces(years_poolingplaces),
+             pattern = map(years_poolingplaces)),
+=======
   #29. Locais de votacao -------------------------------------------------------
   
   # # year input
@@ -575,13 +585,21 @@ list(
   # tar_target(name = poolingplaces_raw,
   #            command = download_poolingplaces(years_poolingplaces),
   #            pattern = map(years_poolingplaces)),
+>>>>>>> e51f840041e4250916990cc98d96414a24a6e337
   
-  # clean
-  # tar_target(name = poolingplaces_clean,
-  #            command = clean_poolingplaces(poolingplaces_raw,
-  #                                          years_poolingplaces),
-  #            pattern = map(poolingplaces_raw, years_poolingplaces),
-  #            format = 'file'),
+  # clean pooling places
+  tar_target(name = poolingplaces_clean,
+             command = clean_poolingplaces(poolingplaces_raw,
+                                           years_poolingplaces),
+             pattern = map(poolingplaces_raw, years_poolingplaces),
+             format = 'file'),
+  
+  # clean electoral zones
+  tar_target(name = electoralzones_clean,
+             command = clean_electoralzones(poolingplaces_raw,
+                                            years_poolingplaces),
+             pattern = map(poolingplaces_raw, years_poolingplaces),
+             format = 'file'),
   
   #31. Bacias Hidrograficas ----------------------------------------------------
   
@@ -645,14 +663,15 @@ list(
                #metropolitanarea_clean, #19
                #ubanarea_clean, #20
                conservationunits_clean, #21
-               riskdisasterareas_clean, #22
+               riskdisasterareas_clean #22
                #healthregions_clean, #23
                #neighborhoods_clean, #24
                #urbanconcentrations_clean, #25
                #poparrangements_clean, #26
                #favela_clean, #27
                #locality_clean, #28
-               poolingplaces_clean #29
+               #poolingplaces_clean, #29
+               #electoralzones_clean #29
                #riverbasins_clean, #31,
                #historicalempire #32
              )),
