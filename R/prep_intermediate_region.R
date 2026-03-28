@@ -298,14 +298,14 @@ clean_intermediateregions <- function(intermediateregions_raw, year){ # year = 2
   # Save in parquet
   arrow::write_parquet(
     x = temp_sf,
-    sink = paste0(dir_clean, "/intermediateregions_", year, ".parquet"),
+    sink = paste0(dir_clean, "/intermediate_regions_", year, ".parquet"),
     compression = 'zstd',
     compression_level = 7
   )
   
   arrow::write_parquet(
     x = temp_sf_simplified,
-    sink = paste0(dir_clean,"/intermediateregions_", year, "_simplified",
+    sink = paste0(dir_clean,"/intermediate_regions_", year, "_simplified",
                   ".parquet"),
     compression='zstd',
     compression_level = 7
@@ -322,7 +322,7 @@ clean_intermediateregions <- function(intermediateregions_raw, year){ # year = 2
   return(files)
 }
 
-################ RAPHAEL OLD CODE BELOW HERE #############
+################ RAFAEL OLD CODE BELOW HERE #############
 
 # ####### Load Support functions to use in the preprocessing of the data -----------------
 # source("./prep_data/prep_functions.R")

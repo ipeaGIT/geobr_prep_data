@@ -6105,7 +6105,7 @@
     },
     "renv": {
       "Package": "renv",
-      "Version": "1.1.8",
+      "Version": "1.2.0",
       "Source": "Repository",
       "Type": "Package",
       "Title": "Project Environments",
@@ -6147,9 +6147,9 @@
         "webfakes"
       ],
       "Encoding": "UTF-8",
+      "NeedsCompilation": "yes",
       "RoxygenNote": "7.3.3",
       "VignetteBuilder": "knitr",
-      "NeedsCompilation": "yes",
       "Config/Needs/website": "tidyverse/tidytemplate",
       "Config/testthat/edition": "3",
       "Config/testthat/parallel": "true",

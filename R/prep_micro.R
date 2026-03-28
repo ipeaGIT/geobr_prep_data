@@ -365,14 +365,14 @@ clean_microregions <- function(microregions_raw, year){ # year = 2024
   ### Save in parquet
   arrow::write_parquet(
     x = temp_sf,
-    sink = paste0(dir_clean, "/microregions_", year, ".parquet"),
+    sink = paste0(dir_clean, "/micro_regions_", year, ".parquet"),
     compression = 'zstd',
     compression_level = 7
   )
   
   arrow::write_parquet(
     x = temp_sf_simplified,
-    sink = paste0(dir_clean,"/microregions_", year, "_simplified", ".parquet"),
+    sink = paste0(dir_clean,"/micro_regions_", year, "_simplified", ".parquet"),
     compression='zstd',
     compression_level = 7
   )

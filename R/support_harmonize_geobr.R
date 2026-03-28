@@ -757,40 +757,41 @@ states_geobr <-  function() {
   return(states)
 }
 
-# normalize "geometry" column  ------------------------------------------------
+# Glimpse geobr ----------------------------------------------------------------
 
-# make sure geometry column is named "geometry"
-normalize_sf_geometry <- function(temp_sf){
+# glimpse_geobr(dataset)
+
+glimpse_geobr <- function(dataset) {
   
-  if ("geom" %in% names(temp_sf)) {
-    
-    temp_sf <- temp_sf |> 
-      rename(geometry = geom)
-    
-    # explicitly set geometry column
-    sf::st_geometry(temp_sf) <- "geometry"
-    
-  }
+  table_collumns <- tibble(ordem = 1:ncol(dataset),
+                           nome_coluna = names(dataset),
+                           classe = sapply(dataset, class),
+                           n_unicos = sapply(dataset,
+                                             function(x) n_distinct(x, na.rm = TRUE)),
+                           n_na = colSums(is.na(dataset)),
+                           exemplos = sapply(dataset,
+                                             function(x) paste(head(unique(na.omit(x)), 6),
+                                                               collapse = "; "))) 
   
-  # move geometry to the end
-  temp_sf <- temp_sf |> relocate(geometry, .after = last_col()) |> 
-    sf::st_as_sf()
-  
+  return(table_collumns)
 }
 
-
-
-# rename columns -----------------
-
-
+# Rename collumns geobr --------------------------------------------------------
 
 # dicionario de colunas
 rename_dict <- list(
-  code_muni  = c("cod_mun", "codmunic", "mun", "municipio_codigo"),
-  code_state = c("cd_estado", "uf", "coduf", "estado_codigo"),
-  year       = c("ano", "year_ref", "ano_referencia")
+  code_muni = c("cod_mun", "codmunic", "mun", "municipio_codigo",
+                "cod_muni", "cd_mun"),
+  name_muni = c("nome_cidade", "cidade", "nm_muni", "nome_muni"),
+  code_state = c("cd_estado", "uf", "coduf", "estado_codigo", "cod_uf",
+                 "cd_uf", "code_uf", "codigo_uf", "cod_state"),
+  abbrev_state = c("sigla", "sigla_uf", "sg_uf"),
+  name_state = c("nm_uf", "nm_state", "nm_estado"),
+  code_region = c("cd_regia", "cd_regiao"),
+  name_region = c("nm_regia", "nm_regiao"),
+  abbrev_region = c("sigla_rg", "sg_rg"),
+  year = c("ano", "year_ref", "ano_referencia")
 )
-
 
 rename_cols_geobr <- function(df, dict) {
   

@@ -99,7 +99,7 @@ download_healthfacilities <- function(year){ #no year because only most recent a
   
   ## 6. Show result ------------------------------------------------------------
   
-  healthfacilities_raw <- sf::st_as_sf(healthfacilities_raw, na.fail = FALSE,
+  healthfacilities_raw <- st_as_sf(healthfacilities_raw, na.fail = FALSE,
                                    coords = c("nu_longitude","nu_latitude"))
   
   glimpse(healthfacilities_raw)
@@ -229,7 +229,7 @@ clean_healthfacilities <- function(healthfacilities_raw, year){
   # Save in parquet
   arrow::write_parquet(
     x = temp_sf,
-    sink = paste0(dir_clean, "/healthfacilities_", year,
+    sink = paste0(dir_clean, "/health_facilities_", year,
                   format(Sys.Date(), "%m"), ".parquet"),
     compression = 'zstd',
     compression_level = 7

@@ -338,8 +338,7 @@ list(
   
   # year input
   tar_target(name = years_municipality,
-             command = c(2000, 2001, 2005, 2007, 2010, 
-                         2013:2024)),
+             command = c(2000, 2001, 2005, 2007, 2010, 2013:2024)),
 
   # download
   tar_target(name = municipality_raw,
@@ -568,6 +567,7 @@ list(
   #            pattern = map(locality_raw, years_locality),
   #            format = 'file'),
 
+
   #29. Locais de votacao -------------------------------------------------------
   
   # # year input
@@ -580,10 +580,17 @@ list(
   #            command = download_poolingplaces(years_poolingplaces),
   #            pattern = map(years_poolingplaces)),
   # 
-  # clean
+  # # clean pooling places
   # tar_target(name = poolingplaces_clean,
   #            command = clean_poolingplaces(poolingplaces_raw,
   #                                          years_poolingplaces),
+  #            pattern = map(poolingplaces_raw, years_poolingplaces),
+  #            format = 'file'),
+  # 
+  # # clean electoral zones
+  # tar_target(name = electoralzones_clean,
+  #            command = clean_electoralzones(poolingplaces_raw,
+  #                                           years_poolingplaces),
   #            pattern = map(poolingplaces_raw, years_poolingplaces),
   #            format = 'file'),
   
@@ -650,14 +657,15 @@ list(
                #metropolitanarea_clean, #19
                #ubanarea_clean, #20
                conservationunits_clean, #21
-               riskdisasterareas_clean, #22
+               riskdisasterareas_clean #22
                #healthregions_clean, #23
                #neighborhoods_clean, #24
                #urbanconcentrations_clean, #25
                #poparrangements_clean, #26
                #favela_clean, #27
                #locality_clean, #28
-               poolingplaces_clean #29
+               #poolingplaces_clean, #29
+               #electoralzones_clean #29
                #riverbasins_clean, #31,
                #historicalempire #32
              )),
