@@ -229,7 +229,7 @@ clean_healthfacilities <- function(healthfacilities_raw, year){
   # Save in parquet
   arrow::write_parquet(
     x = temp_sf,
-    sink = paste0(dir_clean, "/healthfacilities_", year,
+    sink = paste0(dir_clean, "/health_facilities_", year,
                   format(Sys.Date(), "%m"), ".parquet"),
     compression = 'zstd',
     compression_level = 7

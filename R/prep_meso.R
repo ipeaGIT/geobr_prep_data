@@ -414,14 +414,14 @@ clean_mesoregions <- function(mesoregions_raw, year){ # year = 2024
   # Save in parquet
   arrow::write_parquet(
     x = temp_sf,
-    sink = paste0(dir_clean, "/mesoregions_", year, ".parquet"),
+    sink = paste0(dir_clean, "/meso_regions_", year, ".parquet"),
     compression = 'zstd',
     compression_level = 7
   )
   
   arrow::write_parquet(
     x = temp_sf_simplified,
-    sink = paste0(dir_clean,"/mesoregions_", year, "_simplified",
+    sink = paste0(dir_clean,"/meso_regions_", year, "_simplified",
                   ".parquet"),
     compression='zstd',
     compression_level = 7
