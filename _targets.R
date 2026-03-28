@@ -574,20 +574,20 @@ list(
   # tar_target(name = poolingplaces_raw,
   #            command = download_poolingplaces(years_poolingplaces),
   #            pattern = map(years_poolingplaces)),
-
-  # clean pooling places
-  tar_target(name = poolingplaces_clean,
-             command = clean_poolingplaces(poolingplaces_raw,
-                                           years_poolingplaces),
-             pattern = map(poolingplaces_raw, years_poolingplaces),
-             format = 'file'),
-  
-  # clean electoral zones
-  tar_target(name = electoralzones_clean,
-             command = clean_electoralzones(poolingplaces_raw,
-                                            years_poolingplaces),
-             pattern = map(poolingplaces_raw, years_poolingplaces),
-             format = 'file'),
+  # 
+  # # clean pooling places
+  # tar_target(name = poolingplaces_clean,
+  #            command = clean_poolingplaces(poolingplaces_raw,
+  #                                          years_poolingplaces),
+  #            pattern = map(poolingplaces_raw, years_poolingplaces),
+  #            format = 'file'),
+  # 
+  # # clean electoral zones
+  # tar_target(name = electoralzones_clean,
+  #            command = clean_electoralzones(poolingplaces_raw,
+  #                                           years_poolingplaces),
+  #            pattern = map(poolingplaces_raw, years_poolingplaces),
+  #            format = 'file'),
   
   #31. Bacias Hidrograficas ----------------------------------------------------
   
