@@ -72,7 +72,7 @@ harmonize_geobr <- function(temp_sf,
   temp_sf$year <- year
   
   # make sure geometry column is named "geometry"
-  temp_sf <- normalize_sf_geometry(temp_sf)
+  # temp_sf <- normalize_sf_geometry(temp_sf) 66666666666666666666
 
   
   return(temp_sf)
