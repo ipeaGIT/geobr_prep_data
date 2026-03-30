@@ -507,7 +507,7 @@ unzip_geobr <- function(zip_dir, in_zip, out_zip = NULL, is_shp = FALSE) {
   # Delimit a number of files
   
   if (is_shp == TRUE){ 
-    files_inzip <- map(
+    files_inzip <- purrr::map(
       zip_names, 
       function(x) {
         unzip(x, list = TRUE)
@@ -516,9 +516,9 @@ unzip_geobr <- function(zip_dir, in_zip, out_zip = NULL, is_shp = FALSE) {
     
     shp_delimit <- "shp|cpg|dbf|prj|shx|xml|sbn|sbx"
     
-    files_delimit <- map(
+    files_delimit <- purrr::map(
       files_inzip, function(x) {
-        str_subset(x$Name, pattern = shp_delimit)
+        stringr::str_subset(x$Name, pattern = shp_delimit)
       }
     )
     
@@ -527,7 +527,7 @@ unzip_geobr <- function(zip_dir, in_zip, out_zip = NULL, is_shp = FALSE) {
   # unzip part 
   
   if (is_shp == TRUE){ 
-    imap(
+    purrr::imap(
       zip_names, 
       function(x, idx) {
         unzip(x,
@@ -536,7 +536,7 @@ unzip_geobr <- function(zip_dir, in_zip, out_zip = NULL, is_shp = FALSE) {
       },
       .progress = TRUE)
   } else {
-    map(
+    purrr::map(
       zip_names, 
       function(x) {
         unzip(x,
@@ -717,13 +717,13 @@ readmerge_geobr <-  function(folder_path,
   
 
   # read files
-  shp_list <- map(shp_files, function(f) {
+  shp_list <- purrr::map(shp_files, function(f) {
       message("Lendo: ", f)
-      st_read(f, quiet = TRUE, stringsAsFactors=F, options = encoding)
+      sf::st_read(f, quiet = TRUE, stringsAsFactors=F, options = encoding)
     })
 
     # une tudo
-  merged <- bind_rows(shp_list)
+  merged <- dplyr::bind_rows(shp_list)
   
   return(merged)
 }
