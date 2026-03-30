@@ -105,38 +105,102 @@ download_statsgrid <- function(year) {
 
   ## 5. Bind Raw data together -------------------------------------------------
 
-  statsgrid_raw22 <- readmerge_geobr(
+  statsgrid_raw <- readmerge_geobr(
     folder_path = out_zip,
     encoding = "ENCODING=WINDOWS-1252"
   )
-  dplyr::glimpse(statsgrid_raw)
+  
 
   # add year column
   statsgrid_raw$year <- year
 
-  dplyr::glimpse(statsgrid_raw)
-
+  # dplyr::glimpse(statsgrid_raw)
+  
   return(statsgrid_raw)
 }
 
 # Clean the data ---------------------------------------------------------------
 clean_statsgrid <- function(statsgrid_raw) {
+  
   ## 0. Create folder to save clean data ---------------------------------------
-
-  year <- statsgrid_raw$year[1]
 
   dir_clean <- paste0("./data/statistical_grid/", year)
   dir.create(dir_clean, recursive = T, showWarnings = FALSE)
   dir.exists(dir_clean)
 
-  ## 1. Preparation ------------------------------------------------------------
+  ## 1. add state colnames ------------------------------------------------------------
+  
+  read_and_add_state_cols <- function(file_path){
+    
+  }
+  yyyy <- statsgrid_raw$year[1]
+  
+  states <- geobr::read_state(
+    code_state = "all", 
+    year = yyyy, 
+    simplified = FALSE
+    )
+  
+  # creates a duckdb
+  conn <- duckspatial::ddbs_create_conn()
+  
+  # write sf to duckdb
+  ddbs_write_vector(
+    conn = conn, 
+    data = states, 
+    name = "states", 
+    overwrite = TRUE
+    )
 
-  # Check projection
-  sf::st_crs(statsgrid_raw)
+  ddbs_write_vector(
+    conn = conn, 
+    data = statsgrid_raw, 
+    name = "statsgrid_raw", 
+    overwrite = TRUE
+  )
+
+  # centroid of grid cells
+  ddbs_centroid(
+    x = statsgrid_raw, 
+    name = "grid_centroid", 
+    conn = conn
+    )
+  
+  # spatial join
+  duckspatial::ddbs_join(
+    conn = conn,
+    x = "grid_centroid",
+    y = "states",
+    join = "intersects",
+    name = "table_join"
+    ) 
+  
+  query <- glue::glue(
+    "CREATE OR REPLACE TEMP VIEW output AS
+   WITH tj AS (
+     SELECT ID_UNICO, code_state, abbrev_state 
+     FROM table_join
+   )
+   SELECT
+      statsgrid_raw.*,
+      tj.ID_UNICO,
+      tj.code_state,
+      tj.abbrev_state
+   FROM statsgrid_raw
+   LEFT JOIN tj
+     ON statsgrid_raw.ID_UNICO = tj.ID_UNICO;"
+  )
+  
+  DBI::dbExecute(conn, query)
+  statsgrid_raw <- duckspatial::ddbs_read_vector(conn, name = "output")
+
+ 
+  ## 2. Prep colnames ------------------------------------------------------------
 
   statsgrid <- statsgrid_raw |>
     janitor::clean_names()
 
+  
   if (year == 2010) {
     statsgrid_clean <- statsgrid |>
       dplyr::select(
