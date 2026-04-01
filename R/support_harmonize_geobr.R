@@ -71,8 +71,8 @@ harmonize_geobr <- function(temp_sf,
   # add year column
   temp_sf$year <- year
   
-  # make sure geometry column is named "geometry"
-  temp_sf <- normalize_sf_geometry(temp_sf)
+  # make sure geometry column is named "geometry" - NOT WORKING
+  #temp_sf <- normalize_sf_geometry(temp_sf)
 
   
   return(temp_sf)
@@ -758,8 +758,6 @@ states_geobr <-  function() {
 }
 
 # Glimpse geobr ----------------------------------------------------------------
-
-glimpse_geobr(dataset)
 
 glimpse_geobr <- function(dataset) {
   

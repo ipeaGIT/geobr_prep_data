@@ -90,7 +90,7 @@ targets::tar_source('./R')
 # test_errors <- targets::tar_meta(fields = warnings, complete_only = TRUE)
 
 list(
-  # 01. Semiarido ---------------------------------------------------------------
+  #01. Semiarido ---------------------------------------------------------------
   
   # year input
   tar_target(name = years_semiarid,
@@ -169,12 +169,12 @@ list(
              command = download_healthfacilities(years_healthfacilities),
              pattern = map(years_healthfacilities)),
   
-  # clean
-  tar_target(name = healthfacilities_clean,
-             command = clean_healthfacilities(healthfacilities_raw,
-                                              years_healthfacilities),
-             pattern = map(healthfacilities_raw, years_healthfacilities),
-             format = 'file'),
+  # # clean
+  # tar_target(name = healthfacilities_clean,
+  #            command = clean_healthfacilities(healthfacilities_raw,
+  #                                             years_healthfacilities),
+  #            pattern = map(healthfacilities_raw, years_healthfacilities),
+  #            format = 'file'),
   
   #06. Terras Indígenas --------------------------------------------------------
   
@@ -229,7 +229,7 @@ list(
              pattern = map(immediateregions_raw, years_immediateregions),
              format = 'file'),
   
-  # #09. Escolas -----------------------------------------------------------------
+  #09. Escolas -----------------------------------------------------------------
   # 
   # # year input
   # tar_target(name = years_schools,
@@ -455,14 +455,14 @@ list(
   
   #22. Áreas de risco de desastre ----------------------------------------------
   
-  # download
-   tar_target(name = riskdisasterareas_raw,
-              command = download_riskdisasterareas()),
-  
-  # clean
-   tar_target(name = riskdisasterareas_clean,
-              command = clean_riskdisasterareas(riskdisasterareas_raw),
-              format = 'file'),
+  # # download
+  #  tar_target(name = riskdisasterareas_raw,
+  #             command = download_riskdisasterareas()),
+  # 
+  # # clean
+  #  tar_target(name = riskdisasterareas_clean,
+  #             command = clean_riskdisasterareas(riskdisasterareas_raw),
+  #             format = 'file'),
   
   #23. Regiao de Saude ---------------------------------------------------------
   
@@ -562,7 +562,6 @@ list(
   #            pattern = map(locality_raw, years_locality),
   #            format = 'file'),
 
-<<<<<<< HEAD
   #29. Locais de votação e Zonas eleitorais ------------------------------------
   
   # year input
@@ -573,40 +572,27 @@ list(
   tar_target(name = poolingplaces_raw,
              command = download_poolingplaces(years_poolingplaces),
              pattern = map(years_poolingplaces)),
-=======
-  #29. Locais de votacao -------------------------------------------------------
-  
-  # # year input
-  # tar_target(name = years_poolingplaces,
-  #            command = c(2010, 2012, 2014, 2016,
-  #                        2018, 2020, 2022, 2024)),
+
+  # # clean pooling places
+  # tar_target(name = poolingplaces_clean,
+  #            command = clean_poolingplaces(poolingplaces_raw,
+  #                                          years_poolingplaces),
+  #            pattern = map(poolingplaces_raw, years_poolingplaces),
+  #            format = 'file'),
   # 
-  # # download
-  # tar_target(name = poolingplaces_raw,
-  #            command = download_poolingplaces(years_poolingplaces),
-  #            pattern = map(years_poolingplaces)),
->>>>>>> e51f840041e4250916990cc98d96414a24a6e337
-  
-  # clean pooling places
-  tar_target(name = poolingplaces_clean,
-             command = clean_poolingplaces(poolingplaces_raw,
-                                           years_poolingplaces),
-             pattern = map(poolingplaces_raw, years_poolingplaces),
-             format = 'file'),
-  
-  # clean electoral zones
-  tar_target(name = electoralzones_clean,
-             command = clean_electoralzones(poolingplaces_raw,
-                                            years_poolingplaces),
-             pattern = map(poolingplaces_raw, years_poolingplaces),
-             format = 'file'),
+  # # clean electoral zones
+  # tar_target(name = electoralzones_clean,
+  #            command = clean_electoralzones(poolingplaces_raw,
+  #                                           years_poolingplaces),
+  #            pattern = map(poolingplaces_raw, years_poolingplaces),
+  #            format = 'file'),
   
   #31. Bacias Hidrograficas ----------------------------------------------------
   
-  # # year input
-  # tar_target(name = years_riverbasins,
-  #            command = c(2010, 2020, 2022, 2024)),
-  # 
+  # year input
+  tar_target(name = years_riverbasins,
+             command = c(2010, 2020, 2022, 2024))
+
   # # # download
   # tar_target(name = riverbasins_raw,
   #            command = download_riverbasins(years_riverbasins),
@@ -624,7 +610,7 @@ list(
   # # year input
   # tar_target(name = years_electoraldistrits,
   #            command = c(2010, 2020, 2022, 2024)),
-  # 
+
   # # # download
   # tar_target(name = electoraldistrits_raw,
   #            command = download_electoraldistrits(years_electoraldistrits),
@@ -639,46 +625,46 @@ list(
   
   #END. Upload files -----------------------------------------------------------
   
-  # all files input
-  tar_target(name = all_files,
-             command = c(
-               semiarid_clean, #01
-               amazonialegal_clean, #02
-               biomes_clean, #03
-               #statsgrid_clean, #04
-               healthfacilities_clean, #05
-               #indigenousland_clean, #06
-               intermediateregions_clean, #07
-               immediateregions_clean, #08
-               schools_clean, #09
-               states_clean, #10
-               regions_clean, #11
-               country_clean, #12
-               mesoregions_clean, #13
-               microregions_clean, #14
-               municipality_clean, #15
-               #cityseats_clean, #16
-               #censustracker_clean, #17
-               #weightarea_clean, #18
-               #metropolitanarea_clean, #19
-               #ubanarea_clean, #20
-               conservationunits_clean, #21
-               riskdisasterareas_clean #22
-               #healthregions_clean, #23
-               #neighborhoods_clean, #24
-               #urbanconcentrations_clean, #25
-               #poparrangements_clean, #26
-               #favela_clean, #27
-               #locality_clean, #28
-               #poolingplaces_clean, #29
-               #electoralzones_clean #29
-               #riverbasins_clean, #31,
-               #historicalempire #32
-             )),
-  
-  tar_target(name = versao_dados,
-             command = "v2.0.0"
-  ) #add comma here
+  # # all files input
+  # tar_target(name = all_files,
+  #            command = c(
+  #              semiarid_clean, #01
+  #              amazonialegal_clean, #02
+  #              biomes_clean, #03
+  #              #statsgrid_clean, #04
+  #              healthfacilities_clean, #05
+  #              #indigenousland_clean, #06
+  #              intermediateregions_clean, #07
+  #              immediateregions_clean, #08
+  #              schools_clean, #09
+  #              states_clean, #10
+  #              regions_clean, #11
+  #              country_clean, #12
+  #              mesoregions_clean, #13
+  #              microregions_clean, #14
+  #              municipality_clean, #15
+  #              #cityseats_clean, #16
+  #              #censustracker_clean, #17
+  #              #weightarea_clean, #18
+  #              #metropolitanarea_clean, #19
+  #              #ubanarea_clean, #20
+  #              conservationunits_clean #21
+  #              #riskdisasterareas_clean #22
+  #              #healthregions_clean, #23
+  #              #neighborhoods_clean, #24
+  #              #urbanconcentrations_clean, #25
+  #              #poparrangements_clean, #26
+  #              #favela_clean, #27
+  #              #locality_clean, #28
+  #              #poolingplaces_clean, #29
+  #              #electoralzones_clean #29
+  #              #riverbasins_clean, #31,
+  #              #historicalempire #32
+  #            )),
+  # 
+  # tar_target(name = versao_dados,
+  #            command = "v2.0.0"
+  #) #add comma here
   
   # tar_target(name = upload,
   #            command = upload_arquivos(files = all_files, versao_dados)
