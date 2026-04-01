@@ -48,3 +48,16 @@ erro_release_existente <- function(versao_dados) {
     call = rlang::caller_env(n = 5)
   )
 }
+
+
+# # 66666666666666666666666666666666666
+# # delete all files
+# all_file_names <- piggyback::pb_list(
+#   repo = "ipeaGIT/geobr", 
+#   tag = versao_dados
+# )
+# 
+# piggyback::pb_delete(
+#   repo = "ipeaGIT/geobr", 
+#   tag = versao_dados
+# )

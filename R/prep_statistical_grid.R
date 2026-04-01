@@ -18,189 +18,173 @@
 # Palavras-chaves descritivas: ****
 # Informação do Sistema de Referência: #####SIRGAS 2000
 #
-# Observações: 
+# Observações:
 # Anos disponíveis: 2010, 2022
 # Este dataset não está salvando em parquet e o harmonize geobr demora muito.
 
-### ### Libraries (use any library as necessary) -------------------------------
-
-# library(tidyverse)
-# library(sf)
-# library(data.table)
-# library(janitor)
-# library(mirai)
-# library(RCurl)
-# library(rvest)
-# library(fs)
-# library(arrow)
-# library(geoarrow)
-# source("./R/support_harmonize_geobr.R")
-# source("./R/support_fun.R")
-
 # Download the data  ----
-download_statsgrid <- function(year){ # year = 2010
-  
+download_statsgrid <- function(year) {
+  # year = 2010
+
   ## 0. Get the correct url and file names (UPDATE YEAR) -----------------------
-  
-  if(year == 2010) {
-    url = paste0("https://geoftp.ibge.gov.br/recortes_para_fins_estatisticos/",
-    "grade_estatistica/censo_", year, "/")
+
+  if (year == 2010) {
+    url = paste0(
+      "https://geoftp.ibge.gov.br/recortes_para_fins_estatisticos/",
+      "grade_estatistica/censo_",
+      year,
+      "/"
+    )
   }
-  
-  if(year == 2022) {
-    url = paste0("https://geoftp.ibge.gov.br/recortes_para_fins_estatisticos/",
-    "grade_estatistica/censo_", year, "/grade_estatistica/")
+
+  if (year == 2022) {
+    url = paste0(
+      "https://geoftp.ibge.gov.br/recortes_para_fins_estatisticos/",
+      "grade_estatistica/censo_",
+      year,
+      "/grade_estatistica/"
+    )
   }
-  
-  
+
   ## 1. Create temp folder -----------------------------------------------------
-  
+
   zip_dir <- paste0(tempdir(), "/statsgrid/", year)
   dir.create(zip_dir, showWarnings = FALSE, recursive = TRUE)
   dir.exists(zip_dir)
-  
-  file_raw <- fs::file_temp(tmp_dir = zip_dir,
-                            ext = fs::path_ext(url))
-  
+
+  file_raw <- fs::file_temp(tmp_dir = zip_dir, ext = fs::path_ext(url))
+
   ## 2. Generate file names (CHANGE PROCESSING HERE) ---------------------------
-  
-  page <- read_html(url)
-  
+
+  page <- rvest::read_html(url)
+
   # Extrai todos os links (tags <a>) e pega o atributo 'href'
-  all_links <- page |> html_nodes("a") |> html_attr("href")
+  all_links <- page |> rvest::html_nodes("a") |> rvest::html_attr("href")
   filenames <- all_links[grepl("\\.zip$", all_links, ignore.case = TRUE)]
   filenames
-  
+
   ### Create a thin filenames array (CHANGE PROCESSING HERE)
-  
+
   # filenames <- filenames[1:5]
   # filenames
-  
+
   #### Create direction for each download
-  
+
   # zip folder
   in_zip <- paste0(zip_dir, "/zipped/")
   dir.create(in_zip, showWarnings = FALSE, recursive = TRUE)
   dir.exists(in_zip)
-  
+
   ## 3. Download Raw data ------------------------------------------------------
-  
+
   ### make it paralle with curl::multidownload ? 666
   # Download zipped files
   for (name_file in filenames) {
-    download.file(paste(url, name_file, sep = ""),
-                  paste(in_zip, name_file, sep = "\\"))
+    download.file(
+      paste(url, name_file, sep = ""),
+      paste(in_zip, name_file, sep = "\\")
+    )
   }
-  
+
   ## 4. Unzip Raw data ---------------------------------------------------------
-  
+
   # directory of zips
   zip_names <- list.files(in_zip, pattern = "\\.zip", full.names = TRUE)
-  
+
   # unzip folder
   out_zip <- paste0(zip_dir, "/unzipped/")
   dir.create(out_zip, showWarnings = FALSE, recursive = TRUE)
   dir.exists(out_zip)
-  
-  unzip_geobr(zip_dir = zip_dir, in_zip = in_zip,
-              out_zip = out_zip, is_shp = TRUE)
-  
+
+  unzip_geobr(
+    zip_dir = zip_dir,
+    in_zip = in_zip,
+    out_zip = out_zip,
+    is_shp = TRUE
+  )
+
   ## 5. Bind Raw data together -------------------------------------------------
-  
-  statsgrid_raw <- readmerge_geobr(folder_path = out_zip,
-                                   encoding = "ENCODING=WINDOWS-1252")
-  glimpse(statsgrid_raw)
-  
-  # shp_names <- list.files(out_zip, pattern = "\\.shp$", full.names = TRUE)
-  # 
-  # shp_names <- shp_names[c(1:2)] # 666 para testar, reduzir aqui o número de shp juntados
-  # 
-  # # paralelizar ?
-  # statsgrid_list <- pbapply::pblapply(
-  #   X = shp_names, 
-  #   FUN = function(x){ sf::st_read(x, quiet = T, stringsAsFactors=F) }
-  # )
-  # 
-  # statsgrid_raw <- data.table::rbindlist(statsgrid_list)
-  # data.table::setDF(statsgrid_raw)
-  statsgrid_raw <- sf::st_as_sf(statsgrid_raw)
-  
-  ## 6. Show result ------------------------------------------------------------
-  
-  glimpse(statsgrid_raw)
-  
+
+  statsgrid_raw22 <- readmerge_geobr(
+    folder_path = out_zip,
+    encoding = "ENCODING=WINDOWS-1252"
+  )
+  dplyr::glimpse(statsgrid_raw)
+
+  # add year column
+  statsgrid_raw$year <- year
+
+  dplyr::glimpse(statsgrid_raw)
+
   return(statsgrid_raw)
 }
 
 # Clean the data ---------------------------------------------------------------
-clean_statsgrid <- function(statsgrid_raw, year) {
-  
+clean_statsgrid <- function(statsgrid_raw) {
   ## 0. Create folder to save clean data ---------------------------------------
-  
+
+  year <- statsgrid_raw$year[1]
+
   dir_clean <- paste0("./data/statistical_grid/", year)
   dir.create(dir_clean, recursive = T, showWarnings = FALSE)
   dir.exists(dir_clean)
-  
+
   ## 1. Preparation ------------------------------------------------------------
-  
-  glimpse(statsgrid_raw)
-  
+
   # Check projection
-  st_crs(statsgrid_raw)
-  
-  statsgrid <- statsgrid_raw |> 
-    clean_names() |> 
-    st_set_crs(NA)
-    
-  nomes_colunas <- names(statsgrid)
-  glimpse(statsgrid)
-  
-  
-  
-  if(year == 2010) {
-    statsgrid_clean <- statsgrid |> 
-      select(id_unico, nome_1km, nome_5km, nome_10km, nome_50km, nome_100km, 
-             nome_500km, quadrante, pop, dom_ocu, geometry) |> # remove collumns
-      rename(pop_total = pop, total_dom = dom_ocu) |> # rename collumns
-      st_set_crs(4674)
-    
-    st_crs(statsgrid_clean)
-    glimpse(statsgrid_clean)
+  sf::st_crs(statsgrid_raw)
+
+  statsgrid <- statsgrid_raw |>
+    janitor::clean_names()
+
+  if (year == 2010) {
+    statsgrid_clean <- statsgrid |>
+      dplyr::select(
+        id_unico,
+        nome_1km,
+        nome_5km,
+        nome_10km,
+        nome_50km,
+        nome_100km,
+        nome_500km,
+        pop_total = pop,
+        pop_fem = fem,
+        pop_masc = masc,
+        dom_ocu = dom_ocu,
+        quadrante,
+        year,
+        geometry
+      )
   }
-  
-  if(year == 2022) {
-    statsgrid_clean <-  statsgrid |> 
-      select(id_unico, nome_1km, nome_5km, nome_10km, nome_50km, nome_100km, 
-             nome_500km, quadrante, total, total_dom, geometry) |> # remove collumns
-      rename(pop_total = total) |> # rename collumns
-      st_set_crs(4674)
-    
-    st_crs(statsgrid_clean)
-    glimpse(statsgrid_clean)
+
+  if (year == 2022) {
+    statsgrid_clean <- statsgrid |>
+      dplyr::select(
+        id_unico,
+        nome_1km,
+        nome_5km,
+        nome_10km,
+        nome_50km,
+        nome_100km,
+        nome_500km,
+        pop_total = total,
+        total_dom,
+        quadrante,
+        year,
+        geometry
+      )
   }
-  
-  ## 2. Standarize the collum names and order ???? -----------------------------
-  
-  #dicionario_colunas <- c("ID_UNICO")
-  
-  # if(year == 2010) {
-  #   # "ID_UNICO"   "nome_1KM"   "nome_5KM"   "nome_10KM"  "nome_50KM"  "nome_100KM" "nome_500KM"
-  #   # "QUADRANTE"  "MASC"       "FEM"        "POP"        "DOM_OCU"    "geometry"
-  # }
-  # 
-  # if(year == 2022) {
-  #   #"ID_UNICO"   "nome_1km"   "nome_5KM"   "nome_10KM"  "nome_50KM"  "nome_100KM" "nome_500KM"
-  #   # "QUADRANTE"  "TOTAL"      "TOTAL_DOM"  "geometry" 
-  #   
-  # }
-  
+
   # Filtrar só as colunas em comum
   # filter_collumns <- c("ID_UNICO", "nome_1km", "nome_5KM", "nome_10KM",
   #                      "nome_50KM", "nome_100KM", "nome_500KM", "QUADRANTE",
   #                      "geometry")
 
+  # add state columns (abbrev_state and code_state)
+  # using spatial join operation with duckspatial
+
   ## 3. Apply harmonize geobr cleaning -----------------------------------------
-  
+
   temp_sf <- harmonize_geobr(
     temp_sf = statsgrid_clean,
     add_state = F,
@@ -208,33 +192,33 @@ clean_statsgrid <- function(statsgrid_raw, year) {
     add_snake_case = F,
     #snake_colname = snake_colname,
     projection_fix = T, #
-    encoding_utf8 = T,
-    topology_fix = T, #
+    encoding_utf8 = F,
+    topology_fix = F, #
     remove_z_dimension = T,
     use_multipolygon = F
   )
-  
-  glimpse(temp_sf)
-  
+
   ## 4. Save results  ----------------------------------------------------------
-  
+
   #sf::st_write(temp_sf, dsn= paste0(dir_clean,"/statsgrid_", year, ".gpkg"), delete_dsn=TRUE)
-  
+
   # Save in parquet
   arrow::write_parquet(
     x = temp_sf,
-    sink = paste0(dir_clean,"/statsgrid_", year, ".parquet"),
-    compression='zstd',
+    sink = paste0(dir_clean, "/statsgrid_", year, ".parquet"),
+    compression = 'zstd',
     compression_level = 7
   )
-  
+
   ## 5. Create the files for geobr index  --------------------------------------
-  
-  files <- list.files(path = dir_clean, 
-                      pattern = ".parquet", 
-                      recursive = TRUE, 
-                      full.names = TRUE)
-  
+
+  files <- list.files(
+    path = dir_clean,
+    pattern = ".parquet",
+    recursive = TRUE,
+    full.names = TRUE
+  )
+
   return(files)
 }
 
@@ -242,56 +226,56 @@ clean_statsgrid <- function(statsgrid_raw, year) {
 # # list all shape files
 #   all_shapes <- list.files(full.names = T, recursive = T, pattern = ".shp")
 #   all_shapes <- all_shapes[ !(all_shapes %like% ".xml")]
-# 
-# 
-# 
+#
+#
+#
 # shp_to_sf_rds <- function(x){
-# 
+#
 
-# 
+#
 
 #   # # simplify
 #   # shape_simplified <- st_transform(shape, crs=3857) %>%
 #   #   sf::st_simplify(preserveTopology = T, dTolerance = 100) %>%
 #   #   st_transform(crs=4674)
 #   # head(shape)
-# 
+#
 # # get file name
 #   file_name <- paste0(substr(x, 11, 12), "grid.rds")
-# 
+#
 # # save in .rds
 #   readr::write_rds(x=shape, path = paste0("../shapes_in_sf_all_years_cleaned/2010/", substr(x, 11, 12), "grid.rds"), compress="gz" )
 #   sf::st_write(temp_sf,  dsn= paste0("../shapes_in_sf_all_years_cleaned/2010/", substr(x, 11, 12), "grid.gpkg") )
 #   # sf::st_write(temp_sf7, dsn= paste0("../shapes_in_sf_all_years_cleaned/2010/", substr(x, 11, 12), "grid_simplified", ".gpkg"))
 #   }
-# 
-# 
+#
+#
 # # Apply function to save original data sets in rds format
-# 
+#
 # # create computing clusters
 #   cl <- parallel::makeCluster(detectCores())
-# 
+#
 #   clusterEvalQ(cl, c(library(data.table), library(readr), library(sf)))
 #   parallel::clusterExport(cl=cl, varlist= c("all_shapes"), envir=environment())
-# 
+#
 #   # apply function in parallel
 #   parallel::parLapply(cl, all_shapes, shp_to_sf_rds)
 #   stopCluster(cl)
-# 
+#
 #   rm(list= ls())
 #   gc(reset = T)
-# 
-# 
+#
+#
 # # # DO NOT run
 # #   # remove all unzipped shape files
 # #     # list all unzipped shapes
 # #       f <- list.files(path = root_dir, full.names = T, recursive = T, pattern = ".shx|.shp|.prj|.dbf|.cpg|.xml|.sbx|.sbn")
 # #       file.remove(f)
-# 
-# 
+#
+#
 # ###### 4. Prepare table with correspondence between grid ID and code_state -----------------
-# 
-# 
+#
+#
 # grid_state_correspondence_table <- structure(list(name_uf = c("Acre", "Acre", "Acre", "Acre", "Amazonas",
 #                                   "Amazonas", "Amazonas", "Amazonas", "Amazonas", "Amazonas", "Amazonas",
 #                                   "Amazonas", "Amazonas", "Amazonas", "Amazonas", "Amazonas", "Roraima",
@@ -353,20 +337,12 @@ clean_statsgrid <- function(statsgrid_raw, year) {
 # "ID_52", "ID_53", "ID_54", "ID_55", "ID_63", "ID_42", "ID_43",
 # "ID_51", "ID_52", "ID_53", "ID_62")), .Names = c("name_state", "abbrev_state",
 # "code_grid"), row.names = c(NA, -139L), class = "data.frame")
-# 
-# # # Use UTF-8 encoding in all character columns
-# #   options(encoding = "UTF-8")
-# #
-# #   grid_state_correspondence_table <- grid_state_correspondence_table %>%
-# #     mutate_if(is.character, function(x){
-# #       x  %>% stringi::stri_encode(to="UTF-8") } )
-# 
-# 
+#
 # # sort data alphabetically
 # grid_state_correspondence_table <- grid_state_correspondence_table[order(grid_state_correspondence_table$name_state),]
-# 
+#
 # # save table
 #   save(grid_state_correspondence_table, file = "./data/grid_state_correspondence_table.RData", compress = T)
 #   #
-# 
-# 
+#
+#

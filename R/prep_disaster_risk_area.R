@@ -161,15 +161,14 @@ clean_riskdisasterareas <- function(riskdisasterareas_raw){ # year = 2018
   # Save in parquet
   arrow::write_parquet(
     x = temp_sf,
-    sink = paste0(dir_clean, "/riskdisasterareas_", ".parquet"),
+    sink = paste0(dir_clean, "/disaster_risk_area_", ".parquet"),
     compression = 'zstd',
     compression_level = 7
   )
   
   arrow::write_parquet(
     x = temp_sf_simplified,
-    sink = paste0(dir_clean,"/riskdisasterareas_", "_simplified",
-                  ".parquet"),
+    sink = paste0(dir_clean,"/disaster_risk_area_", "simplified.parquet"),
     compression='zstd',
     compression_level = 7
   )

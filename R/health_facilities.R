@@ -149,15 +149,15 @@ clean_healthfacilities <- function(healthfacilities_raw, year){
            desc_esfera_administrativa = 'ds_esfera_administrativa',
            code_atividade = 'co_atividade',
            tipo_unidade = 'tp_unidade',
-           code_cep = 'co_cep',
-           name_logradouro = 'no_logradouro',
-           num_endereco = 'nu_endereco',
-           name_bairro = 'no_bairro',
+           cep = 'co_cep',
+           logradouro = 'no_logradouro',
+           numero_endereco = 'nu_endereco',
+           bairro = 'no_bairro',
            num_telefone = 'nu_telefone',
            code_turno_atendimento = 'co_turno_atendimento',
            desc_turno_atendimento = 'ds_turno_atendimento',
            num_cnpj = 'nu_cnpj',
-           name_email = 'no_email',
+           email = 'no_email',
            code_natureza_jur = 'co_natureza_jur',
            code_motivo_desab = 'co_motivo_desab',
            code_ambulatorial_sus = 'co_ambulatorial_sus') |> 
@@ -229,7 +229,7 @@ clean_healthfacilities <- function(healthfacilities_raw, year){
   # Save in parquet
   arrow::write_parquet(
     x = temp_sf,
-    sink = paste0(dir_clean, "/healthfacilities_", year,
+    sink = paste0(dir_clean, "/health_facilities_", year,
                   format(Sys.Date(), "%m"), ".parquet"),
     compression = 'zstd',
     compression_level = 7

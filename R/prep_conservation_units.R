@@ -214,14 +214,14 @@ clean_conservationunits <- function(conservationunits_raw, year){ # year = 2024
   # Save in parquet
   arrow::write_parquet(
     x = temp_sf,
-    sink = paste0(dir_clean, "/conservationunits_", year, ".parquet"),
+    sink = paste0(dir_clean, "/conservation_units_", year, ".parquet"),
     compression = 'zstd',
     compression_level = 7
   )
   
   arrow::write_parquet(
     x = temp_sf_simplified,
-    sink = paste0(dir_clean,"/conservationunits_", year, "_simplified",
+    sink = paste0(dir_clean,"/conservation_units_", year, "_simplified",
                   ".parquet"),
     compression='zstd',
     compression_level = 7
@@ -238,7 +238,7 @@ clean_conservationunits <- function(conservationunits_raw, year){ # year = 2024
   return(files)
 }
 
-################ RAPHAEL OLD CODE BELOW HERE ############# ---------------------
+################ RAFAEL OLD CODE BELOW HERE ############# ---------------------
 # 
 # 
 # ####### Load Support functions to use in the preprocessing of the data
