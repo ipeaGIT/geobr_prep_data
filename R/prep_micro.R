@@ -49,6 +49,8 @@ download_microregions <- function(year){ # year = 2001
   url_start <- paste0("https://geoftp.ibge.gov.br/organizacao_do_territorio/",
                       "malhas_territoriais/malhas_municipais/municipio_")
   
+  states <- states_geobr()
+  
   # Before 2015
   if(year %in% c(2000, 2001, 2010:2014)) {
     ### create states tibble
@@ -191,16 +193,15 @@ clean_microregions <- function(microregions_raw, year){ # year = 2024
   # empty data real shapes
   # real data empty shapes
   
-  
   # há shapes estranhos?
-  test <- microregions_raw |>
-    mutate(n_vertices = map_int(geometry, ~ nrow(st_coordinates(.x)))) |>
-    arrange(n_vertices) |> filter(n_vertices < 5)
+  # test <- microregions_raw |>
+  #   mutate(n_vertices = map_int(geometry, ~ nrow(st_coordinates(.x)))) |>
+  #   arrange(n_vertices) |> filter(n_vertices < 5)
   # 
   # plot(test$geometry)
   
   #dupes
-  get_dupes(microregions_raw)
+  #get_dupes(microregions_raw)
   
   # Há duplicações no nome? Ilhas
   # microregions_raw |> count(nm_micro) |> filter(n > 1)
@@ -221,11 +222,11 @@ clean_microregions <- function(microregions_raw, year){ # year = 2024
   
   ## 2. Prepare for cleaning ---------------------------------------------------
   
-  states <- states_geobr() |> select(1:5)
-  
   # add state abbrev and code
   # add region and code
   # merge islands
+  
+  states <- states_geobr() |> select(1:5)
   
   if (year == 2000) {
     # este ano tem 2 micros no maranhão com problemas
@@ -290,19 +291,45 @@ clean_microregions <- function(microregions_raw, year){ # year = 2024
     glimpse(microregions_raw)
     st_crs(microregions_raw) #sirgas 2000
     
+    states <- states_geobr() |> select(1:5)
+    
     microregions <- microregions_raw |> 
       st_make_valid() |> 
       mutate(code_state = str_sub(cd_geocodu, start = 1, end = 2),
              name_micro = str_to_title(nm_micro)) |> 
       rename(code_micro = cd_geocodu) |> 
-      select(code_micro, name_micro, code_state, geometry) |> 
-      group_by(code_micro, name_micro, code_state) |> 
+      select(id, code_micro, name_micro, code_state, geometry) |> 
+      group_by(id, code_micro, name_micro, code_state) |> 
       summarise() |> 
       ungroup() |> 
       left_join(states, by = c("code_state")) |> 
       relocate(geometry, .after = name_region)
     
     glimpse(microregions)
+    
+    # Checar o bug da issue Litoral Sul em 2015
+    
+    # test <- microregions_raw |>  get_dupes(nm_micro)
+    # glimpse(test)
+    # plot(test)
+    
+    # glimpse(microregions_raw)
+    # tabyl(class(microregions_raw$geometry))
+    # 
+    # 
+    # test <- microregions_raw |>
+    #   #filter(#code_region == "2"
+    #    #cd_geocodu %in% c("24", "25")#,
+    #     #nm_micro == "Litoral Sul"
+    #     #, name_state %in% c("Rio Grande do Norte", "Paraíba")
+    #   ) #|> 
+    #   mutate(n_poligonos = lengths(st_geometry(microregions_raw)))
+    # 
+    #   
+    #   select(name_state, name_micro)
+    # 
+    # plot(test)
+    
   }
   
   if (year %in% C(2013:2018)) {
@@ -322,6 +349,7 @@ clean_microregions <- function(microregions_raw, year){ # year = 2024
       relocate(geometry, .after = name_region)
     
     glimpse(microregions)
+    
   }
  
   ## 3. Apply harmonize geobr cleaning -----------------------------------------
@@ -351,10 +379,29 @@ clean_microregions <- function(microregions_raw, year){ # year = 2024
   # Count empty geometries
   sum(is_empty)
   
-  ## 5. lighter version --------------------------------------------------------
+  ## 5. Check integrity and do post corrections (UPDATE YEAR) ------------------
+  
+  # 2000, 2001, 2010:2018
+  # harmonize_geobr remove: abbrev_state, colunas de perímetro e área
+  # converte code_state em dbl
+  if (year %in% c(2000, 2001, 2010, 2013:2018)) {
+    
+    temp_sf$code_state <- as.character(temp_sf$code_state)
+    states_thin <- states |> select(1:2)
+    
+    temp_sf <- temp_sf |> 
+      ungroup() |> 
+      inner_join(states_thin, by = "code_state") |> 
+      relocate(abbrev_state, .before = name_state) |> 
+      relocate(year, .before = geometry)
+    
+    glimpse(temp_sf)  
+  }
+  
+  ## 6. lighter version --------------------------------------------------------
   temp_sf_simplified <- simplify_temp_sf(temp_sf, tolerance = 100)
   
-  ## 6. Save datasets  ---------------------------------------------------------
+  ## 7. Save datasets  ---------------------------------------------------------
   
   # sf::st_write(temp_sf, dsn = paste0(dir_clean, "/microregions_",  year,
   #                                   ".gpkg"), delete_dsn = TRUE)
@@ -377,7 +424,7 @@ clean_microregions <- function(microregions_raw, year){ # year = 2024
     compression_level = 7
   )
   
-  ## 7. Create the files for geobr index  --------------------------------------
+  ## 8. Create the files for geobr index  --------------------------------------
   
   files <- list.files(path = dir_clean, 
                       pattern = ".parquet", 
