@@ -71,15 +71,9 @@ harmonize_geobr <- function(temp_sf,
   # add year column
   temp_sf$year <- year
   
-<<<<<<< HEAD
-  # make sure geometry column is named "geometry" - NOT WORKING
-  #temp_sf <- normalize_sf_geometry(temp_sf)
-=======
   # make sure geometry column is named "geometry"
   # temp_sf <- normalize_sf_geometry(temp_sf) 66666666666666666666
->>>>>>> 5cab6b2077cdce7e8fc13cf269cafbef05d58b63
 
-  
   return(temp_sf)
 }
 
@@ -93,7 +87,7 @@ add_state_info <- function(temp_sf, column){
   # IF only the "name_state" column is present
   # Add code_state
   if ("name_state" %in% col_names & !"code_state" %in% col_names) {
-      
+    
     temp_sf <- temp_sf |> 
       dplyr::mutate(code_state = ifelse(name_state== "Rondonia"
                                         | name_state== "Territ\u00f3rio de Rondonia" 
@@ -331,7 +325,7 @@ to_multipolygon <- function(temp_sf){
   return(temp_sf)
 }
 
-### OBS: é possível que esse trecho da função esteja apagando certas colunas
+### OBS: é possível que esse trecho da função esteja apagando a coluna "abbrev_state" 666666666
 
 # Fix topology -----------------------------------------------------------------
 
@@ -764,11 +758,8 @@ states_geobr <-  function() {
 
 # Glimpse geobr ----------------------------------------------------------------
 
-<<<<<<< HEAD
-=======
 # glimpse_geobr(dataset)
 
->>>>>>> 5cab6b2077cdce7e8fc13cf269cafbef05d58b63
 glimpse_geobr <- function(dataset) {
   
   table_collumns <- tibble(ordem = 1:ncol(dataset),
