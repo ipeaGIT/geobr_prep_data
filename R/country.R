@@ -142,7 +142,7 @@ download_country <- function(year){ # year = 2010
     }
   }
   
-  if(year %in% 2015:2024) {
+  if(year >= 2015) {
     httr::GET(url = ftp_link,
               httr::progress(),
               httr::write_disk(path = file_raw,
@@ -200,7 +200,7 @@ download_country <- function(year){ # year = 2010
   
   data.table::setDF(country_raw)
   
-  country_raw <- sf::st_as_sf(country_raw) %>% 
+  country_raw <- sf::st_as_sf(country_raw) |> 
     clean_names()
   
   glimpse(country_raw)
@@ -231,10 +231,10 @@ clean_country <- function(country_raw, year){ # year = 2024
     
     country <- country_raw |> 
       filter(codigo != "0") |> 
-      mutate(name_country = "Brasil") |> 
-      select(name_country, geometry) |> 
+      mutate(country = "Brasil") |> 
+      select(country, geometry) |> 
       st_make_valid() |> 
-      group_by(name_country) |> 
+      group_by(country) |> 
       summarise() |> 
       ungroup()
     
@@ -247,10 +247,10 @@ clean_country <- function(country_raw, year){ # year = 2024
     
     country <- country_raw |> 
       filter(cd_geocodu != "0") |> 
-      mutate(name_country = "Brasil") |> 
-      select(name_country, geometry) |> 
+      mutate(country = "Brasil") |> 
+      select(country, geometry) |> 
       st_make_valid() |> 
-      group_by(name_country) |> 
+      group_by(country) |> 
       summarise() |> 
       ungroup()
     
@@ -263,10 +263,10 @@ clean_country <- function(country_raw, year){ # year = 2024
     
     country <- country_raw |> 
       filter(cd_geocuf != "0") |> 
-      mutate(name_country = "Brasil") |> 
-      select(name_country, geometry) |> 
+      mutate(country = "Brasil") |> 
+      select(country, geometry) |> 
       st_make_valid() |> 
-      group_by(name_country) |> 
+      group_by(country) |> 
       summarise() |> 
       ungroup()
     
@@ -274,15 +274,15 @@ clean_country <- function(country_raw, year){ # year = 2024
     #plot(country)
   }
   
-  if (year %in% c(2019:2024)) {
+  if (year %in% c(2019:2025)) {
     #test <- country_raw |> get_dupes(nome)
     
     country <- country_raw |> 
       filter(cd_uf != "0") |> 
-      mutate(name_country = "Brasil") |> 
-      select(name_country, geometry) |>
+      mutate(country = "Brasil") |> 
+      select(country, geometry) |>
       st_make_valid() |> 
-      group_by(name_country) |> 
+      group_by(country) |> 
       summarise() |> 
       ungroup()
     

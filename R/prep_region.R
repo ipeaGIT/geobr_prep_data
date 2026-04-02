@@ -142,7 +142,7 @@ download_regions <- function(year){ # year = 2010
     }
   }
   
-  if(year %in% 2015:2024) {
+  if(year >= 2015) {
     httr::GET(url = ftp_link,
               httr::progress(),
               httr::write_disk(path = file_raw,
@@ -221,8 +221,8 @@ clean_regions <- function(regions_raw, year){ # year = 2024
   ## 1. Check names of the states ----------------------------------------------
   
   states <- states_geobr()
-  states_thin <- states %>% 
-    select(1, 4, 5) %>% 
+  states_thin <- states |> 
+    select(1, 4, 5) |> 
     mutate(code_state = as.character(code_state))
   
   glimpse(states_thin)
@@ -300,7 +300,7 @@ clean_regions <- function(regions_raw, year){ # year = 2024
     #plot(regions)
   }
   
-  if (year %in% c(2019:2024)) {
+  if (year %in% c(2019:2025)) {
     #test <- regions_raw |> get_dupes(nome)
     
     regions <- regions_raw |> 
@@ -358,7 +358,7 @@ clean_regions <- function(regions_raw, year){ # year = 2024
     relocate(geometry, .after = year)
     
   glimpse(all_regions)
-  plot(all_regions)
+  #plot(all_regions)
   
   # remove wrong-coded regions
   regions_clean <- subset(all_regions, code_region %in% c(1:5))
