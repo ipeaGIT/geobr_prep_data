@@ -1,6 +1,6 @@
 #> DATASET: Intermediate Geographic Regions
 #> Source: IBGE - https://www.ibge.gov.br/geociencias/organizacao-do-territorio/malhas-territoriais/15774-malhas.html?=&t=o-que-e
-#> scale 1:250.000 ?????????????
+#> scale 1:250.000
 #> Metadata:
 # Título: Regiões Geográficas Intermediárias
 # Titulo alternativo: intermediate regions
@@ -43,30 +43,20 @@ download_intermediateregions <- function(year){ # year = 2024
   
   ## 0. Generate the correct ftp link (UPDATE YEAR HERE) -----------------------
   
-  ftp_start <- "https://geoftp.ibge.gov.br/organizacao_do_territorio/malhas_territoriais/malhas_municipais/municipio_"
+  url_start <- "https://geoftp.ibge.gov.br/organizacao_do_territorio/malhas_territoriais/malhas_municipais/municipio_"
     
   if(year == 2019) {
-    ftp_link <- paste0(ftp_start, year, "/Brasil/BR/br_regioes_geograficas_intermediarias.zip")
+    ftp_link <- paste0(url_start, year, "/Brasil/BR/br_regioes_geograficas_intermediarias.zip")
   }
   
-  if(year == 2020) {
-    ftp_link <- paste0(ftp_start, year, "/Brasil/BR/BR_RG_Intermediarias_2020.zip")
+  # 2020 until 2022
+  if(year %in% c(2020:2022)) {
+    ftp_link <- paste0(url_start, year, "/Brasil/BR/BR_RG_Intermediarias_", year, ".zip")
   }
   
-  if(year == 2021) {
-    ftp_link <- paste0(ftp_start, year, "/Brasil/BR/BR_RG_Intermediarias_2021.zip")
-  }
-  
-  if(year == 2022) {
-    ftp_link <- paste0(ftp_start, year, "/Brasil/BR/BR_RG_Intermediarias_2022.zip")
-  }
-  
-  if(year == 2023) {
-    ftp_link <- paste0(ftp_start, year, "/Brasil/BR_RG_Intermediarias_2023.zip")
-  }
-  
-  if(year == 2024) {
-    ftp_link <- paste0(ftp_start, year, "/Brasil/BR_RG_Intermediarias_2024.zip")
+  ###2023
+  if(year >= 2023) {
+    ftp_link <- paste0(url_start, year, "/Brasil/BR_RG_Intermediarias_", year, ".zip")
   }
   
   ## 1. Create temp folder -----------------------------------------------------
@@ -146,11 +136,11 @@ clean_intermediateregions <- function(intermediateregions_raw, year){ # year = 2
   
   ## 1. Remove unnecessary columns and check states columns --------------------
   
+  states <- states_geobr() |> 
+    select(1:5)
+  
   if(year %in% c(2019:2022)) {
     glimpse(intermediateregions_raw)
-    
-    statesgeobr <- states_geobr() |> 
-      select(1:5)
     
     intermediateregions <- intermediateregions_raw |> 
       st_make_valid() |> 
@@ -158,7 +148,7 @@ clean_intermediateregions <- function(intermediateregions_raw, year){ # year = 2
       summarise() |> 
       ungroup() |> 
       mutate(code_state = str_sub(cd_rgint, start = 1, end = 2)) |>
-      inner_join(statesgeobr, by = c("code_state")) |> 
+      inner_join(states, by = c("code_state")) |> 
       relocate(geometry, .after = name_region)
     
     glimpse(intermediateregions)
@@ -168,15 +158,15 @@ clean_intermediateregions <- function(intermediateregions_raw, year){ # year = 2
     
     glimpse(intermediateregions_raw)
     
-    statesgeobr <- states_geobr() |> 
-      select(1, 2)
+    states_thin <- states_geobr() |> 
+      select(1:3)
     
     intermediateregions <- intermediateregions_raw |> 
       st_make_valid() |> 
       group_by(cd_rgint, nm_rgint, cd_uf, cd_regiao, nm_regiao) |> 
       summarise() |> 
       ungroup() |> 
-      inner_join(statesgeobr, by = c("cd_uf" = "code_state")) |> 
+      inner_join(states_thin, by = c("cd_uf" = "code_state")) |> 
       #select(-cd_uf, -cd_regiao) |> 
       relocate(abbrev_state, .after = cd_uf)
       
@@ -185,13 +175,22 @@ clean_intermediateregions <- function(intermediateregions_raw, year){ # year = 2
     
   if(year == 2024) {
     
-    statesgeobr <- states_geobr() |> 
-      select(1, 2)
+    intermediateregions <- intermediateregions_raw |> 
+      st_make_valid() |> 
+      #select(-cd_regia, -sigla_rg) |> 
+      relocate(sigla_uf, .after = nm_rgint)
+    
+    glimpse(intermediateregions)
+  }
+  
+  if(year == 2025) {
+    
+    table_collumns <- glimpse_geobr(intermediateregions_raw)
+    glimpse(intermediateregions_raw)
     
     intermediateregions <- intermediateregions_raw |> 
       st_make_valid() |> 
-      select(-cd_uf, -cd_regia, -sigla_rg) |> 
-      relocate(sigla_uf, .after = nm_rgint)
+      select(-area_km2)
     
     glimpse(intermediateregions)
   }
@@ -212,6 +211,8 @@ clean_intermediateregions <- function(intermediateregions_raw, year){ # year = 2
   # names_2022 <- c("cd_rgint", "nm_rgint", "sigla_uf", "area_km2", "geometry")
   # names_2023 <- c("cd_rgint", "nm_rgint", "cd_uf", "nm_uf", "cd_regiao", "nm_regiao", "area_km2", "geometry")
   # names_2024 <- c("cd_rgint", "nm_rgint", "cd_uf", "nm_uf", "sigla_uf", "cd_regia", "nm_regia", "sigla_rg", "area_km2", "geometry")
+  # names_2025 <- c("cd_rgint", "nm_rgint", "cd_uf", "nm_uf", "sigla_uf",
+  #"cd_regiao", "nm_regiao", "sigla_rg", "area_km2", "geometry")
   
   dicionario <- data.frame(
     # Lista de nomes padronizados de colunas
@@ -283,10 +284,50 @@ clean_intermediateregions <- function(intermediateregions_raw, year){ # year = 2
   
   glimpse(temp_sf)
   
-  ## 4. lighter version --------------------------------------------------------
-  temp_sf_simplified <- simplify_temp_sf(temp_sf, tolerance = 100)
+  ## 4. Check integrity and do post corrections (UPDATE YEAR) ------------------
   
-  ## 5. Save datasets  ---------------------------------------------------------
+  # 2019 a 2025
+  # harmonize_geobr remove: abbrev_state, colunas de perímetro e área
+  # converte code_state em dbl
+  
+  if (year %in% c(2019:2022)) {
+    states_thin <- states |> select(1:2,4)
+    
+    temp_sf$code_state <- as.character(temp_sf$code_state)
+    
+    df <- temp_sf |> 
+      ungroup() |> 
+      inner_join(states_thin, by = c("code_state", "code_region")) |> 
+      relocate(abbrev_state, .before = name_state) |> 
+      relocate(code_region, .before = name_region) |> 
+      relocate(year, .before = geometry)
+    
+    glimpse(df)  
+  }
+  
+  if (year %in% c(2023:2025)) {
+    states_thin <- states |> select(1:2)
+    
+    glimpse(temp_sf)
+    
+    temp_sf$code_state <- as.character(temp_sf$code_state)
+    temp_sf$code_meso <- as.character(temp_sf$code_meso)
+    
+    
+    df <- temp_sf |> 
+      ungroup() |> 
+      inner_join(states_thin, by = "code_state") |> 
+      relocate(name_state, .after = code_state) |> 
+      relocate(abbrev_state, .before = name_state) |> 
+      relocate(year, .before = geometry)
+    
+    glimpse(df)  
+  }
+  
+  ## 5. lighter version --------------------------------------------------------
+  temp_sf_simplified <- simplify_temp_sf(df, tolerance = 100)
+  
+  ## 6. Save datasets  ---------------------------------------------------------
   
   # sf::st_write(temp_sf, dsn = paste0(dir_clean, "/intermediateregions_",  year,
   #                                    ".gpkg"), delete_dsn = TRUE)
@@ -297,7 +338,7 @@ clean_intermediateregions <- function(intermediateregions_raw, year){ # year = 2
   
   # Save in parquet
   arrow::write_parquet(
-    x = temp_sf,
+    x = df,
     sink = paste0(dir_clean, "/intermediate_regions_", year, ".parquet"),
     compression = 'zstd',
     compression_level = 7
@@ -312,7 +353,7 @@ clean_intermediateregions <- function(intermediateregions_raw, year){ # year = 2
   )
   
 
-  ## 6. Create the files for geobr index  --------------------------------------
+  ## 7. Create the files for geobr index  --------------------------------------
   
   files <- list.files(path = dir_clean, 
                       pattern = ".parquet", 
