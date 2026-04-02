@@ -221,10 +221,6 @@ clean_intermediateregions <- function(intermediateregions_raw, year){ # year = 2
       "code_meso",
       #NOME DA REGIÃO INTERMEDIÁRIA
       "name_meso",
-      #CÓDIGO DE MUNICÍPIO e número de variações associadas
-      rep("code_muni", 2),
-      #NOME DO MUNICÍPIO e número de variações associadas
-      rep("name_muni", 4),
       #CÓDIGO DO ESTADO e número de variações associadas
       rep("code_state", 5),
       #ABREVIAÇÃO DO ESTADO e número de variações associadas
@@ -244,10 +240,6 @@ clean_intermediateregions <- function(intermediateregions_raw, year){ # year = 2
       "cd_rgint",
       #Variações que convergem para "name_intermediate"
       "nm_rgint",
-      #Variações que convergem para "code_muni"
-      "cd_mun", "cod_mun",
-      #Variações que convergem para "name_muni"
-      "nome_cidade", "cidade", "nm_muni", "nome_muni",
       #Variações que convergem para "code_state"
       "cod_uf", "cd_uf", "code_uf", "codigo_uf", "cod_state",
       #Variações que convergem para "abbrev_state"
