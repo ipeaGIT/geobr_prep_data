@@ -513,7 +513,7 @@ unzip_geobr <- function(zip_dir, in_zip, out_zip = NULL, is_shp = FALSE) {
       }
     )
     
-    shp_delimit <- "shp|cpg|dbf|prj|shx|xml|sbn|sbx"
+    shp_delimit <- "shp|cpg|cst|dbf|prj|shx|xml|sbn|sbx"
     
     files_delimit <- map(
       files_inzip, function(x) {
