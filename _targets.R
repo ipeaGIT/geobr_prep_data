@@ -19,7 +19,7 @@ tar_option_set(
   format = "rds",
   memory = "transient",
   garbage_collection = TRUE,
-  controller = crew_controller_local(workers = 4),
+  controller = crew_controller_local(workers = 8),
   
   # Packages essentials --------------------------------------------------------
   packages = c('arrow',
@@ -111,7 +111,8 @@ list(
 
   # year input
   tar_target(name = years_amazon,
-             command = c(2012, 2019:2022, 2024)),
+             command = c(#2012, #o link parece que voltou a quebrar
+                         2019:2022, 2024)),
 
   # download
   tar_target(name = amazonialegal_raw,
@@ -141,23 +142,23 @@ list(
              pattern = map(biomes_raw, years_biomes),
              format = 'file'),
   
-  # #04. Grade estatistica -------------------------------------------------------
-  # 
-  # # year input
-  # tar_target(name = years_statsgrid,
-  #            command = c(2010, 2022)),
-  # 
-  # # download
+  #04. Grade estatistica -------------------------------------------------------
+
+  # year input 
+  tar_target(name = years_statsgrid,
+             command = c(2010, 2022)),
+
+  # download #este target está com lentidão no processamento
   # tar_target(name = statsgrid_raw,
   #            command = download_statsgrid(years_statsgrid),
   #            pattern = map(years_statsgrid)),
-  # 
-  # # clean
+
+  # clean #este target está com lentidão no processamento
   # tar_target(name = statsgrid_clean,
   #            command = clean_statsgrid(statsgrid_raw, years_statsgrid),
   #            pattern = map(statsgrid_raw, years_statsgrid),
   #            format = 'file'),
-  
+
   #05. Estabelecimentos de saude -----------------------------------------------
   
   #year input
@@ -176,22 +177,22 @@ list(
   #            pattern = map(healthfacilities_raw, years_healthfacilities),
   #            format = 'file'),
   
-  # #06. Terras Indigenas --------------------------------------------------------
-  # 
-  # # year imput
-  # tar_target(name = years_indigenousland,
-  #            command = c(2024, 2025)),
-  # 
-  # # download
-  # tar_target(name = indigenousland_raw,
-  #            command = download_indigenousland(years_indigenousland),
-  #            pattern = map(years_indigenousland)),
-  # 
-  # # clean
-  # tar_target(name = indigenousland_clean,
-  #            command = clean_indigenousland(indigenousland_raw, years_indigenousland),
-  #            pattern = map(indigenousland_raw, years_indigenousland),
-  #            format = 'file'),
+  #06. Terras Indigenas --------------------------------------------------------
+
+  # year imput
+  tar_target(name = years_indigenousland,
+             command = c(2024, 2025)),
+
+  # download
+  tar_target(name = indigenousland_raw,
+             command = download_indigenousland(years_indigenousland),
+             pattern = map(years_indigenousland)),
+
+  # clean
+  tar_target(name = indigenousland_clean,
+             command = clean_indigenousland(indigenousland_raw, years_indigenousland),
+             pattern = map(indigenousland_raw, years_indigenousland),
+             format = 'file'),
   
   #07. Regioes Intermediarias --------------------------------------------------
   
@@ -329,7 +330,7 @@ list(
              command = download_microregions(years_microregions),
              pattern = map(years_microregions)),
 
-  # # clean
+  # clean # esse target está com lentidão de processamento
   tar_target(name = microregions_clean,
              command = clean_microregions(microregions_raw, years_microregions),
              pattern = map(microregions_raw, years_microregions),
@@ -346,11 +347,11 @@ list(
              command = download_municipality(years_municipality),
              pattern = map(years_municipality)),
 
-  # clean
-  # tar_target(name = municipality_clean,
-  #            command = clean_municipality(municipality_raw, years_municipality),
-  #            pattern = map(municipality_raw, years_municipality),
-  #            format = 'file'),
+  # clean # esse target está com lentidão de processamento
+  tar_target(name = municipality_clean,
+             command = clean_municipality(municipality_raw, years_municipality),
+             pattern = map(municipality_raw, years_municipality),
+             format = 'file'),
   
   #16. Sede municipal -------------------------------------------------------
   
@@ -613,6 +614,24 @@ list(
   #            pattern = map(poolingplaces_raw, years_poolingplaces),
   #            format = 'file'),
 
+  #30. Quilombos ---------------------------------------------------------------
+  
+  # year input
+  # tar_target(name = years_quilombos,
+  #            command = c(2010, 2020, 2022, 2024)),
+  # 
+  # # # download
+  # tar_target(name = quilombos_raw,
+  #            command = download_quilombos(years_quilombos),
+  #            pattern = map(years_quilombos)),
+  #
+  # # clean
+  # tar_target(name = quilombos_clean,
+  #            command = clean_quilombos(quilombos_raw, years_quilombos),
+  #            pattern = map(quilombos_raw, years_quilombos),
+  #            format = 'file'),
+  #
+  
   #31. Bacias Hidrograficas ----------------------------------------------------
   
   # year input
@@ -659,7 +678,7 @@ list(
                biomes_clean, #03
                #statsgrid_clean, #04
                #healthfacilities_clean, #05
-               #indigenousland_clean, #06
+               indigenousland_clean, #06
                intermediateregions_clean, #07
                immediateregions_clean, #08
                schools_clean, #09
@@ -668,7 +687,7 @@ list(
                country_clean, #12
                mesoregions_clean, #13
                microregions_clean, #14
-               #municipality_clean, #15
+               municipality_clean, #15
                #cityseats_clean, #16
                #censustracker_clean, #17
                #weightarea_clean, #18
