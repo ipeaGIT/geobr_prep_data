@@ -47,35 +47,24 @@ download_immediateregions <- function(year){ # year = 2024
   
   ## 0. Generate the correct ftp link (UPDATE YEAR HERE) -----------------------
   
+  url_start <- paste0("https://geoftp.ibge.gov.br/organizacao_do_territorio/",
+                      "malhas_territoriais/malhas_municipais/municipio_")
+  
   ###2019
   if(year == 2019) {
-    ftp_link <- "https://geoftp.ibge.gov.br/organizacao_do_territorio/malhas_territoriais/malhas_municipais/municipio_2019/Brasil/BR/br_regioes_geograficas_imediatas.zip"
+    ftp_link <- paste0(url_start, year,
+                       "/Brasil/BR/br_regioes_geograficas_imediatas.zip")
   }
   
-  ###2020
-  if(year == 2020) {
-    ftp_link <- "https://geoftp.ibge.gov.br/organizacao_do_territorio/malhas_territoriais/malhas_municipais/municipio_2020/Brasil/BR/BR_RG_Imediatas_2020.zip"
-  }
-  
-  ###2021
-  if(year == 2021) {
-    ftp_link <-  "https://geoftp.ibge.gov.br/organizacao_do_territorio/malhas_territoriais/malhas_municipais/municipio_2021/Brasil/BR/BR_RG_Imediatas_2021.zip"
-  }
-  
-  ###2022
-  if(year == 2022) {
-    ftp_link <- "https://geoftp.ibge.gov.br/organizacao_do_territorio/malhas_territoriais/malhas_municipais/municipio_2022/Brasil/BR/BR_RG_Imediatas_2022.zip"
+  # 2020 until 2022
+  if(year %in% c(2020:2022)) {
+    ftp_link <- paste0(url_start, year, "/Brasil/BR/BR_RG_Imediatas_", year, ".zip")
   }
   
   ###2023
-  if(year == 2023) {
-    ftp_link <- "https://geoftp.ibge.gov.br/organizacao_do_territorio/malhas_territoriais/malhas_municipais/municipio_2023/Brasil/BR_RG_Imediatas_2023.zip"
-  }
-  
-  ###2024
-  if(year == 2024) {
-    ftp_link <- "https://geoftp.ibge.gov.br/organizacao_do_territorio/malhas_territoriais/malhas_municipais/municipio_2024/Brasil/BR_RG_Imediatas_2024.zip"
-  }
+  if(year >= 2023) {
+    ftp_link <- paste0(url_start, year, "/Brasil/BR_RG_Imediatas_", year, ".zip")
+    }
   
   ## 1. Create temp folder -----------------------------------------------------
   
@@ -142,58 +131,37 @@ clean_immediateregions <- function(immediateregions_raw, year){ # year = 2024
   dir.create(dir_clean, recursive = T, showWarnings = FALSE)
   dir.exists(dir_clean)
   
-  ## 1. Remove unnecessary columns and check states columns --------------------
+  ## 1. Remove unnecessary columns and prepare the data ------------------------
   
-  glimpse(immediateregions_raw)
+  states <- states_geobr() |> 
+    select(1:5)
   
-  if(year %in% c(2019, 2020, 2022)) {
+  if(year %in% c(2019:2023)) {
+    glimpse(immediateregions_raw)
     
-  statesgeobr <- states_geobr() |> 
-    select(1, 2, 5)
-  
-  immediateregions_edit <- immediateregions_raw |> 
-    inner_join(statesgeobr, by = c("sigla_uf" = "abbrev_state")) |> 
-    relocate(sigla_uf, .after = code_state)
-  
-  glimpse(immediateregions_edit)
+    immediateregions <- immediateregions_raw |> 
+      st_make_valid() |> 
+      select(cd_rgi, nm_rgi) |> 
+      group_by(cd_rgi, nm_rgi) |> 
+      summarise() |> 
+      ungroup() |> 
+      mutate(code_state = str_sub(cd_rgi, start = 1, end = 2)) |>
+      inner_join(states, by = c("code_state")) |> 
+      relocate(geometry, .after = name_region)
+    
+    glimpse(immediateregions)
   }
   
-  if(year == 2021) {
+  if(year >= 2024) {
     
-    statesgeobr <- states_geobr() |> 
-      select(1, 2, 5)
+    immediateregions <- immediateregions_raw |> 
+      st_make_valid() |> 
+      select(cd_rgi, nm_rgi, cd_rgint, nm_rgint, cd_uf) |> 
+      group_by(cd_rgi, nm_rgi, cd_rgint, nm_rgint, cd_uf) |>
+      summarise() |> 
+      ungroup()
     
-    immediateregions_edit <- immediateregions_raw |> 
-      inner_join(statesgeobr, by = c("sigla" = "abbrev_state")) |> 
-      relocate(sigla, .after = code_state)
-    
-    glimpse(immediateregions_edit)
-  }
-  
-  if(year == 2023) {
-    
-    statesgeobr <- states_geobr() |> 
-      select(1, 2)
-    
-    immediateregions_edit <- immediateregions_raw |> 
-      inner_join(statesgeobr, by = c("cd_uf" = "code_state")) |> 
-      select(-cd_uf, -cd_regiao) |> 
-      relocate(abbrev_state, .after = nm_rgi)
-    
-    glimpse(immediateregions_edit)
-  }
-  
-  
-  if(year == 2024) {
-    
-    statesgeobr <- states_geobr() |> 
-      select(1, 2)
-    
-    immediateregions_edit <- immediateregions_raw |> 
-      select(-cd_uf, -cd_regia, -sigla_rg) |> 
-      relocate(sigla_uf, .after = nm_rgi)
-    
-    glimpse(immediateregions_edit)
+    glimpse(immediateregions)
   }
   
   ## 2. Rename columns names ---------------------------------------------------
@@ -209,17 +177,13 @@ clean_immediateregions <- function(immediateregions_raw, year){ # year = 2024
     # Lista de nomes padronizados de colunas
     padrao = c(
       #CÓDIGO DA REGIÃO IMEDIATA
-      "code_immediate",
+      "code_micro",
       #NOME DA REGIÃO IMEDIATA
-      "name_immediate",
+      "name_micro",
       #CÓDIGO DA REGIÃO INTERMEDIÁRIA
-      "code_intermediate",
+      "code_meso",
       #NOME DA REGIÃO INTERMEDIÁRIA
-      "name_intermediate",
-      #CÓDIGO DE MUNICÍPIO e número de variações associadas
-      rep("code_muni", 7),
-      #NOME DO MUNICÍPIO e número de variações associadas
-      rep("name_muni", 4),
+      "name_meso",
       #CÓDIGO DO ESTADO e número de variações associadas
       rep("code_state", 5),
       #ABREVIAÇÃO DO ESTADO e número de variações associadas
@@ -243,10 +207,6 @@ clean_immediateregions <- function(immediateregions_raw, year){ # year = 2024
       "cd_rgint",
       #Variações que convergem para "name_intermediate"
       "nm_rgint",
-      #Variações que convergem para "code_muni"
-      "cod_uf", "cd_uf", "code_uf", "codigo_uf", "cod_state", "cd_mun", "cod_mun",
-      #Variações que convergem para "name_muni"
-      "nome_cidade", "cidade", "nm_muni", "nome_muni",
       #Variações que convergem para "code_state"
       "cod_uf", "cd_uf", "code_uf", "codigo_uf", "cod_state",
       #Variações que convergem para "abbrev_state"
@@ -261,14 +221,14 @@ clean_immediateregions <- function(immediateregions_raw, year){ # year = 2024
       "sigla_rg"
     ), stringsAsFactors = FALSE)
 
-  immediateregions <- standardcol_geobr(immediateregions_edit, dicionario)
+  immediateregions_clean <- standardcol_geobr(immediateregions, dicionario)
 
   ## 3. Apply harmonize geobr cleaning -----------------------------------------
   
-  glimpse(immediateregions)
+  glimpse(immediateregions_clean)
   
   temp_sf <- harmonize_geobr(
-    temp_sf = immediateregions,
+    temp_sf = immediateregions_clean,
     year = year,
     add_state = F,
     add_region = F,
@@ -283,10 +243,43 @@ clean_immediateregions <- function(immediateregions_raw, year){ # year = 2024
   
   glimpse(temp_sf)
   
-  ## 4. lighter version --------------------------------------------------------
-  temp_sf_simplified <- simplify_temp_sf(temp_sf, tolerance = 100)
+  ## 4. Check integrity and do post corrections (UPDATE YEAR) ------------------
   
-  ## 5. Save datasets  ---------------------------------------------------------
+  # 2019 a 2025
+  # harmonize_geobr remove: abbrev_state, colunas de perímetro e área
+  # converte code_state em dbl
+ 
+  if (year %in% c(2019:2023)) {
+
+    temp_sf$code_micro <- as.character(temp_sf$code_micro)
+    temp_sf$code_state <- as.character(temp_sf$code_state)
+    
+    df <- temp_sf |> 
+      ungroup() |> 
+      relocate(year, .before = geometry)
+    
+    glimpse(df)  
+  }
+  
+   if (year >= 2024) {
+     
+     temp_sf$code_micro <- as.character(temp_sf$code_micro)
+     temp_sf$code_meso <- as.character(temp_sf$code_meso)
+     temp_sf$code_state <- as.character(temp_sf$code_state)
+     
+     df <- temp_sf |>
+       ungroup() |>
+       inner_join(states, by = "code_state") |>
+       relocate(geometry, .after = last_col()) |> 
+       relocate(year, .before = geometry)
+     
+     glimpse(df)
+   }
+  
+  ## 5. lighter version --------------------------------------------------------
+  temp_sf_simplified <- simplify_temp_sf(df, tolerance = 100)
+  
+  ## 6. Save datasets  ---------------------------------------------------------
   
   # sf::st_write(temp_sf, dsn = paste0(dir_clean, "/immediateregions_",  year,
   #                                   ".gpkg"), delete_dsn = TRUE)
@@ -296,7 +289,7 @@ clean_immediateregions <- function(immediateregions_raw, year){ # year = 2024
   
   ### Save in parquet
   arrow::write_parquet(
-    x = temp_sf,
+    x = df,
     sink = paste0(dir_clean, "/immediate_regions_", year, ".parquet"),
     compression = 'zstd',
     compression_level = 7
@@ -309,7 +302,7 @@ clean_immediateregions <- function(immediateregions_raw, year){ # year = 2024
     compression_level = 7
   )
   
-  ## 6. Create the files for geobr index  --------------------------------------
+  ## 7. Create the files for geobr index  --------------------------------------
   
   files <- list.files(path = dir_clean, 
                       pattern = ".parquet", 

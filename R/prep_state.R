@@ -148,7 +148,7 @@ download_states <- function(year){ # year = 2010
     }
   }
   
-  if(year %in% 2015:2024) {
+  if(year >= 2015) {
     httr::GET(url = ftp_link,
               httr::progress(),
               httr::write_disk(path = file_raw,
@@ -245,7 +245,7 @@ clean_states <- function(states_raw, year){ # year = 2024
   
   states <- states_geobr()
   
-  ## 2. Adjust and preparing for cleaning --------------------------------------
+  ## 2. Adjust and preparing for cleaning (UPDATE YEAR) ------------------------
   
   glimpse(states_raw)
   states_thin <- states |> 
@@ -292,10 +292,19 @@ clean_states <- function(states_raw, year){ # year = 2024
   }
   
   #For years that have no spelling problems
-  if (year %in% c(2019:2024)){ 
+  if (year %in% c(2019:2022)){ 
     # glimpse(states_raw)
     # glimpse(states_geobr)
     states_clean <- states_raw
+    # glimpse(states_clean)
+  }
+  
+  #For years that have no spelling problems
+  if (year %in% c(2023:2025)){ 
+    # glimpse(states_raw)
+    # glimpse(states_geobr)
+    states_clean <- states_raw |> 
+      select(-area_km2)
     # glimpse(states_clean)
   }
   
@@ -319,14 +328,14 @@ clean_states <- function(states_raw, year){ # year = 2024
   # c([1] "cd_uf", "nm_uf", "sigla_uf", "cd_regiao", "nm_regiao", "area_km2",
   # "geometry") 
   
+  # 2025
+  #"cd_uf", "nm_uf", "sigla_uf", "cd_regiao", "nm_regiao", "sigla_rg", 
+  #"area_km2", "geometry" 
+  
   #Este é um dicionário padrão com as denominações GEOBR:
   dicionario <- data.frame(
     # Lista de nomes padronizados de colunas
     padrao = c(
-      #CÓDIGO DE MUNICÍPIO e número de variações associadas
-      rep("code_muni", 7),
-      #NOME DO MUNICÍPIO e número de variações associadas
-      rep("name_muni", 4),
       #CÓDIGO DO ESTADO e número de variações associadas
       rep("code_state", 8),
       #ABREVIAÇÃO DO ESTADO e número de variações associadas
@@ -342,11 +351,6 @@ clean_states <- function(states_raw, year){ # year = 2024
     ),
     # Lista de variações
     variacao = c(
-      #Variações que convergem para "code_muni"
-      "cod_uf", "cd_uf", "code_uf", "codigo_uf", "cod_state", "cd_mun",
-      "cod_mun", 
-      #Variações que convergem para "name_muni"
-      "nome_cidade", "cidade", "nm_muni", "nome_muni",
       #Variações que convergem para "code_state"
       "cod_uf", "cd_uf", "code_uf", "codigo_uf", "cod_state", "cd_geocodu",
       "codigo", "cd_geocuf",
@@ -412,7 +416,7 @@ clean_states <- function(states_raw, year){ # year = 2024
   
   glimpse(temp_sf)
   
-  ## 6. Check integrity and do post corrections --------------------------------
+  ## 6. Check integrity and do post corrections (UPDATE YEAR) ------------------
   
   # 2000, 2001, 2010:2018
   # harmonize_geobr remove: abbrev_state, colunas de perímetro e área
@@ -425,41 +429,38 @@ clean_states <- function(states_raw, year){ # year = 2024
     temp_sf <- temp_sf |> 
       ungroup() |> 
       inner_join(states_thin, by = "code_state") |> 
-      relocate(abbrev_state, .before = name_state)
+      relocate(abbrev_state, .before = name_state) |> 
+      relocate(year, .before = geometry)
     
     glimpse(temp_sf)  
   }
   
   if (year %in% c(2019:2022)) {
     states_thin <- states |> select(1:2,4)
-    
-    temp_sf <- temp_sf |> 
-      ungroup() |> 
-      rename(code_state = "code_muni") 
-    
+   
     temp_sf$code_state <- as.character(temp_sf$code_state)
     
     temp_sf <- temp_sf |> 
+      ungroup() |> 
       inner_join(states_thin, by = "code_state") |> 
       relocate(abbrev_state, .before = name_state) |> 
-      relocate(code_region, .before = name_region)
+      relocate(code_region, .before = name_region) |> 
+      relocate(year, .before = geometry)
     
     glimpse(temp_sf)  
   }
   
-  if (year %in% c(2023:2024)) {
+  if (year %in% c(2023:2025)) {
     states_thin <- states |> select(1:2)
-    
-    temp_sf <- temp_sf |> 
-      ungroup() |> 
-      rename(code_state = "code_muni") 
     
     temp_sf$code_state <- as.character(temp_sf$code_state)
     
     temp_sf <- temp_sf |> 
+      ungroup() |> 
       inner_join(states_thin, by = "code_state") |> 
       relocate(abbrev_state, .before = name_state) |> 
-      relocate(code_region, .before = name_region)
+      relocate(code_region, .before = name_region) |> 
+      relocate(year, .before = geometry)
     
     glimpse(temp_sf)  
   }

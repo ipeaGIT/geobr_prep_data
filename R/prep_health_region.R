@@ -35,6 +35,7 @@
 # library(data.table)
 # library(mapview)
 # library(readr)
+# library(maptools)
 
 # library(arrow)
 # library(geoarrow)

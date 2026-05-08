@@ -43,16 +43,16 @@ download_schools <- function(year){ # year = 2024
   
   ## 0. Set year ---------------------------------------------------------------
   
-  year <- lubridate::year(Sys.Date())
-  
-  date_update <- format(Sys.Date(), "%Y_%m")
+  # year <- lubridate::year(Sys.Date())
+  # 
+  # date_update <- format(Sys.Date(), "%Y_%m")
   
   ## 1. After manual download, bring the file to R -----------------------------
   
   #### manual download manual and standarize the collumns names
   # https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/inep-data/catalogo-de-escolas
   
-  dir_raw <- paste0("./data_raw/schools/", date_update)
+  dir_raw <- paste0("./data_raw/schools/", year)
 
   dt <- fread(paste0(dir_raw, "/",
                      "Análise - Tabela da lista das escolas - Detalhado.csv"),
@@ -61,7 +61,7 @@ download_schools <- function(year){ # year = 2024
   ## 2. Test integrity ---------------------------------------------------------
   glimpse(dt)
   
-  ## 3. Show result ----
+  ## 3. Show result ------------------------------------------------------------
   
   schools_raw <- dt |> 
     clean_names()
@@ -71,20 +71,19 @@ download_schools <- function(year){ # year = 2024
   return(schools_raw)
 }
 
-# Clean the data  ----
+# Clean the data  --------------------------------------------------------------
 clean_schools <- function(schools_raw, year){ # year = 2025
   
-  ## 0. Create folder to save clean data ----
+  ## 0. Create folder to save clean data ---------------------------------------
   
-  year <- year(Sys.Date())
-  date_update <- paste0(lubridate::year(Sys.Date()), "_",
-                        lubridate::month(Sys.Date())) 
+  #year <- lubridate::year(Sys.Date())
+  date_update <- format(Sys.Date(), "%Y_%m")
   
-  dir_clean <- paste0("./data/schools/", date_update)
+  dir_clean <- paste0("./data/schools/", year)
   dir.create(dir_clean, recursive = T, showWarnings = FALSE)
   dir.exists(dir_clean)
   
-  ## 1. Rename collumns ----
+  ## 1. Rename collumns --------------------------------------------------------
   
   # names(schools_raw) <- c(abbrev_state, name_muni, code_school, name_school,
   #                         education_level, education_level_others,
@@ -94,9 +93,9 @@ clean_schools <- function(schools_raw, year){ # year = 2025
   #                         regulated_education_council, service_restriction,
   #                         size, urban, location_type, date_update, y,  x)
   # 
-  # glimpse(schools_raw)
+   glimpse(schools_raw)
   
-  ## 2. Clean missing values ----
+  ## 2. Clean missing values ---------------------------------------------------
   
   # find points with missing coordinates
   head(schools_raw)
@@ -129,14 +128,14 @@ clean_schools <- function(schools_raw, year){ # year = 2025
   #   subset(temp_sf, code_school=='11000180')
   # 
   
-  ## 3. Convert to geo spatial file ----
+  ## 3. Convert to geo spatial file --------------------------------------------
   
   # Convert originl data frame into sf
   df <- sf::st_as_sf(schools,
                      coords = c("latitude", "longitude"),
                      crs = "+proj=longlat +datum=WGS84")
   
-  ## 4. Apply harmonize geobr cleaning ----
+  ## 4. Apply harmonize geobr cleaning -----------------------------------------
   
   temp_sf <- harmonize_geobr(
     temp_sf = df,
@@ -153,15 +152,27 @@ clean_schools <- function(schools_raw, year){ # year = 2025
   
   glimpse(temp_sf)
   
-  ## 5. Create geocode br collum ----
+  ## 5. Post corrections -------------------------------------------------------
+  
+  states <- states_geobr() |> select(1:5)
+  
+  temp_sf <- temp_sf |> 
+    rename(abbrev_state = uf, name_muni = municipio) |> 
+    inner_join(states, by = c("abbrev_state")) |> 
+    relocate(year, .before = geometry) |> 
+    relocate(abbrev_state, .before = name_state)
+  
+  glimpse(temp_sf)
+  
+  ## 6. Create geocode br collum -----------------------------------------------
+  
+  #estudar aplicações do geocodebr
   
   
-  
-  
-  ## 6. lighter version ----
+  ## 7. lighter version --------------------------------------------------------
   temp_sf_simplified <- simplify_temp_sf(temp_sf, tolerance = 100)
   
-  ## 7. Save datasets  ----
+  ## 8. Save datasets  ---------------------------------------------------------
   
   # sf::st_write(temp_sf, dsn = paste0(dir_clean, "/schools_",  year,
   #                                   ".gpkg"), delete_dsn = TRUE)
@@ -184,7 +195,7 @@ clean_schools <- function(schools_raw, year){ # year = 2025
     compression_level = 7
   )
   
-  ## 8. Create the files for geobr index  ----
+  ## 9. Create the files for geobr index  --------------------------------------
   
   
   files <- list.files(path = dir_clean, 

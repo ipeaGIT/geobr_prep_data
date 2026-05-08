@@ -399,10 +399,29 @@ clean_mesoregions <- function(mesoregions_raw, year){ # year = 2024
   # Count empty geometries
   sum(is_empty)
   
-  ## 5. Lighter version -------------------------------------------------------- 
+  ## 5. Check integrity and do post corrections (UPDATE YEAR) ------------------
+  
+  # 2000, 2001, 2010:2018
+  # harmonize_geobr remove: abbrev_state, colunas de perímetro e área
+  # converte code_state em dbl
+  if (year %in% c(2000, 2001, 2010, 2013:2018)) {
+    
+    temp_sf$code_state <- as.character(temp_sf$code_state)
+    states_thin <- states |> select(1:2)
+    
+    temp_sf <- temp_sf |> 
+      ungroup() |> 
+      inner_join(states_thin, by = "code_state") |> 
+      relocate(abbrev_state, .before = name_state) |> 
+      relocate(year, .before = geometry)
+    
+    glimpse(temp_sf)  
+  }
+  
+  ## 6. Lighter version -------------------------------------------------------- 
   temp_sf_simplified <- simplify_temp_sf(temp_sf, tolerance = 100)
   
-  ## 6. Save datasets  ---------------------------------------------------------
+  ## 7. Save datasets  ---------------------------------------------------------
   
   # sf::st_write(temp_sf, dsn = paste0(dir_clean, "/mesoregions_",  year,
   #                                    ".gpkg"), delete_dsn = TRUE)
@@ -426,7 +445,7 @@ clean_mesoregions <- function(mesoregions_raw, year){ # year = 2024
     compression='zstd',
     compression_level = 7
   )
-  ## 7. Create the files for geobr index  --------------------------------------
+  ## 8. Create the files for geobr index  --------------------------------------
   
   files <- list.files(path = dir_clean, 
                       pattern = ".parquet", 

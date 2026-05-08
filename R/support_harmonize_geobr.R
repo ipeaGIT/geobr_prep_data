@@ -74,7 +74,6 @@ harmonize_geobr <- function(temp_sf,
   # make sure geometry column is named "geometry"
   # temp_sf <- normalize_sf_geometry(temp_sf) 66666666666666666666
 
-  
   return(temp_sf)
 }
 
@@ -88,7 +87,7 @@ add_state_info <- function(temp_sf, column){
   # IF only the "name_state" column is present
   # Add code_state
   if ("name_state" %in% col_names & !"code_state" %in% col_names) {
-      
+    
     temp_sf <- temp_sf |> 
       dplyr::mutate(code_state = ifelse(name_state== "Rondonia"
                                         | name_state== "Territ\u00f3rio de Rondonia" 
@@ -326,7 +325,7 @@ to_multipolygon <- function(temp_sf){
   return(temp_sf)
 }
 
-### OBS: é possível que esse trecho da função esteja apagando certas colunas
+### OBS: é possível que esse trecho da função esteja apagando a coluna "abbrev_state" 666666666
 
 # Fix topology -----------------------------------------------------------------
 
@@ -514,7 +513,7 @@ unzip_geobr <- function(zip_dir, in_zip, out_zip = NULL, is_shp = FALSE) {
       }
     )
     
-    shp_delimit <- "shp|cpg|dbf|prj|shx|xml|sbn|sbx"
+    shp_delimit <- "shp|cpg|cst|dbf|prj|shx|xml|sbn|sbx"
     
     files_delimit <- purrr::map(
       files_inzip, function(x) {

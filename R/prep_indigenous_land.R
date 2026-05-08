@@ -1,7 +1,7 @@
 #> DATASET: indigenous Lands
 #> Source: FUNAI - http://www.funai.gov.br/index.php/shape #not working
-#> Source: "https://www.gov.br/funai/pt-br/atuacao/terras-indigenas/geoprocessamento-e-mapas #not shp file
 #> Source: Portal de mapas: "https://mapas2.funai.gov.br/portal_mapas/"
+#> Source mais recente: https://www.gov.br/funai/pt-br/atuacao/terras-indigenas/geoprocessamento-e-mapas
 #> Metadata:
 # Titulo: Terras Indígenas  / Terras Indígenas em Estudos
 # Titulo alternativo: Terras Indígenas
@@ -20,28 +20,32 @@
 # Informação do Sistema de Referência: SIRGAS 2000
 
 
-### Load Support functions  ----
+### Libraries (use any library as necessary) -----------------------------------
 
 # library(RCurl)
-# library(stringr)
-# library(sf)
-# library(dplyr)
-# library(readr)
-# library(tidyverse)
-# library(data.table)
-# library(magrittr)
-# library(lwgeom)
-# library(stringi)
-# library(lubridate)
 # library(arrow)
 # library(geoarrow)
-# library(rvest)
+# library(stringr)
+# library(sf)
 # library(purrr)
+# library(janitor)
+# library(dplyr)
+# library(readr)
+# library(data.table)
+# library(magrittr)
+# library(devtools)
+# library(lwgeom)
+# library(stringi)
+# library(tidyverse)
+# library(mirai)
+# library(rvest)
+# source("./R/support_harmonize_geobr.R")
+# source("./R/support_fun.R")
 
-# Download the data  ----
+# Download the data  -----------------------------------------------------------
 download_indigenousland <- function(year){ # year == 2025
 
-  ## 0. Create temp folders for download -----------------
+  ## 0. Create temp folders for download ---------------------------------------
 
   zip_dir <- paste0(tempdir(), "/indigenous_lands/", year)
   dir.create(zip_dir, showWarnings = FALSE, recursive = TRUE)
@@ -57,7 +61,7 @@ download_indigenousland <- function(year){ # year == 2025
   dir.create(out_zip, showWarnings = FALSE, recursive = TRUE)
   dir.exists(out_zip)
 
-  ###### 1. Get the correct url and file names -----------------
+  ## 1. Get the correct url and file names -------------------------------------
 
   # Portal de mapas
   # url <- "https://mapas2.funai.gov.br/portal_mapas"
@@ -65,36 +69,47 @@ download_indigenousland <- function(year){ # year == 2025
   # # If the date is "2000"
   # if(year == 2000) {
   #
-  #   url <- "https://mapas2.funai.gov.br/portal_mapas/ti_sirgas/"
-  #   page <- read_html(url)
+  #   ftp_link <- "https://mapas2.funai.gov.br/portal_mapas/ti_sirgas/"
+  #   page <- read_html(ftp_link)
   #   filenames <- page %>%
   #     html_nodes("a") %>%
   #     html_attr("href") %>%
   #     grep("2000", ., value = TRUE)
-  #   #filenames <- paste0(url, filenames)
+  #   #filenames <- paste0(ftp_link, filenames)
   # }
 
   # Last update from 2024
   if(year == 2024) {
-    url <- "https://mapas2.funai.gov.br/portal_mapas/ti_sirgas_20240313.zip"
-    filenames <- basename(url)
+    ftp_link <- "https://mapas2.funai.gov.br/portal_mapas/ti_sirgas_20240313.zip"
+    filenames <- basename(ftp_link)
   }
 
   # Last update from 2025
   if(year == 2025) {
-    url <- "https://mapas2.funai.gov.br/portal_mapas/ti_sirgas.zip"
-    filenames <- basename(url)
+    ftp_link <- "https://mapas2.funai.gov.br/portal_mapas/shapes_old/ti_sirgas_20250625.zip"
+    filenames <- basename(ftp_link)
   }
+  
+  # if (year == 2026){
+  #   ftp_link <- "https://mapas2.funai.gov.br/portal_mapas/shapes_old/ti_sirgas.zip"
+  #   
+  #   ftp_link <- "https://geoserver.funai.gov.br/geoserver/Funai/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=Funai%3Atis_amazonia_legal_poligonais&maxFeatures=10000&outputFormat=SHAPE-ZIP"
+  #   filenames <- basename(ftp_link)
+  #   
+  #   }
+  
+  ## 2. Create temp file -------------------------------------------------------
 
-  ###### 2. Create temp file -----------------
-
+  file_raw <- fs::file_temp(tmp_dir = in_zip,
+                            ext = fs::path_ext(ftp_link))
+  
   # # the year 2000 is not zipped
   # if(year %in% c(2024, 2025)) {
   #   file_raw <- fs::file_temp(tmp_dir = zip_dir,
   #                             ext = fs::path_ext(url))
   # }
 
-  ###### 3. Download the raw data -----------------
+  ## 3. Download the raw data --------------------------------------------------
 
   # if(year == 2000) {
   #   # Download files directly
@@ -105,103 +120,132 @@ download_indigenousland <- function(year){ # year == 2025
   # }
 
   # If the date is 2024 or 2025
-  if(year %in% c(2024, 2025)) {
+  if(year %in% c(2024, 2025, 2026)) {
 
-    download.file(url, paste(in_zip, filenames, sep = "\\"))
+    download.file(ftp_link, paste(in_zip, filenames, sep = "\\"))
   }
 
-  ###### 4. Unzip Raw data -----------------
-
-  # directory of zips
-  zip_names <- list.files(in_zip, pattern = "\\.zip", full.names = TRUE)
-
-  # unzip files
-
-  if(year %in% c(2024, 2025)) {
-    unzip(zipfile = zip_names,
-          exdir = out_zip)
+  ## 4. Set correct encoding ----------------------------------------------------
+  
+  if (year >= 2013) {
+    encode =  "ENCODING=UTF8"
   }
+  
+  ## 5. Unzip Raw data ---------------------------------------------------------
 
-  ###### 5. Read the file -----------------
+  caminho_zip <- list.files(in_zip)
+  caminho_zip <- paste0(in_zip, filenames)
+  caminho_zip
+  
+  # Listar arquivos dentro do zip
+  arquivos_no_zip <- unzip(caminho_zip, list = TRUE)$Name
+  
+  ## 6. Read the file ----------------------------------------------------------
+  
+  # Ativar o uso de geometria esférica (padrão nas versões recentes do sf)
+  sf_use_s2(TRUE)
+  
+  # Filtrar apenas o arquivo .shp (ignorando .sha256 ou outros)
+  arquivo_shp <- arquivos_no_zip[grep("\\.shp$", arquivos_no_zip)]
+  
+  # Se houver apenas um, ler usando o prefixo virtual
+  indigenousland_raw <- st_read(paste0("/vsizip/", caminho_zip, "/",
+                                       arquivo_shp), options = encode) |> 
+    st_make_valid() |> 
+    clean_names()
+  
+  # ainda há algo inválido?
+  any(!st_is_valid(indigenousland_raw))
+  
+  glimpse(indigenousland_raw)
 
-  shp_names <- list.files(out_zip, pattern = "\\.shp$", full.names = TRUE)
+  # indigenousland_raw <- data.table::rbindlist(indigenousland_list)
+  # data.table::setDF(indigenousland_raw)
+  # indigenousland_raw <- sf::st_as_sf(indigenousland_raw)
 
-  indigenousland_list <- pbapply::pblapply(
-    X = shp_names,
-    FUN = function(x){ sf::st_read(x, quiet = T, stringsAsFactors=F) }
-  )
-
-  indigenousland_raw <- data.table::rbindlist(indigenousland_list)
-  data.table::setDF(indigenousland_raw)
-  indigenousland_raw <- sf::st_as_sf(indigenousland_raw)
-
-  ###### 6. Show result -----------------
+  ## 7. Show result ------------------------------------------------------------
 
   glimpse(indigenousland_raw)
 
   return(indigenousland_raw)
   }
 
+# Clean the data ---------------------------------------------------------------
+clean_indigenousland <- function(indigenousland_raw, year) {
   
+  ## 0. Create folder to save clean data ---------------------------------------
   
-  ###### 3. LINKS TO TEST HERE -----------------  
+  dir_clean <- paste0("./data/indigenous_land/", year)
+  dir.create(dir_clean, recursive = T, showWarnings = FALSE)
+  dir.exists(dir_clean)
   
-  #ftp <-  "https://mapas2.funai.gov.br/portal_mapas/shapes/ti_sirgas.zip" # NOT WORKING
+  ## 1. Preparation ------------------------------------------------------------
   
-  # ftp_link <- "https://geoserver.funai.gov.br/geoserver/Funai/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=Funai%3Atis_poligonais&maxFeatures=10000&outputFormat=SHAPE-ZIP"
+  test <- indigenousland_raw |> 
+    get_dupes(terrai_cod)
+  
+  indigenousland <- indigenousland_raw |> # 66666 Failed rename error "agr"
+    st_make_valid()
+    
+  ## 2. Apply harmonize geobr cleaning -----------------------------------------
+  
+  temp_sf <- harmonize_geobr(
+    temp_sf = indigenousland,
+    add_state = F,
+    add_region = F,
+    add_snake_case = F,
+    #snake_colname = snake_colname,
+    projection_fix = T,
+    encoding_utf8 = T,
+    topology_fix = T,
+    remove_z_dimension = T,
+    use_multipolygon = F
+  )
+  
+  glimpse(temp_sf)
+  
+  ## 3. Check integrity and do post corrections --------------------------------
+  
+  temp_sf <- temp_sf |> 
+    ungroup() |> 
+    relocate(year, .before = geometry) |> 
+    rename(code_indland = terrai_cod, name_indland = terrai_nom,
+           name_muni = municipio,
+           abbrev_state = uf_sigla)
+  glimpse(temp_sf)
+  st_crs(temp_sf)
+  
+  ## 4. lighter version --------------------------------------------------------
+  temp_sf_simplified <- simplify_temp_sf(temp_sf, tolerance = 100)
+  
+  ## 5. Save results  ----------------------------------------------------------
   # 
-  # url <- "https://mapas2.funai.gov.br/portal_mapas/"
+  # #sf::st_write(temp_sf, dsn= paste0(dir_clean,"/indigenousland_", year, ".gpkg"), delete_dsn=TRUE)
   # 
-  # url <- "https://www.gov.br/funai/pt-br/atuacao/terras-indigenas/geoprocessamento-e-mapas"
-  # 
-  # Most recent
+  ### Save in parquet
+  arrow::write_parquet(
+    x = temp_sf,
+    sink = paste0(dir_clean, "/indigenousland_", year, ".parquet"),
+    compression = 'zstd',
+    compression_level = 7
+  )
   
-
-
-# # Clean the data ----------------------------------
-# clean_indigenousland <- function(indigenousland_raw, year) {
-# 
-# ###### 0. Create folder to save clean data -----
-# 
-#   dir_clean <- paste0("./data/indigenous_land/", year)
-#   dir.create(dir_clean, recursive = T, showWarnings = FALSE)
-#   dir.exists(dir_clean)
-# 
-# ###### 1. Preparation -----------------
-# 
-# indigenousland_raw <- janitor::clean_names(indigenousland_raw)
-# 
-# ###### 2. Apply harmonize geobr cleaning -----------------
-# 
-# temp_sf <- harmonize_geobr(
-#   temp_sf = indigenousland_raw,
-#   add_state = F,
-#   add_region = F,
-#   add_snake_case = F,
-#   #snake_colname = snake_colname,
-#   projection_fix = T,
-#   encoding_utf8 = T,
-#   topology_fix = T,
-#   remove_z_dimension = T,
-#   use_multipolygon = T
-# )
-# 
-# glimpse(temp_sf)
-# 
-# ###### 3. Save results  -----------------
-# 
-# #sf::st_write(temp_sf, dsn= paste0(dir_clean,"/indigenousland_", year, ".gpkg"), delete_dsn=TRUE)
-# 
-# # Save in parquet
-# arrow::write_parquet(
-#   x = temp_sf,
-#   sink = paste0(dir_clean,"/indigenousland_", year, ".parquet"),
-#   compression='zstd',
-#   compression_level = 7
-# )
-# 
-# return(dir_clean)
-# }
+  arrow::write_parquet(
+    x = temp_sf_simplified,
+    sink = paste0(dir_clean,"/indigenousland_", year, "_simplified", ".parquet"),
+    compression='zstd',
+    compression_level = 7
+  )
+  
+  ## 6. Create the files for geobr index  --------------------------------------
+  
+  files <- list.files(path = dir_clean,
+                      pattern = ".parquet",
+                      recursive = TRUE,
+                      full.names = TRUE)
+  
+  return(files)
+}
 
 
 # RAPHAEL OLD CODE BELOW ---------------
