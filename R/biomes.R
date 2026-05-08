@@ -32,7 +32,8 @@ download_biomes <- function(year){ # year = 2019
   dir.create(zip_dir, showWarnings = FALSE, recursive = TRUE)
   dir.exists(zip_dir)
   
-  if(year == 2004) {
+  # build url
+  if(year == 2006) {
     ftp <- 'https://geoftp.ibge.gov.br/informacoes_ambientais/estudos_ambientais/biomas/vetores/Biomas_5000mil.zip'
   }
   
@@ -42,9 +43,13 @@ download_biomes <- function(year){ # year = 2019
     
     file_raw_costeiro <- fs::file_temp(tmp_dir = zip_dir,
                                        ext = fs::path_ext(ftp_costeiro))
-    
   }
   
+  if(year == 2025) {
+    ftp <- 'https://geoftp.ibge.gov.br/informacoes_ambientais/estudos_ambientais/biomas/vetores/2025_Biomas-e-Sistema-Costeiro-Marinho-do-Brasil-1-250000_shp.zip'
+  }
+  
+  # create local file
   file_raw <- fs::file_temp(tmp_dir = zip_dir,
                             ext = fs::path_ext(ftp))
   
@@ -71,36 +76,48 @@ download_biomes <- function(year){ # year = 2019
 
   #### 3. Read shapefile
   
-  if (year == 2004){
+  if (year == 2006){
   
-    biomes_raw <- st_read(dsn = zip_dir, layer = "Biomas5000",
-                        options = "ENCODING = latin1",
-                        stringsAsFactors = F, quiet = TRUE) %>% 
-    mutate(across(where(is.character),
-                  ~ iconv (.x, from = "latin1", to = "UTF-8")))
-  }
-
-
+    biomes_raw <- sf::st_read(
+      dsn = zip_dir, 
+      layer = "Biomas5000",
+      options = "ENCODING=latin1",
+      stringsAsFactors = F, 
+      quiet = TRUE
+      )
+    }
 
   # For 2019, must join earth biomes with coastal system
   if (year == 2019){
   
-    raw_costeiro <- st_read(dsn = zip_dir, layer = "Sistema_Costeiro_Marinho",
+    raw_costeiro <- sf::st_read(dsn = zip_dir, layer = "Sistema_Costeiro_Marinho",
                             options = "ENCODING = latin1",
                             stringsAsFactors = F, quiet = TRUE)
 
     
-    raw_terrestre <- st_read(dsn = zip_dir, layer = "lm_bioma_250",
+    raw_terrestre <- sf::st_read(dsn = zip_dir, layer = "lm_bioma_250",
                           options = "ENCODING = latin1",
                           stringsAsFactors = F, quiet = TRUE)
     
-    raw_costeiro <- raw_costeiro %>%
-      mutate(Bioma = "Sistema Costeiro", CD_Bioma = NA) %>%
-      select(-S_COSTEIRO)
+    raw_costeiro <- raw_costeiro |>
+      dplyr::mutate(Bioma = "Sistema Costeiro", CD_Bioma = NA) |>
+      dplyr::select(-S_COSTEIRO)
   
-    biomes_raw <- rbind(raw_terrestre, raw_costeiro)
+    biomes_raw <- dplyr::bind_rows(raw_terrestre, raw_costeiro)
   }
   
+  if (year == 2025){
+    
+    biomes_raw <- sf::st_read(
+      dsn = zip_dir, 
+      # layer = "Biomas5000",
+      stringsAsFactors = F, 
+      quiet = TRUE
+    )
+    
+  }
+  
+  biomes_raw <- biomes_raw |> janitor::clean_names()
   biomes_raw$year <- year
     
   return(biomes_raw)
@@ -114,46 +131,31 @@ download_biomes <- function(year){ # year = 2019
 # year <- tar_read("years_biomes")[1]
 # biomes_raw <- tar_read("biomes_raw",branches = 1)
 
-clean_biomes <- function(biomes_raw, year) {
+clean_biomes <- function(biomes_raw) {
   
   # 0. Create folder to save clean data
+  yyyy <- biomes_raw$year[1]
 
-  dir_clean <- paste0("./data/biomes/", year)
+  dir_clean <- paste0("./data/biomes/", yyyy)
   dir.create(dir_clean, recursive = T, showWarnings = FALSE)
   
 
-  # define colnames
-  snake_colname <- switch(
-    as.character(year),
-    "2004" = "NOM_BIOMA",
-    "2019" = "Bioma",
-    NA_character_
-  )
-  
-  id_colname <- switch(
-    as.character(year),
-    "2004" = "ID1",
-    "2019" = "CD_Bioma",
-    NA_character_
-  )
-  
-  # 2. Rename and reorder columns
-  biomes_raw <- biomes_raw |>
-    select('name_biome' = all_of(snake_colname), # 666 tidyselect pedindo pra mudar: tem que vir all_of() ou any_of() antes de snake selection
-           'code_biome' = all_of(id_colname), # 666 tidyselect pedindo pra mudar: ""
-           year, 
-           geometry
-    ) |> 
-    arrange(name_biome)
+
+  ## 2. standardize colnames  ---------------------------------------------------
+  biomes <- rename_cols_geobr(biomes_raw, dicionario_biomes) |> 
+    dplyr::select(
+      dplyr::any_of(c("code_biome", "name_biome")),
+      year, geometry
+      )
   
   # 1. harmonize geobr data
   temp_sf <- harmonize_geobr(
-    temp_sf = biomes_raw, 
-    year = year,
+    temp_sf = biomes, 
+    year = yyyy,
     add_state = F, 
     add_region = F, 
     add_snake_case = T, 
-    snake_colname = snake_colname,
+    snake_colname = "name_biome",
     projection_fix = T, 
     encoding_utf8 = T, 
     topology_fix = T,
@@ -161,32 +163,24 @@ clean_biomes <- function(biomes_raw, year) {
     use_multipolygon = T
     )
 
-    
+  # sort rows
+  biomes <- biomes |> 
+    dplyr::arrange(name_biome)
     
   # 3. generate a lighter version of the dataset with simplified borders
-  # skip this step if the dataset is made of points, regular spatial grids or rater data
-
-    temp_sf_simplified <- simplify_temp_sf(temp_sf)
+  temp_sf_simplified <- simplify_temp_sf(temp_sf)
   
   
-  # 4. Save file
-  # sf::st_write(temp_sf, dsn = paste0(dir_clean, "/", "biomes_", year, ".gpkg"), append=FALSE)
-  # sf::st_write(temp_sf_simplified, dsn = paste0(dir_clean, "/", "biomes_", year, "_simplified", ".gpkg"), append=FALSE)
+  # 4. Save file ---------------------------
+    
+  write_geobr_parquet(
+    sf_obj = temp_sf,
+    path = paste0(dir_clean, "/", "biomes_", yyyy, ".parquet")
+    )
 
-  # Save in parquet
-  arrow::write_parquet(
-    x = temp_sf,
-    sink = paste0(dir_clean, "/", "biomes_", year, ".parquet"),
-    compression='zstd',
-    compression_level = 7
-  )
-
-  arrow::write_parquet(
-    x = temp_sf_simplified,
-    sink = paste0(dir_clean, "/", "biomes_", year, "_simplified", ".parquet"),
-    compression='zstd',
-    compression_level = 7
-  )
+  write_geobr_parquet(
+    sf_obj = temp_sf_simplified,
+    path = paste0(dir_clean, "/", "biomes_", yyyy, "_simplified.parquet"))
   
   files <- list.files(path = dir_clean, 
                       pattern = ".parquet", 

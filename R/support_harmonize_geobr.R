@@ -63,17 +63,40 @@ harmonize_geobr <- function(temp_sf,
     temp_sf <- remove_z_dimension(temp_sf)
   }
   
+  # make sure geometry column is named "geometry"
+  temp_sf <- normalize_sf_geometry(temp_sf)
+
   # convert to multipolygon
   if (isTRUE(use_multipolygon)) {
     temp_sf <- to_multipolygon(temp_sf)
   }
-  
-  # add year column
-  temp_sf$year <- year
-  
-  # make sure geometry column is named "geometry"
-  # temp_sf <- normalize_sf_geometry(temp_sf) 66666666666666666666
 
+  # add year column (before geometry to keep geometry last)
+  temp_sf$year <- year
+  temp_sf <- dplyr::relocate(temp_sf, geometry, .after = dplyr::last_col())
+
+  # code columns to numeric
+  temp_sf <- code_cols_to_numeric(temp_sf)
+  
+  # if there's at least one column named with "code_", sort by them
+  
+  if (any(grepl("code_", names(temp_sf)))) {
+    temp_sf <- temp_sf |>
+      dplyr::arrange(dplyr::across(dplyr::starts_with("code_")))
+  }
+  
+  
+  return(temp_sf)
+}
+
+
+# Normalize geometry column name ------------------------------------------------
+normalize_sf_geometry <- function(temp_sf) {
+  old_name <- attr(temp_sf, "sf_column")
+  if (old_name != "geometry") {
+    names(temp_sf)[names(temp_sf) == old_name] <- "geometry"
+    attr(temp_sf, "sf_column") <- "geometry"
+  }
   return(temp_sf)
 }
 
@@ -87,42 +110,90 @@ add_state_info <- function(temp_sf, column){
   # IF only the "name_state" column is present
   # Add code_state
   if ("name_state" %in% col_names & !"code_state" %in% col_names) {
-    
+      
     temp_sf <- temp_sf |> 
-      dplyr::mutate(code_state = ifelse(name_state== "Rondonia"
-                                        | name_state== "Territ\u00f3rio de Rondonia" 
-                                        | name_state== "Territorio de Rondonia",11,
-                                        ifelse(name_state== "Acre" | name_state== "Territ\u00f3rio do Acre",12,
-                                               ifelse(name_state== "Amazonas",13,
-                                                      ifelse(name_state== "Roraima" | name_state=="Territ\u00f3rio de Roraima",14,
-                                                             ifelse(name_state== "Par\u00e1",15,
-                                                                    ifelse(name_state== "Amap\u00e1" | name_state=="Territorio do Amapa",16,
-                                                                           ifelse(name_state== "Tocantins",17,
-                                                                                  ifelse(name_state== "Maranh\u00e3o",21,
-                                                                                         ifelse(name_state== "Piaui" | name_state== "Piauhy",22,
-                                                                                                ifelse(name_state== "Cear\u00e1",23,
-                                                                                                       ifelse(name_state== "Rio Grande do Norte",24,
-                                                                                                              ifelse(name_state== "Paraiba" | name_state== "Parahyba",25,
-                                                                                                                     ifelse(name_state== "Pernambuco",26,
-                                                                                                                            ifelse(name_state== "Alagoas" | name_state=="Alag\u00f4as",27,
-                                                                                                                                   ifelse(name_state== "Sergipe",28,
-                                                                                                                                          ifelse(name_state== "Bahia",29,
-                                                                                                                                                 ifelse(name_state== "Minas Gerais" | name_state== "Minas Geraes",31,
-                                                                                                                                                        ifelse(name_state== "Espirito Santo" | name_state== "Esp\\u00edrito Santo",32,
-                                                                                                                                                               ifelse(name_state== "Rio de Janeiro",33,
-                                                                                                                                                                      ifelse(name_state== "S\u00e3o Paulo",35,
-                                                                                                                                                                             ifelse(name_state== "Paran\u00e1",41,
-                                                                                                                                                                                    ifelse(name_state== "Santa Catarina" | name_state== "Santa Catharina",42,
-                                                                                                                                                                                           ifelse(name_state== "Rio Grande do Sul",43,
-                                                                                                                                                                                                  ifelse(name_state== "Mato Grosso do Sul",50,
-                                                                                                                                                                                                         ifelse(name_state== "Mato Grosso" | name_state== "Matto Grosso",51,
-                                                                                                                                                                                                                ifelse(name_state== "Goi\u00e1s" | name_state== "Goyaz",52,
-                                                                                                                                                                                                                       ifelse((name_state== "Distrito Federal" | name_state=="Brasilia") & (year>1950),53,NA
-                                                                                                                                                                                                                       ))))))))))))))))))))))))))))
+      dplyr::mutate(code_state = ifelse(name_state %like% "Rondonia|Rondônia|Rond\u00f4nia|Guapoé|Guapor\u00e9",11,
+      ifelse(name_state %like% "Acre", 12,
+      ifelse(name_state== "Amazonas",13,
+      ifelse(name_state %like% "Roraima|Rio Branco",14,
+      ifelse(name_state %in% c("Par\u00e1", "Pará", "Para") ,15,
+      ifelse(name_state %like% "Amap\u00e1|Amapá|Amapa", 16,
+      ifelse(name_state== "Tocantins",17,
+      ifelse((name_state %like% "(?i)territ") & (name_state %like% "(?i)fernando"),20,
+      ifelse(name_state== "Maranh\u00e3o",21,
+      ifelse(name_state %like% "Piaui|Piauhy|Piauí|Piau\\u00ed",22,
+      ifelse(name_state== "Cear\u00e1",23,
+      ifelse(name_state== "Rio Grande do Norte",24,
+      ifelse(name_state %like% "Paraiba|Parahyba|Para\\u00edbaParaíba",25,
+      ifelse(name_state== "Pernambuco" | name_state %like% "Fernando de Noronha",26,
+      ifelse(name_state== "Alagoas" | name_state=="Alag\u00f4as",27,
+      ifelse(name_state== "Sergipe",28,
+      ifelse(name_state== "Bahia",29,
+      ifelse(name_state== "Minas Gerais" | name_state== "Minas Geraes",31,
+      ifelse(name_state  %like% "Espirito Santo|Esp\\u00edrito Santo|Espírito Santo" ,32,
+      ifelse(name_state== "Rio de Janeiro",33,
+      ifelse(name_state== "Guanabara" | name_state %like% "(?i)munic[ií]pio neutro",34,
+      ifelse(name_state== "S\u00e3o Paulo" | name_state== "São Paulo",35,
+      ifelse(name_state %like% "Paran\u00e1|Paraná|Parana",41,
+      ifelse(name_state== "Santa Catarina" | name_state== "Santa Catharina",42,
+      ifelse(name_state== "Rio Grande do Sul",43,
+      ifelse(name_state== "Mato Grosso do Sul",50,
+      ifelse(name_state== "Mato Grosso" | name_state== "Matto Grosso",51,
+      ifelse(name_state== "Goi\u00e1s" | name_state== "Goyaz" | name_state== "Goiás" | name_state== "Goias",52,
+      ifelse((name_state== "Distrito Federal" | name_state== "Districto Federal") & year<1960,34,
+      ifelse((name_state== "Distrito Federal" | name_state=="Brasilia" | name_state=="Brasília" | name_state=="Bras\\u00edlia") & (year>1950),53,NA
+                    )))))))))))))))))))))))))))))))
   }
-  
+
+  # Bloco aditivo: se chegamos aqui com code_state ja existente mas com NAs
+  # (caso tipico: hist_states 1940-1991 — raw IBGE traz code_state=NA pra
+  # quase todos estados) E temos name_state, fazemos um segundo lookup pra
+  # preencher os NAs via coalesce. NAo altera valores nao-NA existentes.
+  if ("name_state" %in% col_names &&
+      "code_state" %in% names(temp_sf) &&
+      any(is.na(as.numeric(temp_sf$code_state)))) {
+
+    .fill_cs <- ifelse(temp_sf$name_state %like% "Rondonia|Rondônia|Rondônia|Guapoé|Guaporé",11,
+      ifelse(temp_sf$name_state %like% "Acre", 12,
+      ifelse(temp_sf$name_state== "Amazonas",13,
+      ifelse(temp_sf$name_state %like% "Roraima|Rio Branco",14,
+      ifelse(temp_sf$name_state %in% c("Pará", "Pará", "Para") ,15,
+      ifelse(temp_sf$name_state %like% "Amapá|Amapá|Amapa", 16,
+      ifelse(temp_sf$name_state== "Tocantins",17,
+      ifelse((temp_sf$name_state %like% "(?i)territ") & (temp_sf$name_state %like% "(?i)fernando"),20,
+      ifelse(temp_sf$name_state== "Maranhão",21,
+      ifelse(temp_sf$name_state %like% "Piaui|Piauhy|Piauí|Piau\\u00ed",22,
+      ifelse(temp_sf$name_state== "Ceará",23,
+      ifelse(temp_sf$name_state== "Rio Grande do Norte",24,
+      ifelse(temp_sf$name_state %like% "Paraiba|Parahyba|Para\\u00edba|Paraíba",25,
+      ifelse(temp_sf$name_state== "Pernambuco" | temp_sf$name_state %like% "Fernando de Noronha",26,
+      ifelse(temp_sf$name_state== "Alagoas" | temp_sf$name_state=="Alagôas",27,
+      ifelse(temp_sf$name_state== "Sergipe",28,
+      ifelse(temp_sf$name_state== "Bahia",29,
+      ifelse(temp_sf$name_state== "Minas Gerais" | temp_sf$name_state== "Minas Geraes",31,
+      ifelse(temp_sf$name_state %like% "Espirito Santo|Esp\\u00edrito Santo|Espírito Santo",32,
+      ifelse(temp_sf$name_state== "Rio de Janeiro",33,
+      ifelse(temp_sf$name_state== "Guanabara" | temp_sf$name_state %like% "(?i)munic[ií]pio neutro",34,
+      ifelse(temp_sf$name_state== "São Paulo" | temp_sf$name_state== "São Paulo",35,
+      ifelse(temp_sf$name_state %like% "Paraná|Paraná|Parana",41,
+      ifelse(temp_sf$name_state== "Santa Catarina" | temp_sf$name_state== "Santa Catharina",42,
+      ifelse(temp_sf$name_state== "Rio Grande do Sul",43,
+      ifelse(temp_sf$name_state== "Mato Grosso do Sul",50,
+      ifelse(temp_sf$name_state== "Mato Grosso" | temp_sf$name_state== "Matto Grosso",51,
+      ifelse(temp_sf$name_state== "Goiás" | temp_sf$name_state== "Goyaz" | temp_sf$name_state== "Goiás" | temp_sf$name_state== "Goias",52,
+      ifelse((temp_sf$name_state== "Distrito Federal" | temp_sf$name_state== "Districto Federal") & temp_sf$year<1960,34,
+      ifelse((temp_sf$name_state== "Distrito Federal" | temp_sf$name_state=="Brasilia" | temp_sf$name_state=="Brasília" | temp_sf$name_state=="Bras\\u00edlia") & (temp_sf$year>1950),53,NA
+                    ))))))))))))))))))))))))))))))
+
+    # Original code_state, tratando 0 (marker de litigio) como NA
+    .orig_cs <- as.numeric(temp_sf$code_state)
+    .orig_cs <- ifelse(is.na(.orig_cs) | .orig_cs == 0, NA_real_, .orig_cs)
+    temp_sf$code_state <- dplyr::coalesce(.orig_cs, as.numeric(.fill_cs))
+    rm(.fill_cs, .orig_cs)
+  }
+
   # IF there is no "name_state" column
-  if (column != 'name_state'){
+  if (column != 'name_state') {
     
     # add code_state
     temp_sf$code_state <- substr( temp_sf[[ column ]] , 1,2) |> as.numeric()
@@ -139,6 +210,7 @@ add_state_info <- function(temp_sf, column){
                                                             code_state== 15, "Par\u00e1",
                                                             code_state== 16, "Amap\u00e1",
                                                             code_state== 17, "Tocantins",
+                                                            code_state== 20, "Fernando de Noronha",
                                                             code_state== 21, "Maranh\u00e3o",
                                                             code_state== 22, "Piau\u00ed",
                                                             code_state== 23, "Cear\u00e1",
@@ -151,6 +223,7 @@ add_state_info <- function(temp_sf, column){
                                                             code_state== 31, "Minas Gerais",
                                                             code_state== 32, "Esp\u00edrito Santo",
                                                             code_state== 33, "Rio de Janeiro",
+                                                            code_state== 34, "Guanabara",
                                                             code_state== 35, "S\u00e3o Paulo",
                                                             code_state== 41, "Paran\u00e1",
                                                             code_state== 42, "Santa Catarina",
@@ -172,6 +245,7 @@ add_state_info <- function(temp_sf, column){
       code_state== 15, "PA",
       code_state== 16, "AP",
       code_state== 17, "TO",
+      code_state== 20, "FN",
       code_state== 21, "MA",
       code_state== 22, "PI",
       code_state== 23, "CE",
@@ -184,6 +258,7 @@ add_state_info <- function(temp_sf, column){
       code_state== 31, "MG",
       code_state== 32, "ES",
       code_state== 33, "RJ",
+      code_state== 34, "GB",
       code_state== 35, "SP",
       code_state== 41, "PR",
       code_state== 42, "SC",
@@ -224,7 +299,7 @@ snake_case_names <- function(temp_sf, colname){
     if(i %in% names(temp_sf)){
       # Capitalize the first letter
       temp_sf[[ i ]] <- stringr::str_to_title( temp_sf[[ i ]] )
-      
+
       # prepositions to lower
       temp_sf[[ i ]] <- gsub(" Do ",  " do ",   temp_sf[[ i ]] )
       temp_sf[[ i ]] <- gsub(" Dos ", " dos ", temp_sf[[ i ]] )
@@ -232,7 +307,11 @@ snake_case_names <- function(temp_sf, colname){
       temp_sf[[ i ]] <- gsub(" Das ", " das ", temp_sf[[ i ]] )
       temp_sf[[ i ]] <- gsub(" De ",  " de ",   temp_sf[[ i ]] )
       temp_sf[[ i ]] <- gsub(" Del ", " del ",   temp_sf[[ i ]] )
-      temp_sf[[ i ]] <- gsub(" D'",   " d'",   temp_sf[[ i ]] )
+      
+      temp_sf[[ i ]] <- gsub(" D'o",   " d'O",   temp_sf[[ i ]] )
+      temp_sf[[ i ]] <- gsub(" D'ó",   " d'Ó",   temp_sf[[ i ]] )
+      temp_sf[[ i ]] <- gsub(" D'a",   " d'A",   temp_sf[[ i ]] )
+      temp_sf[[ i ]] <- gsub(" D'á",   " d'Á",   temp_sf[[ i ]] )
     }
   }
   return(temp_sf)
@@ -244,6 +323,8 @@ snake_case_names <- function(temp_sf, colname){
 # Harmonize spatial projection CRS, using SIRGAS 2000 epsg (SRID): 4674
 
 harmonize_projection <- function(temp_sf){
+  
+  class(temp_sf) <- c("sf", "data.frame")
   
   temp_sf <- if (is.na(sf::st_crs(temp_sf))) {
     sf::st_set_crs(temp_sf, 4674)
@@ -281,10 +362,10 @@ use_encoding_utf8 <- function(temp_sf){
 # convert to MULTIPOLYGON ------------------------------------------------------
 
 # to_multipolygon <- function(temp_sf){
-# if( st_geometry_type(temp_sf) |> unique() |> as.character() |> length() > 1 |
-#     any(  !( st_geometry_type(temp_sf) |> unique() |> as.character() %like% "MULTIPOLYGON|GEOMETRYCOLLECTION"))) {
+# if(sf::st_geometry_type(temp_sf) |> unique() |> as.character() |> length() > 1 |
+#     any(  !(sf::st_geometry_type(temp_sf) |> unique() |> as.character() %like% "MULTIPOLYGON|GEOMETRYCOLLECTION"))) {
 #   # remove linstring
-#   temp_sf <- subset(temp_sf, st_geometry_type(temp_sf) |> as.character() != "LINESTRING")
+#   temp_sf <- subset(temp_sf,sf::st_geometry_type(temp_sf) |> as.character() != "LINESTRING")
 #   temp_sf <- sf::st_cast(temp_sf, "MULTIPOLYGON")
 #   return(temp_sf)
 # }else{ return(temp_sf)}}
@@ -294,11 +375,18 @@ to_multipolygon <- function(temp_sf){
   # get geometry types
   geom_types <- sf::st_geometry_type(temp_sf) |> unique() |> as.character()
   
+  # se todos forem polygon ou MULTIPOLYGON, retorna MULTIPOLYGON
+ if (all(data.table::like(unique(geom_types) ,"POLYGON|MULTIPOLYGON"))) {
+   temp_sf <- sf::st_cast(temp_sf, "MULTIPOLYGON")
+   return(temp_sf)
+  }
+  
   # checks
-  if (length(geom_types) > 1 | any(  !( data.table::like(geom_types,"MULTIPOLYGON")))) {
+  if (length(geom_types) > 1 | any(  !( data.table::like(geom_types,"POLYGON")))) {
     
-    # remove linestring
+    # remove linestrings and points
     temp_sf <- subset(temp_sf, sf::st_geometry_type(temp_sf) |> as.character() != "LINESTRING")
+    # temp_sf <- subset(temp_sf, sf::st_geometry_type(temp_sf) |> as.character() != "POINT")
     
     # get polyons
     temp_sf <- sf::st_cast(temp_sf, "POLYGON")
@@ -313,30 +401,63 @@ to_multipolygon <- function(temp_sf){
   # merge polygons into single MULTIPOLYGON
   col_names <- names(temp_sf)
   col_names <- col_names[ !col_names %like% 'geometry|geom']
-  col_names <- col_names[col_names %like% "code_|name_"]
   
   temp_sf <- temp_sf |>
     dplyr::group_by(across(all_of(col_names))) |>
-    dplyr::summarise()
-  
-  
+    dplyr::summarise() |>
+    dplyr::ungroup()
+
   temp_sf <- sf::st_cast(temp_sf, "MULTIPOLYGON")
   
   return(temp_sf)
 }
 
-### OBS: é possível que esse trecho da função esteja apagando a coluna "abbrev_state" 666666666
+### OBS: é possível que esse trecho da função esteja apagando certas colunas
 
 # Fix topology -----------------------------------------------------------------
 
 fix_topology <- function(temp_sf){
   
-  ### Attempt 1
   sf::sf_use_s2(TRUE)
+  
+  # first check whether there are any offending feature(s)
+  bad_ix <- which(!sf::st_is_valid(temp_sf))
+  # bad_ix <- which(
+  #   ! duckspatial::ddbs_is_valid(temp_sf) |> 
+  #     pull(is_valid)
+  #   )
+    
+  if (length(bad_ix) == 0) {
+    return(temp_sf)
+  }
+  
+  # ### Attempt 1 - fast duckdbspatial
+  # # temp_sf <- sf::st_make_valid(temp_sf)
+  # 
+  # try(silent = T,
+  #     temp_sf <- duckspatial::ddbs_make_valid(temp_sf) |>
+  #       duckspatial::ddbs_collect()
+  # )
+  # 
+  # # Find the offending feature(s)
+  # bad_ix <- which(
+  #   ! duckspatial::ddbs_is_valid(temp_sf) |> 
+  #     pull(is_valid)
+  # )
+  # 
+  # if (length(bad_ix) == 0) {
+  #   return(temp_sf)
+  # }
+
+  ### Attempt 2 - not so fast sf
   temp_sf <- sf::st_make_valid(temp_sf)
   
-  # 1) Find the offending feature(s)
-  bad_ix <- which(!st_is_valid(temp_sf))
+  # Find the offending feature(s)
+  bad_ix <- which(!sf::st_is_valid(temp_sf))
+  # bad_ix <- which(
+  #   ! duckspatial::ddbs_is_valid(temp_sf) |> 
+  #     pull(is_valid)
+  #   )
   
   if (length(bad_ix) == 0) {
     return(temp_sf)
@@ -344,28 +465,28 @@ fix_topology <- function(temp_sf){
   
   # # detect problematic edges
   # poly_invalid <- temp_sf[bad_ix, ]
-  # problem_edges <- st_is_valid(poly_invalid, reason=TRUE)
+  # problem_edges <-sf::st_is_valid(poly_invalid, reason=TRUE)
   # problem_edges <- sub(".*:\\D*(\\d+).*", "\\1", problem_edges) |> as.numeric()
   # all_edges <- sf::st_cast(poly_invalid, "POINT") |> suppressWarnings()
   # problem_edges <- all_edges[problem_edges, ]
   # mapview::mapview(poly_invalid) + problem_edges
   
-  ### Attempt 2
+  ### Attempt 3 {lwgeom::lwgeom_make_valid}
   
-  # 2) Try lwgeom’s make_valid first (sometimes succeeds where sf:: does not)
-  geom <- st_geometry(temp_sf)
+  # Try lwgeom’s make_valid first (sometimes succeeds where sf:: does not)
+  geom <- sf::st_geometry(temp_sf)
   geom[bad_ix] <- lwgeom::lwgeom_make_valid(geom[bad_ix])
   
-  st_geometry(temp_sf) <- geom
+  sf::st_geometry(temp_sf) <- geom
   
-  # 3) Find the offending feature(s)
+  # Find the offending feature(s)
   still_bad <- which(!st_is_valid(temp_sf))
   
   if (length(still_bad) == 0) {
     return(temp_sf)
   }
   
-  ### Attempt 3 - rebuild polygon: if still invalid, rebuild via node + polygonize
+  ### Attempt 4 - rebuild polygon: if still invalid, rebuild via node + polygonize
   
   fix_one <- function(g) {
     b  <- sf::st_boundary(g)
@@ -379,11 +500,11 @@ fix_topology <- function(temp_sf){
   
   if (length(still_bad)) {
     for (i in still_bad) {
-      st_geometry(temp_sf)[i] <- fix_one(st_geometry(temp_sf)[i])
+     sf::st_geometry(temp_sf)[i] <- fix_one(st_geometry(temp_sf)[i])
     }
   }  
   
-  # 3) Find the offending feature(s)
+  # Find the offending feature(s)
   still_bad <- which(!st_is_valid(temp_sf))
   
   if (length(still_bad) == 0) {
@@ -397,53 +518,319 @@ fix_topology <- function(temp_sf){
 # Dissolve borders temp_sf -----------------------------------------------------
 
 ## Function to clean and dissolve the borders of polygons by groups
-dissolve_polygons <- function(mysf, group_column){
+
+dissolvefun <- function(df, group_column = NULL){
   
+  # temp_region <- df |>
+  #   ungroup() |>
+  #   summarise(.by = group_column)
+  
+  # temp_region <- df |>
+  #   dplyr::group_by(dplyr::across(dplyr::all_of(group_column))) |>
+  #   dplyr::summarise(.groups = "drop")
+  
+  # convert to UTM before dissolving borders. this helps avoiding 
+  # small gap / slivers
+  df <- df |> sf::st_transform(crs = 3857)
+  
+  temp_region <- duckspatial::ddbs_union_agg(
+    x =  df,
+    by = group_column
+    ) |>
+    duckspatial::ddbs_collect()
+  
+  temp_region <- fix_topology(temp_region)
+  temp_region <- sfheaders::sf_remove_holes(temp_region)
+  temp_region <- harmonize_projection(temp_region)
+  
+  return(temp_region)
+}
+
+dissolve_polygons_split <- function(mysf, group_column = NULL){
+  
+  # make sure it is projects
+  mysf <- harmonize_projection(mysf)
   
   # a) make sure we have valid geometries
-  mysf <- fix_topology(mysf) #change to fix_topology? #666
-  # Before fix_topoly
+  mysf <- fix_topology(mysf)
   
   # b) make sure we have sf MULTIPOLYGON
-  #temp_sf1 <- temp_sf |> st_cast("MULTIPOLYGON")
-  temp_sf1 <- to_multipolygon(mysf)
+  mysf <- to_multipolygon(mysf)
   
-  # c) long but complete dissolve function
-  dissolvefun <- function(grp){
-    
-    # c.1) subset region
-    temp_region <- subset(mysf, get(group_column, mysf)== grp ) |> 
-      ungroup() ### 666 added ungroup because of error
-    
-    
-    temp_region <- summarise(temp_region, .by = group_column)
-    # plot(temp_region)
-    
-    # temp_sf3 <- temp_sf |>
-    #   mutate(geometry = s2::as_s2_geography(geometry)) |>
-    #   group_by(Bioma, CD_Bioma) |>
-    #   summarise(geometry = s2::s2_union_agg(geometry)) |>
-    #   mutate(geometry = st_as_sfc(geometry))
-    
-    temp_region <- sfheaders::sf_remove_holes(temp_region)
-    temp_region <- fix_topology(temp_region) #666 fix_topoly?
-    
-    return(temp_region)
-  }
-  
+  # # c) dissolve function with duckspatial
+  # temp_sf <- duckspatial::ddbs_union_agg(
+  #   x =  mysf,
+  #   by = group_column #, conn = conn
+  #   ) |>
+  #   duckspatial::ddbs_collect() |> 
+  #   sfheaders::sf_remove_holes()
+  #> ERROR: Not compatible with STRSXP: [type=NULL].
   
   # Apply sub-function
-  groups_sf <- pbapply::pblapply(X = unique(get(group_column, mysf)), FUN = dissolvefun )
+  all_areas <- split(mysf, f = mysf[[group_column]] ) |>
+    pbapply::pblapply(
+      FUN = function(x, grp_column = group_column) {
+        temp <- dissolvefun(x, group_column = grp_column )
+        temp <- sfheaders::sf_remove_holes(temp)
+        return(temp)
+      }
+    )
+  temp_sf <- dplyr::bind_rows(all_areas)
+  # temp_sf <- do.call("rbind", all_areas)
   
-  # rbind results
-  temp_sf <- do.call('rbind', groups_sf)
+  # unecessary because we remove hole in the dissolve fun already
+  # # remove furos e rebarbas
+  # temp_sf <- sfheaders::sf_remove_holes(temp_sf)
+  
+  
   return(temp_sf)
 }
+
+
+
+dissolve_polygons_no_split <- function(mysf, group_column = NULL){
+  
+  # make sure it is projects
+  mysf <- harmonize_projection(mysf)
+  
+  # a) make sure we have valid geometries
+  mysf <- fix_topology(mysf)
+  
+  # b) make sure we have sf MULTIPOLYGON
+  mysf <- to_multipolygon(mysf)
+  
+  # remove furos e rebarbas
+  mysf <- sfheaders::sf_remove_holes(mysf)
+
+  temp_sf <- duckspatial::ddbs_union_agg(
+    x =  mysf,
+    by = group_column
+  ) |>
+    duckspatial::ddbs_collect()
+  
+  # b) make sure we have sf MULTIPOLYGON
+  temp_sf <- to_multipolygon(temp_sf)
+  
+  temp_sf <- sfheaders::sf_remove_holes(temp_sf)
+  temp_sf <- fix_topology(temp_sf)
+  temp_sf <- harmonize_projection(temp_sf)
+  temp_sf <- sfheaders::sf_remove_holes(temp_sf)
+  
+  # get attributes back
+  temp_sf <- dplyr::left_join(
+    x = temp_sf, 
+    y = sf::st_drop_geometry(mysf) |> unique()
+    )
+  
+  return(temp_sf)
+}
+
+
 
 # # test
 # states <- geobr::read_state(year=2000)
 # a <- dissolve_polygons(states, group_column='code_region')
 # plot(a)
+
+# Read DATASUS .MAP binary format into sf ---------------------------------------
+# Pure-R reader — no maptools dependency. Reads the DATASUS TabWin binary format
+# used for health regions, macroregions, etc.
+# Source format: ftp://ftp.datasus.gov.br/territorio/mapas/
+read_datasus_map <- function(filename) {
+
+  zz <- file(filename, "rb")
+  on.exit(close(zz))
+
+  ## 1. Header
+  versao <- readBin(zz, "integer", 1, size = 2)   # 100 = version 1.00
+  leste  <- readBin(zz, "numeric", 1, size = 4)   # bounding box
+  norte  <- readBin(zz, "numeric", 1, size = 4)
+  oeste  <- readBin(zz, "numeric", 1, size = 4)
+  sul    <- readBin(zz, "numeric", 1, size = 4)
+
+  ## 2. Read objects
+  geocodes <- character(0)
+  names_vec <- character(0)
+  geom_list <- list()
+  idx <- 0
+
+  repeat {
+    tipoobj <- readBin(zz, "integer", 1, size = 1)
+    if (length(tipoobj) == 0) break
+    idx <- idx + 1
+
+    # Geocode (Pascal string: length byte + 10 chars)
+    len_geo <- readBin(zz, "integer", 1, size = 1)
+    raw_geo <- readBin(zz, "raw", 10)
+    geocodes[idx] <- rawToChar(raw_geo[seq_len(min(len_geo, 10))])
+
+    # Name (Pascal string: length byte + 25 chars, WINDOWS-1252 encoding)
+    len_name <- readBin(zz, "integer", 1, size = 1)
+    raw_name <- readBin(zz, "raw", 25)
+    name_raw <- raw_name[seq_len(min(len_name, 25))]
+    names_vec[idx] <- tryCatch(
+      iconv(rawToChar(name_raw), from = "WINDOWS-1252", to = "UTF-8"),
+      error = function(e) {
+        name_raw[name_raw > as.raw(127)] <- as.raw(0x3F)
+        rawToChar(name_raw)
+      }
+    )
+
+    # Legend coordinates (skip)
+    readBin(zz, "numeric", 1, size = 4)
+    readBin(zz, "numeric", 1, size = 4)
+
+    # Number of points
+    numpontos <- readBin(zz, "integer", 1, size = 2)
+
+    # Read coordinates
+    x <- numeric(numpontos)
+    y <- numeric(numpontos)
+    for (j in seq_len(numpontos)) {
+      x[j] <- readBin(zz, "numeric", 1, size = 4)
+      y[j] <- readBin(zz, "numeric", 1, size = 4)
+    }
+
+    ## 3. Split into polygon rings (detect ring closures)
+    rings <- list()
+    ring_start <- 1
+
+    if (numpontos >= 3) {
+      for (j in 2:numpontos) {
+        dx <- abs(x[j] - x[ring_start])
+        dy <- abs(y[j] - y[ring_start])
+        if (dx < 1e-6 && dy < 1e-6 && (j - ring_start) >= 2) {
+          rings <- c(rings, list(cbind(x[ring_start:j], y[ring_start:j])))
+          ring_start <- j + 1
+        }
+      }
+      # Leftover unclosed ring
+      if (ring_start <= numpontos && (numpontos - ring_start) >= 2) {
+        rc <- cbind(x[ring_start:numpontos], y[ring_start:numpontos])
+        rc <- rbind(rc, rc[1, , drop = FALSE])
+        rings <- c(rings, list(rc))
+      }
+    }
+
+    ## 4. Build sf geometry
+    if (length(rings) == 0) {
+      geom_list[[idx]] <- sf::st_polygon()
+    } else if (length(rings) == 1) {
+      geom_list[[idx]] <- sf::st_polygon(rings)
+    } else {
+      poly_parts <- lapply(rings, function(r) list(r))
+      geom_list[[idx]] <- sf::st_multipolygon(poly_parts)
+    }
+  }
+
+  ## 5. Assemble sf, make valid, set CRS (SIRGAS 2000)
+  sfc <- sf::st_sfc(geom_list, crs = 4674)
+  result <- sf::st_sf(
+    geocode = geocodes,
+    name    = names_vec,
+    geometry = sfc
+  )
+  result <- sf::st_make_valid(result)
+  
+  result <- fix_topology(result)
+  
+  return(result)
+}
+
+# Write GeoParquet with spatial metadata ----------------------------------------
+# Requires geoarrow package loaded (via _targets.R packages list).
+# Produces OGC GeoParquet with CRS, geometry type, and bbox metadata.
+write_geobr_parquet <- function(sf_obj, path) {
+  
+  # Ensure geometry is always the last column (geobr convention)
+  geo_col <- attr(sf_obj, "sf_column")
+  
+  if (!is.null(geo_col) && geo_col %in% names(sf_obj)) {
+    other_cols <- setdiff(names(sf_obj), geo_col)
+    sf_obj <- sf_obj[, c(other_cols, geo_col)]
+  }
+  
+  arrow::write_parquet(x = sf_obj, 
+                       sink = path,
+                       compression = "zstd", 
+                       compression_level = 7
+                       )
+}
+
+# Read GeoParquet files into sf -------------------------------------------------
+read_geoparquet <- function(files) {
+  ## Try sfarrow first (preserves CRS from sfarrow-written parquets)
+  ## Fallback to arrow::open_dataset for geoarrow-written parquets
+  if (length(files) == 1 && file.exists(files)) {
+    tryCatch({
+      sf_obj <- sfarrow::st_read_parquet(files)
+      if (!is.na(sf::st_crs(sf_obj)$epsg)) return(sf_obj)
+    }, error = function(e) NULL)
+  }
+  arrow::open_dataset(files) |> sf::st_as_sf()
+}
+
+# Validate geobr parquet output ------------------------------------------------
+validate_geobr <- function(file_path) {
+  sf_obj <- read_geoparquet(file_path)
+  fname <- basename(file_path)
+  is_point <- any(sf::st_geometry_type(sf_obj) %in% c("POINT", "MULTIPOINT"))
+
+  errors <- character(0)
+
+  # CRS = 4674
+  if (is.na(sf::st_crs(sf_obj)) || sf::st_crs(sf_obj)$epsg != 4674)
+    errors <- c(errors, paste(fname, "- CRS != 4674"))
+
+  # Geometry is last column
+  if (names(sf_obj)[ncol(sf_obj)] != "geometry")
+    errors <- c(errors, paste(fname, "- geometry not last column"))
+
+  # Geometry type
+  if (!is_point) {
+    geom_types <- unique(sf::st_geometry_type(sf_obj))
+    if (!all(geom_types %in% c("MULTIPOLYGON", "POLYGON")))
+      errors <- c(errors, paste(fname, "- unexpected geometry type:",
+                                paste(geom_types, collapse = ",")))
+  }
+
+  # code_* columns are numeric
+  code_cols <- grep("^code_", names(sf_obj), value = TRUE)
+  for (col in code_cols) {
+    if (!is.numeric(sf_obj[[col]]))
+      errors <- c(errors, paste(fname, "-", col, "is not numeric"))
+  }
+
+  # name_* columns are character
+  name_cols <- grep("^name_", names(sf_obj), value = TRUE)
+  for (col in name_cols) {
+    if (!is.character(sf_obj[[col]]))
+      errors <- c(errors, paste(fname, "-", col, "is not character"))
+  }
+
+  # abbrev_state has 2 chars
+  if ("abbrev_state" %in% names(sf_obj)) {
+    bad <- sf_obj$abbrev_state[!is.na(sf_obj$abbrev_state) &
+                                nchar(sf_obj$abbrev_state) != 2]
+    if (length(bad) > 0)
+      errors <- c(errors, paste(fname, "- abbrev_state has non-2-char values"))
+  }
+
+  # year column is numeric
+  if ("year" %in% names(sf_obj) && !is.numeric(sf_obj$year))
+    errors <- c(errors, paste(fname, "- year is not numeric"))
+
+  # Empty geometries: warn for small amounts, error if >1% of total
+  n_empty <- sum(sf::st_is_empty(sf_obj))
+  pct_empty <- 100 * n_empty / nrow(sf_obj)
+  if (n_empty > 0 && pct_empty > 1 && !is_point)
+    errors <- c(errors, paste(fname, "-", n_empty, "empty geometries (", round(pct_empty, 1), "%)"))
+  if (n_empty > 0 && pct_empty <= 1)
+    message(fname, " - ", n_empty, "/", nrow(sf_obj), " empty geometries (", round(pct_empty, 2), "%, OK)")
+
+  if (length(errors) > 0) stop(paste(errors, collapse = "\n"))
+  return(TRUE)
+}
 
 # Folder creation geobr function -----------------------------------------------
 
@@ -482,68 +869,6 @@ folder_geobr <- function(folder_name = NULL, temp = FALSE) {
   
 }
 
-# Unzip geobr function ---------------------------------------------------------
-
-unzip_geobr <- function(zip_dir, in_zip, out_zip = NULL, is_shp = FALSE) {
-  
-  if (is.null(in_zip)) {
-    # unzip folder
-    in_zip <- paste0(zip_dir, "/unzipped/")
-    dir.create(in_zip, showWarnings = FALSE, recursive = TRUE)
-    dir.exists(in_zip)
-  }
-  
-  if (is.null(out_zip)) {
-    # unzip folder
-    out_zip <- paste0(zip_dir, "/zipped/")
-    dir.create(out_zip, showWarnings = FALSE, recursive = TRUE)
-    dir.exists(out_zip)
-  }
-  
-  # directory of zips
-  zip_names <- list.files(in_zip, pattern = "\\.zip", full.names = TRUE)
-  
-  # Delimit a number of files
-  
-  if (is_shp == TRUE){ 
-    files_inzip <- purrr::map(
-      zip_names, 
-      function(x) {
-        unzip(x, list = TRUE)
-      }
-    )
-    
-    shp_delimit <- "shp|cpg|cst|dbf|prj|shx|xml|sbn|sbx"
-    
-    files_delimit <- purrr::map(
-      files_inzip, function(x) {
-        stringr::str_subset(x$Name, pattern = shp_delimit)
-      }
-    )
-    
-  } else {NULL}
-  
-  # unzip part 
-  
-  if (is_shp == TRUE){ 
-    purrr::imap(
-      zip_names, 
-      function(x, idx) {
-        unzip(x,
-              exdir = out_zip,
-              files = files_delimit[[idx]])
-      },
-      .progress = TRUE)
-  } else {
-    purrr::map(
-      zip_names, 
-      function(x) {
-        unzip(x,
-              exdir = out_zip)
-      },
-      .progress = TRUE)
-  }
-}
 
 # Columns names check geobr function -------------------------------------------
 
@@ -556,7 +881,7 @@ check_collumns_geobr <- function(dir_data = "./data") {
     full.names = TRUE
   )
   
-  map_dfr(arquivos, function(arquivo_path) {
+  purrr::map_dfr(arquivos, function(arquivo_path) {
     
     partes <- fs::path_split(
       fs::path_rel(arquivo_path, start = dir_data)
@@ -585,7 +910,7 @@ check_collumns_geobr <- function(dir_data = "./data") {
 # Columns names geobr function ------------------------------------------------
 
 # Essa função padroniza os nomes das colunas de qualquer dataset de acordo com
-# um dicionario que deverá ser criado no script de cada dataset dentro das
+# um dic que deverá ser criado no script de cada dataset dentro das
 # funções clean. Abaixo um exemplo para ser copiado para o scritp do dataset.
 
 ## Dicionário de equivalências do geobr ----------------------------------------
@@ -636,89 +961,26 @@ check_collumns_geobr <- function(dir_data = "./data") {
 #     "sigla_rg"
 #     ), stringsAsFactors = FALSE)
   
-## Função para aplicar a padronização ------------------------------------------
-standardcol_geobr <- function(dataset, dicionario) {
- 
-  # checagens mínimas
-  if (!is.data.frame(dataset)) stop("df deve ser um data.frame/tibble.")
-  if (!is.data.frame(dicionario)) stop("dicionario deve ser um data.frame com colunas 'padrao' e 'variacao'.")
-  if (!all(c("padrao", "variacao") %in% names(dicionario))) {
-    stop("dicionario precisa ter colunas chamadas exatamente 'padrao' e 'variacao'.")
-  }
-  
-  # garantir tipos character
-  dicionario$padrao  <- as.character(dicionario$padrao)
-  dicionario$variacao <- as.character(dicionario$variacao)
-  
-  # quais variações do dicionário existem no df
-  variacoes_presentes <- intersect(dicionario$variacao, names(dataset))
-  
-  if (length(variacoes_presentes) == 0) {
-    warning("Nenhuma coluna foi renomeada.", call. = FALSE)
-    attr(dataset, "alteracoes_realizadas") <- FALSE
-    attr(dataset, "alteracoes_n") <- 0L
-    return(dataset)
-  }
-  
-  # para cada variação encontrada, buscar o padrao correspondente
-  # se houver duplicidade na correspondência (mesma variacao repetida no dicionario),
-  # pegamos a primeira ocorrência
-  padrao_por_variacao <- vapply(
-    variacoes_presentes,
-    function(v) {
-      dicionario$padrao[which(dicionario$variacao == v)[1]]
-    },
-    FUN.VALUE = character(1)
-  )
-  
-  # nome atual das colunas
-  nomes_atual <- names(dataset)
-  
-  # substituir os nomes que batem com variacoes_presentes pelos padroes
-  nomes_novos <- nomes_atual
-  idx <- match(variacoes_presentes, nomes_atual)
-  # índices das colunas a renomear
-  nomes_novos[idx] <- padrao_por_variacao
-  
-  # verificar se haverá nomes duplicados após renomear
-  if (any(duplicated(nomes_novos))) {
-    # em vez de falhar, deixamos, mas avisamos o usuário qual será o problema
-    dup_names <- nomes_novos[duplicated(nomes_novos)]
-    warning(
-      "Após a renomeação haverá nomes de colunas duplicados: ",
-      paste(unique(dup_names), collapse = ", "),
-      ". Verifique o dicionário.", call. = FALSE
-    )
-  }
-  
-  # aplicar a renomeação
-  names(dataset) <- nomes_novos
-  
-  # mensagens / atributos
-  n_changes <- length(variacoes_presentes)
-  warning(paste0(n_changes, " coluna(s) foram renomeadas."), call. = FALSE)
-  attr(dataset, "alteracoes_realizadas") <- TRUE
-  attr(dataset, "alteracoes_n") <- as.integer(n_changes)
-  
-  return(dataset)
-}
+
+
 
 # Robust sf read geobr function ------------------------------------------------
 # Função para ler shp de multiplos arquivos e importá-los com
 #  apenas as colunas que existem em todos
 
 readmerge_geobr <-  function(folder_path,
-                             encoding
+                             encoding = "UTF-8"
                              ) {
   
   # lista todos os .shp na pasta (busca recursiva opcional)
   shp_files <- list.files(folder_path, pattern = "\\.shp$", full.names = TRUE)
-  
+  shp_files <- unique(shp_files)
 
   # read files
   shp_list <- purrr::map(shp_files, function(f) {
       message("Lendo: ", f)
-      sf::st_read(f, quiet = TRUE, stringsAsFactors=F, options = encoding)
+      sf::st_read(f, quiet = TRUE, stringsAsFactors=F, options = encoding) |> 
+        janitor::clean_names()
     })
 
     # une tudo
@@ -730,7 +992,7 @@ readmerge_geobr <-  function(folder_path,
 # States table codes for correction geobr function -----------------------------
 
 states_geobr <-  function() {
-  states <- tibble(code_state = as.character(c(11, 12, 13, 14, 15, 16, 17, 21, 22,
+  states <- tibble::tibble(code_state = as.numeric(c(11, 12, 13, 14, 15, 16, 17, 21, 22,
                                                23, 24, 25, 26, 27, 28, 29, 31, 32,
                                                33, 35, 41, 42, 43, 50, 51, 52, 53)),
                    abbrev_state = c("RO", "AC", "AM", "RR", "PA", "AP", "TO",
@@ -751,7 +1013,7 @@ states_geobr <-  function() {
                    name_region = c(rep("Norte", 7), rep("Nordeste", 9),
                                    rep("Sudeste", 4), rep("Sul", 3), 
                                    rep("Centro-Oeste", 4)),
-                   abbrevm_state = str_to_lower(abbrev_state))
+                   abbrevm_state = stringr::str_to_lower(abbrev_state))
   
   return(states)
 }
@@ -775,22 +1037,95 @@ glimpse_geobr <- function(dataset) {
   return(table_collumns)
 }
 
-# Rename collumns geobr --------------------------------------------------------
 
-# dicionario de colunas
-rename_dict <- list(
-  code_muni = c("cod_mun", "codmunic", "mun", "municipio_codigo",
-                "cod_muni", "cd_mun"),
-  name_muni = c("nome_cidade", "cidade", "nm_muni", "nome_muni"),
-  code_state = c("cd_estado", "uf", "coduf", "estado_codigo", "cod_uf",
-                 "cd_uf", "code_uf", "codigo_uf", "cod_state"),
-  abbrev_state = c("sigla", "sigla_uf", "sg_uf"),
-  name_state = c("nm_uf", "nm_state", "nm_estado"),
+
+
+# dicionario de colunas geobr --------------------------------------------------------
+
+dicionario_municipality <- list(
+  code_muni = c("cod_mun", "codmunic", "mun", "municipio_codigo", "geocod", "cod",
+                "cod_muni", "cd_mun", "geocodigo", "geocodig_m", "br91poly_i",
+                "cd_geocodm", "cd_geocmu", "geo_mun", "codigo"),
+  name_muni = c("nome_cidade", "cidade", "nm_muni", "nome_muni", 
+                "nome_munic", "nm_municip", "nm_mun", "municipio", "nomemuni",
+                "nomemunicp", "nome")
+  )
+
+
+dicionario_state <- list(
+  code_state = c("cd_estado", "uf", "coduf", "estado_codigo", "cod_uf", "codigo",
+                 "cd_uf", "code_uf", "codigo_uf", "cod_state", "cd_geocodu", 
+                 "cd_geocuf", "geo_uf"),
+  # abbrev_state = c("sigla", "sigla_uf", "sg_uf", "uf"),
+  name_state = c("nm_uf", "nm_state", "nm_estado", "nome")
+)
+
+
+
+dicionario_micro <- list(
+  code_micro = c("codigo", "cd_geocmi", "geocodigo", "cd_geocodu", "cd_micro"),
+  name_micro = c("nome", "nm_micro")
+)
+
+dicionario_meso <- list(
+  code_meso = c("codigo", "cd_geocme", "geocodigo", "cd_geocodu", "cd_meso"),
+  name_meso = c("nome", "nm_meso")
+)
+
+dicionario_intermediate <- list(
+  code_intermediate = c("cd_rgint", "rgint"),
+  name_intermediate = c("nm_rgint", "nome_rgint")
+)
+
+dicionario_immediate <- list(
+  code_immediate = c("cd_rgi", "rgi"),
+  name_immediate = c("nm_rgi", "nome_rgi"),
+  code_intermediate = c("cd_rgint", "rgint"),
+  name_intermediate = c("nm_rgint", "nome_rgint")
+)
+
+
+dicionario_region <- list(
   code_region = c("cd_regia", "cd_regiao"),
   name_region = c("nm_regia", "nm_regiao"),
-  abbrev_region = c("sigla_rg", "sg_rg"),
-  year = c("ano", "year_ref", "ano_referencia")
+  abbrev_region = c("sigla_rg", "sg_rg")
 )
+
+dicionario_biomes <- list(
+  code_biome = c("cd_bioma", "cod_bioma"),
+  name_biome = c("nom_bioma", "bioma", "nm_bioma")
+)
+
+dicionario_health_region <- list(
+  code_health_region = c("co_regsau", "cd_regsau", "co_regsaud", "cd_regsaud",
+                         "co_regiao_saude"),
+  name_health_region = c("nm_regsau", "nm_regsau", "no_regsaud", "nm_regsaud",
+                         "no_regiao_saude"),
+  code_state = c("cod_uf", "cd_uf", "codigo_uf", "co_uf")
+)
+
+# Original FUNAI columns:
+# gid, terrai_cod, terrai_nom, etnia_nome, municipio_, uf_sigla,
+# superficie, fase_ti, modalidade, reestudo_t, cr, faixa_fron,
+# undadm_cod, undadm_nom, undadm_sig, dominio_un, geometry
+dicionario_indigenousland <- list(
+  code_indigenous_land = c("terrai_cod"),
+  name_indigenous_land = c("terrai_nom"),
+  name_ethnic_group    = c("etnia_nome"),
+  name_muni            = c("municipio_"),
+  abbrev_state         = c("uf_sigla"),
+  area_ha              = c("superficie"),
+  coordination_region  = c("cr"),
+  code_adm_unit        = c("undadm_cod"),
+  name_adm_unit        = c("undadm_nom"),
+  abbrev_adm_unit      = c("undadm_sig")
+)
+
+# microregions_raw <- tar_read(microregions_raw, branches = 2)
+# rename_cols_geobr(microregions_raw, dicionario_micro) |> 
+#   head()
+
+# Função para aplicar a padronização de colnames ------------------------------------------
 
 rename_cols_geobr <- function(df, dict) {
   
@@ -817,7 +1152,7 @@ rename_cols_geobr <- function(df, dict) {
     }
   }
   
-  df
+  return(df)
 }
 
 
