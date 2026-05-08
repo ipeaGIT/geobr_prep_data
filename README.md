@@ -1,4 +1,4 @@
-# prep_roger
+# Preparing the data for {geobr}
 
 R pipeline that downloads, processes and standardizes Brazilian geospatial
 datasets for the [`geobr`](https://github.com/ipeaGIT/geobr) package.
@@ -89,7 +89,7 @@ a simplified Parquet file per year (except POINT datasets).
 ## Project structure
 
 ```
-prep_roger/
+geobr_prep_data/
 ├── _targets.R                        # Pipeline definition (DAG)
 ├── R/
 │   ├── support_harmonize_geobr.R     # Core: harmonization, projection, topology
