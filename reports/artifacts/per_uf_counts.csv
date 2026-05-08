@@ -1,0 +1,28 @@
+"code_state","abbrev_state","name_state","code_region","name_region","n_sectors","n_munis","n_urban","n_rural"
+11,"RO","Rondônia",1,"Norte",1820,52,794,1026
+12,"AC","Acre",1,"Norte",493,22,265,228
+13,"AM","Amazonas",1,"Norte",3089,62,2016,1073
+14,"RR","Roraima",1,"Norte",470,15,269,201
+15,"PA","Pará",1,"Norte",5669,143,3171,2498
+16,"AP","Amapá",1,"Norte",420,16,298,122
+17,"TO","Tocantins",1,"Norte",1085,139,468,617
+21,"MA","Maranhão",2,"Nordeste",5784,217,2146,3638
+22,"PI","Piauí",2,"Nordeste",3244,221,1291,1953
+23,"CE","Ceará",2,"Nordeste",7443,184,4772,2671
+24,"RN","Rio Grande do Norte",2,"Nordeste",2193,166,1237,956
+25,"PB","Paraíba",2,"Nordeste",3537,223,1818,1719
+26,"PE","Pernambuco",2,"Nordeste",7568,185,4672,2896
+27,"AL","Alagoas",2,"Nordeste",2257,101,1257,1000
+28,"SE","Sergipe",2,"Nordeste",1876,75,1032,844
+29,"BA","Bahia",2,"Nordeste",13474,415,7124,6350
+31,"MG","Minas Gerais",3,"Sudeste",19297,853,12781,6516
+32,"ES","Espírito Santo",3,"Sudeste",2946,77,1970,976
+33,"RJ","Rio de Janeiro",3,"Sudeste",19699,91,18401,1298
+35,"SP","São Paulo",3,"Sudeste",45961,645,40492,5469
+41,"PR","Paraná",4,"Sul",11486,399,7343,4143
+42,"SC","Santa Catarina",4,"Sul",5746,293,3657,2089
+43,"RS","Rio Grande do Sul",4,"Sul",15060,467,9943,5117
+50,"MS","Mato Grosso do Sul",5,"Centro-Oeste",2206,77,1355,851
+51,"MT","Mato Grosso",5,"Centro-Oeste",2808,126,1473,1335
+52,"GO","Goiás",5,"Centro-Oeste",5137,242,3443,1694
+53,"DF","Distrito Federal",5,"Centro-Oeste",2656,1,2548,108

@@ -1,0 +1,16 @@
+total_unified:         193424
+urban parquet nrow:    128012
+rural parquet nrow:    68406
+overlaps removed:      2994
+n_states:              27
+n_munis:               5507
+n_districts:           9845
+n_subdistricts:        10225
+n_neighborhoods:       16272
+NA name_muni:          0 (100.000% match)
+CRS EPSG:              4674
+schema == 2010:        TRUE
+schema == 2022:        TRUE
+2010 nrow:             316574
+2022 nrow:             472778
+bbox unified xmin,ymin,xmax,ymax: -73.9915, -33.7521, -29.2994, 5.2718

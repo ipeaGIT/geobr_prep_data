@@ -1,0 +1,20 @@
+Classes 'sf' and 'data.frame':	0 obs. of  17 variables:
+ $ code_tract       : num 
+ $ code_muni        : num 
+ $ name_muni        : chr 
+ $ code_neighborhood: num 
+ $ name_neighborhood: chr 
+ $ code_district    : num 
+ $ name_district    : chr 
+ $ code_subdistrict : num 
+ $ name_subdistrict : chr 
+ $ zone             : chr 
+ $ code_state       : num 
+ $ abbrev_state     : chr 
+ $ name_state       : chr 
+ $ code_region      : num 
+ $ name_region      : chr 
+ $ year             : num 
+ $ geometry         :sfc_MULTIPOLYGON of length 0 - attr(*, "sf_column")= chr "geometry"
+ - attr(*, "agr")= Factor w/ 3 levels "constant","aggregate",..: NA NA NA NA NA NA NA NA NA NA ...
+  ..- attr(*, "names")= chr [1:16] "code_tract" "code_muni" "name_muni" "code_neighborhood" ...

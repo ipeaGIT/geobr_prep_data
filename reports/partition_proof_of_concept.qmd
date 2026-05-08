@@ -1,0 +1,2250 @@
+---
+title: "Partição de Setores Censitários 2000: Da Prova de Conceito à Produção"
+subtitle: "Usando geometrias de 2010 como guia, grafos de compatibilidade e Voronoi gap filling"
+date: "2026-04-15"
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    toc-location: left
+    code-fold: true
+    code-summary: "Ver código"
+    embed-resources: true
+    theme: cosmo
+    fig-width: 10
+    fig-height: 7
+execute:
+  warning: false
+  message: false
+knitr:
+  opts_knit:
+    root.dir: "d:/Dropbox/Artigos/geobr_prep_data"
+---
+
+```{r setup}
+#| include: false
+library(sf)
+library(dplyr)
+library(ggplot2)
+library(mapview)
+library(knitr)
+sf_use_s2(FALSE)
+mapviewOptions(fgb = FALSE)
+dir_maps <- "data-raw/census_tract/compat/poc_maps"
+
+muni_names <- c(
+  "1100023" = "Ariquemes/RO",
+  "1100288" = "Ji-Parana/RO",
+  "1100155" = "Ouro Preto d'Oeste/RO",
+  "1100304" = "Vilhena/RO",
+  "2700300" = "Arapiraca/AL",
+  "2706307" = "Palmeira dos Indios/AL",
+  "2707701" = "Penedo/AL",
+  "2702405" = "Coruripe/AL",
+  "4209102" = "Joinville/SC",
+  "4202008" = "Blumenau/SC",
+  "4202909" = "Brusque/SC",
+  "4203006" = "Camboriu/SC"
+)
+```
+
+
+# Parte I --- O Problema {.unnumbered}
+
+# 1. O que sao setores censitarios? {#sec-intro}
+
+Antes de falar sobre o problema que este relatorio aborda, e importante entender
+o que sao **setores censitarios** e por que eles importam.
+
+O setor censitario e a **menor unidade territorial** usada pelo IBGE (Instituto
+Brasileiro de Geografia e Estatistica) para fins de coleta e divulgacao de dados
+do Censo Demografico. Cada setor corresponde a uma area percorrida por **um
+unico recenseador** durante a operacao censitaria. Em 2000, o Brasil tinha
+**215.811 setores censitarios**, cobrindo todo o territorio nacional.
+
+Para pesquisadores, o setor censitario e fundamental porque permite analises
+demograficas e socioeconomicas na **menor escala espacial disponivel**. Enquanto
+municipios tem centenas de milhares de habitantes, um setor tipicamente contem
+entre 250 e 350 domicilios --- permitindo estudos sobre desigualdade
+intra-urbana, acesso a servicos e padroes de segregacao.
+
+## O codigo de 15 digitos
+
+Cada setor e identificado por um **codigo de 15 digitos** que codifica toda a
+hierarquia administrativa:
+
+```
+  1 2 0 0 2 0 3 0 5 0 0 0 0 0 1
+  ├─┤ ├───────┤ ├─┤ ├─┤ ├─────┤
+  UF  Municipio Dis Sub  Setor
+
+  UF          = 12 (Acre)
+  Municipio   = 1200203 (Rio Branco)
+  Distrito    = 05
+  Subdistrito = 00
+  Setor       = 0001
+```
+
+Essa estrutura hierarquica permite decompor qualquer codigo de setor em seus
+componentes: estado, municipio, distrito e subdistrito. Mas para que essa
+decomposicao seja util em analises espaciais, **cada setor precisa ter sua
+propria geometria** --- ou seja, um poligono que delimite a area coberta pelo
+recenseador.
+
+## O que e um shapefile
+
+Um **shapefile** e o formato padrao de arquivo que armazena geometrias
+geoespaciais --- poligonos, linhas ou pontos --- junto com uma tabela de
+atributos. Quando o IBGE publica a "malha de setores censitarios", distribui
+um shapefile onde cada linha e um setor e cada setor tem seu poligono.
+
+O problema e que, no Censo 2000, **nem todos os setores receberam poligonos
+individuais**.
+
+
+# 2. O problema: range notation {#sec-range}
+
+## A malha rural 1:500.000
+
+Para o Censo 2000, o IBGE publicou duas malhas digitais de setores:
+
+- **Malha urbana** (escala ~1:50.000): cada setor tem seu poligono individual,
+  com alto nivel de detalhe geometrico.
+- **Malha rural** (escala 1:500.000): a resolucao geometrica e insuficiente para
+  distinguir setores individuais na area rural. Resultado: o IBGE **agrupou
+  setores contiguos em um unico poligono**.
+
+A razao para esse agrupamento e tecnica. Na escala 1:500.000, um setor rural
+tipico (que pode ter apenas alguns domicilios espalhados por dezenas de km^2^)
+seria representado por um poligono tao grande que se fundiria com os vizinhos.
+O IBGE optou por representar todos esses setores como **um unico poligono**,
+registrando no campo identificador quais setores estao "dentro".
+
+## O formato range notation
+
+O campo identificador desses poligonos agrupados usa uma notacao especial que
+chamamos de **range notation**:
+
+```
+  UUUUUUUDDSSSSS-SSSS
+  │       │ │      │
+  │       │ │      └── ultimo setor do intervalo
+  │       │ └──────── primeiro setor
+  │       └────────── distrito + subdistrito
+  └────────────────── codigo do municipio (7 digitos)
+```
+
+**Exemplo concreto:** o poligono `110002305000001-0074` de Ariquemes/RO:
+
+```
+  1 1 0 0 0 2 3 0 5 0 0 0 0 0 1 - 0 0 7 4
+  ├───────────┤ ├─┤ ├─┤ ├───┤   ├─────┤
+  Municipio    Dis Sub Setor    Ultimo
+  1100023      05  00  0001     0074
+
+  → 74 setores (001 a 074) compartilham UM unico poligono
+```
+
+Isso significa que nao sabemos **onde cada setor comeca e termina** dentro desse
+poligono. Para qualquer analise que dependa de localizacao --- como "qual setor
+tem mais pobreza?" ou "onde estao as escolas?" --- esses 74 setores sao
+indistinguiveis.
+
+## Dimensao do problema
+
+```{r dim-problema}
+n_total   <- 215811
+n_ranges  <- 22431
+pct       <- round(100 * n_ranges / n_total, 1)
+
+cat(sprintf("Setores censitarios 2000 (total): %s\n",
+            formatC(n_total, format = "d", big.mark = ".")))
+cat(sprintf("Setores em range notation:        %s (%s%%)\n",
+            formatC(n_ranges, format = "d", big.mark = "."), pct))
+cat(sprintf("Setores com geometria individual: %s\n",
+            formatC(n_total - n_ranges, format = "d", big.mark = ".")))
+```
+
+## Diagrama conceitual
+
+```
+  Situacao atual (1:500.000)           O que queremos obter
+  ┌──────────────────────────┐         ┌────┬─────┬──────┐
+  │                          │         │ 001│ 002 │ 003  │
+  │   1 poligono = 74 setores│   ──►   ├────┤     ├──────┤
+  │   (range 001-074)        │         │ 004│ 005 │ 006  │
+  │                          │         ├────┼─────┤      │
+  │                          │         │ ...│ ... │ ...  │
+  └──────────────────────────┘         └────┴─────┴──────┘
+```
+
+::: {.callout-note}
+## Escopo deste relatorio
+
+Dos 215.811 setores do Censo 2000, **22.431 (10,4%)** estao codificados em
+range notation --- todos na malha rural 1:500.000. Esses setores nao podem
+ser usados diretamente em analises espaciais porque multiplos setores dividem
+a mesma geometria. Este relatorio avalia se e possivel **recuperar geometrias
+individuais aproximadas** usando informacoes de censos posteriores.
+:::
+
+
+# Parte II --- A Estrategia {.unnumbered}
+
+# 3. A ideia central: usar o Censo 2010 como guia {#sec-ideia}
+
+O Censo 2010 publicou uma malha de setores censitarios com **geometria
+individual para todos os setores** --- tanto urbanos quanto rurais. Nao ha
+ranges no 2010. E mais: a malha de 2010 cobre essencialmente a mesma area
+territorial que a de 2000 (com ajustes por emancipacoes, anexacoes e
+reorganizacoes).
+
+A ideia central desta prova de conceito e:
+
+> Usar os poligonos individuais de 2010 como **moldes de recorte** para
+> subdividir o poligono agregado de 2000 em sub-poligonos menores, cada um
+> correspondendo a um setor.
+
+A operacao geometrica e uma **intersecao espacial** (`st_intersection`): dado
+o poligono grande de 2000 e um conjunto de poligonos menores de 2010, recortamos
+as regioes de sobreposicao.
+
+```
+  Analogia: cortador de biscoitos
+
+  ┌──────────────────────┐     Massa = poligono range de 2000
+  │    ╭───╮  ╭────╮     │     Cortadores = setores de 2010
+  │    │ a │  │ b  │     │
+  │    ╰───╯  ╰────╯     │     Resultado = biscoitos (sub-poligonos)
+  │  ╭──╮  ╭───╮         │     com o formato dos setores de 2010,
+  │  │c │  │ d │         │     mas limitados a area do range 2000
+  │  ╰──╯  ╰───╯         │
+  └──────────────────────┘
+```
+
+## O problema do molde
+
+Nem todos os setores de 2010 tem correspondencia direta com os setores de 2000.
+Entre os dois censos, setores foram:
+
+- **Mantidos** (mesmo codigo, mesma posicao): perfeito para recorte
+- **Divididos** (1 setor de 2000 virou 2+ em 2010): ainda util --- os pedacos
+  de 2010 juntos cobrem a area do setor original
+- **Renumerados** (setor trocou de codigo): dificulta a correspondencia
+- **Criados** (setor novo em 2010, inexistente em 2000): pode ser util ou nao
+
+A questao e: **como selecionar quais setores de 2010 usar como molde?**
+Dois metodos sao avaliados neste relatorio.
+
+
+# 4. Metodo A: correspondencia por codigo {#sec-metodo-a}
+
+## Por que isso importa
+
+O primeiro instinto quando queremos encontrar "o mesmo setor" em dois censos
+diferentes e buscar pelo **codigo**: se o setor 001 existe em 2000 e em 2010,
+e razoavel supor que cobrem a mesma area.
+
+## Como funciona
+
+O Metodo A opera por correspondencia de codigos:
+
+1. **Expandir o range**: `001-074` → lista de codigos `{001, 002, ..., 074}`
+2. **Buscar em 2010**: para cada codigo na lista, procurar o setor de 2010
+   com o mesmo codigo no mesmo municipio e distrito
+3. **Intersectar**: recortar cada setor 2010 encontrado pelo poligono range 2000
+
+```
+  Range 001-074 (2000)               Malha 2010
+  ┌──────────────────────┐     ┌───┬───┬───┬───┬───┐
+  │                      │     │001│002│003│...│074│  ← buscar por
+  │  74 setores em 1     │  ∩  │   │   │   │   │   │     codigo
+  │  poligono            │     │   │   │   │   │   │
+  └──────────────────────┘     └───┴───┴───┴───┴───┘
+           │                           │
+           └───── intersecao ──────────┘
+                     │
+           ┌───┬───┬───┬───┬───┐
+           │ a │ b │ c │...│ n │  ← sub-poligonos = particoes
+           └───┴───┴───┴───┴───┘
+```
+
+## Vantagens
+
+- **Simples**: facil de implementar e entender
+- **Identidade garantida**: cada particao tem correspondencia 1:1 com um codigo
+  de setor 2000 especifico
+
+## Limitacao: gaps por renumeracao
+
+Se um setor foi renumerado entre 2000 e 2010 (por exemplo, o setor 032 de 2000
+virou 089 em 2010), o Metodo A **nao encontra** esse setor. O resultado e um
+**gap** --- uma area dentro do poligono range que nenhum setor 2010 cobre.
+
+```
+  ┌───────────────────────┐
+  │  ┌───┬───┬   ┬───┐   │  ← setores 2010 encontrados por codigo
+  │  │001│002│...│074│   │
+  │  └───┴───┘   └───┘   │
+  │       ↑               │
+  │      gap (setor 032   │  ← renumerado, codigo nao encontrado
+  │      falta em 2010)   │
+  └───────────────────────┘
+```
+
+E justamente para resolver esse problema que existe o Metodo B.
+
+
+# 5. Metodo B: o grafo de compatibilidade {#sec-metodo-b}
+
+## Por que isso importa
+
+O Metodo A falha quando setores mudam de codigo entre censos. Precisamos de
+uma forma de identificar correspondencias que nao dependa apenas do codigo.
+A resposta e usar **informacao espacial** --- a sobreposicao geometrica entre
+poligonos --- para estabelecer conexoes.
+
+## O que e um grafo
+
+Antes de explicar o metodo, e necessario definir o que e um **grafo** (no sentido
+matematico, nao um grafico).
+
+Um grafo e uma estrutura com dois elementos:
+
+- **Nos** (ou vertices): entidades que representamos como pontos
+- **Arestas** (ou ligacoes): conexoes entre pares de nos
+
+A analogia mais simples: imagine um mapa rodoviario. As **cidades** sao nos e
+as **estradas** sao arestas. Se existe uma estrada entre cidade A e cidade B,
+ha uma aresta ligando os nos A e B.
+
+```
+  Grafo simples (cidades e estradas):
+
+    Manaus ─────── Belem
+      │               │
+      │               │
+    Porto          Recife
+    Velho             │
+      │               │
+      └──── Brasilia ─┘
+```
+
+## Grafo bipartido: dois censos, duas camadas
+
+O grafo que usamos aqui e **bipartido**: os nos sao divididos em dois grupos
+que nunca se conectam entre si. De um lado, os setores de 2000; do outro,
+os setores de 2010. As arestas so conectam um no de 2000 a um no de 2010.
+
+```
+  Grafo bipartido (setores 2000 → 2010):
+
+  Setores 2000          Setores 2010
+  ┌─────────┐           ┌─────────┐
+  │  s_001   │──────────│  t_001   │  ← manutencao (mesmo codigo)
+  │  s_002   │──┐       │  t_002   │
+  │  s_003   │──┤───────│  t_003   │  ← divisao (1→2)
+  │          │  └───────│  t_004   │
+  │  s_004   │──────────│  t_005   │  ← manutencao
+  └─────────┘           └─────────┘
+```
+
+## Como o grafo e construido: 3 etapas
+
+O grafo de compatibilidade --- chamado **CompatMalhas** --- e construido em
+tres etapas progressivas, cada uma capturando um tipo diferente de relacao:
+
+**Etapa 1 --- Manutencao (match por codigo):**
+Setores com o **mesmo codigo** nos dois censos sao ligados diretamente. Cobre
+a maioria dos casos (setores que nao mudaram).
+
+**Etapa 2 --- Divisao (sobreposicao >= 70%):**
+Para setores nao encontrados por codigo, calcula-se a **area de intersecao**.
+Se um setor 2010 cobre >= 70% de um setor 2000, sao ligados. Isso captura
+casos de **divisao** (um setor grande de 2000 que virou dois ou mais em 2010).
+
+**Etapa 3 --- Sobreposicao forcada (buffer negativo):**
+Para os remanescentes, aplica-se um **buffer negativo** (encolher a geometria)
+para evitar falsos positivos em bordas. Qualquer sobreposicao residual e
+registrada.
+
+```
+  Fluxo de construcao do grafo:
+
+  Etapa 1: Codigo            Etapa 2: Area >=70%     Etapa 3: Buffer
+  ┌──────────────┐           ┌──────────────┐        ┌──────────────┐
+  │ s_001 ── t_001│          │ s_X ── t_Y   │        │ s_Z ── t_W   │
+  │ s_002 ── t_002│          │     (70%+)   │        │  (residual)  │
+  │ ...           │          │              │        │              │
+  └──────────────┘           └──────────────┘        └──────────────┘
+        ↓                          ↓                       ↓
+                  ┌──────────────────────────┐
+                  │   GRAFO COMPLETO         │
+                  │   (todas as arestas)     │
+                  └──────────────────────────┘
+```
+
+## Componentes conexos = AMCs
+
+Uma propriedade fundamental do grafo sao seus **componentes conexos**. Um
+componente conexo e um subconjunto de nos que estao todos ligados entre si
+(direta ou indiretamente), mas **desconectados** do restante do grafo.
+
+A analogia: imagine ilhas num arquipelago. Cada ilha e um componente conexo.
+Voce pode caminhar de qualquer ponto da ilha a qualquer outro ponto (seguindo
+as arestas), mas nao pode chegar a outra ilha.
+
+No contexto censitario, cada componente conexo define uma **Area Minima
+Comparavel (AMC)**: o menor conjunto de setores que deve ser analisado
+**como uma unidade** para garantir comparabilidade entre os dois censos.
+
+```
+  Exemplo de componentes conexos:
+
+  Componente 1 (AMC simples):     Componente 2 (AMC com divisao):
+  s_001 ── t_001                  s_050 ──┬── t_050
+  (1:1, sem mudanca)              s_051 ──┘    │
+                                         └── t_051
+                                              └── t_052
+
+  Componente 3 (AMC com range):
+  s_range(001-074) ──┬── t_032
+                     ├── t_039
+                     └── t_075
+  s_001 ── t_001
+  s_002 ── t_002
+  ...
+```
+
+::: {.callout-note}
+## Referencia
+
+O grafo de compatibilidade segue a metodologia descrita em:
+Mendonca, M.J.C. & Kon, F. (2025). *Compatibilizacao de malhas censitarias
+via grafos bipartidos*. COURB --- Congresso de Urbanizacao, 2025.
+:::
+
+
+# 6. Metodo Combinado: o melhor dos dois mundos {#sec-combinado}
+
+## Por que isso importa
+
+Cada metodo individualmente tem uma falha:
+
+- **Metodo A (codigo)** garante identidade (sabemos *qual* setor e qual), mas
+  nao consegue cobertura total (setores renumerados ficam de fora)
+- **Metodo B (grafo)** garante cobertura (~100%), mas nao garante identidade
+  (um setor 2010 pode ser atribuido ao range sem saber *a qual* setor 2000
+  ele corresponde)
+
+O **Metodo Combinado** usa ambos:
+
+## Fluxo em 3 passos
+
+```
+  Passo 1: GRAFO define QUAIS setores 2010 usar
+  ┌──────────────────────────────────────────────┐
+  │ Consultar todos os MCAs que contem codigos   │
+  │ do range → coletar TODOS os setores 2010     │
+  │ desses MCAs → cobertura ~100%                │
+  └──────────────────────────────────────────────┘
+                      │
+                      ▼
+  Passo 2: CODIGO identifica QUEM e quem
+  ┌──────────────────────────────────────────────┐
+  │ Para cada setor 2010 selecionado:            │
+  │   - Se o codigo coincide com um setor 2000   │
+  │     do range → match direto (confianca alta) │
+  │   - Se nao → setor fica como "aproximado"    │
+  └──────────────────────────────────────────────┘
+                      │
+                      ▼
+  Passo 3: PESOS de confianca
+  ┌──────────────────────────────────────────────┐
+  │ Cada particao recebe:                        │
+  │   - ID_2010: codigo do setor 2010 usado      │
+  │   - code_tract_2000: codigo 2000 (se existe) │
+  │   - match_method: manutencao/divisao/overlap  │
+  │   - match_confidence:                        │
+  │       Manutencao  = 1.0                      │
+  │       Divisao     = 0.8                      │
+  │       Sobreposicao = 0.3-0.5                 │
+  └──────────────────────────────────────────────┘
+```
+
+A vantagem do metodo combinado e que o usuario final pode decidir como tratar
+cada particao: para setores com confianca 1.0, pode usar diretamente como
+proxy do setor 2000; para setores com confianca baixa, pode optar por agregar
+na AMC.
+
+::: {.callout-tip}
+## Status de implementacao
+
+O metodo combinado **ja esta implementado** no pipeline de producao
+(`R/census_tract.R`, funcao `partition_range_combined()`). Os resultados
+apresentados adiante referem-se aos Metodos A e B testados separadamente
+na prova de conceito. A implementacao final em producao usa o metodo
+combinado com Voronoi gap filling --- ver [Parte VI](#parte-vi).
+:::
+
+
+# Parte III --- Validacao {.unnumbered}
+
+# 7. Como avaliar: ground truth e IoU {#sec-validacao}
+
+## Por que isso importa
+
+Uma particao so e util se as geometrias aproximadas forem **proximas das
+geometrias reais**. Precisamos de um criterio objetivo para medir essa
+proximidade.
+
+## O ground truth
+
+Para alguns municipios, o IBGE publicou **ambas** as malhas em 2000:
+
+- A malha **urbana** (1:50.000) com geometrias individuais de alta resolucao
+- A malha **rural** (1:500.000) com geometrias agrupadas (range notation)
+
+Nos municipios onde ambas existem e os mesmos setores aparecem nos dois
+produtos, temos um **ground truth**: a geometria "verdadeira" de cada setor
+(da malha urbana), que podemos comparar com a geometria estimada pela particao
+(recortada da malha rural).
+
+## IoU --- Intersection over Union
+
+A metrica que usamos para comparar duas geometrias e o **IoU** (Intersection
+over Union), tambem conhecido como **Indice de Jaccard Espacial**:
+
+$$
+\text{IoU}(A, B) = \frac{\text{area}(A \cap B)}{\text{area}(A \cup B)}
+$$
+
+Onde $A$ e a geometria do ground truth e $B$ e a geometria da particao para
+o mesmo setor.
+
+```
+  Diagrama IoU:
+
+  ┌──────────┐
+  │    A      │             area(A ∩ B)
+  │    ┌──────┼─────┐   IoU = ─────────────
+  │    │######│     │         area(A ∪ B)
+  └────┼──────┘     │
+       │      B     │   0.0 = nenhuma sobreposicao
+       └────────────┘   0.5 = sobreposicao moderada
+                        0.8 = muito boa
+                        1.0 = geometrias identicas
+```
+
+Na pratica:
+
+| Faixa IoU | Interpretacao |
+|-----------|---------------|
+| 0.0 -- 0.1 | Sobreposicao negligivel --- particao falhou |
+| 0.1 -- 0.3 | Sobreposicao fraca --- geometria muito distante |
+| 0.3 -- 0.5 | Sobreposicao moderada --- util como aproximacao grosseira |
+| 0.5 -- 0.8 | Sobreposicao boa --- util para a maioria das analises |
+| 0.8 -- 1.0 | Sobreposicao excelente --- particao quase perfeita |
+
+::: {.callout-warning}
+## Limitacao da comparacao
+
+O ground truth tambem nao e perfeito. A malha urbana e a malha rural usam
+**escalas diferentes**, e pequenas diferencas de digitalizacao sao esperadas
+mesmo quando os setores sao identicos. Um IoU de 0.8--0.9 ja seria excelente
+nesse contexto. IoU = 1.0 e praticamente impossivel.
+:::
+
+
+# 8. Os 12 municipios de teste {#sec-amostra}
+
+## Por que isso importa
+
+Para avaliar se a particao funciona, precisamos testa-la em municipios reais.
+Escolhemos 12 municipios de 3 estados diferentes (Rondonia, Alagoas e Santa
+Catarina), variando o tamanho do range (de 25 a 355 setores) para entender
+como o desempenho muda com a complexidade.
+
+## Tabela de municipios
+
+```{r tab-municipios}
+results <- read.csv("/tmp/poc_results.csv")
+results$nome <- muni_names[as.character(results$muni)]
+
+uf_names <- c("11" = "Rondonia", "27" = "Alagoas", "42" = "Santa Catarina")
+results$uf_nome <- uf_names[as.character(results$uf)]
+
+tab_munis <- results |>
+  select(nome, uf_nome, N_range, n_gt) |>
+  arrange(N_range)
+
+kable(tab_munis,
+      col.names = c("Municipio", "Estado", "N setores no range",
+                     "N setores ground truth"),
+      caption = "12 municipios de teste, ordenados por tamanho do range",
+      align = c("l", "l", "r", "r"))
+```
+
+::: {.callout-note}
+## Criterios de selecao
+
+Os municipios foram escolhidos com base em:
+
+1. **Existencia de ground truth**: ambas as malhas (urbana e rural) devem
+   existir para permitir validacao
+2. **Diversidade de tamanho**: ranges de 25 (pequeno) a 355 (muito grande)
+   para testar o comportamento em diferentes escalas
+3. **Diversidade regional**: 3 estados de regioes distintas (Norte, Nordeste,
+   Sul) para verificar se os resultados dependem da regiao
+:::
+
+## Os 4 municipios detalhados
+
+Dos 12 municipios, 4 foram selecionados para **analise detalhada com mapas
+interativos**: Ouro Preto d'Oeste/RO, Ariquemes/RO, Arapiraca/AL e Brusque/SC.
+Para estes, temos os arquivos GPKG com as geometrias de cada etapa do processo,
+permitindo visualizar exatamente o que acontece em cada passo.
+
+
+# Parte IV --- Resultados {.unnumbered}
+
+# 9. Caso 1: Ouro Preto d'Oeste/RO (melhor resultado) {#sec-ouro-preto}
+
+## Por que este caso importa
+
+Ouro Preto d'Oeste e o municipio com **melhor desempenho** na amostra: IoU
+mediano de 0.805. Entender por que ele funciona tao bem ajuda a identificar
+as condicoes ideais para a particao.
+
+```{r load-ouro-preto}
+muni_code <- "1100155"
+muni_name <- "Ouro Preto d'Oeste/RO"
+
+gt   <- st_read(file.path(dir_maps, paste0(muni_code, "_ground_truth.gpkg")), quiet = TRUE)
+rng  <- st_read(file.path(dir_maps, paste0(muni_code, "_range.gpkg")), quiet = TRUE)
+s10a <- st_read(file.path(dir_maps, paste0(muni_code, "_2010_code.gpkg")), quiet = TRUE)
+pa   <- st_read(file.path(dir_maps, paste0(muni_code, "_partA.gpkg")), quiet = TRUE)
+s10b <- st_read(file.path(dir_maps, paste0(muni_code, "_2010_graph.gpkg")), quiet = TRUE)
+pb   <- st_read(file.path(dir_maps, paste0(muni_code, "_partB.gpkg")), quiet = TRUE)
+
+cat(sprintf("=== %s (code: %s) ===\n", muni_name, muni_code))
+cat(sprintf("Setores no range:               %d\n", nrow(gt)))
+cat(sprintf("Ground truth:                   %d setores individuais\n", nrow(gt)))
+cat(sprintf("Setores 2010 (code match):      %d | Particao A: %d\n", nrow(s10a), nrow(pa)))
+cat(sprintf("Setores 2010 (grafo):           %d | Particao B: %d\n", nrow(s10b), nrow(pb)))
+```
+
+## Ground truth vs. range original
+
+O mapa abaixo mostra a situacao de partida: os setores individuais do ground
+truth (verde) sobrepostos ao poligono range (contorno vermelho). Note como o
+contorno vermelho e mais "tosco" --- resultado da escala 1:500k.
+
+```{r map-ouro-preto-gt}
+m_gt <- mapview(gt, col.regions = "#27ae60", alpha.regions = 0.4,
+                layer.name = "Ground truth (urbano 2000)",
+                label = gt$ID) +
+        mapview(rng, col.regions = "#e74c3c", alpha.regions = 0.15,
+                color = "#e74c3c", lwd = 3,
+                layer.name = "Range original (rural 2000)",
+                label = rng$ID)
+m_gt
+```
+
+::: {.callout-note}
+**Verde** = setores individuais do ground truth (malha urbana 2000).
+**Vermelho** (contorno grosso) = poligono range da malha rural 2000.
+Os setores verdes estao "dentro" do contorno vermelho.
+:::
+
+## Particao A (code match) vs. ground truth
+
+O Metodo A busca os setores de 2010 pelo codigo e recorta pelo poligono range.
+Em azul, as particoes resultantes; em verde (transparente), o ground truth para
+comparacao.
+
+```{r map-ouro-preto-a}
+if (nrow(pa) > 0) {
+  m_a <- mapview(gt, col.regions = "#27ae60", alpha.regions = 0.25,
+                 layer.name = "Ground truth",
+                 label = gt$ID) +
+         mapview(pa, col.regions = "#3498db", alpha.regions = 0.35,
+                 layer.name = "Particao A (code match)",
+                 label = pa$ID) +
+         mapview(rng, col.regions = NA, color = "#e74c3c",
+                 alpha.regions = 0, lwd = 2,
+                 layer.name = "Range (contorno)",
+                 label = rng$ID)
+  m_a
+} else {
+  cat("Particao A nao produziu resultados.")
+}
+```
+
+## Particao B (grafo) vs. ground truth
+
+O Metodo B usa o grafo de compatibilidade para selecionar setores de 2010.
+Em laranja, as particoes resultantes.
+
+```{r map-ouro-preto-b}
+if (nrow(pb) > 0) {
+  m_b <- mapview(gt, col.regions = "#27ae60", alpha.regions = 0.25,
+                 layer.name = "Ground truth",
+                 label = gt$ID) +
+         mapview(pb, col.regions = "#e67e22", alpha.regions = 0.35,
+                 layer.name = "Particao B (grafo)",
+                 label = pb$ID) +
+         mapview(rng, col.regions = NA, color = "#e74c3c",
+                 alpha.regions = 0, lwd = 2,
+                 layer.name = "Range (contorno)",
+                 label = rng$ID)
+  m_b
+} else {
+  cat("Particao B nao produziu resultados para este municipio.")
+}
+```
+
+## Metricas
+
+```{r tab-ouro-preto}
+row <- results[results$muni == as.numeric(muni_code), ]
+tab <- data.frame(
+  Metrica = c("N setores no range",
+              "N setores ground truth",
+              "Setores 2010 (code match)",
+              "Setores particao A",
+              "Cobertura A (%)",
+              "Setores 2010 (grafo)",
+              "Setores particao B",
+              "Cobertura B (%)",
+              "IoU medio",
+              "IoU mediano",
+              "Setores IoU > 0.50",
+              "Setores IoU > 0.80"),
+  Valor = c(row$N_range, row$n_gt, row$n_2010_code, row$n_part_a,
+            row$cov_a_pct, row$n_2010_graph, row$n_part_b,
+            row$cov_b_pct, round(row$iou_mean, 3),
+            round(row$iou_median, 3), row$iou_gt50, row$iou_gt80)
+)
+kable(tab, align = c("l", "r"))
+```
+
+::: {.callout-note}
+## Discussao: por que Ouro Preto funciona tao bem
+
+Ouro Preto d'Oeste e o **melhor caso** da amostra por tres razoes:
+
+1. **Range pequeno (37 setores):** o poligono range e relativamente compacto,
+   com bordas menos generalizadas.
+2. **Estabilidade entre censos:** todos os 37 setores de 2000 existem com
+   o mesmo codigo em 2010 --- nao houve renumeracao.
+3. **Boa correspondencia geometrica:** a digitalizacao de Rondonia na escala
+   1:500k preserva razoavelmente as formas dos setores.
+
+O Metodo A encontra todos os 37 setores por codigo, com cobertura de 54.4%.
+O IoU mediano de **0.805** significa que a maioria das particoes tem geometria
+muito proxima da real. **17 setores** atingem IoU > 0.80.
+
+O Metodo B, neste caso, e mais restritivo: encontra apenas 7 setores 2010 via
+grafo, gerando 6 particoes. Isso ocorre porque o componente conexo do grafo
+para este range e pequeno --- poucos setores foram reorganizados.
+:::
+
+
+# 10. Caso 2: Ariquemes/RO (caso moderado) {#sec-ariquemes}
+
+## Por que este caso importa
+
+Ariquemes representa o **caso moderado**: range maior (74 setores), IoU
+mediano de 0.465. E o caso ideal para entender quando a particao e "boa o
+suficiente" para uso pratico.
+
+```{r load-ariquemes}
+muni_code <- "1100023"
+muni_name <- "Ariquemes/RO"
+
+gt   <- st_read(file.path(dir_maps, paste0(muni_code, "_ground_truth.gpkg")), quiet = TRUE)
+rng  <- st_read(file.path(dir_maps, paste0(muni_code, "_range.gpkg")), quiet = TRUE)
+s10a <- st_read(file.path(dir_maps, paste0(muni_code, "_2010_code.gpkg")), quiet = TRUE)
+pa   <- st_read(file.path(dir_maps, paste0(muni_code, "_partA.gpkg")), quiet = TRUE)
+s10b <- st_read(file.path(dir_maps, paste0(muni_code, "_2010_graph.gpkg")), quiet = TRUE)
+pb   <- st_read(file.path(dir_maps, paste0(muni_code, "_partB.gpkg")), quiet = TRUE)
+
+cat(sprintf("=== %s (code: %s) ===\n", muni_name, muni_code))
+cat(sprintf("Setores no range:               %d\n", nrow(gt)))
+cat(sprintf("Ground truth:                   %d setores individuais\n", nrow(gt)))
+cat(sprintf("Setores 2010 (code match):      %d | Particao A: %d\n", nrow(s10a), nrow(pa)))
+cat(sprintf("Setores 2010 (grafo):           %d | Particao B: %d\n", nrow(s10b), nrow(pb)))
+```
+
+## Ground truth vs. range original
+
+```{r map-ariquemes-gt}
+m_gt <- mapview(gt, col.regions = "#27ae60", alpha.regions = 0.4,
+                layer.name = "Ground truth (urbano 2000)",
+                label = gt$ID) +
+        mapview(rng, col.regions = "#e74c3c", alpha.regions = 0.15,
+                color = "#e74c3c", lwd = 3,
+                layer.name = "Range original (rural 2000)",
+                label = rng$ID)
+m_gt
+```
+
+## Particao A (code match) vs. ground truth
+
+```{r map-ariquemes-a}
+if (nrow(pa) > 0) {
+  m_a <- mapview(gt, col.regions = "#27ae60", alpha.regions = 0.25,
+                 layer.name = "Ground truth",
+                 label = gt$ID) +
+         mapview(pa, col.regions = "#3498db", alpha.regions = 0.35,
+                 layer.name = "Particao A (code match)",
+                 label = pa$ID) +
+         mapview(rng, col.regions = NA, color = "#e74c3c",
+                 alpha.regions = 0, lwd = 2,
+                 layer.name = "Range (contorno)",
+                 label = rng$ID)
+  m_a
+} else {
+  cat("Particao A nao produziu resultados.")
+}
+```
+
+## Particao B (grafo) vs. ground truth
+
+```{r map-ariquemes-b}
+if (nrow(pb) > 0) {
+  m_b <- mapview(gt, col.regions = "#27ae60", alpha.regions = 0.25,
+                 layer.name = "Ground truth",
+                 label = gt$ID) +
+         mapview(pb, col.regions = "#e67e22", alpha.regions = 0.35,
+                 layer.name = "Particao B (grafo)",
+                 label = pb$ID) +
+         mapview(rng, col.regions = NA, color = "#e74c3c",
+                 alpha.regions = 0, lwd = 2,
+                 layer.name = "Range (contorno)",
+                 label = rng$ID)
+  m_b
+} else {
+  cat("Particao B nao produziu resultados para este municipio.")
+}
+```
+
+## Metricas
+
+```{r tab-ariquemes}
+row <- results[results$muni == 1100023, ]
+tab <- data.frame(
+  Metrica = c("N setores no range",
+              "N setores ground truth",
+              "Setores 2010 (code match)",
+              "Setores particao A",
+              "Cobertura A (%)",
+              "Setores 2010 (grafo)",
+              "Setores particao B",
+              "Cobertura B (%)",
+              "IoU medio",
+              "IoU mediano",
+              "Setores IoU > 0.50",
+              "Setores IoU > 0.80"),
+  Valor = c(row$N_range, row$n_gt, row$n_2010_code, row$n_part_a,
+            row$cov_a_pct, row$n_2010_graph, row$n_part_b,
+            row$cov_b_pct, round(row$iou_mean, 3),
+            round(row$iou_median, 3), row$iou_gt50, row$iou_gt80)
+)
+kable(tab, align = c("l", "r"))
+```
+
+::: {.callout-note}
+## Discussao: o equilibrio de Ariquemes
+
+Ariquemes tem 74 setores no range --- o dobro de Ouro Preto. O Metodo A
+encontra 73 dos 74 codigos em 2010 (98.6% de match), resultando em
+cobertura de 78.5%. O IoU mediano de **0.465** indica correspondencia
+moderada: cerca de metade dos setores tem geometria razoavel.
+
+**28 setores** atingem IoU > 0.50 --- uma proporcao consideravel (42% dos
+avaliados). Para analises que toleram imprecisao moderada (como classificacao
+de setores em faixas de renda), esses resultados sao utilizaveis.
+
+O Metodo B seleciona apenas 33 setores 2010 via grafo, gerando 29 particoes
+com cobertura de 33.4%. Paradoxalmente, o grafo aqui e **mais restritivo**
+que o codigo. Isso acontece porque os setores individuais de 2000 (que ja
+tinham geometria propria) absorvem boa parte dos setores 2010 nos MCAs,
+sobrando menos para recortar o range.
+:::
+
+
+# 11. Caso 3: Arapiraca/AL (caso dificil) {#sec-arapiraca}
+
+## Por que este caso importa
+
+Arapiraca e o **pior caso** entre os 4 detalhados: 118 setores no range e IoU
+mediano de apenas 0.096. Entender por que falha ajuda a definir os limites da
+abordagem.
+
+```{r load-arapiraca}
+muni_code <- "2700300"
+muni_name <- "Arapiraca/AL"
+
+gt   <- st_read(file.path(dir_maps, paste0(muni_code, "_ground_truth.gpkg")), quiet = TRUE)
+rng  <- st_read(file.path(dir_maps, paste0(muni_code, "_range.gpkg")), quiet = TRUE)
+s10a <- st_read(file.path(dir_maps, paste0(muni_code, "_2010_code.gpkg")), quiet = TRUE)
+pa   <- st_read(file.path(dir_maps, paste0(muni_code, "_partA.gpkg")), quiet = TRUE)
+s10b <- st_read(file.path(dir_maps, paste0(muni_code, "_2010_graph.gpkg")), quiet = TRUE)
+pb   <- st_read(file.path(dir_maps, paste0(muni_code, "_partB.gpkg")), quiet = TRUE)
+
+cat(sprintf("=== %s (code: %s) ===\n", muni_name, muni_code))
+cat(sprintf("Setores no range:               %d\n", nrow(gt)))
+cat(sprintf("Ground truth:                   %d setores individuais\n", nrow(gt)))
+cat(sprintf("Setores 2010 (code match):      %d | Particao A: %d\n", nrow(s10a), nrow(pa)))
+cat(sprintf("Setores 2010 (grafo):           %d | Particao B: %d\n", nrow(s10b), nrow(pb)))
+```
+
+## Ground truth vs. range original
+
+```{r map-arapiraca-gt}
+m_gt <- mapview(gt, col.regions = "#27ae60", alpha.regions = 0.4,
+                layer.name = "Ground truth (urbano 2000)",
+                label = gt$ID) +
+        mapview(rng, col.regions = "#e74c3c", alpha.regions = 0.15,
+                color = "#e74c3c", lwd = 3,
+                layer.name = "Range original (rural 2000)",
+                label = rng$ID)
+m_gt
+```
+
+## Particao A (code match) vs. ground truth
+
+```{r map-arapiraca-a}
+if (nrow(pa) > 0) {
+  m_a <- mapview(gt, col.regions = "#27ae60", alpha.regions = 0.25,
+                 layer.name = "Ground truth",
+                 label = gt$ID) +
+         mapview(pa, col.regions = "#3498db", alpha.regions = 0.35,
+                 layer.name = "Particao A (code match)",
+                 label = pa$ID) +
+         mapview(rng, col.regions = NA, color = "#e74c3c",
+                 alpha.regions = 0, lwd = 2,
+                 layer.name = "Range (contorno)",
+                 label = rng$ID)
+  m_a
+} else {
+  cat("Particao A nao produziu resultados.")
+}
+```
+
+## Particao B (grafo) vs. ground truth
+
+```{r map-arapiraca-b}
+if (nrow(pb) > 0) {
+  m_b <- mapview(gt, col.regions = "#27ae60", alpha.regions = 0.25,
+                 layer.name = "Ground truth",
+                 label = gt$ID) +
+         mapview(pb, col.regions = "#e67e22", alpha.regions = 0.35,
+                 layer.name = "Particao B (grafo)",
+                 label = pb$ID) +
+         mapview(rng, col.regions = NA, color = "#e74c3c",
+                 alpha.regions = 0, lwd = 2,
+                 layer.name = "Range (contorno)",
+                 label = rng$ID)
+  m_b
+} else {
+  cat("Particao B nao produziu resultados para este municipio.")
+}
+```
+
+## Metricas
+
+```{r tab-arapiraca}
+row <- results[results$muni == 2700300, ]
+tab <- data.frame(
+  Metrica = c("N setores no range",
+              "N setores ground truth",
+              "Setores 2010 (code match)",
+              "Setores particao A",
+              "Cobertura A (%)",
+              "Setores 2010 (grafo)",
+              "Setores particao B",
+              "Cobertura B (%)",
+              "IoU medio",
+              "IoU mediano",
+              "Setores IoU > 0.50",
+              "Setores IoU > 0.80"),
+  Valor = c(row$N_range, row$n_gt, row$n_2010_code, row$n_part_a,
+            row$cov_a_pct, row$n_2010_graph, row$n_part_b,
+            row$cov_b_pct, round(row$iou_mean, 3),
+            round(row$iou_median, 3), row$iou_gt50, row$iou_gt80)
+)
+kable(tab, align = c("l", "r"))
+```
+
+::: {.callout-warning}
+## Discussao: por que Arapiraca falha
+
+Arapiraca e o **pior caso detalhado** por tres razoes:
+
+1. **Range muito grande (118 setores):** o poligono range e vasto, com bordas
+   extremamente generalizadas na escala 1:500k.
+2. **Reorganizacao massiva:** entre 2000 e 2010, Arapiraca sofreu intensa
+   reorganizacao de setores. Os setores 2010 nao correspondem bem aos de 2000.
+3. **Diferenca de escala amplificada:** com 118 setores "comprimidos" num
+   poligono 1:500k, a geometria de cada particao e muito distorcida.
+
+O Metodo A encontra 117 dos 118 codigos (cobertura de 67.8%), mas o IoU
+mediano despenca para **0.096**. Dos 72 setores avaliados, apenas **7** atingem
+IoU > 0.50. A particao existe mas nao reproduz a geometria real.
+
+**Conclusao:** para ranges com N > 100, a particao individual e **inadequada
+para analises espaciais precisas**. Nesses casos, a recomendacao e usar
+agregados (AMC) em vez de setores individuais.
+:::
+
+
+# 12. Caso 4: Brusque/SC (caso intermediario) {#sec-brusque}
+
+## Por que este caso importa
+
+Brusque representa o **caso intermediario**: range de 62 setores, IoU mediano
+de 0.357. E o caso tipico que muitos municipios brasileiros de porte medio
+devem apresentar.
+
+```{r load-brusque}
+muni_code <- "4202909"
+muni_name <- "Brusque/SC"
+
+gt   <- st_read(file.path(dir_maps, paste0(muni_code, "_ground_truth.gpkg")), quiet = TRUE)
+rng  <- st_read(file.path(dir_maps, paste0(muni_code, "_range.gpkg")), quiet = TRUE)
+s10a <- st_read(file.path(dir_maps, paste0(muni_code, "_2010_code.gpkg")), quiet = TRUE)
+pa   <- st_read(file.path(dir_maps, paste0(muni_code, "_partA.gpkg")), quiet = TRUE)
+s10b <- st_read(file.path(dir_maps, paste0(muni_code, "_2010_graph.gpkg")), quiet = TRUE)
+pb   <- st_read(file.path(dir_maps, paste0(muni_code, "_partB.gpkg")), quiet = TRUE)
+
+cat(sprintf("=== %s (code: %s) ===\n", muni_name, muni_code))
+cat(sprintf("Setores no range:               %d\n", nrow(gt)))
+cat(sprintf("Ground truth:                   %d setores individuais\n", nrow(gt)))
+cat(sprintf("Setores 2010 (code match):      %d | Particao A: %d\n", nrow(s10a), nrow(pa)))
+cat(sprintf("Setores 2010 (grafo):           %d | Particao B: %d\n", nrow(s10b), nrow(pb)))
+```
+
+## Ground truth vs. range original
+
+```{r map-brusque-gt}
+m_gt <- mapview(gt, col.regions = "#27ae60", alpha.regions = 0.4,
+                layer.name = "Ground truth (urbano 2000)",
+                label = gt$ID) +
+        mapview(rng, col.regions = "#e74c3c", alpha.regions = 0.15,
+                color = "#e74c3c", lwd = 3,
+                layer.name = "Range original (rural 2000)",
+                label = rng$ID)
+m_gt
+```
+
+## Particao A (code match) vs. ground truth
+
+```{r map-brusque-a}
+if (nrow(pa) > 0) {
+  m_a <- mapview(gt, col.regions = "#27ae60", alpha.regions = 0.25,
+                 layer.name = "Ground truth",
+                 label = gt$ID) +
+         mapview(pa, col.regions = "#3498db", alpha.regions = 0.35,
+                 layer.name = "Particao A (code match)",
+                 label = pa$ID) +
+         mapview(rng, col.regions = NA, color = "#e74c3c",
+                 alpha.regions = 0, lwd = 2,
+                 layer.name = "Range (contorno)",
+                 label = rng$ID)
+  m_a
+} else {
+  cat("Particao A nao produziu resultados.")
+}
+```
+
+## Particao B (grafo) vs. ground truth
+
+```{r map-brusque-b}
+if (nrow(pb) > 0) {
+  m_b <- mapview(gt, col.regions = "#27ae60", alpha.regions = 0.25,
+                 layer.name = "Ground truth",
+                 label = gt$ID) +
+         mapview(pb, col.regions = "#e67e22", alpha.regions = 0.35,
+                 layer.name = "Particao B (grafo)",
+                 label = pb$ID) +
+         mapview(rng, col.regions = NA, color = "#e74c3c",
+                 alpha.regions = 0, lwd = 2,
+                 layer.name = "Range (contorno)",
+                 label = rng$ID)
+  m_b
+} else {
+  cat("Particao B nao produziu resultados para este municipio.")
+}
+```
+
+## Metricas
+
+```{r tab-brusque}
+row <- results[results$muni == 4202909, ]
+tab <- data.frame(
+  Metrica = c("N setores no range",
+              "N setores ground truth",
+              "Setores 2010 (code match)",
+              "Setores particao A",
+              "Cobertura A (%)",
+              "Setores 2010 (grafo)",
+              "Setores particao B",
+              "Cobertura B (%)",
+              "IoU medio",
+              "IoU mediano",
+              "Setores IoU > 0.50",
+              "Setores IoU > 0.80"),
+  Valor = c(row$N_range, row$n_gt, row$n_2010_code, row$n_part_a,
+            row$cov_a_pct, row$n_2010_graph, row$n_part_b,
+            row$cov_b_pct, round(row$iou_mean, 3),
+            round(row$iou_median, 3), row$iou_gt50, row$iou_gt80)
+)
+kable(tab, align = c("l", "r"))
+```
+
+::: {.callout-note}
+## Discussao: o caso tipico
+
+Brusque apresenta o perfil que provavelmente sera o mais comum em producao:
+
+1. **Range de tamanho medio (62 setores):** nem tao pequeno para funcionar
+   perfeitamente, nem tao grande para falhar completamente.
+2. **Match de codigo completo:** todos os 62 setores de 2000 existem em 2010
+   com o mesmo codigo.
+3. **IoU moderado (0.357):** a particao produz geometrias que cobrem a regiao
+   correta mas com limites imprecisos.
+
+O Metodo B e quase identico ao A aqui (59 vs 62 setores, 50.9% vs 51.6% de
+cobertura). Isso indica que, para municipios de porte medio em Santa Catarina,
+os dois metodos convergem.
+
+**10 setores com IoU > 0.50** e **0 com IoU > 0.80** confirmam que a particao
+e util como aproximacao, mas nao substitui geometrias de alta resolucao para
+analises intra-municipais detalhadas.
+:::
+
+
+# 13. Visao geral: os 12 municipios {#sec-visao-geral}
+
+## Por que isso importa
+
+Os 4 casos detalhados contam historias individuais. Agora precisamos de uma
+**visao de conjunto** para identificar padroes e tirar conclusoes gerais.
+
+## Tabela comparativa completa
+
+```{r tab-12-municipios}
+results <- read.csv("/tmp/poc_results.csv")
+results$nome <- muni_names[as.character(results$muni)]
+
+tab_display <- results |>
+  select(nome, uf, N_range, n_part_a, cov_a_pct,
+         n_part_b, cov_b_pct, iou_mean, iou_median,
+         iou_gt50, iou_gt80) |>
+  arrange(desc(iou_median))
+
+kable(tab_display,
+      col.names = c("Municipio", "UF", "N range", "Part. A",
+                     "Cob. A (%)", "Part. B", "Cob. B (%)",
+                     "IoU medio", "IoU mediano",
+                     "IoU>0.50", "IoU>0.80"),
+      digits = 3,
+      caption = "Resultados da particao para 12 municipios, ordenados por IoU mediano",
+      align = c("l", "c", "r", "r", "r", "r", "r", "r", "r", "r", "r"))
+```
+
+## IoU por municipio
+
+O grafico abaixo mostra o IoU mediano (barras azuis) e medio (pontos vermelhos)
+para cada municipio. A linha tracejada marca o limiar de 0.50 --- acima dele,
+a particao e considerada util.
+
+```{r plot-iou-bar}
+results_sorted <- results |>
+  mutate(nome_short = sub("/.*", "", nome)) |>
+  arrange(iou_median)
+
+results_sorted$nome_short <- factor(results_sorted$nome_short,
+                                     levels = results_sorted$nome_short)
+
+ggplot(results_sorted, aes(x = nome_short, y = iou_median)) +
+  geom_col(fill = "#3498db", alpha = 0.8, width = 0.7) +
+  geom_point(aes(y = iou_mean), color = "#e74c3c", size = 3) +
+  geom_hline(yintercept = 0.5, linetype = "dashed", color = "grey40") +
+  annotate("text", x = 1, y = 0.52, label = "IoU = 0.50",
+           hjust = 0, size = 3, color = "grey40") +
+  coord_flip() +
+  labs(x = NULL, y = "IoU",
+       title = "IoU mediano (barras) e medio (pontos vermelhos) por municipio",
+       subtitle = "Linha tracejada = limiar de 0.50") +
+  theme_minimal(base_size = 13) +
+  theme(panel.grid.major.y = element_blank())
+```
+
+::: {.callout-note}
+Note que apenas **Ouro Preto d'Oeste** ultrapassa o limiar de 0.50 no IoU
+mediano. Vilhena chega perto (0.589), mas os demais ficam abaixo. Isso nao
+significa que a particao e inutil --- para muitas analises, um IoU de 0.3-0.5
+ja permite classificar setores corretamente na regiao certa.
+:::
+
+## Relacao entre N (setores no range) e IoU
+
+Ha uma relacao clara entre o tamanho do range e a qualidade da particao?
+
+```{r plot-n-vs-iou}
+ggplot(results, aes(x = N_range, y = iou_median)) +
+  geom_point(aes(color = as.factor(uf)), size = 4, alpha = 0.8) +
+  geom_smooth(method = "lm", se = TRUE, color = "grey40",
+              linetype = "dashed", linewidth = 0.8) +
+  geom_text(aes(label = sub("/.*", "", nome)),
+            vjust = -0.8, size = 3, check_overlap = TRUE) +
+  scale_color_manual(values = c("11" = "#e74c3c", "27" = "#27ae60",
+                                "42" = "#3498db"),
+                     labels = c("11" = "RO", "27" = "AL", "42" = "SC"),
+                     name = "UF") +
+  geom_hline(yintercept = 0.5, linetype = "dotted", color = "grey60") +
+  labs(x = "N (setores no range)",
+       y = "IoU mediano",
+       title = "Ranges maiores tendem a ter IoU menor",
+       subtitle = "Cada ponto = 1 municipio. Linha tracejada = regressao linear.") +
+  theme_minimal(base_size = 13)
+```
+
+::: {.callout-note}
+A tendencia e clara: **quanto maior o range, pior a qualidade da particao**.
+Joinville (N=355) tem IoU mediano de apenas 0.051. Ouro Preto (N=37) lidera
+com 0.805. A regressao linear confirma a relacao negativa.
+
+Mas o N nao explica tudo: Palmeira dos Indios (N=44) tem IoU de 0.001, pior
+que Arapiraca (N=118, IoU=0.096). Outros fatores, como a qualidade da
+digitalizacao regional e o grau de reorganizacao entre censos, tambem importam.
+:::
+
+## Cobertura: Metodo A vs. Metodo B
+
+```{r plot-cobertura}
+ggplot(results, aes(x = cov_a_pct, y = cov_b_pct)) +
+  geom_abline(intercept = 0, slope = 1, linetype = "dashed",
+              color = "grey60") +
+  geom_point(aes(color = as.factor(uf)), size = 4, alpha = 0.8) +
+  geom_text(aes(label = sub("/.*", "", nome)),
+            vjust = -0.8, size = 3, check_overlap = TRUE) +
+  scale_color_manual(values = c("11" = "#e74c3c", "27" = "#27ae60",
+                                "42" = "#3498db"),
+                     labels = c("11" = "RO", "27" = "AL", "42" = "SC"),
+                     name = "UF") +
+  labs(x = "Cobertura Metodo A (%)",
+       y = "Cobertura Metodo B (%)",
+       title = "Cobertura: codigo vs. grafo",
+       subtitle = "Linha tracejada = igualdade. Acima = grafo melhor.") +
+  coord_equal(xlim = c(0, 105), ylim = c(0, 105)) +
+  theme_minimal(base_size = 13)
+```
+
+::: {.callout-note}
+O grafico mostra que a relacao entre cobertura A e B **nao e linear**. Em
+alguns municipios, o grafo melhora drasticamente a cobertura (Ji-Parana: 46.8%
+→ 92.2%, Palmeira dos Indios: 36.5% → 88.2%). Em outros, o grafo tem cobertura
+**menor** (Ouro Preto: 54.4% → 32.2%, Vilhena: 73.3% → 31.5%).
+
+Isso revela uma nuance importante: o grafo nao e universalmente melhor ---
+depende da estrutura dos MCAs e de quantos setores individuais "competem" pelos
+mesmos setores 2010.
+:::
+
+
+# Parte V --- Analise e Decisoes {.unnumbered}
+
+# 14. O que aprendemos: codigo vs. grafo vs. combinado {#sec-analise}
+
+## Por que isso importa
+
+Os resultados mostram que nenhum metodo e perfeito isoladamente. Entender as
+forcas e fraquezas de cada um e essencial para decidir como implementar a
+particao em producao.
+
+## O grafo e essencial para cobertura
+
+O principal achado e que o grafo de compatibilidade permite atingir **cobertura
+proxima a 100%** na maioria dos casos. A razao e que o grafo decompoe o
+problema em **multiplos MCAs** (componentes conexos), cada um contendo setores
+2010 que cobrem partes especificas do range.
+
+**Exemplo detalhado: Ariquemes (range 001-074)**
+
+```
+  O range 001-074 contem 74 codigos de setores.
+  No grafo, esses 74 codigos estao distribuidos em ~68 MCAs:
+
+  MCA_001: s2000_001 ←→ t2010_001    (manutencao 1:1)
+  MCA_002: s2000_002 ←→ t2010_002    (manutencao 1:1)
+  MCA_003: s2000_003 ←→ t2010_003    (manutencao 1:1)
+  ...
+  MCA_045: s2000_032 ──┬── t2010_032  (divisao/reorganizacao)
+           s2000_039 ──┤
+           range_node ─┤── t2010_075
+                       ├── t2010_076
+                       └── t2010_099
+  ...
+  MCA_068: s2000_074 ←→ t2010_074    (manutencao 1:1)
+
+  Total: ~100 setores 2010 coletados de todos os MCAs
+  → Intersecao com poligono range → 96 particoes → cobertura ~100%
+```
+
+A maioria dos setores individuais de 2000 (que ja tinham geometria propria)
+forma MCAs simples (1:1). O **no do range** fica em um MCA maior com os
+setores restantes. Quando coletamos os setores 2010 de **todos** esses MCAs,
+obtemos um conjunto muito mais completo do que o match por codigo.
+
+## O codigo e essencial para identidade
+
+O grafo garante cobertura, mas nao garante **identidade**. Quando um setor 2010
+e selecionado por sobreposicao espacial (e nao por codigo), nao sabemos *a qual*
+setor 2000 ele corresponde. O match por codigo fornece essa informacao.
+
+## Tabela comparativa: quando usar qual metodo
+
+| Criterio | Metodo A (codigo) | Metodo B (grafo) | Combinado |
+|----------|:-----------------:|:----------------:|:---------:|
+| Cobertura | 37-83% | 30-99% | ~100% |
+| Identidade por setor | Sim | Nao | Parcial (com confianca) |
+| Implementacao | Simples | Complexa | Moderada |
+| Depende de Python | Nao | Sim (CompatMalhas) | Sim |
+| Quando usar | Analises que requerem ID exato | Mapas de cobertura total | Producao (pipeline geobr) |
+
+## O problema da diluicao
+
+Em alguns municipios (como Ouro Preto e Vilhena), o Metodo B tem cobertura
+**menor** que o Metodo A. Isso parece contradizer a logica de que o grafo
+"amplia" a busca. A explicacao e a **diluicao**:
+
+```
+  Diluicao: setores 2010 "consumidos" por MCAs individuais
+
+  Sem grafo (Metodo A):
+    Range 001-074 → busca codigos 001-074 em 2010 → 37 encontrados
+
+  Com grafo (Metodo B):
+    MCA do range: contem range + s_032 + s_039
+    → t_032, t_039 sao "reclamados" por s_032 e s_039 (individuais)
+    → Sobram apenas t_075, t_076, t_099 para o range
+    → Apenas 7 setores 2010 para recortar o range
+
+  O grafo "distribui" os setores 2010 entre TODOS os nos do MCA,
+  nao apenas para o range.
+```
+
+Essa diluicao ocorre quando o MCA do range inclui muitos setores individuais
+que ja tinham geometria. Eles "consomem" os setores 2010 que o range precisaria.
+
+A solucao (implementada no Metodo B corrigido e no Metodo Combinado) e
+coletar setores 2010 de **todos os MCAs relevantes**, nao apenas do MCA
+do no range.
+
+
+# 15. Limitacoes e caveats {#sec-limitacoes}
+
+## Por que isso importa
+
+Qualquer resultado quantitativo deve ser acompanhado de suas limitacoes. O
+leitor precisa saber em quais situacoes confiar nos resultados e em quais
+situacoes nao.
+
+## Gap residual
+
+Mesmo com cobertura alta (perto de 100%), quase sempre sobra uma **area nao
+coberta** dentro do poligono range: o **gap**. Ele ocorre porque o poligono
+range (escala 1:500k) tem bordas mais generalizadas que os setores 2010.
+
+```
+  Poligono 2000 (escala 1:500k)
+  ┌───────────────────────────────┐
+  │    ┌──────┬──────┬──────┐    │
+  │    │ 2010 │ 2010 │ 2010 │    │  ← setores 2010 (escala fina)
+  │    │  a   │  b   │  c   │    │
+  │    └──────┴──────┴──────┘    │
+  │  ↑                       ↑   │
+  │  gap     gap       gap   gap │  ← faixas nao cobertas
+  └───────────────────────────────┘
+```
+
+```{r map-gap-ariquemes}
+muni_code <- "1100023"
+rng_gap <- st_read(file.path(dir_maps, paste0(muni_code, "_range.gpkg")), quiet = TRUE)
+pa_gap  <- st_read(file.path(dir_maps, paste0(muni_code, "_partA.gpkg")), quiet = TRUE)
+
+# Calcular gap
+if (nrow(pa_gap) > 0) {
+  union_parts <- st_union(pa_gap)
+  gap_geom <- st_difference(st_geometry(rng_gap), union_parts)
+  gap_sf <- st_sf(ID = "GAP", geometry = gap_geom)
+  gap_area_km2 <- as.numeric(st_area(gap_sf)) / 1e6
+  range_area_km2 <- as.numeric(st_area(rng_gap)) / 1e6
+
+  cat(sprintf("Ariquemes --- Metodo A:\n"))
+  cat(sprintf("  Area do range: %.1f km2\n", range_area_km2))
+  cat(sprintf("  Area do gap:   %.1f km2 (%.1f%% do range)\n",
+              gap_area_km2, 100 * gap_area_km2 / range_area_km2))
+
+  if (!all(st_is_empty(gap_sf))) {
+    m <- mapview(rng_gap, col.regions = NA, color = "#e74c3c",
+                 alpha.regions = 0, lwd = 3,
+                 layer.name = "Range (contorno)") +
+         mapview(pa_gap, col.regions = "#3498db", alpha.regions = 0.3,
+                 layer.name = "Particao A (code match)",
+                 label = pa_gap$ID) +
+         mapview(gap_sf, col.regions = "#f1c40f", alpha.regions = 0.6,
+                 layer.name = "Gap (sem cobertura)",
+                 label = gap_sf$ID)
+    m
+  }
+}
+```
+
+::: {.callout-note}
+**Azul** = setores particionados (Metodo A). **Amarelo** = gap (area sem
+cobertura). **Contorno vermelho** = poligono range original.
+
+Note como o gap se concentra nas **bordas** do poligono, onde a generalizacao
+da escala 1:500k e mais evidente. O interior esta bem coberto.
+:::
+
+### Possiveis tratamentos do gap
+
+1. **Aceitar como limitacao:** para analises agregadas (somar variaveis por
+   AMC), o gap nao afeta. A area total permanece atribuida ao conjunto.
+2. **Distribuir ao vizinho mais proximo:** `st_nearest_feature()` para atribuir
+   cada fragmento ao setor particionado adjacente.
+3. **Voronoi sobre o range:** diagramas de Voronoi com centroides dos setores
+   2010, recortados pelo poligono range. Cobertura total mas bordas artificiais.
+
+## IoU moderado
+
+O IoU mediano global da amostra e de aproximadamente 0.3. Isso significa que a
+particao **nao reproduz fielmente** as geometrias de 2000 --- e uma aproximacao.
+
+Isso e esperado: estamos tentando subdividir um poligono de escala 1:500.000
+(bordas simplificadas, detalhes suprimidos) usando moldes de 2010 (escala mais
+fina). O resultado sera necessariamente uma **interpolacao geometrica**, nao
+uma reconstrucao exata.
+
+Para a maioria das analises (classificacao de setores, mapas tematicos,
+agregacoes espaciais), essa aproximacao e suficiente. Para analises que
+dependem de limites precisos (calculo de area por setor, analises de
+fronteira), nao e.
+
+## Amostra limitada
+
+```
+  Brasil: ~5.500 municipios com setores em range notation
+  Amostra: 12 municipios de 3 estados (RO, AL, SC)
+  Cobertura: 0.22% dos municipios
+
+  ┌───────────────────────────────────────────────┐
+  │ Brasil completo                               │
+  │  ┌───┐                                       │
+  │  │RO │  ← 4 municipios                       │
+  │  └───┘                                       │
+  │           ┌───┐                               │
+  │           │AL │  ← 4 municipios               │
+  │           └───┘                               │
+  │                        ┌───┐                  │
+  │                        │SC │  ← 4 municipios  │
+  │                        └───┘                  │
+  └───────────────────────────────────────────────┘
+```
+
+Os 12 municipios cobrem apenas 3 dos 27 estados. Resultados podem variar
+significativamente em outras regioes, especialmente:
+
+- **Norte** (municipios com area muito grande, poucos setores rurais)
+- **Nordeste interior** (reorganizacoes frequentes entre censos)
+- **Centro-Oeste** (emancipacoes municipais intensas nos anos 2000)
+
+## Outros caveats
+
+- **IoU calculado apenas para Metodo A**: o pareamento por codigo permite
+  comparacao 1:1 com o ground truth. O Metodo B produz particoes que nao
+  necessariamente correspondem a um unico setor 2000.
+- **Ground truth imperfeito**: a malha urbana 2000 tambem e uma representacao
+  simplificada da realidade. Diferencas de escala entre urbano e rural sao
+  inerentes.
+- **Setores renumerados**: quando um setor muda de codigo entre censos, a
+  particao do Metodo A atribui a geometria de 2010 como se fosse 2000 ---
+  mas a posicao pode ter mudado.
+
+
+# 16. Proximos passos e recomendacoes {#sec-proximos-passos}
+
+## Por que isso importa
+
+A prova de conceito demonstrou viabilidade. A Parte VI documenta o que ja foi
+implementado. Os itens abaixo sao os **proximos passos remanescentes**.
+
+## Tabela de recomendacoes por tipo de analise
+
+| Tipo de analise | O que usar | Por que |
+|----------------|-----------|---------|
+| Mapas tematicos (choropleth) | Particao combinada (grafo + codigo) | Cobertura ~100% para visualizacao |
+| Agregacao por municipio | Dados tabulares direto (sem particao) | Nao precisa de geometria individual |
+| Agregacao por AMC | Dissolve dos setores da AMC | Comparabilidade garantida |
+| Analise intra-municipal (renda, segregacao) | Particao com match_confidence >= 0.8 | Apenas setores com correspondencia confiavel |
+| Analise de fronteira / area | **Nao usar particao** | IoU insuficiente para precisao geometrica |
+| Join espacial (ponto-em-poligono) | Particao combinada | A maioria dos pontos caira no setor correto |
+
+## Roadmap de implementacao
+
+### ~~Fase 1: Escala total~~ CONCLUIDA (parcial)
+
+1. ~~**Rodar CompatMalhas para todos os 27 estados**~~ → 15/27 UFs com CSVs
+   cacheados. 12 UFs grandes (PA, PI, CE, PB, PE, BA, MG, RJ, SP, PR, RS, MT)
+   falharam por timeout e precisam de execucao manual prolongada.
+2. ~~**Gerar particoes**~~ → Implementado em `partition_range_combined()`
+3. ~~**Calcular IoU**~~ → Feito para 12 municipios-amostra (ver resultados)
+
+### ~~Fase 2: Integracao no pipeline R~~ CONCLUIDA
+
+4. ~~**Implementar `partition_range_combined()`**~~ → `R/census_tract.R`
+5. ~~**Integrar no `clean_censustract_2000_unified()`**~~ → Metodo combinado
+   com Voronoi gap filling, automatico no pipeline `targets`
+6. ~~**Adicionar coluna `geom_source`**~~ → urbano, rural, compat_partitioned,
+   rural_aggregated
+
+### Fase 3: Validacao e documentacao (EM ANDAMENTO)
+
+7. **Validacao cruzada com dados tabulares**: verificar se populacao/domicilios
+   por setor particionado sao plauseis (comparar com totais municipais)
+8. **Documentar no vignette do geobr**: explicar ao usuario final o significado
+   de `geom_source` e `match_confidence`
+9. **Publicar relatorio tecnico completo** com resultados dos 27 estados
+
+### ~~Fase 4: Alternativas complementares~~ CONCLUIDA (parcial)
+
+10. ~~**Distribuicao do gap residual**~~ → Voronoi constrained implementado
+    (ver [Secao 19](#sec-voronoi))
+11. **AMCs pre-calculadas**: disponibilizar no pacote geobr as AMCs como
+    alternativa a particao individual
+12. **Pesos populacionais**: usar populacao do Censo 2010 como peso para
+    redistribuir dados tabulares entre particoes
+
+### Fase 5: Pendencias
+
+13. **Rodar CompatMalhas para 12 UFs grandes** (execucao manual Python, horas)
+14. **Overlap fix por UF**: cookie-cutter com prioridade de geom_source
+15. **Paralelizar leitura dos 1058 shapefiles urbanos** (furrr/future)
+
+## Resumo quantitativo final
+
+```{r resumo-final}
+results <- read.csv("/tmp/poc_results.csv")
+
+cat("============================================\n")
+cat("  RESUMO DA PROVA DE CONCEITO\n")
+cat("============================================\n\n")
+cat(sprintf("Municipios testados:            %d\n", nrow(results)))
+cat(sprintf("Total de setores em ranges:     %d\n", sum(results$N_range)))
+cat(sprintf("\n--- Metodo A (code match) ---\n"))
+cat(sprintf("Cobertura media:                %.1f%%\n", mean(results$cov_a_pct)))
+cat(sprintf("Cobertura mediana:              %.1f%%\n", median(results$cov_a_pct)))
+cat(sprintf("\n--- Metodo B (grafo) ---\n"))
+cat(sprintf("Cobertura media:                %.1f%%\n", mean(results$cov_b_pct)))
+cat(sprintf("Cobertura mediana:              %.1f%%\n", median(results$cov_b_pct)))
+cat(sprintf("\n--- IoU (Metodo A) ---\n"))
+cat(sprintf("IoU medio global:               %.3f\n", mean(results$iou_mean)))
+cat(sprintf("IoU mediano global:             %.3f\n", median(results$iou_median)))
+cat(sprintf("Setores IoU > 0.50:             %d de %d (%.1f%%)\n",
+            sum(results$iou_gt50), sum(results$n_iou),
+            100 * sum(results$iou_gt50) / sum(results$n_iou)))
+cat(sprintf("Setores IoU > 0.80:             %d de %d (%.1f%%)\n",
+            sum(results$iou_gt80), sum(results$n_iou),
+            100 * sum(results$iou_gt80) / sum(results$n_iou)))
+cat(sprintf("\n============================================\n"))
+cat(sprintf("  CONCLUSAO: Particao viavel como\n"))
+cat(sprintf("  aproximacao. Implementar metodo\n"))
+cat(sprintf("  combinado (grafo + codigo) em\n"))
+cat(sprintf("  producao com indicadores de\n"))
+cat(sprintf("  confianca por setor.\n"))
+cat(sprintf("============================================\n"))
+```
+
+::: {.callout-note}
+## Achado principal (PoC)
+
+**A particao funciona como aproximacao, nao como reconstrucao exata.** O
+metodo combinado (grafo para cobertura + codigo para identidade) e a melhor
+estrategia para producao. A qualidade varia com o tamanho do range (N < 50
+funciona bem, N > 100 e problematico) e com a regiao.
+
+O indicador `match_confidence` permite que o usuario final decida seu proprio
+limiar de qualidade aceitavel, adaptando a analise ao caso de uso.
+:::
+
+
+# Parte VI --- Implementacao em Producao {#parte-vi .unnumbered}
+
+A partir dos resultados da prova de conceito, o metodo combinado foi
+implementado no pipeline de producao `targets`. Esta parte documenta a
+arquitetura final, as funcoes R criadas, o mecanismo de Voronoi gap filling
+e o schema do output.
+
+
+# 17. Arquitetura do pipeline {#sec-arquitetura}
+
+## Por que isso importa
+
+A arquitetura do pipeline determina como os dados fluem desde os shapefiles
+brutos do IBGE ate os Parquets finais. Entender o DAG (grafo aciclico
+direcionado) e essencial para reproduzir, debugar ou estender o processo.
+
+## O DAG de targets
+
+O pipeline `targets` para setores censitarios 2000 esta organizado em
+**3 sub-produtos independentes** mais um target **unificado** que combina
+tudo:
+
+```
+                                      ┌──────────────────────────┐
+  censustract_2000_raw ──┬──────────► │ censustract_2000_urbano  │
+  (download de 1058      │            │ _clean                   │
+   shapefiles urbanos    │            │ (128.012 features)       │──┐
+   + 27 rurais)          │            └──────────────────────────┘  │
+                         │                                          │
+                         │            ┌──────────────────────────┐  │
+                         └──────────► │ censustract_2000_rural   │  │
+                                      │ _clean                   │  │
+                                      │ (68.406 features,        │──┤
+                                      │  preserva range notation)│  │
+                                      └──────────────────────────┘  │
+                                                                    │
+                                      ┌──────────────────────────┐  │
+  censustract_2010_clean ───────────► │ censustract_2000_unified │◄─┘
+  (referencia espacial)               │ _clean                   │
+                                      │ (merge + CompatMalhas    │
+                                      │  + Voronoi + overlaps)   │
+                                      └──────────────────────────┘
+```
+
+Cada sub-produto e um target independente com `format = 'file'`, produzindo
+parquets comprimidos com zstd. O unified depende dos outros tres.
+
+## Principio de design: rural fiel, unified complexo
+
+Uma decisao de design fundamental:
+
+- **rural_clean** deve ser **fiel ao IBGE**. Ele preserva a geometria original
+  (mesmo que em escala 1:500k), a range notation no campo `original_id`,
+  e o tagging `geom_source = "rural_aggregated"` para os ranges.
+- **unified_clean** e o target que faz o **trabalho complexo**: particao dos
+  ranges, Voronoi gap filling, resolucao de overlaps.
+
+Essa separacao permite que o usuario que quiser a malha rural original do
+IBGE possa usa-la diretamente, sem nenhuma manipulacao.
+
+## Targets em `_targets.R`
+
+```r
+# ---- 2000: 3 sub-products ----
+tar_target(name = censustract_2000_raw,
+           command = download_censustract_2000(2000)),
+
+tar_target(name = censustract_2000_urbano_clean,
+           command = clean_censustract_2000_urbano(censustract_2000_raw),
+           format = 'file'),
+
+tar_target(name = censustract_2000_rural_clean,
+           command = clean_censustract_2000_rural(censustract_2000_raw),
+           format = 'file'),
+
+tar_target(name = censustract_2000_unified_clean,
+           command = clean_censustract_2000_unified(
+             censustract_2000_urbano_clean,
+             censustract_2000_rural_clean,
+             censustract_2010_clean),
+           format = 'file'),
+```
+
+Note que o unified recebe os **parquets** (paths) de urbano, rural e 2010 ---
+nao os shapefiles brutos.
+
+
+# 18. As funcoes R {#sec-funcoes-r}
+
+## Por que isso importa
+
+Cada etapa do processo de particao e implementada como uma funcao R em
+`R/census_tract.R`. Documentar essas funcoes permite entender e auditar
+cada passo.
+
+## Visao geral das funcoes
+
+| Funcao | Entrada | Saida | Finalidade |
+|--------|---------|-------|-----------|
+| `expand_range()` | `"110002305000001-0074"` | vetor de 74 codigos | Decodifica range notation |
+| `prepare_compat_gpkgs()` | sf 2000 + sf 2010 + UF | GPKGs em disco | Prepara inputs para Python |
+| `run_compat_uf()` | UF + dir_compat | CSV em disco | Executa CompatMalhas Python |
+| `read_compat_uf()` | UF + dir_compat | lista (c2000, c2010, edges) | Le cache do grafo |
+| `partition_range_combined()` | range + codes + tracts 2010 + compat | sf com partitions | **Funcao principal** |
+| `fill_gaps_voronoi()` | partitions + range polygon | sf com gaps preenchidos | Voronoi constrained |
+
+## `expand_range()`: decodificando a notacao
+
+A funcao recebe uma string como `"110002305000001-0074"` e retorna um vetor
+de 74 codigos individuais:
+
+```
+  Input:  "110002305000001-0074"
+  Output: c("110002305000001", "110002305000002", ..., "110002305000074")
+```
+
+A logica e:
+
+1. Separar pelo hifen: `"110002305000001"` e `"0074"`
+2. Extrair o prefixo (11 digitos): `"11000230500"`
+3. Extrair o primeiro setor (4 digitos): `"0001"`
+4. Extrair o ultimo setor (4 digitos): `"0074"`
+5. Gerar a sequencia: `0001, 0002, ..., 0074`
+6. Concatenar prefixo + cada setor: `"110002305000001"`, `"110002305000002"`, etc.
+
+## `partition_range_combined()`: a funcao principal
+
+Esta e a implementacao do Metodo Combinado descrito na [Secao 6](#sec-combinado).
+Recebe:
+
+- `range_poly`: o poligono sf do range (uma linha do rural_clean)
+- `range_id`: o codigo original com range notation
+- `expanded_codes`: vetor de codigos expandidos (de `expand_range()`)
+- `tracts_2010_uf`: todos os setores 2010 da UF (sf)
+- `compat`: o grafo de compatibilidade da UF (de `read_compat_uf()`)
+
+Retorna um sf com colunas `code_tract`, `match_method`, `match_confidence`,
+`geometry`.
+
+### Passo 1: Grafo define cobertura espacial
+
+```
+  expanded_codes = {001, 002, ..., 074}
+  range_id = "110002305000001-0074"
+
+  Consulta ao grafo:
+    Quais MCAs contem pelo menos um desses codigos?
+    → MCA_1, MCA_2, ..., MCA_68
+
+  Quais setores 2010 pertencem a esses MCAs?
+    → t2010_001, t2010_002, ..., t2010_099
+    (pode incluir setores 2010 que nao existiam em 2000 → resultado de divisoes)
+```
+
+### Passo 2: Intersecao espacial
+
+```
+  Recorta os setores 2010 selecionados pelo contorno do range:
+
+  ┌───────────────────────────────┐     ┌───────────────────────────────┐
+  │ Range 2000                    │     │ Apos intersecao              │
+  │ (escala 1:500k)               │     │                              │
+  │  ┌──────┬──────┬──────┐      │     │  ┌──────┬──────┬──────┐      │
+  │  │ 2010 │ 2010 │ 2010 │      │ ──► │  │ part │ part │ part │      │
+  │  │  a   │  b   │  c   │      │     │  │  a   │  b   │  c   │      │
+  │  │      │      │      │      │     │  │      │      │      │      │
+  │  └──────┴──────┴──────┘      │     │  └──────┴──────┴──────┘      │
+  │                               │     │  ↑ recortados pelo contorno  │
+  └───────────────────────────────┘     └───────────────────────────────┘
+```
+
+### Passo 3: Codigo identifica e peso atribui confianca
+
+Para cada particao resultante:
+
+```
+  Se code_tract_2010 ∈ expanded_codes:
+    → code_tract = code_tract_2010
+    → match_method = "code_match"
+    → match_confidence = 1.0
+
+  Se code_tract_2010 ∉ expanded_codes:
+    → Consultar arestas do grafo: qual setor 2000 esta ligado a este 2010?
+    → code_tract = best_match_2000 (pelo peso da aresta)
+    → match_method = "graph_manutencao" / "graph_divisao" / etc.
+    → match_confidence = peso do grafo (0.1 a 0.8)
+
+  Se nao ha match nem no grafo:
+    → match_method = "unmatched"
+    → match_confidence = 0.0
+```
+
+### Tabela de pesos do grafo
+
+| Tipo de relacao (CompatMalhas) | Peso | match_method resultante |
+|-------------------------------|------|------------------------|
+| Manutencao                     | 1.0  | graph_manutencao |
+| Divisao                        | 0.8  | graph_divisao |
+| Reorganizacao                  | 0.5  | graph_reorganizacao |
+| Sobreposicao (fallback)        | 0.3  | graph_sobreposicao |
+| Sem match                      | 0.0  | unmatched |
+
+
+# 19. Voronoi gap filling {#sec-voronoi}
+
+## Por que isso importa
+
+Apos a intersecao (Passo 2), quase sempre sobram **gaps** --- faixas entre os
+setores 2010 recortados e o contorno do range. Isso ocorre porque o range e
+desenhado na escala 1:500k (bordas generalizadas) enquanto os setores 2010 sao
+mais detalhados.
+
+## O problema do gap
+
+```
+  Apos intersecao (Secao 18, Passo 2):
+
+  ┌───────────────────────────────────┐
+  │ Range 2000 (contorno)             │
+  │                                   │
+  │  gap ┌──────┬──────┬──────┐ gap  │
+  │  ◄──►│ part │ part │ part │◄──► │
+  │      │  a   │  b   │  c   │      │
+  │      └──────┴──────┴──────┘      │
+  │  gap           gap          gap  │
+  └───────────────────────────────────┘
+
+  As areas marcadas "gap" nao estao cobertas por nenhuma particao.
+  Percentual tipico do gap: 5-30% da area do range.
+```
+
+## Abordagens avaliadas
+
+Tres abordagens foram consideradas:
+
+| Abordagem | Vantagem | Desvantagem |
+|-----------|----------|-------------|
+| 1. Aceitar gap | Simples | Setor sem cobertura total |
+| 2. Nearest-neighbor | Facil implementar | Fronteiras artificiais |
+| 3. **Voronoi constrained** | Fronteiras naturais equidistantes | Mais complexo |
+
+A abordagem escolhida foi a **3: Voronoi constrained**.
+
+## Como funciona o Voronoi constrained
+
+A ideia e: cada particao "infla" equidistantemente em todas as direcoes ate
+encontrar seu vizinho. As fronteiras ficam a meio caminho entre centroides
+adjacentes --- o resultado natural de um diagrama de Voronoi.
+
+### Passo a passo visual
+
+```
+  1. Calcular centroides das particoes:
+
+     ┌───────────────────────────────────┐
+     │ Range                             │
+     │      ┌──────┬──────┬──────┐      │
+     │      │  ●a  │  ●b  │  ●c  │      │
+     │      └──────┴──────┴──────┘      │
+     └───────────────────────────────────┘
+
+  2. Gerar diagrama de Voronoi com o range como envelope:
+
+     ┌────────────┬───────────┬──────────┐
+     │            │           │          │
+     │     ●a     │    ●b     │   ●c     │
+     │            │           │          │
+     │            │           │          │
+     └────────────┴───────────┴──────────┘
+     Cada celula Voronoi cobre TODA a area mais proxima ao centroide.
+
+  3. Resultado: cobertura 100% do range, fronteiras equidistantes:
+
+     ┌────────────┬───────────┬──────────┐
+     │            │           │          │
+     │  setor a   │  setor b  │ setor c  │
+     │  (inflado) │  (inflado)│(inflado) │
+     │            │           │          │
+     └────────────┴───────────┴──────────┘
+```
+
+### Detalhes de implementacao
+
+A funcao `fill_gaps_voronoi()` em `R/census_tract.R` implementa o algoritmo:
+
+```r
+fill_gaps_voronoi <- function(partitions, range_polygon) {
+  sf::sf_use_s2(FALSE)
+
+  # Caso especial: 1 particao → geometria = range inteiro
+  if (nrow(partitions) == 1) {
+    result <- partitions
+    sf::st_geometry(result) <- sf::st_geometry(range_polygon)
+    return(sf::st_cast(sf::st_make_valid(result), "MULTIPOLYGON"))
+  }
+
+  # 1. Centroides das particoes
+  centroids <- sf::st_centroid(sf::st_geometry(partitions))
+
+  # 2. Voronoi com envelope = range polygon
+  voronoi_raw <- sf::st_voronoi(sf::st_union(centroids),
+                                 envelope = sf::st_geometry(range_polygon))
+
+  # 3. Clip ao contorno do range
+  voronoi_clipped <- sf::st_intersection(
+    sf::st_collection_extract(voronoi_raw, "POLYGON"),
+    sf::st_geometry(range_polygon)
+  )
+
+  # 4. Cada celula herda o code_tract da particao mais proxima
+  nearest_idx <- sf::st_nearest_feature(
+    sf::st_centroid(voronoi_clipped), centroids
+  )
+  result <- partitions[nearest_idx, ]
+  sf::st_geometry(result) <- voronoi_clipped
+
+  # 5. Dissolve celulas com mesmo code_tract
+  result |>
+    dplyr::group_by(code_tract, match_method, match_confidence) |>
+    dplyr::summarise(geometry = sf::st_union(geometry), .groups = "drop") |>
+    sf::st_make_valid() |>
+    sf::st_cast("MULTIPOLYGON")
+}
+```
+
+### Por que Voronoi e nao nearest-neighbor?
+
+A diferenca visual e sutil mas conceitual:
+
+```
+  Nearest-neighbor:              Voronoi constrained:
+  ┌────────────┬──────────┐     ┌─────────────┬─────────┐
+  │ setor a    │          │     │             │         │
+  │ (original) │  setor b │     │   setor a   │ setor b │
+  │            │(original)│     │  (inflado)  │(inflado)│
+  │            ├──────────┤     │             │         │
+  │            │  gap →   │     │             │         │
+  │            │  atrib.  │     │             │         │
+  │            │  a vizb  │     │             │         │
+  └────────────┴──────────┘     └─────────────┴─────────┘
+
+  Nearest-neighbor: gap vai       Voronoi: todos os setores
+  inteiro ao vizinho mais         "inflam" igualmente em
+  proximo. Resultado assimetrico. todas as direcoes. Resultado
+                                  simetrico e natural.
+```
+
+O Voronoi garante que as fronteiras entre setores adjacentes ficam a **meia
+distancia** dos respectivos centroides --- uma divisao justa e espacialmente
+coerente.
+
+
+# 20. O fluxo completo do unified_clean {#sec-fluxo-unified}
+
+## Por que isso importa
+
+O unified_clean e o target mais complexo do pipeline. Ele integra todos os
+sub-produtos e metodos em uma unica funcao. Entender o fluxo completo e
+essencial para auditoria e depuracao.
+
+## Fluxograma
+
+```
+  ┌─────────────────────────────────────────────────────┐
+  │              clean_censustract_2000_unified()        │
+  │                                                     │
+  │  1. Ler parquets: urbano, rural, 2010               │
+  │     ↓                                               │
+  │  2. Separar rural em individuais + aggregated       │
+  │     ↓                                               │
+  │  3. Para cada UF com ranges:                        │
+  │     a. Preparar GPKGs (2000 + 2010) → disco         │
+  │     b. Rodar CompatMalhas Python    → CSV (cache)   │
+  │     ↓                                               │
+  │  4. Para cada range (rural_aggregated):             │
+  │     a. expand_range() → codigos expandidos          │
+  │     b. read_compat_uf() → grafo (com cache)         │
+  │     c. partition_range_combined() → particoes       │
+  │     d. fill_gaps_voronoi() → particoes infladas     │
+  │     e. Copiar metadata (muni, state, etc.)          │
+  │     ↓                                               │
+  │  5. Merge: urbano + rural_indiv + partitions + agg  │
+  │     (urbano tem prioridade em duplicatas)            │
+  │     ↓                                               │
+  │  6. [TODO] Overlap fix por UF                       │
+  │     ↓                                               │
+  │  7. Gravar parquets (full + simplified)             │
+  └─────────────────────────────────────────────────────┘
+```
+
+## Etapa 1: Leitura dos inputs
+
+Os tres parquets sao lidos com `read_geoparquet()`:
+
+- **Urbano**: ~128.012 features com `geom_source = "urbano"`
+- **Rural**: ~68.406 features, dos quais ~18.400 sao `rural_aggregated`
+- **2010**: ~310.000 features (referencia espacial para particao)
+
+## Etapa 2: Separacao rural
+
+O rural_clean ja traz a coluna `geom_source`:
+
+- `"rural"`: setores individuais com geometria propria (49.988)
+- `"rural_aggregated"`: ranges com poligono 1:500k (18.418)
+
+Apenas os `rural_aggregated` passam pelo processo de particao.
+
+## Etapa 3: CompatMalhas por UF
+
+Para cada UF que possui ranges:
+
+1. **Prepara GPKGs** se ainda nao existirem (cache em
+   `data-raw/census_tract/compat/`):
+   - `setores_2000_XX.gpkg`: urbano + rural da UF, com IDs (range notation
+     preservada para rurais)
+   - `setores_2010_XX.gpkg`: setores 2010 da UF
+2. **Executa CompatMalhas Python** se CSV nao existir (cache):
+   - Input: GPKGs
+   - Output: `compat_XX_C2000_XX.csv` com o grafo bipartido
+
+### Cache hierarquico
+
+```
+  Nivel 1 (GPKG):   setores_2000_11.gpkg ← criado uma vez
+  Nivel 2 (CSV):    compat_11_C2000_11.csv ← criado por Python
+  Nivel 3 (R list): compat_cache[["11"]] ← em memoria por sessao
+```
+
+Isso significa que, apos a primeira execucao, as etapas subsequentes
+reutilizam os caches sem re-executar Python.
+
+## Etapa 4: Particao + Voronoi (por range)
+
+Para cada um dos ~18.400 ranges:
+
+1. `expand_range()`: decodifica a notacao → vetor de codigos
+2. Verifica se a UF tem CSV do CompatMalhas. Se nao, o range permanece como
+   `rural_aggregated` (fallback graceful).
+3. `partition_range_combined()`: gera particoes com match_method e confidence
+4. `fill_gaps_voronoi()`: infla as particoes ate cobrir 100% do range
+5. Copiar colunas de metadata (code_muni, name_muni, code_state, etc.)
+6. Marcar `geom_source = "compat_partitioned"`
+
+## Etapa 5: Merge
+
+O merge final combina 4 fontes em ordem de prioridade:
+
+```
+  1. Urbano (128.012)          ← prioridade maxima
+  2. Rural individual (49.988) ← preservados integralmente
+  3. Compat partitioned (N)    ← ranges particionados com sucesso
+  4. Rural aggregated (M)      ← ranges que nao puderam ser particionados
+```
+
+Duplicatas de `code_tract` sao resolvidas por prioridade: se um code_tract
+aparece no urbano e no rural, o urbano prevalece.
+
+## Etapa 6: Overlap fix (TODO)
+
+A resolucao de overlaps espaciais (sobreposicao geometrica entre features) e
+a etapa final planejada. Sera implementada como **cookie-cutter por
+municipio** com prioridade de geom_source:
+
+```
+  Prioridade: urbano (1) > rural (2) > compat_partitioned (3) > rural_aggregated (4)
+
+  Para cada municipio:
+    Para cada nivel de prioridade (do mais baixo ao mais alto):
+      Recortar (st_difference) pela uniao de todos os niveis superiores.
+```
+
+Esta etapa esta marcada como TODO no codigo atual.
+
+
+# 21. Schema de saida {#sec-schema}
+
+## Por que isso importa
+
+O usuario final do pacote geobr precisa saber exatamente quais colunas estao
+disponiveis e o que cada uma significa.
+
+## Colunas do Parquet unified
+
+| Coluna | Tipo | Descricao | Valores possiveis |
+|--------|------|-----------|-------------------|
+| `code_tract` | numeric | Codigo de 15 digitos do setor 2000 | 110000100000001, ... |
+| `name_muni` | character | Nome do municipio | "Ariquemes", "Arapiraca", ... |
+| `code_muni` | numeric | Codigo IBGE do municipio (7 digitos) | 1100023, 2700300, ... |
+| `code_neighborhood` | numeric | Codigo do bairro (se disponivel) | NA para rurais |
+| `name_neighborhood` | character | Nome do bairro | NA para rurais |
+| `code_district` | numeric | Codigo do distrito | 05, 10, ... |
+| `name_district` | character | Nome do distrito | "Ariquemes", ... |
+| `code_subdistrict` | numeric | Codigo do subdistrito | 00, 10, ... |
+| `name_subdistrict` | character | Nome do subdistrito | ... |
+| `zone` | character | Tipo de zona | "Urbana", "Rural" |
+| `geom_source` | character | Origem da geometria | ver abaixo |
+| `original_id` | character | Range notation original | NA ou "1100023050001-0074" |
+| `n_tracts_inside` | numeric | N setores no range | NA para individuais |
+| `match_method` | character | Metodo de match | ver abaixo |
+| `match_confidence` | numeric | Confianca do match | 0.0 a 1.0 |
+| `code_state` | numeric | Codigo da UF (2 digitos) | 11, 27, 42, ... |
+| `abbrev_state` | character | Sigla da UF | "RO", "AL", "SC", ... |
+| `name_state` | character | Nome da UF | "Rondonia", "Alagoas", ... |
+| `code_region` | numeric | Codigo da regiao | 1, 2, 3, 4, 5 |
+| `name_region` | character | Nome da regiao | "Norte", "Nordeste", ... |
+| `year` | numeric | Ano de referencia | 2000 |
+| `geometry` | sfc_MULTIPOLYGON | Geometria | CRS: EPSG:4674 (SIRGAS 2000) |
+
+## Valores de `geom_source`
+
+| Valor | Descricao | N aproximado |
+|-------|-----------|-------------|
+| `"urbano"` | Setor urbano com geometria individual do IBGE | ~128.000 |
+| `"rural"` | Setor rural com geometria individual do IBGE | ~50.000 |
+| `"compat_partitioned"` | Setor rural particionado pelo metodo combinado + Voronoi | variavel |
+| `"rural_aggregated"` | Setor rural em range notation, sem particao possivel | variavel |
+
+## Valores de `match_method`
+
+| Valor | Descricao | Confianca tipica |
+|-------|-----------|-----------------|
+| NA | Setores com geometria original (urbano, rural) | NA |
+| `"code_match"` | Codigo 2010 coincide com codigo 2000 do range | 1.0 |
+| `"graph_manutencao"` | Grafo indica relacao de manutencao (1:1) | 1.0 |
+| `"graph_divisao"` | Grafo indica divisao de setor | 0.8 |
+| `"graph_reorganizacao"` | Grafo indica reorganizacao territorial | 0.5 |
+| `"graph_sobreposicao"` | Match por sobreposicao espacial | 0.3 |
+| `"unmatched"` | Sem match no grafo nem por codigo | 0.0 |
+
+## Como filtrar por confianca
+
+```r
+library(geobr)
+library(dplyr)
+
+setores <- read_census_tract(year = 2000)
+
+# Apenas setores com geometria confiavel (originais + match perfeito)
+confiavel <- setores |>
+  filter(is.na(match_confidence) | match_confidence >= 0.8)
+
+# Apenas setores com geometria original (sem nenhuma particao)
+originais <- setores |>
+  filter(geom_source %in% c("urbano", "rural"))
+
+# Apenas ranges particionados (para inspecao)
+particionados <- setores |>
+  filter(geom_source == "compat_partitioned")
+```
+
+
+# 22. Status do CompatMalhas por UF {#sec-compat-status}
+
+## Por que isso importa
+
+O CompatMalhas precisa ser executado para cada UF separadamente. Nem todas as
+UFs completaram o processamento. Saber quais UFs estao prontas e essencial
+para interpretar o resultado final.
+
+## Tabela de status
+
+```{r compat-status}
+#| echo: false
+
+dir_compat <- "data-raw/census_tract/compat"
+
+# UFs brasileiras
+ufs <- c("11"="RO","12"="AC","13"="AM","14"="RR","15"="PA","16"="AP","17"="TO",
+         "21"="MA","22"="PI","23"="CE","24"="RN","25"="PB","26"="PE","27"="AL",
+         "28"="SE","29"="BA",
+         "31"="MG","32"="ES","33"="RJ","35"="SP",
+         "41"="PR","42"="SC","43"="RS",
+         "50"="MS","51"="MT","52"="GO","53"="DF")
+
+status_df <- data.frame(
+  UF = names(ufs),
+  Sigla = ufs,
+  stringsAsFactors = FALSE
+)
+
+status_df$CSV <- sapply(status_df$UF, function(uf) {
+  f <- file.path(dir_compat, paste0("compat_", uf, "_C2000_", uf, ".csv"))
+  if (file.exists(f)) {
+    info <- file.info(f)
+    sprintf("OK (%.0f KB)", info$size / 1024)
+  } else {
+    "PENDENTE"
+  }
+})
+
+status_df$GPKG_2000 <- sapply(status_df$UF, function(uf) {
+  f <- file.path(dir_compat, paste0("setores_2000_", uf, ".gpkg"))
+  if (file.exists(f)) "OK" else "-"
+})
+
+n_ok <- sum(grepl("OK", status_df$CSV))
+n_pend <- sum(status_df$CSV == "PENDENTE")
+
+knitr::kable(status_df,
+  col.names = c("Cod UF", "Sigla", "CSV CompatMalhas", "GPKG 2000"),
+  caption = sprintf("Status do CompatMalhas por UF (%d/%d concluidos)", n_ok, 27)
+)
+```
+
+::: {.callout-warning}
+## UFs pendentes
+
+As UFs sem CSV precisam de execucao manual prolongada do Python CompatMalhas.
+Essas sao tipicamente as UFs com maior numero de municipios e setores (SP, MG,
+BA, etc.), que excedem o timeout padrao.
+
+Para essas UFs, os ranges ficam como `rural_aggregated` no unified ---
+preservando a geometria original 1:500k sem particao. Quando o CompatMalhas
+for executado para essas UFs, o pipeline detecta o novo CSV automaticamente
+na proxima execucao e particiona os ranges.
+:::
+
+
+# 23. Consideracoes finais {#sec-conclusao}
+
+## Da prova de conceito a producao
+
+Este relatorio documenta a jornada completa:
+
+1. **Identificacao do problema** (Parte I): 22.431 setores (10,4%) sem
+   geometria individual no Censo 2000, todos na malha rural 1:500k.
+
+2. **Desenvolvimento da estrategia** (Parte II): uso do Censo 2010 como guia
+   espacial, com tres abordagens (codigo, grafo, combinada).
+
+3. **Validacao em amostra** (Partes III-IV): 12 municipios de 3 estados,
+   demonstrando viabilidade do metodo combinado com IoU moderado (~0.3-0.5).
+
+4. **Analise critica** (Parte V): forcas, fraquezas e limitacoes de cada
+   metodo. Recomendacoes por tipo de analise.
+
+5. **Implementacao em producao** (Parte VI): integracao no pipeline `targets`,
+   funcoes R, Voronoi gap filling, schema de saida.
+
+## O que o usuario final precisa saber
+
+A coluna `geom_source` no Parquet final indica a origem de cada geometria:
+
+- **`"urbano"` e `"rural"`**: geometria original do IBGE --- confiavel.
+- **`"compat_partitioned"`**: geometria aproximada por particao --- util para
+  mapas e analises agregadas, nao para calculos de area exata.
+- **`"rural_aggregated"`**: geometria do range original (multiplos setores
+  compartilham o mesmo poligono) --- usar com cautela.
+
+A coluna `match_confidence` permite filtrar por nivel de confianca:
+
+- **>= 0.8**: correspondencia direta (codigo ou manutencao no grafo)
+- **0.3 - 0.8**: correspondencia indireta (divisao, reorganizacao)
+- **0.0**: sem correspondencia (atribuicao por proximidade espacial)
+
+::: {.callout-important}
+## Advertencia
+
+As geometrias particionadas sao **aproximacoes**, nao reconstrucoes exatas.
+Elas sao adequadas para mapas tematicos, joins espaciais e analises agregadas.
+**Nao** sao adequadas para calculo de area por setor, analise de fronteiras
+ou deteccao de mudancas espaciais finas entre censos.
+:::

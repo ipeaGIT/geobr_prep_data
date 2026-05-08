@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ls \"d:/Dropbox/Artigos/geobr_prep_data/data-raw/census_tract/compat/compat_\"*_C2000_*.csv)",
+      "Bash(wmic process where \"name=''python.exe''\" get CommandLine)",
+      "Bash(\"/c/Program Files/R/R-4.5.0/bin/Rscript.exe\" /tmp/run_ct2000.R)",
+      "Bash(\"/c/Program Files/R/R-4.5.0/bin/Rscript.exe\" /tmp/toy_test_original_id.R)"
+    ]
+  }
+}

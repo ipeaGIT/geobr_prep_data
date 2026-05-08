@@ -1,0 +1,6 @@
+library(targets)
+setwd("d:/Dropbox/Artigos/geobr_prep_data")
+m <- tar_meta(names = censustract_2000_unified_clean)
+cat("Built:", as.character(m$time), "\n")
+cat("Error:", m$error, "\n")
+cat("Warnings (first 500 chars):", substr(m$warnings, 1, 500), "\n")

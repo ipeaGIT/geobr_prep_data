@@ -1,0 +1,7 @@
+"strategy","n_rows","gap_km2","gap_pct","time_s"
+"baseline",493,79.4454,0.05,0.2
+"buffer_plus_minus_1m",493,79.4453,0.05,0.9
+"snap_to_self_10m",493,79.44,0.05,0.2
+"snap_to_envelope_100m",493,7.036,0.0044,0.2
+"cascade_buffer_5m",493,79.4433,0.05,0.9
+"buffer_50m_grow",493,19.0133,0.012,0.3
