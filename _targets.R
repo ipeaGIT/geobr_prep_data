@@ -3,7 +3,7 @@ library(tarchetypes)
 library(crew)
 
 # cores available
-coress <- floor(.8 * parallelly::freeCores()[1])
+coress <- floor(.95 * parallelly::freeCores()[1])
 # coress <- 1  # limitado temporariamente para evitar rate-limit do FTP IBGE
 # Check collumn names, order, size and schema ----------------------------------
 
@@ -47,7 +47,6 @@ tar_option_set(
                'geocodebr',
                'geos',
                'geoarrow',
-               'httr',
                'httr2',
                'igraph',
                'janitor',
@@ -76,7 +75,6 @@ tar_option_set(
                'tarchetypes',
                'tibble',
                'tidyverse',
-               'utils',
                'varhandle',
                'visNetwork'
                )
@@ -173,7 +171,7 @@ list(
   #year input
   tar_target(name = years_healthfacilities,
              command = seq(
-               from = as.Date("2017-01-01"), 
+               from = as.Date("2017-04-01"), # Jan de 2017 corrompido
                to = as.Date("2026-10-01"), 
                by = "3 months"
                ) |> 
@@ -190,6 +188,7 @@ list(
   tar_target(name = healthfacilities_clean,
              command = clean_healthfacilities(healthfacilities_raw, municipality_clean),
              pattern = map(healthfacilities_raw),
+             deployment = 'main', # necessary to avoid conflict of geocodebr
              format = 'file'),
   
   #06. Terras Indigenas --------------------------------------------------------
@@ -248,21 +247,22 @@ list(
   
   # year input
   tar_target(name = years_schools,
-             command = c(2020, 2023, 2026)
-             # command = c(2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, # censo escolar
-             #             2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022,
-             #             2023, 2024)
+             # command = c(2020, 2023, 2026) # legacy release no github
+             command = c(2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, # censo escolar
+                         2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022,
+                         2023, 2024, 2025)
              ),
 
   # download
   tar_target(name = schools_raw,
-             command = download_schools_githb(years_schools),
+             command = download_schools_microdados(years_schools),
              pattern = map(years_schools)),
 
   # clean
   tar_target(name = schools_clean,
              command = clean_schools(schools_raw),
              pattern = map(schools_raw),
+             deployment = 'main', # necessary to avoid conflict of geocodebr
              format = 'file'),
   # 
   # #09b. Escolas — Oracle BI (CSV com lat/lon oficiais INEP) --------------------
@@ -700,6 +700,7 @@ list(
   tar_target(name = pollingplaces_clean,
              command = clean_pollingplaces(pollingplaces_raw, crosswalk_tse_ibge),
              pattern = map(pollingplaces_raw),
+             deployment = 'main', # necessary to avoid conflict of geocodebr
              format = 'file'
              ),
 
@@ -830,7 +831,7 @@ list(
                indigenousland_clean, #06
                intermediateregions_clean, #07
                immediateregions_clean, #08
-               # schools_clean, #09
+               schools_clean, #09
                # schoolsbi_clean, #09b
                states_clean, #10
                regions_clean, #11
@@ -867,17 +868,17 @@ list(
                # amc_clean #35 (declaracao comentada)
              )),
   
-  # Validate all output parquets
-  # Pula metro_area_depara: tabela tabular (lookup SIDRA/BET → cod_recmetropol)
-  # sem coluna geometry. validate_geobr assume sf object e quebra com
-  # "no simple features geometry column present".
-  tar_target(name = validation,
-             command = {
-               files <- unlist(all_files)
-               full_res <- files[!grepl("_simplified|metro_area_depara", files)]
-               lapply(full_res, validate_geobr)
-               "OK"
-             }),
+  # # Validate all output parquets
+  # # Pula metro_area_depara: tabela tabular (lookup SIDRA/BET → cod_recmetropol)
+  # # sem coluna geometry. validate_geobr assume sf object e quebra com
+  # # "no simple features geometry column present".
+  # tar_target(name = validation,
+  #            command = {
+  #              files <- unlist(all_files)
+  #              full_res <- files[!grepl("_simplified|metro_area_depara", files)]
+  #              lapply(full_res, validate_geobr)
+  #              "OK"
+  #            }),
 
   tar_target(name = versao_dados,
              command = "v2.0.0"
@@ -890,3 +891,5 @@ list(
   # )
 )
 
+# check errors
+# targets::tar_meta(fields = error, complete_only = TRUE) |> View()

@@ -39,7 +39,7 @@ download_hist_states <- function(year) { # year = 1872
   
   ## 2. Unzip and read estadual mesh ------------------------------------------
   
-  unzip_geobr(zip_dir = zip_dir, out_zip = shp_dir)
+  files <- unzip_geobr(zip_dir = zip_dir, out_zip = shp_dir)
   
   raw <- readmerge_geobr(
     folder_path = shp_dir, 
@@ -90,8 +90,7 @@ download_hist_states <- function(year) { # year = 1872
     raw <- dplyr::bind_rows(raw, liti)
   }
   
-  tail(raw)
-  
+  # tail(raw)
   
   message(sprintf("[historical %d] Total: %d rows", year, nrow(raw)))
   
@@ -103,7 +102,8 @@ download_hist_states <- function(year) { # year = 1872
 
 # Clean the data  --------------------------------------------------------------
 
-# raw <- tar_read(hist_state_raw, 1)
+# raw <- tar_read(hist_state_raw, 4)
+# states_clean <- tar_read(states_clean)
 # head(raw)
 
 clean_hist_states <- function(raw, states_clean) {

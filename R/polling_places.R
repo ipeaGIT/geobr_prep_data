@@ -180,8 +180,7 @@ clean_pollingplaces <- function(pollingplaces_raw, crosswalk_tse_ibge){
   
   temp_geo <- geocodebr::geocode(
     enderecos = temp_address, 
-    campos_endereco = fields,
-    n_cores = 1
+    campos_endereco = fields
   )
   
   
@@ -222,12 +221,14 @@ clean_pollingplaces <- function(pollingplaces_raw, crosswalk_tse_ibge){
   # Criteria:
   # 1. if distance between sources < 800, use official source
   # 2. if distance between sources > 800 & desvio_metros_geocodebr < 800, use geocodebr
-  # 3. (custom) voting places oversees, use official source 
+  # 3. if official coords missing, use geocodebr
+  # * (custom) voting places oversees, use official source 
 
   df[, coords_source := fcase(
     dist < 800, 'tse', 
     dist > 800 & desvio_metros_geocodebr < 800, 'geocodebr',
-    lat_tse == -1, 'tse', 
+    lat_tse == -1, 'tse',
+    is.na(lat_tse), 'geocodebr', 
     default = 'tse'  # abbrev_state ==  "ZZ", -1 # voting places overseas
     )]
   
