@@ -1,0 +1,809 @@
+---
+title: "Compatibilização de Setores Censitários 2000↔2010 via Grafos"
+subtitle: "Exploração dos resultados do CompatMalhas para RO, AL e SC"
+date: "2026-04-13"
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    toc-location: left
+    code-fold: true
+    code-summary: "Código"
+    embed-resources: true
+    theme: cosmo
+    fig-width: 10
+    fig-height: 7
+execute:
+  warning: false
+  message: false
+knitr:
+  opts_knit:
+    root.dir: "d:/Dropbox/Artigos/geobr_prep_data"
+---
+
+```{r setup}
+#| label: setup
+#| include: false
+library(sf)
+library(dplyr)
+library(ggplot2)
+library(leaflet)
+library(mapview)
+library(arrow)
+library(jsonlite)
+library(knitr)
+
+sf_use_s2(FALSE)
+options(scipen = 999)
+mapviewOptions(fgb = FALSE)
+
+# Paths
+dir_compat <- "data-raw/census_tract/compat"
+dir_data   <- "data/census_tract"
+ufs <- c("11" = "Rondônia", "27" = "Alagoas", "42" = "Santa Catarina")
+
+# Helper: expand range notation
+expand_range <- function(geocodigo) {
+  parts <- strsplit(geocodigo, "-")[[1]]
+  if (length(parts) < 2) return(geocodigo)
+  prefix <- parts[1]; suffix <- parts[2]
+  nd <- nchar(suffix)
+  base <- substr(prefix, 1, nchar(prefix) - nd)
+  s <- as.integer(substr(prefix, nchar(prefix) - nd + 1, nchar(prefix)))
+  e <- as.integer(suffix)
+  sprintf(paste0(base, "%0", nd, "d"), s:e)
+}
+
+# Helper: read geoarrow parquet
+read_gpq <- function(path) {
+  df <- arrow::read_parquet(path)
+  sfc <- sf::st_as_sfc(df$geometry)
+  sf::st_crs(sfc) <- 4674
+  df$geometry <- NULL
+  sf::st_sf(df, geometry = sfc)
+}
+```
+
+# 1. Introdução
+
+## O problema da range notation
+
+O shapefile rural do IBGE para o Censo 2000 foi publicado na escala 1:500.000,
+muito inferior à escala urbana (~1:5.000). Nessa escala, o IBGE agregou setores
+censitários contíguos em polígonos únicos, usando uma notação de "range" no
+campo `geocodigo`:
+
+> `120033605000001-0003` = setores 001, 002 e 003 compartilham o mesmo polígono
+
+Isso resulta em **22.431 setores** (de 215.811 no censobr) sem geometria
+individual — 10,4% do total.
+
+## O algoritmo CompatMalhas
+
+Aplicamos o algoritmo CompatMalhas (Mendonça & Kon, COURB 2025) para
+construir um **grafo bipartido** de correspondência entre os setores de
+2000 e 2010. O algoritmo opera em 3 etapas:
+
+1. **Manutenção**: setores com mesmo ID e localização preservada (1:1)
+2. **Divisão**: setores onde ≥70% da área se sobrepõe (1:N)
+3. **Sobreposição forçada**: buffer negativo (-50m, -20m, 0m) para setores isolados
+
+## Estados de teste
+
+| UF | Estado | Motivo da escolha |
+|----|--------|-------------------|
+| 11 | Rondônia | Pequeno, poucas ranges (94), rápido |
+| 27 | Alagoas | Médio, muitas ranges (450), 78 componentes multi-range |
+| 42 | Santa Catarina | Grande, 601 ranges, range máx. 355 setores |
+
+## Parâmetros utilizados
+
+| Parâmetro | Valor | Padrão CompatMalhas | Justificativa |
+|-----------|-------|---------------------|---------------|
+| A/P ratio | 0.2 | 0.3 | Polígonos 1:500k geram slivers maiores |
+| L_min | 0.7 | 0.8 | Baixa resolução → menos overlap puro |
+| Buffers | -50, -20, 0 | -20, -10, 0 | Imprecisão de bordas ~100-500m |
+
+# 2. Visão geral dos resultados
+
+```{r load-reports}
+#| label: load-reports
+
+reports <- lapply(names(ufs), function(uf) {
+  fromJSON(file.path(dir_compat, paste0("compat_", uf, "_report.json")))
+})
+names(reports) <- names(ufs)
+
+# Build summary table
+summary_df <- do.call(rbind, lapply(names(ufs), function(uf) {
+  r <- reports[[uf]]
+  data.frame(
+    UF = paste0(uf, " (", ufs[uf], ")"),
+    Setores_2000 = r$layers$`Setores C1`,
+    Setores_2010 = r$layers$`Setores C2`,
+    Correspondencias = r$relationships$`Total relationships`$n,
+    Manutencao = r$relationships$`Manutenção`$n,
+    Divisao = r$relationships$`Divisão`$n,
+    Sobreposicao = r$relationships$`Sobreposição (-50m)`$n +
+                   r$relationships$`Sobreposição (-20m)`$n +
+                   r$relationships$`Sobreposição (0m)`$n,
+    AMCs = r$operations$`Total redesign operations`$n,
+    AMC_1to1 = r$operations$`1:1`$n,
+    AMC_1toN = r$operations$`1:n`$n,
+    AMC_MtoN = r$operations$`m:n`$n,
+    Desconexos = r$metrics$`Unconnected polygons`$n,
+    Isolados_persist = r$metrics$`Persistent unconnected`$n,
+    stringsAsFactors = FALSE
+  )
+}))
+```
+
+## Tabela resumo
+
+```{r summary-table}
+#| label: summary-table
+kable(summary_df, col.names = c(
+  "UF", "Setores 2000", "Setores 2010", "Correspondências",
+  "Manutenção", "Divisão", "Sobreposição",
+  "AMCs", "1:1", "1:N", "m:N",
+  "Desconexos", "Isolados persist."
+), caption = "Resultados do CompatMalhas por UF")
+```
+
+## Distribuição de correspondências por método
+
+```{r bar-relationships}
+#| label: bar-relationships
+#| fig-cap: "Distribuição de correspondências por método e UF"
+
+rel_df <- do.call(rbind, lapply(names(ufs), function(uf) {
+  r <- reports[[uf]]$relationships
+  data.frame(
+    UF = ufs[uf],
+    Metodo = c("Manutenção", "Manutenção desassoc.",
+               "Divisão", "Sobreposição (-50m)",
+               "Sobreposição (-20m)", "Sobreposição (0m)"),
+    N = c(r$`Manutenção`$n, r$`Manutenção desassociada`$n,
+          r$`Divisão`$n, r$`Sobreposição (-50m)`$n,
+          r$`Sobreposição (-20m)`$n, r$`Sobreposição (0m)`$n),
+    stringsAsFactors = FALSE
+  )
+}))
+
+rel_df$Metodo <- factor(rel_df$Metodo, levels = rev(c(
+  "Manutenção", "Manutenção desassoc.", "Divisão",
+  "Sobreposição (-50m)", "Sobreposição (-20m)", "Sobreposição (0m)"
+)))
+
+ggplot(rel_df, aes(x = UF, y = N, fill = Metodo)) +
+  geom_col(position = "fill") +
+  scale_fill_manual(values = c(
+    "Manutenção" = "#2ecc71",
+    "Manutenção desassoc." = "#27ae60",
+    "Divisão" = "#3498db",
+    "Sobreposição (-50m)" = "#e74c3c",
+    "Sobreposição (-20m)" = "#e67e22",
+    "Sobreposição (0m)" = "#f39c12"
+  )) +
+  scale_y_continuous(labels = scales::percent_format()) +
+  labs(y = "Proporção", fill = "Método") +
+  theme_minimal(base_size = 14) +
+  coord_flip()
+```
+
+**Observação**: A sobreposição forçada domina (53-76%) porque os polígonos
+2000 de baixa resolução (1:500k) raramente coincidem geometricamente com os
+setores 2010. O `findMaintenances()` encontra poucos matches por ID porque
+os setores com range notation têm IDs diferentes dos de 2010.
+
+## Distribuição de operações de redesenho (AMCs)
+
+```{r bar-operations}
+#| label: bar-operations
+#| fig-cap: "Tipos de AMC (operação de redesenho) por UF"
+
+ops_df <- do.call(rbind, lapply(names(ufs), function(uf) {
+  r <- reports[[uf]]$operations
+  data.frame(
+    UF = ufs[uf],
+    Tipo = c("1:1", "1:N", "N:1", "m:N"),
+    N = c(r$`1:1`$n, r$`1:n`$n, r$`n:1`$n, r$`m:n`$n),
+    stringsAsFactors = FALSE
+  )
+}))
+
+ops_df$Tipo <- factor(ops_df$Tipo, levels = c("1:1", "1:N", "N:1", "m:N"))
+
+ggplot(ops_df, aes(x = UF, y = N, fill = Tipo)) +
+  geom_col(position = "stack") +
+  scale_fill_manual(values = c("1:1"="#2ecc71", "1:N"="#3498db",
+                                "N:1"="#e67e22", "m:N"="#e74c3c")) +
+  labs(y = "Número de AMCs", fill = "Tipo") +
+  theme_minimal(base_size = 14) +
+  coord_flip()
+```
+
+# 3. Anatomia dos componentes com range notation
+
+```{r load-compat-data}
+#| label: load-compat-data
+
+# Load compat CSVs and geometries for all 3 UFs
+compat_data <- lapply(names(ufs), function(uf) {
+  c2000 <- read.delim(file.path(dir_compat, paste0("compat_", uf, "_C2000_", uf, ".csv")))
+  c2010 <- read.delim(file.path(dir_compat, paste0("compat_", uf, "_C2010_", uf, ".csv")))
+  geom_2000 <- sf::st_read(file.path(dir_compat, paste0("setores_2000_", uf, ".gpkg")),
+                            quiet = TRUE)
+  geom_2010 <- sf::st_read(file.path(dir_compat, paste0("setores_2010_", uf, ".gpkg")),
+                            quiet = TRUE)
+
+  # Identify ranges
+  c2000$is_range <- grepl("-", c2000$ID)
+  c2000$n_expanded <- sapply(c2000$ID, function(id) length(expand_range(id)))
+
+  list(c2000 = c2000, c2010 = c2010, geom_2000 = geom_2000, geom_2010 = geom_2010)
+})
+names(compat_data) <- names(ufs)
+```
+
+## Visão geral das ranges por UF
+
+```{r range-summary}
+#| label: range-summary
+
+range_summary <- do.call(rbind, lapply(names(ufs), function(uf) {
+  d <- compat_data[[uf]]$c2000
+  ranges <- d[d$is_range, ]
+
+  data.frame(
+    UF = paste0(uf, " (", ufs[uf], ")"),
+    Total_IDs_2000 = nrow(d),
+    Ranges = sum(d$is_range),
+    Degeneradas = sum(ranges$n_expanded == 1),
+    Pct_degeneradas = round(100 * sum(ranges$n_expanded == 1) / max(nrow(ranges), 1), 1),
+    Codigos_expandidos = sum(ranges$n_expanded),
+    Range_max = max(ranges$n_expanded),
+    Range_mediana = median(ranges$n_expanded),
+    MCAs_com_range = length(unique(ranges$CD_MCA)),
+    stringsAsFactors = FALSE
+  )
+}))
+
+kable(range_summary, col.names = c(
+  "UF", "IDs 2000", "Ranges", "Degeneradas (X-X)", "% degen.",
+  "Códigos expandidos", "Maior range", "Mediana", "MCAs c/ range"
+), caption = "Caracterização das ranges por UF")
+```
+
+## Distribuição de tamanho das ranges
+
+```{r range-histogram}
+#| label: range-histogram
+#| fig-cap: "Distribuição do tamanho das ranges (N setores por range)"
+
+range_sizes <- do.call(rbind, lapply(names(ufs), function(uf) {
+  d <- compat_data[[uf]]$c2000
+  ranges <- d[d$is_range & d$n_expanded > 1, ]
+  data.frame(UF = ufs[uf], N = ranges$n_expanded)
+}))
+
+ggplot(range_sizes, aes(x = N)) +
+  geom_histogram(bins = 50, fill = "#3498db", alpha = 0.7) +
+  facet_wrap(~UF, scales = "free_y") +
+  scale_x_log10() +
+  labs(x = "N setores por range (escala log)", y = "Frequência") +
+  theme_minimal(base_size = 14)
+```
+
+## Componentes com múltiplas ranges
+
+```{r multi-range}
+#| label: multi-range
+
+multi_range <- do.call(rbind, lapply(names(ufs), function(uf) {
+  d <- compat_data[[uf]]$c2000
+  ranges <- d[d$is_range, ]
+  mca_counts <- table(ranges$CD_MCA)
+  multi <- mca_counts[mca_counts > 1]
+  if (length(multi) == 0) return(NULL)
+
+  data.frame(
+    UF = paste0(uf, " (", ufs[uf], ")"),
+    N_MCAs_multi_range = length(multi),
+    Max_ranges_per_MCA = max(multi),
+    Total_ranges_in_multi = sum(multi),
+    stringsAsFactors = FALSE
+  )
+}))
+
+if (!is.null(multi_range)) {
+  kable(multi_range, caption = "Componentes com múltiplas ranges por UF")
+} else {
+  cat("Nenhum componente com múltiplas ranges encontrado.")
+}
+```
+
+## Classificação: match exato, parcial, zero
+
+```{r range-match}
+#| label: range-match
+
+match_class <- do.call(rbind, lapply(names(ufs), function(uf) {
+  c2000 <- compat_data[[uf]]$c2000
+  c2010 <- compat_data[[uf]]$c2010
+  ranges <- c2000[c2000$is_range, ]
+
+  ids_2010 <- c2010$ID
+
+  result <- sapply(seq_len(nrow(ranges)), function(i) {
+    expanded <- expand_range(ranges$ID[i])
+    mca <- ranges$CD_MCA[i]
+    ids_2010_mca <- c2010$ID[c2010$CD_MCA == mca]
+    n_match <- sum(expanded %in% ids_2010_mca)
+    if (n_match == length(expanded)) "EXACT"
+    else if (n_match > 0) "PARTIAL"
+    else "ZERO"
+  })
+
+  data.frame(
+    UF = paste0(uf, " (", ufs[uf], ")"),
+    EXACT = sum(result == "EXACT"),
+    PARTIAL = sum(result == "PARTIAL"),
+    ZERO = sum(result == "ZERO"),
+    stringsAsFactors = FALSE
+  )
+}))
+
+kable(match_class, caption = "Classificação das ranges por tipo de match com 2010")
+```
+
+# 4. Mapas interativos: anatomia de componentes
+
+```{r select-components}
+#| label: select-components
+
+# For RO (small), select interesting components
+uf_ex <- "11"
+c2000_ex <- compat_data[[uf_ex]]$c2000
+c2010_ex <- compat_data[[uf_ex]]$c2010
+geom_2000_ex <- compat_data[[uf_ex]]$geom_2000
+geom_2010_ex <- compat_data[[uf_ex]]$geom_2010
+
+# Find a 1:1 component (1 id each side)
+mca_counts_2000 <- table(c2000_ex$CD_MCA)
+mca_counts_2010 <- table(c2010_ex$CD_MCA)
+mcas_1to1 <- names(mca_counts_2000)[mca_counts_2000 == 1 &
+              names(mca_counts_2000) %in% names(mca_counts_2010[mca_counts_2010 == 1])]
+
+# Find a component with range (1:N)
+ranges_ex <- c2000_ex[c2000_ex$is_range & c2000_ex$n_expanded > 3, ]
+mcas_range <- unique(ranges_ex$CD_MCA)[1:3]
+
+# Find a m:n component
+mca_complex <- names(mca_counts_2000)[mca_counts_2000 > 3]
+mca_complex <- mca_complex[mca_complex %in% names(mca_counts_2010[mca_counts_2010 > 5])][1]
+```
+
+## Mapa: Componente 1:1 (manutenção)
+
+```{r map-1to1}
+#| label: map-1to1
+
+# Find a 1:1 MCA where both sides have geometry in GPKG
+found_1to1 <- FALSE
+for (mca_id in mcas_1to1) {
+  ids_2000 <- c2000_ex$ID[c2000_ex$CD_MCA == mca_id]
+  ids_2010 <- c2010_ex$ID[c2010_ex$CD_MCA == mca_id]
+  g2000 <- geom_2000_ex[geom_2000_ex$ID %in% ids_2000, ]
+  g2010 <- geom_2010_ex[geom_2010_ex$ID %in% ids_2010, ]
+  if (nrow(g2000) > 0 && nrow(g2010) > 0) {
+    found_1to1 <- TRUE; break
+  }
+}
+
+if (found_1to1) {
+  m <- mapview(g2000, col.regions = "#e74c3c", alpha.regions = 0.3,
+               layer.name = "2000", label = g2000$ID) +
+       mapview(g2010, col.regions = "#3498db", alpha.regions = 0.3,
+               layer.name = "2010", label = g2010$ID)
+  m
+} else {
+  cat("Nenhum componente 1:1 com geometria em ambos os lados encontrado.")
+}
+```
+
+::: {.callout-note}
+**Vermelho** = polígono 2000. **Azul** = setor 2010. Em componentes 1:1,
+os dois polígonos devem sobrepor-se quase perfeitamente.
+:::
+
+## Mapa: Componente com range notation (1:N ou m:N)
+
+```{r map-range}
+#| label: map-range
+
+found_range <- FALSE
+for (mca_id in na.omit(mcas_range)) {
+  ids_2000 <- c2000_ex$ID[c2000_ex$CD_MCA == mca_id]
+  ids_2010 <- c2010_ex$ID[c2010_ex$CD_MCA == mca_id]
+  g2000 <- geom_2000_ex[geom_2000_ex$ID %in% ids_2000, ]
+  g2010 <- geom_2010_ex[geom_2010_ex$ID %in% ids_2010, ]
+  if (nrow(g2000) > 0 && nrow(g2010) > 0) { found_range <- TRUE; break }
+}
+
+if (found_range) {
+  g2000$tipo <- ifelse(grepl("-", g2000$ID), "range", "individual")
+  layers <- list()
+  if (any(g2000$tipo == "range")) {
+    layers[[1]] <- mapview(g2000[g2000$tipo == "range", ], col.regions = "#e74c3c",
+                 alpha.regions = 0.2, layer.name = "2000 (range)", lwd = 3)
+  }
+  if (any(g2000$tipo == "individual")) {
+    layers[[length(layers)+1]] <- mapview(g2000[g2000$tipo == "individual", ],
+                 col.regions = "#27ae60", alpha.regions = 0.4,
+                 layer.name = "2000 (individual)")
+  }
+  layers[[length(layers)+1]] <- mapview(g2010, col.regions = "#3498db",
+               alpha.regions = 0.3, layer.name = "2010")
+  Reduce(`+`, layers)
+} else {
+  cat("Nenhum componente com range e geometria encontrado.")
+}
+```
+
+::: {.callout-note}
+**Vermelho grosso** = polígono agregado 2000 (range notation).
+**Verde** = setores individuais 2000 (âncoras).
+**Azul** = setores 2010 individuais.
+O objetivo é "partir" o vermelho usando os azuis como guia.
+:::
+
+## Mapa: Componente m:N complexo
+
+```{r map-complex}
+#| label: map-complex
+
+found_complex <- FALSE
+if (!is.null(mca_complex) && !is.na(mca_complex)) {
+  ids_2000 <- c2000_ex$ID[c2000_ex$CD_MCA == mca_complex]
+  ids_2010 <- c2010_ex$ID[c2010_ex$CD_MCA == mca_complex]
+  g2000 <- geom_2000_ex[geom_2000_ex$ID %in% ids_2000, ]
+  g2010 <- geom_2010_ex[geom_2010_ex$ID %in% ids_2010, ]
+  if (nrow(g2000) > 0 && nrow(g2010) > 0) found_complex <- TRUE
+}
+
+if (found_complex) {
+  m <- mapview(g2000, col.regions = "#e74c3c", alpha.regions = 0.3,
+               layer.name = paste0("2000 (", nrow(g2000), " setores)"),
+               label = g2000$ID) +
+       mapview(g2010, col.regions = "#3498db", alpha.regions = 0.3,
+               layer.name = paste0("2010 (", nrow(g2010), " setores)"),
+               label = g2010$ID)
+  m
+} else {
+  cat("Nenhum componente m:N com geometria encontrado.")
+}
+```
+
+# 5. Análise de âncoras e residuais
+
+```{r anchor-analysis}
+#| label: anchor-analysis
+
+# For each UF, analyze anchor coverage in range components
+anchor_stats <- do.call(rbind, lapply(names(ufs), function(uf) {
+  c2000 <- compat_data[[uf]]$c2000
+  c2010 <- compat_data[[uf]]$c2010
+  geom_2000 <- compat_data[[uf]]$geom_2000
+
+  ranges <- c2000[c2000$is_range & c2000$n_expanded > 1, ]
+  all_ids_2000 <- geom_2000$ID
+
+  do.call(rbind, lapply(unique(ranges$CD_MCA), function(mca) {
+    # IDs in this MCA
+    ids_2000_mca <- c2000$ID[c2000$CD_MCA == mca]
+    range_ids <- ids_2000_mca[grepl("-", ids_2000_mca)]
+    normal_ids <- ids_2000_mca[!grepl("-", ids_2000_mca)]
+
+    # Expand all ranges
+    all_expanded <- unique(unlist(lapply(range_ids, expand_range)))
+
+    # Anchors: expanded codes that have individual geometry in 2000
+    anchors <- all_expanded[all_expanded %in% all_ids_2000]
+    # Also add normal IDs as anchors
+    anchors <- unique(c(anchors, normal_ids[normal_ids %in% all_ids_2000]))
+
+    # Pendentes: expanded codes WITHOUT geometry
+    pendentes <- all_expanded[!all_expanded %in% all_ids_2000]
+    pendentes <- pendentes[!pendentes %in% normal_ids]
+
+    n_2010 <- sum(c2010$CD_MCA == mca)
+
+    data.frame(
+      UF = ufs[uf],
+      CD_MCA = mca,
+      N_ranges = length(range_ids),
+      N_expanded = length(all_expanded),
+      N_normal = length(normal_ids),
+      N_anchors = length(anchors),
+      N_pendentes = length(pendentes),
+      N_2010 = n_2010,
+      Pct_anchored = round(100 * length(anchors) / max(length(all_expanded) + length(normal_ids), 1), 1),
+      stringsAsFactors = FALSE
+    )
+  }))
+}))
+```
+
+## Distribuição de cobertura por âncoras
+
+```{r anchor-histogram}
+#| label: anchor-histogram
+#| fig-cap: "Proporção de setores com geometria individual (âncoras) por componente"
+
+ggplot(anchor_stats, aes(x = Pct_anchored)) +
+  geom_histogram(bins = 20, fill = "#27ae60", alpha = 0.7) +
+  facet_wrap(~UF, scales = "free_y") +
+  labs(x = "% de setores com geometria (âncoras)", y = "N componentes") +
+  theme_minimal(base_size = 14) +
+  geom_vline(xintercept = 50, linetype = "dashed", color = "red")
+```
+
+## Relação: tamanho do componente vs cobertura
+
+```{r anchor-scatter}
+#| label: anchor-scatter
+#| fig-cap: "N setores expandidos vs % com geometria individual"
+
+ggplot(anchor_stats, aes(x = N_expanded + N_normal, y = Pct_anchored, color = UF)) +
+  geom_point(alpha = 0.6, size = 2) +
+  scale_x_log10() +
+  labs(x = "N setores no componente (log)", y = "% com geometria (âncoras)") +
+  theme_minimal(base_size = 14) +
+  geom_hline(yintercept = 50, linetype = "dashed", color = "red", alpha = 0.5)
+```
+
+## Resumo de âncoras por UF
+
+```{r anchor-summary-table}
+#| label: anchor-summary-table
+
+anchor_agg <- anchor_stats |>
+  group_by(UF) |>
+  summarise(
+    Componentes = n(),
+    Total_anchors = sum(N_anchors),
+    Total_pendentes = sum(N_pendentes),
+    Mediana_pct = median(Pct_anchored),
+    Comp_100pct = sum(Pct_anchored == 100),
+    Comp_0pct = sum(Pct_anchored == 0),
+    .groups = "drop"
+  )
+
+kable(anchor_agg, col.names = c(
+  "UF", "Componentes c/ range", "Total âncoras", "Total pendentes",
+  "Mediana % cobert.", "100% cobert.", "0% cobert."
+), caption = "Resumo da análise de âncoras")
+```
+
+# 6. Visualização do grafo
+
+```{r graph-viz}
+#| label: graph-viz
+#| fig-cap: "Grafo de compatibilidade para um componente com range (RO)"
+#| fig-height: 8
+
+library(igraph)
+
+# Pick a medium-complexity component from RO
+if (exists("mcas_range") && length(mcas_range) > 0 && !is.na(mcas_range[1])) {
+  mca_id <- mcas_range[1]
+
+  ids_2000 <- c2000_ex$ID[c2000_ex$CD_MCA == mca_id]
+  ids_2010 <- c2010_ex$ID[c2010_ex$CD_MCA == mca_id]
+
+  # Create bipartite graph
+  nodes <- data.frame(
+    name = c(paste0("2000:", ids_2000), paste0("2010:", ids_2010)),
+    type = c(rep(FALSE, length(ids_2000)), rep(TRUE, length(ids_2010))),
+    label = c(
+      ifelse(grepl("-", ids_2000), paste0(ids_2000, " [R]"),
+             substr(ids_2000, 12, 15)),
+      substr(ids_2010, 12, 15)
+    ),
+    color = c(
+      ifelse(grepl("-", ids_2000), "#e74c3c", "#27ae60"),
+      rep("#3498db", length(ids_2010))
+    ),
+    stringsAsFactors = FALSE
+  )
+
+  # Read MCA GPKG edges layer for this component
+  edges_layer <- tryCatch({
+    sf::st_read(file.path(dir_compat, paste0("compat_", uf_ex, "_MCA.gpkg")),
+                layer = paste0("C2000_", uf_ex, "-C2010_", uf_ex, "_edges"),
+                quiet = TRUE)
+  }, error = function(e) NULL)
+
+  if (!is.null(edges_layer)) {
+    # Filter edges for this MCA's nodes
+    edges_filt <- edges_layer[
+      edges_layer$A.nome %in% ids_2000 | edges_layer$B.nome %in% ids_2010, ]
+
+    if (nrow(edges_filt) > 0) {
+      edge_df <- data.frame(
+        from = paste0("2000:", edges_filt$A.nome),
+        to = paste0("2010:", edges_filt$B.nome),
+        metodo = sf::st_drop_geometry(edges_filt)$metodo,
+        stringsAsFactors = FALSE
+      )
+
+      g <- graph_from_data_frame(edge_df, directed = FALSE, vertices = nodes)
+
+      edge_colors <- dplyr::case_when(
+        E(g)$metodo == "Manutenção" ~ "#2ecc71",
+        E(g)$metodo == "Divisão" ~ "#3498db",
+        grepl("Sobreposição", E(g)$metodo) ~ "#e74c3c",
+        TRUE ~ "#999999"
+      )
+
+      layout <- layout_as_bipartite(g)
+      plot(g,
+           layout = layout,
+           vertex.color = V(g)$color,
+           vertex.label = V(g)$label,
+           vertex.label.cex = 0.7,
+           vertex.size = 8,
+           edge.color = edge_colors,
+           edge.width = 2,
+           main = paste("Componente", mca_id))
+      legend("bottomright",
+             legend = c("Manutenção", "Divisão", "Sobreposição",
+                        "2000 range", "2000 individual", "2010"),
+             col = c("#2ecc71", "#3498db", "#e74c3c",
+                     "#e74c3c", "#27ae60", "#3498db"),
+             pch = c(NA, NA, NA, 16, 16, 16),
+             lty = c(1, 1, 1, NA, NA, NA),
+             lwd = 2, cex = 0.8)
+    }
+  }
+}
+```
+
+# 7. Diagnóstico de problemas e limitações
+
+```{r diagnostics}
+#| label: diagnostics
+
+diag_df <- data.frame(
+  Edge_case = c(
+    "EC-04: Múltiplas ranges/componente",
+    "EC-13: Ranges degeneradas (X-X)",
+    "EC-07: Inconsistent splittings",
+    "EC-02: Isolados persistentes",
+    "EC-14: Ranges sobrepostas"
+  ),
+  RO = c(
+    sum(table(compat_data[["11"]]$c2000$CD_MCA[compat_data[["11"]]$c2000$is_range]) > 1),
+    sum(compat_data[["11"]]$c2000$is_range & compat_data[["11"]]$c2000$n_expanded == 1),
+    reports[["11"]]$metrics$`Inconsistent splitting`$n,
+    reports[["11"]]$metrics$`Persistent unconnected`$n,
+    "verificar"
+  ),
+  AL = c(
+    sum(table(compat_data[["27"]]$c2000$CD_MCA[compat_data[["27"]]$c2000$is_range]) > 1),
+    sum(compat_data[["27"]]$c2000$is_range & compat_data[["27"]]$c2000$n_expanded == 1),
+    reports[["27"]]$metrics$`Inconsistent splitting`$n,
+    reports[["27"]]$metrics$`Persistent unconnected`$n,
+    "verificar"
+  ),
+  SC = c(
+    sum(table(compat_data[["42"]]$c2000$CD_MCA[compat_data[["42"]]$c2000$is_range]) > 1),
+    sum(compat_data[["42"]]$c2000$is_range & compat_data[["42"]]$c2000$n_expanded == 1),
+    reports[["42"]]$metrics$`Inconsistent splitting`$n,
+    reports[["42"]]$metrics$`Persistent unconnected`$n,
+    "verificar"
+  ),
+  stringsAsFactors = FALSE
+)
+
+kable(diag_df, caption = "Edge cases encontrados por UF")
+```
+
+## Mapa: Setores isolados persistentes (RO)
+
+```{r map-isolated}
+#| label: map-isolated
+
+# Isolated = sectors not in any MCA
+all_in_mca_2000 <- compat_data[["11"]]$c2000$ID
+all_geom_2000 <- compat_data[["11"]]$geom_2000
+isolated_2000 <- all_geom_2000[!all_geom_2000$ID %in% all_in_mca_2000, ]
+
+if (nrow(isolated_2000) > 0) {
+  mapview(isolated_2000, col.regions = "#e74c3c",
+          layer.name = "Isolados 2000", label = isolated_2000$ID)
+} else {
+  cat("Nenhum setor 2000 isolado (todos estão em alguma MCA).")
+}
+```
+
+# 8. Comparação antes/depois (estimativa)
+
+```{r before-after}
+#| label: before-after
+
+# Estimate: how many tracts would we gain?
+ba_df <- do.call(rbind, lapply(names(ufs), function(uf) {
+  c2000 <- compat_data[[uf]]$c2000
+
+  # Current unified: non-range IDs from 2000
+  current <- sum(!c2000$is_range)
+
+  # After expansion: all expanded codes (deduped)
+  all_expanded <- unique(unlist(lapply(c2000$ID[c2000$is_range], expand_range)))
+  all_normal <- c2000$ID[!c2000$is_range]
+  after <- length(unique(c(all_normal, all_expanded)))
+
+  # Gain
+  gained <- after - current
+
+  data.frame(
+    UF = paste0(uf, " (", ufs[uf], ")"),
+    Atual = current,
+    Estimado_apos = after,
+    Ganho = gained,
+    Pct_ganho = round(100 * gained / current, 1),
+    stringsAsFactors = FALSE
+  )
+}))
+
+kable(ba_df, col.names = c("UF", "Setores atual", "Estimado após", "Ganho", "% ganho"),
+      caption = "Estimativa de ganho com desmembramento")
+```
+
+# 9. Performance
+
+```{r performance}
+#| label: performance
+
+perf_df <- data.frame(
+  UF = paste(names(ufs), "(", ufs, ")"),
+  Setores_total = sapply(names(ufs), function(uf)
+    reports[[uf]]$layers$`Setores C1` + reports[[uf]]$layers$`Setores C2`),
+  Tempo_python = c("~20s", "~27s", "~2min"),
+  stringsAsFactors = FALSE
+)
+
+kable(perf_df, col.names = c("UF", "Setores (2000+2010)", "Tempo Python"),
+      caption = "Tempos de execução do CompatMalhas")
+```
+
+**Extrapolação para 27 UFs**: ~2-2.5h sequencial. SP (114k setores) domina
+com ~40 min. Com 4 workers paralelos: ~50-70 min.
+
+# 10. Decisões e próximos passos
+
+## Decisões tomadas
+
+1. **Usar CompatMalhas como-está** (não reimplementar em R)
+2. **Python pré-computado** fora do pipeline targets
+3. **1 polígono por range** no grafo (não expandir antes)
+4. **Parâmetros adaptados**: A/P=0.2, L_min=0.7, buffers maiores
+5. **Estratégia de âncoras+residual** para desmembrar componentes mistos
+
+## Limitações aceitas
+
+- Componentes rurais grandes: âncoras cobrem <6%, estratégia degenera
+- Ranges sem match em 2010 (~12%): mantidas como rural_aggregated
+- Inconsistent splittings (18-71%): requer verificação visual
+- Tempo total para 27 UFs: ~2-3h (aceitável como pré-computação única)
+
+## Próximos passos
+
+1. Rodar CompatMalhas para as 24 UFs restantes
+2. Implementar `read_compat_graph()`, `build_compat_components()`,
+   `apply_compat_partition()` em R
+3. Integrar no `clean_censustract_2000()`
+4. Validar com tar_make para 3 UFs → depois 27 UFs
+5. Atualizar BACKLOG.md e MEMORY.md

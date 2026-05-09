@@ -1,0 +1,16 @@
+    code_tract code_muni             name_muni code_neighborhood
+1 1.100015e+14   1100015 Alta Floresta D'Oeste      110001505000
+2 1.100015e+14   1100015 Alta Floresta D'Oeste      110001505000
+3 1.100015e+14   1100015 Alta Floresta D'Oeste      110001505000
+              name_neighborhood code_district         name_district
+1 Não existe / não identificado     110001505 Alta Floresta D'Oeste
+2 Não existe / não identificado     110001505 Alta Floresta D'Oeste
+3 Não existe / não identificado     110001505 Alta Floresta D'Oeste
+  code_subdistrict              name_subdistrict   zone code_state abbrev_state
+1      11000150500 Não existe / não identificado Urbana         11           RO
+2      11000150500 Não existe / não identificado  Rural         11           RO
+3      11000150500 Não existe / não identificado  Rural         11           RO
+  name_state code_region name_region year
+1   Rondônia           1       Norte 2000
+2   Rondônia           1       Norte 2000
+3   Rondônia           1       Norte 2000

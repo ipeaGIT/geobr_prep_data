@@ -1,0 +1,7 @@
+"file","bytes","mb"
+"census_tracts_2000.parquet",92388805,92.4
+"census_tracts_2000_rural.parquet",48839592,48.8
+"census_tracts_2000_rural_simplified.parquet",49520291,49.5
+"census_tracts_2000_simplified.parquet",65902453,65.9
+"census_tracts_2000_urbano.parquet",44374096,44.4
+"census_tracts_2000_urbano_simplified.parquet",17502717,17.5

@@ -19,221 +19,317 @@
 #
 # Observações: Anos disponíveis: ###########?
 
-### Libraries (use any library as necessary) -----------------------------------
-
-# library(tidyverse)
-# library(lubridate)
-# library(stringr)
-# library(sf)
-# library(janitor)
-# library(dplyr)
-# library(readr)
-# library(data.table)
-# library(magrittr)
-# library(devtools)
-# library(lwgeom)
-# library(stringi)
-# library(arrow)
-# library(geoarrow)
-# library(geocodebr)
-# source("./R/support_harmonize_geobr.R")
-# source("./R/support_fun.R")
-
 # Download the data  -----------------------------------------------------------
-download_healthfacilities <- function(year){ #no year because only most recent available. Year is set on system date, by YYYY_MM
+# year <- c(format(Sys.Date(), "%Y%m"))
+download_healthfacilities <- function(year){ #  year= 202601 
   
   ## 0. Create temp folders and data folders -----------------------------------
-  
-  #folder_geobr(folder_name = "health_facilities", temp = TRUE)
   
   zip_dir <- paste0(tempdir(), "/health_facilities/", year)
   dir.create(zip_dir, showWarnings = FALSE, recursive = TRUE)
   dir.exists(zip_dir)
   
-  ## 1. Get download link ------------------------------------------------------
-  
-  # Source:
-  # "https://dados.gov.br/dados/conjuntos-dados/cnes-cadastro-nacional-de-estabelecimentos-de-saude"
-  file_url <- "s3.sa-east-1.amazonaws.com/ckan.saude.gov.br/CNES/cnes_estabelecimentos_csv.zip"
-  #file_url = 'https://s3.sa-east-1.amazonaws.com/ckan.saude.gov.br/CNES/cnes_estabelecimentos.zip'
-  
-  ## 2. Create direction for each download -------------------------------------
-  
-  #### zip folders
-  in_zip <- paste0(zip_dir, "/zipped/")
-  dir.create(in_zip, showWarnings = FALSE, recursive = TRUE)
-  dir.exists(in_zip)
-  
-  file_raw <- fs::file_temp(tmp_dir = in_zip,
-                            ext = fs::path_ext(file_url))
-  
   out_zip <- paste0(zip_dir, "/unzipped/")
   dir.create(out_zip, showWarnings = FALSE, recursive = TRUE)
   dir.exists(out_zip)
   
-  ### Alternative folder
-  # zip_dir <- paste0("./data_raw/", "/health_facilities/", year)
-  # dir.create(zip_dir, showWarnings = FALSE, recursive = TRUE)
-  # dir.exists(zip_dir)
+  ## 1. Get download link ------------------------------------------------------
   
-  ## 3. Download Raw data ------------------------------------------------------
+  # Source:
+  # "https://dados.gov.br/dados/conjuntos-dados/cnes-cadastro-nacional-de-estabelecimentos-de-saude"
+  # file_url = 'https://s3.sa-east-1.amazonaws.com/ckan.saude.gov.br/CNES/cnes_estabelecimentos.zip'
+  # file_url <- "s3.sa-east-1.amazonaws.com/ckan.saude.gov.br/CNES/cnes_estabelecimentos_csv.zip"
   
-  httr::GET(url = file_url,
-            httr::progress(),
-            httr::write_disk(path = file_raw,
-                             overwrite = T))
+  ftp_url <- "ftp://ftp.datasus.gov.br/cnes/"
+    
+  # list all files in ftp
+  txt <- read_html(ftp_url) |>
+    html_element("p") |>
+    html_text()
+  
+ all_files <- str_split(txt, "\r?\n") |>
+    unlist() |>
+    str_trim()
+ 
+ # file name
+ target_file_name <- paste0("BASE_DE_DADOS_CNES_", year)
+ 
+ # check if date is avilable
+ file_exist <- any(all_files %like% target_file_name) 
+ 
+ # if file does not exist yet, return informative message
+ if (isFALSE(file_exist)) {
+   msg <- paste("Data not available for the required date", year)
+   return(msg)
+   }
+   
+ 
+ ## 3. Download Raw data ------------------------------------------------------
+ file_url <- paste0(ftp_url, target_file_name, ".ZIP")
+ 
+ file_raw <- download_file_geobr(
+    file_url = file_url, 
+    dest_dir = zip_dir
+  )
+  
   
   ## 4. Unzip Raw data ---------------------------------------------------------
   
-  file_zipped <- paste0(in_zip, basename(file_raw))
-  unzip(file_zipped, exdir = out_zip)
-  
-  ## 5. Read file and clean collumns names -------------------------------------
-  
-  file_unzipped <- list.files(out_zip, full.names = TRUE)
-  
-  healthfacilities_raw <- fread(file = file_unzipped,
-                                encoding = "UTF-8",
-                                integer64 = "character") |> 
-    clean_names()
-  
+ files_unzipped <- unzip(file_raw, exdir = out_zip)
+
+ 
+ ## 5. Read file and clean collumns names -------------------------------------
+ 
+ estab_file <- files_unzipped[files_unzipped %like% "tbEstabelecimento"]
+
+ healthfacilities_raw <- data.table::fread(
+   file = estab_file,
+   encoding = "UTF-8",
+   integer64 = "character"
+   ) |> 
+   janitor::clean_names() |> 
+   dplyr::select( -dplyr::any_of(c('no_complemento', 'nu_telefone', 'nu_fax', 'no_email', 'no_url'))
+                  )
+ 
   ## 6. Show result ------------------------------------------------------------
   
-  healthfacilities_raw <- st_as_sf(healthfacilities_raw, na.fail = FALSE,
-                                   coords = c("nu_longitude","nu_latitude"))
-  
-  glimpse(healthfacilities_raw)
-  
+  healthfacilities_raw$date_update <- year
+
   return(healthfacilities_raw)
 }
 
 # Clean the data  --------------------------------------------------------------
-clean_healthfacilities <- function(healthfacilities_raw, year){
+# healthfacilities_raw <- tar_read(healthfacilities_raw)
+# municipality_clean <- tar_read(municipality_clean)
 
+clean_healthfacilities <- function(healthfacilities_raw, municipality_clean){
+
+  # check if data raw was created
+  if(inherits(healthfacilities_raw, "character")){
+    message(healthfacilities_raw)
+    return(NULL)
+  }
+  
+  
   ## 0. Adjust date of last update ---------------------------------------------
   
-  date_update <- year
-  year <- lubridate::year(Sys.Date())
+  date_update <- healthfacilities_raw$date_update[1]
+  yyyy <- year_muni <- substring(date_update, 1,4)
+  
+  
   
   ## 1. Create folder to save clean data ---------------------------------------
   
-  dir_clean <- paste0("./data/health_facilities/", date_update)
+  dir_clean <- paste0("./data/health_facilities/")
   dir.create(dir_clean, recursive = T, showWarnings = FALSE)
   dir.exists(dir_clean)
   
-  ## 2. Preparing to do adjusts ------------------------------------------------
-  
-  glimpse(healthfacilities_raw)
-  
-  states <- states_geobr() |> select(1:5)
-  states$code_state <- as.integer(states$code_state)
-  
-  glimpse(states)
   
   ## 3. Adjusts collumns names, reorder, add geocodebr -------------------------
   
   healthfacilities <- healthfacilities_raw |> 
-    rename(code_cnes = 'co_cnes', # rename collumns
-           code_unidade = 'co_unidade',
-           code_state = 'co_uf',
-           code_muni = 'co_ibge',
-           num_cnpj_mantenedora = 'nu_cnpj_mantenedora',
-           name_razao_social = 'no_razao_social',
-           name_fantasia = 'no_fantasia',
-           code_natureza_organizacao = 'co_natureza_organizacao',
-           desc_natureza_organizacao = 'ds_natureza_organizacao',
-           tipo_gestao = 'tp_gestao',
-           code_nivel_hierarquia = 'co_nivel_hierarquia',
-           desc_nivel_hierarquia = 'ds_nivel_hierarquia',
-           code_esfera_administrativa = 'co_esfera_administrativa',
-           desc_esfera_administrativa = 'ds_esfera_administrativa',
-           code_atividade = 'co_atividade',
-           tipo_unidade = 'tp_unidade',
-           cep = 'co_cep',
-           logradouro = 'no_logradouro',
-           numero_endereco = 'nu_endereco',
-           bairro = 'no_bairro',
-           num_telefone = 'nu_telefone',
-           code_turno_atendimento = 'co_turno_atendimento',
-           desc_turno_atendimento = 'ds_turno_atendimento',
-           num_cnpj = 'nu_cnpj',
-           email = 'no_email',
-           code_natureza_jur = 'co_natureza_jur',
-           code_motivo_desab = 'co_motivo_desab',
-           code_ambulatorial_sus = 'co_ambulatorial_sus') |> 
-    inner_join(states, by = "code_state") |> # add state and region
-    mutate(code_cnes = sprintf("%07d", code_cnes), # fix code_cnes to 7 digits
+    dplyr::rename(
+            code_state = 'co_estado_gestor',
+            code_muni6 = 'co_municipio_gestor',
+            cep = 'co_cep',
+            logradouro = 'no_logradouro',
+            numero_endereco = 'nu_endereco',
+            bairro = 'no_bairro'
+            ) |> 
+    dplyr::mutate(co_cnes = sprintf("%07d", co_cnes), # fix co_cnes to 7 digits
            month_update = format(Sys.Date(), "%m"),
-           year_update = format(Sys.Date(), "%Y")) |> 
-    relocate(any_of(c("code_muni", "code_state", "abbrev_state", "name_state",
-                      "code_region", "name_region", "year_update", "month_update")),
-             .after = code_unidade) # reorder collumns
+           year_update = format(Sys.Date(), "%Y"),
+           lon_cnes = nu_longitude,
+           lat_cnes = nu_latitude
+           ) |> 
+    dplyr::relocate(any_of(c("code_muni", "code_state", "abbrev_state", "name_state",
+                      "code_region", "name_region", "date_update")),
+             .after = co_cnes)
     
   
-  glimpse(healthfacilities)
+  # recover 7-digit code_muni
+  if(yyyy == lubridate::year(Sys.Date())) { year_muni <- yyyy -2 }
   
-  #   # fix code_muni to 7 digits
-  #   muni <- geobr::read_municipality(code_muni = 'all', year = as.numeric(year_update) - 1)
-  #   data.table::setDT(muni)
-  #   muni[, code_muni6 := as.numeric(substring(code_muni, 1, 6))]
-  #   muni <- muni[, .(code_muni6, code_muni)]
-  # 
-  #   dt[muni,  on = 'code_muni6', code_muni := i.code_muni]
-  #   dt[, code_muni6 := NULL]
-  # 
-
- 
-  # 
-  #   # deal with points with missing coordinates
-  #   head(dt)
-  #   dt[is.na(lat) | is.na(lon),]
-  #   dt[lat==0,]
-  # 
-  #   # identify which points should have empty geo
-  #   dt[is.na(lat) | is.na(lon), empty_geo := T]
-  # 
-  #   dt[code_cnes=='0000930', lat]
-  #   dt[code_cnes=='0000930', lon]
-  # 
-  #   # replace NAs with 0
-  #   data.table::setnafill(dt,
-  #                         type = "const",
-  #                         fill = 0,
-  #                         cols=c("lat","lon")
-  #                         )
-  # 
+  munis <- municipality_clean[grep(year_muni, municipality_clean)]
+  codigos_muni <- munis[!grepl('simplified', munis)] |>
+    arrow::open_dataset() |>
+    sf::st_as_sf() |>
+    sf::st_drop_geometry() |>
+    dplyr::select(code_muni, name_muni) |> 
+    dplyr::mutate(
+      code_muni6 = substring(code_muni, 1, 6) |> as.numeric()
+    )
   
+  healthfacilities <- dplyr::left_join(
+    x = healthfacilities,
+    y = codigos_muni, by = "code_muni6"
+    ) |> 
+    dplyr::select(-code_muni6)
+  
+  
+  # add name f
+  healthfacilities <- healthfacilities |> 
+    mutate(code_muni = ifelse(code_state==53, 5300108, code_muni))
+  
+  
+  
+  # add geocodebr coordinates --------------------------------------------------
+  
+  fields <- geocodebr::definir_campos(
+    estado = 'code_state',
+    municipio = 'code_muni',
+    logradouro = 'logradouro',
+    numero = 'numero_endereco',
+    cep = 'cep',
+    localidade = 'bairro'
+    )
+  
+  # a gente envia pro geocodebr apenas as colunas essenciais
+  temp_health <- healthfacilities |> 
+    dplyr::select(co_cnes, co_unidade, code_state, code_muni, 
+           logradouro, numero_endereco, cep, bairro)
+  
+  temp_geo <- geocodebr::geocode(
+    enderecos = temp_health, 
+    campos_endereco = fields,
+    n_cores = 1
+    )
+  
+  # edita nome de colunas do geocodebr
+  temp_geo <- temp_geo |> 
+    dplyr::rename(lat_geocodebr = lat, 
+                  lon_geocodebr = lon, 
+                  precisao_geocodebr = precisao, 
+                  tipo_resultado_geocodebr = tipo_resultado, 
+                  desvio_metros_geocodebr = desvio_metros) |> 
+    select(-endereco_encontrado)
+  
+  
+  # traz as colunas do geocodebr para a tabela principal
+  df <- dplyr::left_join(x = healthfacilities, y = temp_geo)
+  
+  
+  # calcula distancia entre coordenadas oficias e do geocodebr
+  dt.haversine <- function(lat_from, lon_from, lat_to, lon_to, r = 6378137){
+    radians <- pi/180
+    lat_to <- lat_to * radians
+    lat_from <- lat_from * radians
+    lon_to <- lon_to * radians
+    lon_from <- lon_from * radians
+    dLat <- (lat_to - lat_from)
+    dLon <- (lon_to - lon_from)
+    a <- (sin(dLat/2)^2) + (cos(lat_from) * cos(lat_to)) * (sin(dLon/2)^2)
+    return(2 * atan2(sqrt(a), sqrt(1 - a)) * r)
+  }
+  
+  data.table::setDT(df)
+  df[, lat_cnes := as.numeric(lat_cnes)]
+  df[, lon_cnes := as.numeric(lon_cnes)]
+  df[!is.na(lat_cnes) & !is.na(lat_geocodebr), dist := dt.haversine(lat_cnes, lon_cnes, lat_geocodebr, lon_geocodebr)]
+  
+  
+  # decide which spatial coordinates to use --------------------------------------------------
+  
+  # Criteria:
+  # 1. if distance between sources < 800, use official source
+  # 2. if distance between sources > 800 & desvio_metros_geocodebr < 800, use geocodebr
+  # 3. (custom) voting places oversees, use official source 
+  
+  df[, coords_source := fcase(
+    dist < 800, 'cnes', 
+    dist > 800 & desvio_metros_geocodebr < 800, 'geocodebr',
+    is.na(lat_cnes), 'geocodebr', 
+    default = 'cnes'  # abbrev_state ==  "ZZ", -1 # voting places overseas
+  )]
+  
+ # janitor::tabyl(df$coords_source)
+ # df$coords_source      n   percent
+ #             cnes  67849 0.1849603
+ #        geocodebr 298981 0.8150397
 
+  
+  df[, lat := ifelse(coords_source=="cnes", lat_cnes, lat_geocodebr)]
+  df[, lon := ifelse(coords_source=="cnes", lon_cnes, lon_geocodebr)]
+
+
+    
+  # converte para sf
+  data.table::setDF(df)
+  healthfacilities_sf <- sfheaders::sf_point(
+    obj = df,
+    x = 'lon',
+    y = 'lat', 
+    keep = TRUE
+    )
+  
+  sf::st_crs(healthfacilities_sf) <- 4674
+
+  # drop columns created in the geocoding part
+  healthfacilities_sf <- healthfacilities_sf |> 
+    select(-dist)
+  
+  
   ## 3. Apply harmonize geobr cleaning -----------------------------------------
-  
+
   temp_sf <- harmonize_geobr(
-    temp_sf = healthfacilities,
-    year = year,
-    add_state = F,
-    add_region = F,
+    temp_sf = healthfacilities_sf,
+    # year = year,
+    add_state = T,
+    state_column = "code_state",
+    add_region = T,
+    region_column = "code_state",
     add_snake_case = F,
     #snake_colname = snake_colname,
-    projection_fix = F,
+    projection_fix = T,
     encoding_utf8 = T,
     topology_fix = F,
-    remove_z_dimension = F,
+    remove_z_dimension = T,
     use_multipolygon = F
   )
   
-  glimpse(temp_sf)
+  
+  # re-order columns
+  # re-order columns
+  temp_sf <- temp_sf |> 
+    # first columns
+    dplyr::relocate(code_muni,
+                    name_muni,
+                    co_unidade,
+                    co_cnes
+    ) |> 
+    # last columns
+    dplyr::relocate(code_state,
+                    name_state,
+                    code_region,
+                    name_region,
+                    lat_cnes, 
+                    lon_cnes,
+                    lat_geocodebr,
+                    lon_geocodebr,
+                    precisao_geocodebr,
+                    tipo_resultado_geocodebr,
+                    desvio_metros_geocodebr,
+                    coords_source,
+                    date_update, 
+                    geometry,
+                    .after = last_col())
+  
+    
+    
+  
+  ## 7. Sort
+  temp_sf <- temp_sf |>
+    dplyr::arrange(code_state, code_muni, co_unidade, co_cnes)
+  
   
   ## 4. Save results  ----------------------------------------------------------
   
-  # sf::st_write(temp_sf, dsn = paste0(dir_clean, "/healthfacilities_",  date_year, date_month, ".gpkg"), delete_dsn = TRUE)
-  
   # Save in parquet
-  arrow::write_parquet(
-    x = temp_sf,
-    sink = paste0(dir_clean, "/health_facilities_", year,
-                  format(Sys.Date(), "%m"), ".parquet"),
-    compression = 'zstd',
-    compression_level = 7
-  )
+  write_geobr_parquet(
+    sf_obj = temp_sf,
+    path = paste0(dir_clean, "/healthfacilities_", date_update, ".parquet")
+    )
+  
   
   ## 5. Create the files for geobr index  --------------------------------------
   
@@ -246,127 +342,3 @@ clean_healthfacilities <- function(healthfacilities_raw, year){
   
 }
 
-# RAPHAEL OLD CODE BELOW HERE
-
-#' # 0. Download Raw zipped  ---------------------------------
-#' 
-#' 
-#' 
-#' #'   
-#' #' 
-#' #'   meta$created
-#' #'   date_update <- as.Date(meta$created) |> as.character()
-#' #'   date_update <- gsub("-", "", date_update)
-#' #'   year_update <- substring(date_update, 1, 4)
-#' #' 
-#' #' 
-#' #'   # date shown to geobr user
-#' #'   geobr_date <- substr(date_update, 1, 6)
-#' #' 
-#' #' 
-#' #'   # wodnload file to tempdir
-#' #'   temp_local_file <- download_file(file_url = meta$url)
-#' #' 
-#' #'   # unzip file to tempdir
-#' #'   temp_local_dir <- tempdir()
-#' #'   utils::unzip(zipfile = temp_local_file, exdir = temp_local_dir)
-#' #' 
-#' #'   # get file name
-#' #'   file_name <- utils::unzip(temp_local_file, list = TRUE)$Name
-#' #'   file_full_name <- paste0(temp_local_dir,'/', file_name)
-#' #' 
-#' #'   # read file stored locally
-#' #'   dt <- data.table::fread( file_full_name )
-#' #'   head(dt)
-#' #' 
-#' #'   # rename columns
-#' #'   names(dt) <- tolower(names(dt))
-#' #'   dt <- dplyr::rename(dt,
-#' #'                       code_cnes = 'co_cnes',
-#' #'                       code_state = 'co_uf',
-#' #'                       code_muni6 = 'co_ibge',
-#' #'                       lat = 'nu_latitude',
-#' #'                       lon = 'nu_longitude')
-#' #' 
-#' #'   # fix code_cnes to 7 digits
-#' #'   dt[, code_cnes := sprintf("%07d", code_cnes)]
-#' #' 
-#' #'   # fix code_muni to 7 digits
-#' #'   muni <- geobr::read_municipality(code_muni = 'all', year = as.numeric(year_update) - 1)
-#' #'   data.table::setDT(muni)
-#' #'   muni[, code_muni6 := as.numeric(substring(code_muni, 1, 6))]
-#' #'   muni <- muni[, .(code_muni6, code_muni)]
-#' #' 
-#' #'   dt[muni,  on = 'code_muni6', code_muni := i.code_muni]
-#' #'   dt[, code_muni6 := NULL]
-#' #' 
-#' #'   # add state and region
-#' #'   dt <- add_state_info(temp_sf = dt, column = 'code_state')
-#' #'   dt <- add_region_info(temp_sf = dt, column = 'code_state')
-#' #' 
-#' #'   # add update date columns
-#' #'   dt[, date_update := as.character(date_update)]
-#' #'   dt[, year_update := as.character(year_update)]
-#' #' 
-#' #'   # reorder columns
-#' #'   data.table::setcolorder(dt,
-#' #'                           c('code_cnes',
-#' #'                             'code_muni',
-#' #'                             'code_state', 'abbrev_state', 'name_state',
-#' #'                             'code_region', 'name_region',
-#' #'                             'date_update', 'year_update'))
-#' #' 
-#' #' 
-#' #'   # deal with points with missing coordinates
-#' #'   head(dt)
-#' #'   dt[is.na(lat) | is.na(lon),]
-#' #'   dt[lat==0,]
-#' #' 
-#' #'   # identify which points should have empty geo
-#' #'   dt[is.na(lat) | is.na(lon), empty_geo := T]
-#' #' 
-#' #'   dt[code_cnes=='0000930', lat]
-#' #'   dt[code_cnes=='0000930', lon]
-#' #' 
-#' #'   # replace NAs with 0
-#' #'   data.table::setnafill(dt,
-#' #'                         type = "const",
-#' #'                         fill = 0,
-#' #'                         cols=c("lat","lon")
-#' #'                         )
-#' #' 
-#' #' 
-#' #' 
-#' #'   # Convert originl data frame into sf
-#' #'   temp_sf <- sf::st_as_sf(x = dt,
-#' #'                           coords = c("lon", "lat"),
-#' #'                           crs = "+proj=longlat +datum=WGS84")
-#' #' 
-#' #' 
-#' #'   # convert to point empty
-#' #'   # solution from: https://gis.stackexchange.com/questions/459239/how-to-set-a-geometry-to-na-empty-for-some-features-of-an-sf-dataframe-in-r
-#' #'   temp_sf$geometry[temp_sf$empty_geo == T] = sf::st_point()
-#' #' 
-#' #'   subset(temp_sf, code_cnes=='0000930')
-#' #' 
-#' #' 
-#' #'   # Change CRS to SIRGAS  Geodetic reference system "SIRGAS2000" , CRS(4674).
-#' #'   temp_sf <- harmonize_projection(temp_sf)
-#' #' 
-#' #' 
-#' #'   # create folder to save the data
-#' #'   dest_dir <- paste0('./data/health_facilities/', geobr_date,'/')
-#' #'   dir.create(path = dest_dir, recursive = TRUE, showWarnings = FALSE)
-#' #' 
-#' #' 
-#' #'   # Save raw file in sf format
-#' #'   sf::st_write(temp_sf,
-#' #'                dsn= paste0(dest_dir, 'cnes_', geobr_date,".gpkg"),
-#' #'                overwrite = TRUE,
-#' #'                append = FALSE,
-#' #'                delete_dsn = T,
-#' #'                delete_layer = T,
-#                quiet = T
-#                )
-# 
-# }

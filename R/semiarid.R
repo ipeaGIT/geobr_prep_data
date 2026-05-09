@@ -72,7 +72,6 @@ download_semiarid <- function(year){ # year = 2022
   dir.exists(zip_dir)
   
   ## 2. Directions to download file ----
-  #file_raw <- paste0(in_zip, basename(ftp))
   file_raw <-fs::file_temp(tmp_dir = zip_dir,
                            ext = fs::path_ext(ftp))
 
@@ -128,8 +127,7 @@ download_semiarid <- function(year){ # year = 2022
   munis_semiarid <- munis_semiarid |>
     mutate(year = year)
   
-  glimpse(munis_semiarid)
-  
+
   return(munis_semiarid)
 }
 
@@ -138,27 +136,27 @@ download_semiarid <- function(year){ # year = 2022
 # year <- tar_read(years_semiarid, branches = 1)[4]
 # munis_semiarid <- tar_read(semiarid_raw, branches = 4)
 
-clean_semiarid <- function(munis_semiarid, year) { 
-  
+clean_semiarid <- function(munis_semiarid, municipality_files) {
+
   ## 0. Create folders to save clean sf files  ----
-  dir_clean <- paste0("./data/semiarid/", year)
+  yyyy <- munis_semiarid$year[1]
+  dir_clean <- paste0("./data/semiarid/", yyyy)
   dir.create(dir_clean, recursive = T, showWarnings = FALSE)
   dir.exists(dir_clean)
 
   ## 1. Clean data set ----
 
-  # load all munis sf
-  all_munis <- geobr::read_municipality(code_muni = 'all',
-                                        year = year,
-                                        simplified = FALSE)
-  
-  # if download fails, try again
-  if(is.null(all_munis)){
-    all_munis <- geobr::read_municipality(code_muni = 'all',
-                                          year = year,
-                                          simplified = FALSE)
+  # load municipality geometries from pipeline's own parquets
+  muni_file <- municipality_files[grepl(
+    paste0("municipality/", yyyy, "/municipalities_", yyyy, "[.]parquet$"),
+    municipality_files
+  )]
+  muni_file <- muni_file[!grepl("simplified", muni_file)]
+  if (length(muni_file) == 0) {
+    stop("Municipality parquet for year ", yyyy, " not found. Run municipality_clean first.")
   }
-  
+  all_munis <- read_geoparquet(muni_file)
+
   # subset municipalities
   all_munis2 <- subset(all_munis, code_muni %in% munis_semiarid$code_muni)
   
@@ -169,7 +167,7 @@ clean_semiarid <- function(munis_semiarid, year) {
 
   temp_sf <- harmonize_geobr(
     temp_sf = all_munis2, 
-    year = year,
+    year = yyyy,
     add_state = T, state_column = "code_muni",
     add_region = T, region_column = "code_state", 
     add_snake_case = T, 
@@ -181,27 +179,21 @@ clean_semiarid <- function(munis_semiarid, year) {
     use_multipolygon = T
   )
   
+  # sort by key columns
+  temp_sf <- temp_sf |> 
+    dplyr::arrange(code_state, code_muni)
+  
   
   ## 3. lighter version ----
   temp_sf_simplified <- simplify_temp_sf(temp_sf, tolerance = 100)
   
-  ## 4. Save data set in parquet format ----
-  # sf::st_write(temp_sf, dsn= paste0(dir_clean,"/semiarid_", year, ".gpkg"), delete_dsn=TRUE)
-  # sf::st_write(temp_sf_simplified, dsn= paste0(dir_clean,"/semiarid_", year, "_simplified.gpkg"), delete_dsn=TRUE )
-   
-  arrow::write_parquet(
-    x = temp_sf,
-    sink = paste0(dir_clean,"/semiarid_", year, ".parquet"),
-    compression='zstd',
-    compression_level = 7
-  )
+  write_geobr_parquet(
+    temp_sf,
+    paste0(dir_clean,"/semiarid_", yyyy, ".parquet"))
 
-  arrow::write_parquet(
-    x = temp_sf_simplified,
-    sink = paste0(dir_clean,"/semiarid_", year, "_simplified", ".parquet"),
-    compression='zstd',
-    compression_level = 7
-  )
+  write_geobr_parquet(
+    temp_sf_simplified,
+    paste0(dir_clean,"/semiarid_", yyyy, "_simplified", ".parquet"))
   
   files <- list.files(path = dir_clean, 
                       pattern = ".parquet", 

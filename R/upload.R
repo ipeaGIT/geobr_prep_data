@@ -1,4 +1,6 @@
 # files <- tar_read(all_files, branch=1)
+# files <- list.files(path = "./data/", recursive = T, full.names = T)
+# files <- files[ files %like% "weightingareas|tracts"]
 # versao_dados <- tar_read(versao_dados)
 upload_arquivos <- function(files, versao_dados) {
   
@@ -20,19 +22,23 @@ upload_arquivos <- function(files, versao_dados) {
   # issue relacionado: https://github.com/ropensci/piggyback/issues/101
   # Sys.sleep(10)
   
-  purrr::walk(
+  # remover repeticoes
+  files <- unique(files)
+  
+  piggyback::pb_upload(
     files,
-    function(arq) {
-      piggyback::pb_upload(
-        arq,
-        repo = "ipeaGIT/geobr",
-        tag = versao_dados
-      )
-    }
+    repo = "ipeaGIT/geobr",
+    tag = versao_dados,
+    overwrite = "use_timestamps"
   )
   
+  # Error in rawConnection(raw(1000), open = "wb") :
+  #   all 128 connections are in use
+  
+  
+  
   endereco_release <- paste0(
-    "https://github.com/ipeaGIT/padronizacao_cnefe/releases/",
+    "https://github.com/ipeaGIT/geobr/releases/",
     versao_dados
   )
   

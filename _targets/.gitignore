@@ -6,6 +6,3 @@
 # commit only _targets/meta/meta.
 *
 !.gitignore
-!meta
-meta/*
-!meta/meta

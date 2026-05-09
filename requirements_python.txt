@@ -1,0 +1,9 @@
+# Python dependencies for CompatMalhas (census_tract 2000 partitioning)
+# Install: pip install -r requirements_python.txt
+# Python 3.12: C:/Users/antro/AppData/Local/Programs/Python/Python312/python.exe
+geopandas>=1.0
+networkx>=3.0
+shapely>=2.0
+pandas>=2.0
+pyproj>=3.0
+pyogrio>=0.7
