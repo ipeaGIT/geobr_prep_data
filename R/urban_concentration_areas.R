@@ -57,17 +57,17 @@ download_urbanconcentrations <- function(year){
   dir.create(out_zip, showWarnings = FALSE, recursive = TRUE)
   
   ## 2. Download --------------------------------------------------------------
-  zip_file <- paste0(zip_dir, "ArranjosPopulacionais.zip")
-  httr::GET(url = file_url, httr::progress(),
-            httr::write_disk(zip_file, overwrite = TRUE),
-            httr::timeout(300))
-  
-  if (!file.exists(zip_file) || file.size(zip_file) < 1000) {
-    stop("Download falhou para urban_concentrations. URL: ", file_url)
-  }
+  zip_file <- download_file_geobr(
+    file_url = file_url, 
+    dest_dir = zip_dir
+    )
+    
   
   ## 3. Unzip -----------------------------------------------------------------
-  unzip_geobr(zip_dir = dirname(zip_file), out_zip = out_zip)
+  files <- unzip_geobr(
+    zip_dir = zip_dir, 
+    out_zip = out_zip
+    )
   
   ## 4. Find the MDB file -----------------------------------------------------
   mdb_file <- list.files(
