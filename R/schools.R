@@ -191,134 +191,71 @@
 #' }
 #' 
 #' 
-#' # =============================================================================
-#' # MICRODADOS DO CENSO ESCOLAR — download direto do INEP
-#' # Status: FUNCIONAL — 215k+ escolas, ~350 colunas, SEM lat/lon
-#' # =============================================================================
-#' 
-#' #' Download microdados do Censo Escolar do INEP
-#' #' @param year Ano do censo (1995-2025)
-#' #' @return data.frame com dados das escolas (SEM geometria)
-#' download_schools_microdados <- function(year) {
-#' 
-#'   url <- paste0(
-#'     "https://download.inep.gov.br/dados_abertos/microdados_censo_escolar_",
-#'     year, ".zip"
-#'   )
-#' 
-#'   dest_dir <- paste0(tempdir(), "/schools_microdados/", year)
-#'   dir.create(dest_dir, recursive = TRUE, showWarnings = FALSE)
-#'   zip_file <- paste0(dest_dir, "/microdados_", year, ".zip")
-#' 
-#'   ## Download
-#'   message("Baixando microdados do Censo Escolar ", year, " de: ", url)
-#'   resp <- httr::GET(
-#'     url = url,
-#'     httr::progress(),
-#'     httr::write_disk(zip_file, overwrite = TRUE),
-#'     httr::timeout(600),
-#'     config = httr::config(ssl_verifypeer = FALSE)
-#'   )
-#' 
-#'   if (httr::status_code(resp) != 200) {
-#'     stop("Falha ao baixar microdados para ano ", year,
-#'          ". HTTP status: ", httr::status_code(resp))
-#'   }
-#' 
-#'   ## Extract all files with junkpaths (avoids CP850 encoding issues in ZIP paths)
-#'   ## Some years (2022) have accented directory names that break targeted extraction
-#'   message("Extraindo microdados...")
-#'   system2("unzip", args = c("-joq", shQuote(zip_file), "-d", shQuote(dest_dir)),
-#'           stdout = FALSE, stderr = FALSE)
-#' 
-#'   # Find the extracted CSV by pattern in the output directory
-#'   csv_file <- list.files(dest_dir, pattern = "microdados.*\\.csv$",
-#'                           ignore.case = TRUE, full.names = TRUE)[1]
-#'   if (is.na(csv_file) || !file.exists(csv_file)) {
-#'     csv_file <- list.files(dest_dir, pattern = "\\.csv$",
-#'                             ignore.case = TRUE, full.names = TRUE)[1]
-#'   }
-#'   if (is.na(csv_file) || !file.exists(csv_file)) {
-#'     stop("CSV nao extraido do ZIP para ano ", year,
-#'          ". Conteudo dir: ", paste(list.files(dest_dir), collapse = ", "))
-#'   }
-#' 
-#'   ## Read CSV (semicolon-delimited, Latin-1 encoding)
-#'   message("Lendo CSV: ", basename(csv_file))
-#'   raw <- readr::read_delim(
-#'     csv_file,
-#'     delim = ";",
-#'     locale = readr::locale(encoding = "WINDOWS-1252"),
-#'     show_col_types = FALSE,
-#'     progress = TRUE
-#'   )
-#' 
-#'   message("Microdados lidos: ", nrow(raw), " escolas para ano ", year)
-#'   return(raw)
-#' }
-#' 
-#' 
-#' # =============================================================================
-#' # GEOCODIFICAÇÃO — endereços → coordenadas via geocodebr (CNEFE/IBGE)
-#' # =============================================================================
-#' 
-#' #' Geocode school addresses using geocodebr (CNEFE/IBGE)
-#' #' @param df data.frame with INEP microdados columns
-#' #' @return data.frame with added lat, lon, precisao columns
-#' geocode_schools <- function(df) {
-#' 
-#'   ## Ensure address columns are character
-#'   df$DS_ENDERECO  <- as.character(df$DS_ENDERECO)
-#'   df$NU_ENDERECO  <- as.character(df$NU_ENDERECO)
-#'   df$CO_CEP       <- as.character(df$CO_CEP)
-#'   df$NO_BAIRRO    <- as.character(df$NO_BAIRRO)
-#'   df$NO_MUNICIPIO <- as.character(df$NO_MUNICIPIO)
-#'   df$NO_UF        <- as.character(df$NO_UF)
-#' 
-#'   ## Clean CEP: enderecobr crashes with "CEP nao deve conter letras"
-#'   ## Some INEP records have non-numeric chars in CO_CEP (e.g. 2023 indices 66500+)
-#'   df$CO_CEP <- gsub("[^0-9]", "", df$CO_CEP)
-#' 
-#'   ## geocodebr fails with 0 matches when input df has hundreds of columns
-#'   ## (likely conflicts with internal geocodebr column names like 'precisao')
-#'   ## Fix: pass only address columns + ID, then join results back
-#'   addr_cols <- c("CO_ENTIDADE", "DS_ENDERECO", "NU_ENDERECO", "CO_CEP",
-#'                  "NO_BAIRRO", "NO_MUNICIPIO", "NO_UF")
-#'   df_addr <- df[, addr_cols, drop = FALSE]
-#' 
-#'   ## Map INEP columns → geocodebr fields
-#'   campos <- geocodebr::definir_campos(
-#'     logradouro = "DS_ENDERECO",
-#'     numero     = "NU_ENDERECO",
-#'     cep        = "CO_CEP",
-#'     localidade = "NO_BAIRRO",
-#'     municipio  = "NO_MUNICIPIO",
-#'     estado     = "NO_UF"
-#'   )
-#' 
-#'   ## Geocode via CNEFE/IBGE (offline after initial cache download)
-#'   ## Uses df_addr (minimal columns) to avoid geocodebr column name conflicts
-#'   geo_result <- geocodebr::geocode(
-#'     enderecos            = df_addr,
-#'     campos_endereco      = campos,
-#'     resolver_empates     = TRUE,
-#'     resultado_sf         = FALSE,
-#'     padronizar_enderecos = TRUE,
-#'     verboso              = TRUE,
-#'     cache                = TRUE
-#'   )
-#' 
-#'   ## Join geocoded coords back to full df using row position (geocodebr preserves order)
-#'   ## Verify row count matches before joining
-#'   stopifnot(nrow(geo_result) == nrow(df))
-#'   geo_cols <- intersect(c("lat", "lon", "precisao", "tipo_resultado",
-#'                            "desvio_metros", "endereco_encontrado"),
-#'                          names(geo_result))
-#'   df[, geo_cols] <- geo_result[, geo_cols]
-#'   df
-#' }
-#' 
-#' 
+
+
+#' Download microdados do Censo Escolar do INEP  -------------------------------------------
+#' @param year Ano do censo (1995-2025)
+#' @return data.frame com dados das escolas (SEM geometria)
+download_schools_microdados <- function(year) {
+
+  url <- paste0(
+    "https://download.inep.gov.br/dados_abertos/microdados_censo_escolar_",
+    year, ".zip"
+  )
+
+  if(year >= 2025) {
+    
+    url <- paste0(
+      "https://download.inep.gov.br/dados_abertos/microdados_censo_escolar_",
+      year, "_.zip"
+    )
+  }
+  
+  dest_dir <- paste0(tempdir(), "/schools_microdados/", year)
+  dir.create(dest_dir, recursive = TRUE, showWarnings = FALSE)
+  zip_file <- paste0(dest_dir, "/microdados_", year, ".zip")
+
+  ## Download
+  file <- download_file_geobr(
+    file_url = url, 
+    dest_dir = dest_dir
+    )
+
+  ## Extract all files with junkpaths (avoids CP850 encoding issues in ZIP paths)
+  ## Some years (2022) have accented directory names that break targeted extraction
+  message("Extraindo microdados...")
+  files <- unzip_geobr(dest_dir)
+
+
+  # Find the extracted CSV by pattern in the output directory
+  csv_file <- files[files %like% "microdados"]
+  csv_file <- csv_file[csv_file %like% ".csv|.CSV"]
+  
+  if (year > 2022) {
+    csv_file <- csv_file[csv_file %like% "ed_basica|Tabela_Escola"]
+  }
+  
+  ## Read CSV (semicolon-delimited, Latin-1 encoding)
+  message("Lendo CSV: ", basename(csv_file))
+  schools_raw <- readr::read_delim(
+    csv_file,
+    delim = ";",
+    locale = readr::locale(encoding = "WINDOWS-1252"),
+    show_col_types = FALSE,
+    progress = TRUE
+  )
+
+  schools_raw <- schools_raw |> 
+    janitor::clean_names()
+  
+  schools_raw$year <- year
+  
+  return(schools_raw)
+}
+
+
+
+
 #' # =============================================================================
 #' # DOWNLOAD PRINCIPAL — microdados INEP + geocodebr
 #' # =============================================================================
@@ -355,183 +292,264 @@
 #' }
 
 
-# 
-# Download schools from github
+# Download schools from github legacy catalogo de escolas --------------------
+download_schools_githb <- function(year) {
 
-download_schools_githb <- function(year) { 
+  closest_number <- function(x, candidates) {
+    candidates[order(abs(candidates - x), -candidates)][1]
+  }
+  
+  yyyy <- closest_number(year, c(2020, 2024, 2026))
   
   
+  ## legacy
   # list all files on the legacy release
   temp_meta <- piggyback::pb_list(
     repo = "ipeaGIT/geobr_prep_data",
     tag = "legacy"
   )
-  
+
   # filter files for schools in selected year
-  file <- temp_meta |> 
-    filter(file_name %like% 'escolascatalogo') |> 
-    filter(file_name %like% year)  
-  
-  # download file  
+  file <- temp_meta |>
+    filter(file_name %like% 'escolascatalogo') |>
+    filter(file_name %like% yyyy)
+
+  # download file
   file_url <- paste0(
     "https://github.com/ipeaGIT/geobr_prep_data/releases/download/legacy/",
     file$file_name
     )
-  
+
   local_file <- download_file_geobr(file_url)
-  
+
   # read file
-  if(year %in% )
-  schools_raw <- sf::st_read(local_file)
-  
+  schools_raw <- data.table::fread(local_file)
+
   # clean names and add year
-  schools_raw <- schools_raw |> 
-    janitor::clean_names()
-  
-  schools_raw$year <- year
-  
-  return(schools_raw)
-  
+  schools_catalogue <- schools_raw |>
+    janitor::clean_names() |> 
+    dplyr::select(abbrev_state, name_muni, code_school, longitude, latitude)
+
+  schools_catalogue$yyyy <- yyyy
+
+  return(schools_catalogue)
+
   }
 
 
-# =============================================================================
-# CLEAN — processa dados das escolas para formato geobr
-# =============================================================================
 
-#' Clean and standardize school data
+#' Clean and standardize school data -------------------------------------------
 #' @param schools_raw Raw data from download_schools() (geocoded microdados)
 #' @param year Census year
 #' @return Character vector of output file paths
-clean_schools <- function(schools_raw, year) {
+#' 
+
+# schools_raw <- tar_read(schools_raw, 4)
+clean_schools <- function(schools_raw) {
 
   ## 0. Create output directory
-  dir_clean <- paste0("./data/schools/", year)
+  yyyy <- schools_raw$year[1]
+  dir_clean <- paste0("./data/schools/")
   dir.create(dir_clean, recursive = TRUE, showWarnings = FALSE)
+  
+  
+  ## 1. Column mapping: microdados INEP
+  temp_df <- schools_raw |>
+    dplyr::select(
+      code_school = co_entidade,
+      name_school = no_entidade,
+      name_state = no_uf,
+      abbrev_state = sg_uf,
+      code_state = co_uf,
+      name_muni = no_municipio,
+      code_muni = co_municipio,
+      # no_mesorregiao,
+      # co_mesorregiao,
+      # no_microrregiao,
+      # co_microrregiao,
+      # co_distrito,
+      tp_dependencia,
+      tp_categoria_escola_privada,
+      tp_situacao_funcionamento,
+      dplyr::any_of(c("latitude", "longitude")),
+      tp_localizacao,
+      tp_localizacao_diferenciada,
+      ds_endereco,
+      nu_endereco,
+      ds_complemento,
+      no_bairro,
+      co_cep
+      ) |> 
+    unique()
 
-  temp_df <- schools_raw
-
-  ## 1. Column mapping: microdados INEP → geobr standard
-  ##    Coordinates come from geocodebr (lat/lon columns)
-
-  has_coords <- "lat" %in% names(temp_df) & "lon" %in% names(temp_df)
-
-  temp_df <- temp_df |>
-    dplyr::transmute(
-      code_school = CO_ENTIDADE,
-      name_school = NO_ENTIDADE,
-      education_level = dplyr::case_when(
-        IN_INF == 1 & IN_FUND == 0 & IN_MED == 0 ~ "Infantil",
-        IN_FUND == 1 & IN_MED == 0 ~ "Fundamental",
-        IN_MED == 1 ~ "Medio",
-        TRUE ~ "Outro"
-      ),
-      admin_category = dplyr::case_when(
-        TP_CATEGORIA_ESCOLA_PRIVADA %in% c(1, 2, 3, 4) ~ "Privada",
-        TP_DEPENDENCIA %in% c(1, 2, 3) ~ "Publica",
-        TRUE ~ NA_character_
-      ),
-      address = DS_ENDERECO,
-      phone_number = ifelse(
-        !is.na(NU_DDD) & !is.na(NU_TELEFONE),
-        paste0("(", NU_DDD, ") ", NU_TELEFONE),
-        NA_character_
-      ),
-      government_level = dplyr::case_when(
-        TP_DEPENDENCIA == 1 ~ "Federal",
-        TP_DEPENDENCIA == 2 ~ "Estadual",
-        TP_DEPENDENCIA == 3 ~ "Municipal",
-        TP_DEPENDENCIA == 4 ~ "Privada",
-        TRUE ~ NA_character_
-      ),
-      location_type = dplyr::case_when(
-        TP_LOCALIZACAO == 1 ~ "Urbana",
-        TP_LOCALIZACAO == 2 ~ "Rural",
-        TRUE ~ NA_character_
-      ),
-      urban = dplyr::case_when(
-        TP_LOCALIZACAO == 1 ~ "Sim",
-        TP_LOCALIZACAO == 2 ~ "Nao",
-        TRUE ~ NA_character_
-      ),
-      situation = dplyr::case_when(
-        TP_SITUACAO_FUNCIONAMENTO == 1 ~ "Em Atividade",
-        TP_SITUACAO_FUNCIONAMENTO == 2 ~ "Paralisada",
-        TP_SITUACAO_FUNCIONAMENTO == 3 ~ "Extinta",
-        TRUE ~ NA_character_
-      ),
-      name_muni = NO_MUNICIPIO,
-      code_muni = CO_MUNICIPIO,
-      code_state = CO_UF,
-      abbrev_state = SG_UF,
-      name_state = NO_UF,
-      code_region = CO_REGIAO,
-      name_region = NO_REGIAO,
-      ## Preserve geocodebr coordinates and precision
-      lat = if (has_coords) lat else NA_real_,
-      lon = if (has_coords) lon else NA_real_,
-      geocode_precision = if ("precisao" %in% names(temp_df)) precisao else NA_character_
-    )
-
-  ## 2. Apply snake_case_names for Title Case formatting
-  temp_df <- snake_case_names(temp_df, colname = c("name_school", "name_muni",
-                                                    "name_state", "name_region"))
-
-  ## 3. Create sf POINT geometry from geocoded coordinates
-  ##    geocodebr uses CNEFE/IBGE → SIRGAS 2000 (EPSG:4674)
-  valid_coords <- !is.na(temp_df$lat) & !is.na(temp_df$lon) &
-                  temp_df$lat != 0 & temp_df$lon != 0
-
-  n_valid <- sum(valid_coords)
-  message("Escolas com coordenadas validas: ", n_valid, "/", nrow(temp_df))
-
-  if (n_valid > 0) {
-    ## Schools with coordinates
-    df_good <- temp_df[valid_coords, ]
-    sf_good <- sf::st_as_sf(df_good,
-                            coords = c("lon", "lat"),
-                            crs = 4674, na.fail = FALSE)
-
-    ## Schools without coordinates → POINT EMPTY
-    df_bad <- temp_df[!valid_coords, ]
-    if (nrow(df_bad) > 0) {
-      empty_geom <- sf::st_sfc(
-        lapply(seq_len(nrow(df_bad)), function(i) sf::st_point()),
-        crs = 4674
-      )
-      df_bad$lat <- NULL
-      df_bad$lon <- NULL
-      sf_bad <- sf::st_sf(df_bad, geometry = empty_geom)
-      temp_sf <- dplyr::bind_rows(sf_good, sf_bad)
-    } else {
-      temp_sf <- sf_good
-    }
-  } else {
-    stop("Nenhuma escola geocodificada para ano ", year,
-         " — regra: >90% obrigatorio. Verificar geocodebr/enderecobr.")
+  
+  
+  # coordenadas INEP ----------------------------------------------------------
+  has_coords <- any(names(temp_df) %like% "latitude")
+  
+  # Se dados ja trazem coordendas, soh renomeia colunas
+  if (isTRUE(has_coords)) {
+    temp_df <- temp_df |> 
+      dplyr::rename(lat_inep = latitude, lon_inep = longitude)
   }
-
-  ## Remove lat/lon columns (now in geometry)
-  temp_sf$lat <- NULL
-  temp_sf$lon <- NULL
-
-  ## 4. Add year
-  temp_sf$year <- year
+  
+  # Se nao trazem coordendas, entao traz coordenadas do catologo
+  if (isFALSE(has_coords)) {
+    
+    cat <- download_schools_githb(yyyy)
+  
+    temp_df <- dplyr::left_join(temp_df, cat) |> 
+      dplyr::rename(lon_inep = longitude, lat_inep = latitude) |> 
+      select(-yyyy)
+    
+  }
+  
+  # geocodebr coordinates --------------------------------------------------
+  
+  fields <- geocodebr::definir_campos(
+    estado = 'abbrev_state',
+    municipio = 'name_muni',
+    logradouro = 'ds_endereco',
+    numero = 'nu_endereco',
+    cep = 'co_cep',
+    localidade = 'no_bairro'
+  )
+  
+  # apply enc2utf8() to all character columns
+  # see https://github.com/ipeaGIT/enderecobr/issues/66
+  data.table::setDT(temp_df)
+  char_cols <- names(temp_df)[vapply(temp_df, is.character, logical(1))]
+  temp_df[, (char_cols) := lapply(.SD, enc2utf8), .SDcols = char_cols]  
+  
+  temp_geo <- geocodebr::geocode(
+    enderecos = temp_df, 
+    campos_endereco = fields
+  )
+  
+  # edita nome de colunas do geocodebr
+  temp_geo <- temp_geo |> 
+    dplyr::rename(lat_geocodebr = lat, 
+                  lon_geocodebr = lon, 
+                  precisao_geocodebr = precisao, 
+                  tipo_resultado_geocodebr = tipo_resultado, 
+                  desvio_metros_geocodebr = desvio_metros) |> 
+    select(-endereco_encontrado)
+  
+  
+  # traz as colunas do geocodebr para a tabela principal
+  df <- dplyr::left_join(x = temp_df, y = temp_geo)
+  
+  
+  # calcula distancia entre coordenadas oficias e do geocodebr
+  # ignora pontos onde lat é missing -1
+  dt.haversine <- function(lat_from, lon_from, lat_to, lon_to, r = 6378137){
+    radians <- pi/180
+    lat_to <- lat_to * radians
+    lat_from <- lat_from * radians
+    lon_to <- lon_to * radians
+    lon_from <- lon_from * radians
+    dLat <- (lat_to - lat_from)
+    dLon <- (lon_to - lon_from)
+    a <- (sin(dLat/2)^2) + (cos(lat_from) * cos(lat_to)) * (sin(dLon/2)^2)
+    return(2 * atan2(sqrt(a), sqrt(1 - a)) * r)
+  }
+  
+  data.table::setDT(df)
+  df[, dist := dt.haversine(lat_inep, lon_inep, lat_geocodebr, lon_geocodebr)]
+  
+  
+  # decide which spatial coordinates to use --------------------------------------------------
+  
+  # Criteria:
+  # 1. if distance between sources < 800, use official source
+  # 2. if distance between sources > 800 & desvio_metros_geocodebr < 800, use geocodebr
+  # 3. if official coords missing, use geocodebr
+  
+  df[, coords_source := fcase(
+    dist < 800, 'inep', 
+    dist > 800 & desvio_metros_geocodebr < 800, 'geocodebr',
+    is.na(lat_inep), 'geocodebr', 
+    default = 'inep'  # abbrev_state ==  "ZZ", -1 # voting places overseas
+  )]
+  
+  # janitor::tabyl(df$coords_source)
+  # 
+  #  df$coords_source      n    percent
+  #         geocodebr  21012 0.06110822
+  #               tse 322837 0.93889178
+  
+  df[, lat := ifelse(coords_source=="inep", lat_inep, lat_geocodebr)]
+  df[, lon := ifelse(coords_source=="inep", lon_inep, lon_geocodebr)]
+  
+  # drop columns created in the geocoding part
+  df <- df |> 
+    dplyr::select(-dist, -dplyr::any_of("yyyy"))
+  
+  ## 2. Create sf object from coordinates --------------------------------------
+  
+  data.table::setDF(df)
+  schools_sf <- sfheaders::sf_point(
+    obj = df,
+    x = 'lon',
+    y = 'lat', 
+    keep = TRUE
+  )
+  
+  sf::st_crs(schools_sf) <- 4674
+  
+  
+  
+  ## 3. Apply harmonize geobr cleaning -----------------------------------------
+  
+  temp_sf <- harmonize_geobr(
+    temp_sf = schools_sf,
+    year = yyyy,
+    add_state = T,
+    state_column = 'code_state',
+    add_region = T, 
+    region_column = 'code_state',
+    add_snake_case = TRUE,
+    snake_colname = "name_muni",
+    projection_fix = TRUE,
+    encoding_utf8 = TRUE,
+    topology_fix = FALSE,
+    remove_z_dimension = TRUE,
+    use_multipolygon = FALSE
+  )  
+  
 
   ## 5. Reorder columns (geometry ALWAYS last)
+  temp_sf <- temp_sf |> 
+    # first columns
+    dplyr::relocate(code_muni,
+                    name_muni,
+                    code_school,
+                    name_school 
+    ) |> 
+    # last columns
+    dplyr::relocate(code_state,
+                    name_state,
+                    code_region,
+                    name_region,
+                    lat_inep, 
+                    lon_inep,
+                    lat_geocodebr,
+                    lon_geocodebr,
+                    precisao_geocodebr,
+                    tipo_resultado_geocodebr,
+                    desvio_metros_geocodebr,
+                    coords_source,
+                    year, 
+                    geometry,
+                    .after = last_col())
+  
+  
+  # sort by key columns
   temp_sf <- temp_sf |>
-    dplyr::select(
-      code_school, name_school,
-      education_level, admin_category,
-      address, phone_number, government_level,
-      location_type, urban, situation,
-      name_muni, code_muni,
-      code_state, abbrev_state, name_state,
-      code_region, name_region,
-      geocode_precision,
-      year, geometry
-    )
-
+    dplyr::arrange(code_state, code_muni, code_school)
+  
+  
+  
   ## 6. Validation
   stopifnot(!is.na(sf::st_crs(temp_sf)))
   stopifnot(sf::st_crs(temp_sf)$epsg == 4674)
@@ -543,16 +561,21 @@ clean_schools <- function(schools_raw, year) {
   stopifnot(is.character(temp_sf$name_region))
   stopifnot(names(temp_sf)[ncol(temp_sf)] == "geometry")
 
-  ## 7. Save (NO simplified version for point data)
-  ##    Use sfarrow for POINT geometry (arrow::write_parquet needs geoarrow for sf)
-  sfarrow::st_write_parquet(
-    temp_sf,
-    dsn = paste0(dir_clean, "/schools_", year, ".parquet"))
-
-  ## 8. Return file paths
+  ## 7. Save datasets  ---------------------------------------------------------
+  
+  ### Save in parquet
+  write_geobr_parquet(
+    sf_obj = temp_sf,
+    path = paste0(dir_clean, "/schools_", yyyy, ".parquet")
+  )
+  
+  
+  ## 7. Create the files for geobr index  --------------------------------------
+  
   files <- list.files(path = dir_clean,
-                      pattern = "\\.parquet$",
+                      pattern = ".parquet",
                       recursive = TRUE,
                       full.names = TRUE)
+  
   return(files)
 }

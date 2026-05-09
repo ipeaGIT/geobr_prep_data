@@ -105,7 +105,7 @@ download_healthfacilities <- function(year){ #  year= 202601
 clean_healthfacilities <- function(healthfacilities_raw, municipality_clean){
 
   # check if data raw was created
-  if(inherits(healthfacilities_raw, "character")){
+  if (inherits(healthfacilities_raw, "character")) {
     message(healthfacilities_raw)
     return(NULL)
   }
@@ -114,7 +114,7 @@ clean_healthfacilities <- function(healthfacilities_raw, municipality_clean){
   ## 0. Adjust date of last update ---------------------------------------------
   
   date_update <- healthfacilities_raw$date_update[1]
-  yyyy <- year_muni <- substring(date_update, 1,4)
+  yyyy <- year_muni <- substring(date_update, 1,4) |> as.numeric()
   
   
   
@@ -148,7 +148,7 @@ clean_healthfacilities <- function(healthfacilities_raw, municipality_clean){
     
   
   # recover 7-digit code_muni
-  if(yyyy == lubridate::year(Sys.Date())) { year_muni <- yyyy -2 }
+  if (yyyy == lubridate::year(Sys.Date())) { year_muni <- yyyy -2 }
   
   munis <- municipality_clean[grep(year_muni, municipality_clean)]
   codigos_muni <- munis[!grepl('simplified', munis)] |>
@@ -191,8 +191,7 @@ clean_healthfacilities <- function(healthfacilities_raw, municipality_clean){
   
   temp_geo <- geocodebr::geocode(
     enderecos = temp_health, 
-    campos_endereco = fields,
-    n_cores = 1
+    campos_endereco = fields
     )
   
   # edita nome de colunas do geocodebr
@@ -233,7 +232,7 @@ clean_healthfacilities <- function(healthfacilities_raw, municipality_clean){
   # Criteria:
   # 1. if distance between sources < 800, use official source
   # 2. if distance between sources > 800 & desvio_metros_geocodebr < 800, use geocodebr
-  # 3. (custom) voting places oversees, use official source 
+  # 3. if official coords missing, use geocodebr
   
   df[, coords_source := fcase(
     dist < 800, 'cnes', 

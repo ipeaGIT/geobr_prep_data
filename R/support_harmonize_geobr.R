@@ -759,14 +759,7 @@ write_geobr_parquet <- function(sf_obj, path) {
 
 # Read GeoParquet files into sf -------------------------------------------------
 read_geoparquet <- function(files) {
-  ## Try sfarrow first (preserves CRS from sfarrow-written parquets)
-  ## Fallback to arrow::open_dataset for geoarrow-written parquets
-  if (length(files) == 1 && file.exists(files)) {
-    tryCatch({
-      sf_obj <- sfarrow::st_read_parquet(files)
-      if (!is.na(sf::st_crs(sf_obj)$epsg)) return(sf_obj)
-    }, error = function(e) NULL)
-  }
+  
   arrow::open_dataset(files) |> sf::st_as_sf()
 }
 

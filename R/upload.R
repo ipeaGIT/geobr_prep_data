@@ -1,6 +1,6 @@
 # files <- tar_read(all_files, branch=1)
 # files <- list.files(path = "./data/", recursive = T, full.names = T)
-# files <- files[ files %like% "weightingareas|tracts"]
+#
 # versao_dados <- tar_read(versao_dados)
 upload_arquivos <- function(files, versao_dados) {
   
@@ -25,6 +25,9 @@ upload_arquivos <- function(files, versao_dados) {
   # remover repeticoes
   files <- unique(files)
   
+  # only parquet files
+  files <- files[files %like% ".parquet"]
+  
   piggyback::pb_upload(
     files,
     repo = "ipeaGIT/geobr",
@@ -34,8 +37,6 @@ upload_arquivos <- function(files, versao_dados) {
   
   # Error in rawConnection(raw(1000), open = "wb") :
   #   all 128 connections are in use
-  
-  
   
   endereco_release <- paste0(
     "https://github.com/ipeaGIT/geobr/releases/",

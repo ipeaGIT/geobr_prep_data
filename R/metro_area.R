@@ -79,7 +79,7 @@ download_metro_area <- function(year) {
 # hist_muni_clean <- tar_read(hist_muni_clean)
 
 # 2001 falta nome de rm no para
-
+# raw <- tar_read(metro_area_raw, 12)
 clean_metro_area <- function(raw, municipality_clean, hist_muni_clean) {
 
   ## 0. Create folder to save clean data
@@ -195,6 +195,13 @@ clean_metro_area <- function(raw, municipality_clean, hist_muni_clean) {
   if (length(dups) > 0) {
     message("Aviso (year ", yyyy, "): ", length(unique(dups)),
             " municipios em mais de uma RM (esperado, nao e bug).")
+  }
+  
+  # remove Murici da RM Zona da Mata a partir de 2014
+  # issue #250 https://github.com/ipeaGIT/geobr/issues/250
+  if (yyyy>=2015) {
+    temp_sf <- temp_sf |> 
+      filter_out(code_muni == 2705507 & name_metro =="RM da Zona da Mata")
   }
 
   # Aviso sobre unmatched (perda de geometria por proxy/dado IBGE)

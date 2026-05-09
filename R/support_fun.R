@@ -53,7 +53,8 @@ download_file_geobr <- function(file_url,
     httr2::request(url) |>
       httr2::req_options(
         timeout = timeout,
-        ssl_verifypeer = 0L
+        ssl_verifypeer = 0L,
+        ssl_verifyhost = 0L
       )
   })
   
