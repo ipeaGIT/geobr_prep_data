@@ -3,8 +3,8 @@ library(tarchetypes)
 library(crew)
 
 # cores available
-coress <- floor(.95 * parallelly::freeCores()[1])
-# coress <- 1  # limitado temporariamente para evitar rate-limit do FTP IBGE
+#coress <- floor(.5 * parallelly::freeCores()[1])
+ coress <- 2  # limitado temporariamente para evitar rate-limit do FTP IBGE
 # Check collumn names, order, size and schema ----------------------------------
 
 # colunas <- check_collumns_geobr(dir_data = "./data")
