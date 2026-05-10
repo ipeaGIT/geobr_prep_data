@@ -606,36 +606,24 @@ list(
 
   
   # #25. Concentracoes urbanas ---------------------------------------------------
-  # 
-  # # year input
-  # tar_target(name = years_urbanconcentrations,
-  #            command = c(2010)),
-  # 
-  # # download
-  # tar_target(name = urbanconcentrations_raw,
-  #            command = download_urbanconcentrations(years_urbanconcentrations)),
-  # 
-  # # clean
-  # tar_target(name = urbanconcentrations_clean,
-  #            command = clean_urbanconcentrations(urbanconcentrations_raw),
-  #            format = 'file'),
+  # old 
 
     
-  # #26. Arranjos populacionais --------------------------------------------------
-  # 
-  # # year input
-  # tar_target(name = years_poparrangements,
-  #            command = c(2010)
-  # ),
-  # 
-  # # download
-  # tar_target(name = poparrangements_raw,
-  #            command = download_poparrangements(years_poparrangements)),
-  # 
-  # # clean
-  # tar_target(name = poparrangements_clean,
-  #            command = clean_poparrangements(poparrangements_raw),
-  #            format = 'file'),
+  #26. Arranjos populacionais e Areas de concentracao urbana no mesmo dado --------------------------------------------------
+
+  # year input
+  tar_target(name = years_poparrangements,
+             command = c(2010)
+  ),
+
+  # download
+  tar_target(name = poparrangements_raw,
+             command = download_poparrangements(years_poparrangements)),
+
+  # clean
+  tar_target(name = poparrangements_clean,
+             command = clean_poparrangements(poparrangements_raw, municipality_clean),
+             format = 'file'),
   
   
   #27. Favelas e aglomerados urbanos -------------------------------------------
@@ -854,8 +842,7 @@ list(
                healthregions_clean_old,  # 23a
                healthregions_clean_new,  # 23b
                neighborhoods_clean, #24
-               # urbanconcentrations_clean, #25
-               # poparrangements_clean, #26
+               poparrangements_clean, #26
                favela_clean, #27
                # locality_clean, #28
                pollingplaces_clean, #29
