@@ -46,15 +46,7 @@ upload_arquivos <- function(files, versao_dados) {
   return(endereco_release)
 }
 
-erro_release_existente <- function(versao_dados) {
-  cli::cli_abort(
-    c(
-      "O release {.val {versao_dados}} j\u00e1 existe.",
-      "i" = "Por favor, use uma nova tag ou apague o release existente."
-    ),
-    call = rlang::caller_env(n = 5)
-  )
-}
+
 
 
 # # 66666666666666666666666666666666666

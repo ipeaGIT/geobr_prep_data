@@ -825,42 +825,7 @@ validate_geobr <- function(file_path) {
   return(TRUE)
 }
 
-# Folder creation geobr function -----------------------------------------------
 
-folder_geobr <- function(folder_name = NULL, temp = FALSE) {
-  
-  if (temp == TRUE){ 
-    
-    # create a temp folder
-    zip_dir <- paste0(tempdir(), "/", folder_name, "/", year)
-    dir.create(zip_dir, showWarnings = FALSE, recursive = TRUE)
-    dir.exists(zip_dir)
-    
-  } else {
-    
-    # create a folder on the project
-    zip_dir <- paste0("./data_raw/", folder_name, "/", year)
-    dir.create(zip_dir, showWarnings = FALSE, recursive = TRUE)
-    dir.exists(zip_dir)
-    
-  }
-  
-  # unzip folder
-  in_zip <- paste0(zip_dir, "/unzipped/")
-  dir.create(in_zip, showWarnings = FALSE, recursive = TRUE)
-  dir.exists(in_zip)
-  
-  # unzip folder
-  out_zip <- paste0(zip_dir, "/zipped/")
-  dir.create(out_zip, showWarnings = FALSE, recursive = TRUE)
-  dir.exists(out_zip)
-  
-  ### Data folder
-  dir_clean <- paste0("./data/", folder_name, "/", year)
-  dir.create(dir_clean, recursive = T, showWarnings = FALSE)
-  dir.exists(dir_clean)
-  
-}
 
 
 # Columns names check geobr function -------------------------------------------
