@@ -3,8 +3,8 @@ library(tarchetypes)
 library(crew)
 
 # cores available
-#coress <- floor(.5 * parallelly::freeCores()[1])
- coress <- 2  # limitado temporariamente para evitar rate-limit do FTP IBGE
+# ncores <- floor(.5 * parallelly::freeCores()[1])
+ncores <- 1  # limitado temporariamente para evitar rate-limit do FTP IBGE
 # Check collumn names, order, size and schema ----------------------------------
 
 # colunas <- check_collumns_geobr(dir_data = "./data")
@@ -23,7 +23,7 @@ tar_option_set(
   memory = "transient",
   garbage_collection = TRUE,
   controller = crew_controller_local(
-    workers = coress,
+    workers = ncores,
     options_local = crew_options_local(log_directory = "./logs/crew_workers")
   ),
   storage = "worker" ,
@@ -489,15 +489,15 @@ list(
              pattern = map(metro_area_raw),
              format = 'file'),
 
-  #19b. Metro Area DePara ------------------------------------------------------
-  # Tabela de lookup RMs antigas (SIDRA/BET) -> novas (cod_recmetropol 2022)
-  # Uso: bridge temporal 2019-2020 -> 2021+. Cobertura ~86%; 2 RMs orfas.
-  tar_target(name = metro_area_depara_raw,
-             command = download_metro_area_depara()),
-
-  tar_target(name = metro_area_depara_clean,
-             command = clean_metro_area_depara(metro_area_depara_raw),
-             format = 'file'),
+  # #19b. Metro Area DePara ------------------------------------------------------
+  # # Tabela de lookup RMs antigas (SIDRA/BET) -> novas (cod_recmetropol 2022)
+  # # Uso: bridge temporal 2019-2020 -> 2021+. Cobertura ~86%; 2 RMs orfas.
+  # tar_target(name = metro_area_depara_raw,
+  #            command = download_metro_area_depara()),
+  # 
+  # tar_target(name = metro_area_depara_clean,
+  #            command = clean_metro_area_depara(metro_area_depara_raw),
+  #            format = 'file'),
 
   #20. Areas urbanas -----------------------------------------------------------
   

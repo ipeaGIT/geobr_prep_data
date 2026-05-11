@@ -37,3 +37,7 @@ tictoc::toc()
 #     clean_schools(download_schools_microdados(x))
 #     }
 #   )
+
+# pc casa
+# 41583.78  
+# 2153.09
