@@ -855,17 +855,17 @@ list(
                # amc_clean #35 (declaracao comentada)
              )),
   
-  # # Validate all output parquets
-  # # Pula metro_area_depara: tabela tabular (lookup SIDRA/BET → cod_recmetropol)
-  # # sem coluna geometry. validate_geobr assume sf object e quebra com
-  # # "no simple features geometry column present".
-  # tar_target(name = validation,
-  #            command = {
-  #              files <- unlist(all_files)
-  #              full_res <- files[!grepl("_simplified|metro_area_depara", files)]
-  #              lapply(full_res, validate_geobr)
-  #              "OK"
-  #            }),
+  # Validate all output parquets
+  # Pula metro_area_depara: tabela tabular (lookup SIDRA/BET → cod_recmetropol)
+  # sem coluna geometry. validate_geobr assume sf object e quebra com
+  # "no simple features geometry column present".
+  tar_target(name = validation,
+             command = {
+               files <- unlist(all_files)
+               full_res <- files[!grepl("_simplified|metro_area_depara", files)]
+               lapply(full_res, validate_geobr)
+               "OK"
+             }),
 
   tar_target(name = versao_dados,
              command = "v2.0.0"
@@ -874,6 +874,7 @@ list(
   # Upload to GitHub Releases (requires GITHUB_TOKEN in ~/.Renviron)
   # Sys.setenv(GITHUB_TOKEN = "ghp_...") or add to ~/.Renviron
   # tar_target(name = upload,
+  #            deployment = 'main',
   #            command = upload_arquivos(files = all_files, versao_dados)
   # )
 )

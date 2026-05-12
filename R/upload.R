@@ -1,7 +1,7 @@
-# files <- tar_read(all_files, branch=1)
+# files <- targets::tar_read(all_files, branch=1)
 # files <- list.files(path = "./data/", recursive = T, full.names = T)
 #
-# versao_dados <- tar_read(versao_dados)
+# versao_dados <- targets::tar_read(versao_dados)
 upload_arquivos <- function(files, versao_dados) {
   
   # # tenta criar um release pra fazer upload do cnefe padronizado. se release já
@@ -26,7 +26,7 @@ upload_arquivos <- function(files, versao_dados) {
   files <- unique(files)
   
   # only parquet files
-  files <- files[files %like% ".parquet"]
+  files <- files[grepl(".parquet",files)]
   
   piggyback::pb_upload(
     files,
