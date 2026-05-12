@@ -107,12 +107,12 @@ clean_poparrangements <- function(raw, municipality_clean){
   
   
   ## 0. Create clean directory ------------------------------------------------
-  dir_clean <- paste0("./data/pop_arrangements/", year)
+  dir_clean <- paste0("./data/pop_arrangements/", yyyy)
   dir.create(dir_clean, recursive = TRUE, showWarnings = FALSE)
   
   
   ## 1. Rename columns to geobr standard -------------------------------------
-  if( year == 2010) {
+  if( yyyy == 2010) {
     
     temp_df <- raw |>
       dplyr::select(

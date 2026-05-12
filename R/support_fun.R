@@ -1,13 +1,4 @@
 
-###### detect year from file name  -----------------
-detect_year_from_string <- function(string){
-  
-  yyyy <- regmatches(string, gregexpr("\\d{4}", string))[[1]]
-  yyyy <- unique(yyyy)
-  yyyy <- yyyy[ yyyy != '2500' ]
-  return(yyyy)
-}
-
 
 ###### list ftp folders -----------------
 
@@ -160,72 +151,6 @@ unzip_geobr <- function(zip_dir, out_zip = NULL) {
 
 
 
-
-
-# remove state repetition ----------------------
-remove_state_repetition <- function(temp_sf){
-  
-  # know cases: Maranhao in 2000 and ES in 2001
-  if (nrow(temp_sf)>27 | any(year==2001 & temp_sf$abbrev_state=='ES')   ) {
-    
-    # get colnames and summarize
-    vars <- names(temp_sf)[-length(names(temp_sf))]
-    temp_sf <- temp_sf |> group_by_at(vars) |> summarise()
-    temp_sf <- temp_sf |> filter(!code_state=="0")
-    temp_sf <- unique(temp_sf)
-    return(temp_sf)
-    
-  } else { return(temp_sf) }
-}
-
-# 1. read raw zipped file in temporary dir  ---------------------------------
-#' input: tempfile of raw data, temp dir of raw data, dest dir to save raw data
-#' unzip and read raw data
-#' output: save raw data in .rds format in the data_raw dir
-muni_saveraw <- function(tempf, temp_dir, dest_dir) {
-  
-  ## 1.1 Unzip original data
-  utils::unzip(zipfile = tempf, exdir = temp_dir, overwrite = TRUE, unzip = "unzip")
-  
-  ## 1.2. read shape file
-  
-  # List shape file
-  shape_file <- list.files(path = temp_dir, full.names = T, recursive = T, pattern = ".shp$")
-  shape_file <- shape_file <- shape_file[ data.table::like(shape_file, 'MU|mu2500|Municipios|municipios') ]
-  
-  # detect year from file name
-  year <- detect_year_from_string(tempf)
-  year <- year[year != '2500']
-  year <- year[year != '0807']
-  year <- year[year != '1701']
-  year <- year[1]
-  
-  # Encoding for different years
-  if (year %like% "2000") {
-    temp_sf <- sf::st_read(shape_file, quiet = T, stringsAsFactors=F, options = "ENCODING=IBM437")
-  }
-  
-  if (year %like% "2001|2005|2007|2010"){
-    temp_sf <- sf::st_read(shape_file, quiet = T, stringsAsFactors=F, options = "ENCODING=WINDOWS-1252")
-  }
-  
-  if (year >= 2013) {
-    temp_sf <- sf::st_read(shape_file, quiet = T, stringsAsFactors=F, options = "ENCODING=UTF8")
-  }
-  
-  
-  ## 1.3. Save original data in compact .rds format
-  
-  # file name
-  file_name <- gsub(".shp$", ".rds", basename(shape_file), ignore.case = T)
-  
-  # save in .rds
-  saveRDS(temp_sf, file = paste0(dest_dir,"/", file_name), compress = TRUE)
-  
-  # # return path to raw file
-  # muni_raw_path <- paste0(dest_dir,"/", file_name)
-  # return(muni_raw_path)
-}
 
 
 
