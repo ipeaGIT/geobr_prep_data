@@ -62,7 +62,7 @@ download_hist_muniseats <- function(year) {
 
 
 # Clean the data  --------------------------------------------------------------
-clean_hist_muniseats <- function(raw, muniseats_clean) {
+clean_hist_muniseats <- function(raw) {
   
   yyyy <- raw$year[1]
   dir_clean <- paste0("./data/municipal_seat/", yyyy)

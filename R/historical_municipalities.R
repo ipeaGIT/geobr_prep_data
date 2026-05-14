@@ -107,7 +107,7 @@ download_hist_muni <- function(year) {
 # raw <- tar_read(hist_muni_raw, 6)
 # tail(raw)
 
-clean_hist_muni <- function(raw, municipality_clean) {
+clean_hist_muni <- function(raw) {
   
   yyyy <- raw$year[1]
   dir_clean <- paste0("./data/municipality/", yyyy)

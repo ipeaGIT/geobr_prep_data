@@ -6,12 +6,7 @@ targets::tar_make()
 tictoc::toc()
 
 #1  todos cores
-#7795.01 sec
-
-#2 todos cores
-# 2762.06 sec
-
-#3 2 core
+# (7795.01 + 2762.06) /60/60
 
 # clean_schools(download_schools_microdados(2025))
 
