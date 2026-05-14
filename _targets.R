@@ -3,8 +3,8 @@ library(tarchetypes)
 library(crew)
 
 # cores available
-# ncores <- floor(.5 * parallelly::freeCores()[1])
-ncores <- 1  # limitado temporariamente para evitar rate-limit do FTP IBGE
+# ncores <- floor(.95 * parallelly::freeCores()[1])
+ ncores <- 2  # limitado temporariamente para evitar rate-limit do FTP IBGE
 # Check collumn names, order, size and schema ----------------------------------
 
 # colunas <- check_collumns_geobr(dir_data = "./data")
@@ -806,7 +806,7 @@ list(
   #            pattern = map(amc_raw, amc_combinations),
   #            format = 'file'),
 
-  #END. Upload files -----------------------------------------------------------
+  # END. Upload files -----------------------------------------------------------
 
   # all files input
   tar_target(name = all_files,
@@ -835,7 +835,7 @@ list(
                # censustract_2000_unified_clean,  #17e (declaracao comentada — desativado)
                weightarea_clean, #18 (declaracao comentada)
                metro_area_clean, #19
-               metro_area_depara_clean, #19b
+               # metro_area_depara_clean, #19b
                urbanarea_clean, #20
                conservationunits_clean, #21
                riskdisasterareas_clean, #22

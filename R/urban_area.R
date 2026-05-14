@@ -142,8 +142,7 @@ clean_urbanarea <- function(urbanarea_raw, urbanconcentrations_clean) {
       !grepl("simplified", urbanconcentrations_clean)
     ]
 
-    muni <- arrow::open_dataset(muni_files) |>
-      sf::st_as_sf() |>
+    muni <- read_geoparquet(muni_files) |>
       dplyr::select(code_muni, name_muni)
 
     # identifica qual municipio que cai o centroide de cada mancha

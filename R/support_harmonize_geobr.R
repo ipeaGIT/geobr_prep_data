@@ -738,8 +738,9 @@ read_datasus_map <- function(filename) {
 }
 
 # Write GeoParquet with spatial metadata ----------------------------------------
-# Requires geoarrow package loaded (via _targets.R packages list).
-# Produces OGC GeoParquet with CRS, geometry type, and bbox metadata.
+# Requires duckspatial package loaded (via _targets.R packages list).
+# this writes a parquet file that is more compressed than geoarrow and
+# the data can be read by either arrow and duckdb.
 write_geobr_parquet <- function(sf_obj, path) {
   
   # Ensure geometry is always the last column (geobr convention)
@@ -750,17 +751,30 @@ write_geobr_parquet <- function(sf_obj, path) {
     sf_obj <- sf_obj[, c(other_cols, geo_col)]
   }
   
-  arrow::write_parquet(x = sf_obj, 
-                       sink = path,
-                       compression = "zstd", 
-                       compression_level = 7
-                       )
+  duckspatial::ddbs_write_dataset(
+    data = sf_obj, 
+    path = path, 
+    crs = "EPSG:4674", 
+    overwrite = T, 
+    parquet_compression = "ZSTD",
+    quiet = TRUE
+    )
+  
+  # arrow::write_parquet(x = sf_obj, 
+  #                      sink = path,
+  #                      compression = "zstd", 
+  #                      compression_level = 7
+  #                      )
 }
 
 # Read GeoParquet files into sf -------------------------------------------------
 read_geoparquet <- function(files) {
   
-  arrow::open_dataset(files) |> sf::st_as_sf()
+  temp <- duckspatial::ddbs_open_dataset(files) |> sf::st_as_sf()
+  sf::st_crs(temp) <- 4674
+  return(temp)
+  # arrow::open_dataset(files) |> sf::st_as_sf()
+  
 }
 
 # Validate geobr parquet output ------------------------------------------------
@@ -846,7 +860,7 @@ check_collumns_geobr <- function(dir_data = "./data") {
     )[[1]]
     
     # dataset lazy (Arrow)
-    ds <- arrow::open_dataset(arquivo_path)
+    ds <- read_geoparquet(arquivo_path)
     
     tamanho_mb <- file.info(arquivo_path)$size / 1024^2
     

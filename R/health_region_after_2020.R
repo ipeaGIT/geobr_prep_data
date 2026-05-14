@@ -156,8 +156,7 @@ clean_healthregions_new <- function(healthregions_raw, municipality_clean){ # ye
   munis <- c(municipality_clean)
   munis <- munis[grep(yyyy, munis)]
   munis <- munis[!grepl('simplified', munis)] |>
-    arrow::open_dataset() |>
-    sf::st_as_sf() |>
+    read_geoparquet() |> 
     dplyr::mutate(
       code_muni6 = substring(code_muni, 1, 6) |> as.numeric()
     )

@@ -30,7 +30,7 @@ upload_arquivos <- function(files, versao_dados) {
   
   piggyback::pb_upload(
     files,
-    repo = "ipeaGIT/geobr",
+    repo = "ipeaGIT/geobr_prep_data",
     tag = versao_dados,
     overwrite = "use_timestamps"
   )

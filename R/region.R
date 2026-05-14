@@ -56,8 +56,9 @@ clean_regions <- function(all_state_files){
     # clean_hist_states). Coerce para numeric ANTES do filter pra evitar
     # arrow::write_parquet falhar com 'NotImplemented: MakeBuilder for
     # geoarrow.wkb' apos o dissolve. Drop litigio que e bool e nao usado aqui.
-    temp <- arrow::open_dataset(filepath) |>
-      sf::st_as_sf() |>
+    temp <- read_geoparquet(filepath)
+    
+    temp <- temp |> 
       dplyr::mutate(
         code_region = as.numeric(code_region),
         code_state  = as.numeric(code_state)

@@ -152,8 +152,7 @@ clean_healthfacilities <- function(healthfacilities_raw, municipality_clean){
   
   munis <- municipality_clean[grep(year_muni, municipality_clean)]
   codigos_muni <- munis[!grepl('simplified', munis)] |>
-    arrow::open_dataset() |>
-    sf::st_as_sf() |>
+    read_geoparquet() |>
     sf::st_drop_geometry() |>
     dplyr::select(code_muni, name_muni) |> 
     dplyr::mutate(

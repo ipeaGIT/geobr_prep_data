@@ -297,7 +297,7 @@ clean_statsgrid <- function(statsgrid_raw, municipality_files) {
 }
 
 
-# a <- arrow::open_dataset("data/statistical_grid/2022/statsgrid_2022.parquet")
+# a <- read_geoparquet("data/statistical_grid/2022/statsgrid_2022.parquet")
 # 
 # arrow::write_parquet(
 #   x = a,

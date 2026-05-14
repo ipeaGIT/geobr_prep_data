@@ -182,8 +182,8 @@ clean_poparrangements <- function(raw, municipality_clean){
   # bring geometries back 
   munis <- municipality_clean[municipality_clean %like% 2010]
   munis <-  munis[!munis %like% "simplified"]
-  munis <- arrow::open_dataset(munis) |> 
-    sf::st_as_sf()
+  
+  munis <- read_geoparquet(munis)
   
   temp_sf <- left_join(munis, temp_df2)
   

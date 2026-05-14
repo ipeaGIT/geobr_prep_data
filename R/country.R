@@ -33,8 +33,7 @@ clean_country <- function(regions_files){
   # create function that creates regions by merging states and saves files
   get_country_from_states <- function(filepath){ # filepath <- regions_files[1]
     
-    temp <- arrow::open_dataset(filepath) |> 
-      sf::st_as_sf()
+    temp <- read_geoparquet(filepath)
     
     ## 0. Create folder to save clean data
     yyyy <- temp$year[1]

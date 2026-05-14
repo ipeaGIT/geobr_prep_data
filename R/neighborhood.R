@@ -71,10 +71,9 @@ clean_neighborhoods <- function(censustract_files) {
 
   for (i in censustract_files){  # i = censustract_files[1]
   
-    temp <- arrow::open_dataset(i) |> 
-      dplyr::filter(!is.na(code_neighborhood)) |> 
-      sf::st_as_sf()
-    
+    temp <- read_geoparquet(i) |> 
+      dplyr::filter(!is.na(code_neighborhood))
+
     ## 0. Create folder to save clean data
     yyyy <- temp$year[1]
     dir_clean <- paste0(dir_root, yyyy)
