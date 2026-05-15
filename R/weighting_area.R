@@ -22,7 +22,7 @@ download_weightarea <- function(year) { # year = 2010
   
   file <- download_file_geobr(file_url)
   
-  weightarea_raw <- arrow::open_dataset(file)
+  weightarea_raw <- arrow::open_dataset(file) |> sf::st_as_sf()
   
   weightarea_raw <- weightarea_raw |>
     dplyr::rename(geometry = geom) |>

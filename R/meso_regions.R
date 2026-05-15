@@ -171,7 +171,8 @@ clean_mesoregions <- function(mesoregions_raw){ # year = 2024
     missing_mesos <- meso_2001 |>
       filter(code_meso %in% c(2104, 2105))
     mesoregions <- rbind(mesoregions, missing_mesos)
-  }
+    
+    }
 
 
   # 666666666666666666666666666666
@@ -261,6 +262,8 @@ clean_mesoregions <- function(mesoregions_raw){ # year = 2024
   temp_sf <- temp_sf |> 
     dplyr::arrange(code_state, code_meso)
   
+  
+  
   ## 3d. Validate before saving
   stopifnot(is.numeric(temp_sf$code_meso))
   stopifnot(is.numeric(temp_sf$code_state))
@@ -276,14 +279,18 @@ clean_mesoregions <- function(mesoregions_raw){ # year = 2024
   
   ## 6. Save datasets  ---------------------------------------------------------
   
+  
+  
   # Save in parquet
   write_geobr_parquet(
-    temp_sf,
-    paste0(dir_clean, "/mesoregions_", yyyy, ".parquet"))
+    sf_obj = temp_sf, 
+    path = paste0(dir_clean, "/mesoregions_", yyyy, ".parquet")
+    )
 
   write_geobr_parquet(
-    temp_sf_simplified,
-    paste0(dir_clean,"/mesoregions_", yyyy, "_simplified.parquet"))
+    sf_obj = temp_sf_simplified,
+    path = paste0(dir_clean,"/mesoregions_", yyyy, "_simplified.parquet")
+    )
   
   ## 7. Create the files for geobr index  --------------------------------------
   

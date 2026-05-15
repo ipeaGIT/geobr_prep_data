@@ -751,6 +751,10 @@ write_geobr_parquet <- function(sf_obj, path) {
     sf_obj <- sf_obj[, c(other_cols, geo_col)]
   }
   
+  # remove the classes "tbl_df" "tbl" from an object
+  class(sf_obj) <- setdiff(class(sf_obj), c("tbl_df", "tbl"))
+  
+  
   duckspatial::ddbs_write_dataset(
     data = sf_obj, 
     path = path, 
