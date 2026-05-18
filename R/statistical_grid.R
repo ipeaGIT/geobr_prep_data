@@ -277,12 +277,11 @@ clean_statsgrid <- function(statsgrid_raw, municipality_files) {
   ## 4. Save results  ----------------------------------------------------------
 
   # Save in parquet
-  arrow::write_parquet(
-    x = temp_sf,
-    sink = paste0(dir_clean, "/statsgrid_", yyyy, ".parquet"),
-    compression = 'zstd',
-    compression_level = 7
+  write_geobr_parquet(
+    sf_obj = temp_sf,
+    path = paste0(dir_clean, "/statsgrid_", yyyy, ".parquet")
   )
+  
 
   ## 5. Create the files for geobr index  --------------------------------------
 

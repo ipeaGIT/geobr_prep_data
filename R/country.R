@@ -60,12 +60,14 @@ clean_country <- function(regions_files){
     ## 6. Save datasets  ---------------------------------------------------------
     
     write_geobr_parquet(
-      temp_sf,
-      paste0(dir_clean, "/country_", yyyy, ".parquet"))
+      sf_obj = temp_sf,
+      path = paste0(dir_clean, "/country_", yyyy, ".parquet")
+      )
     
     write_geobr_parquet(
-      temp_sf_simplified,
-      paste0(dir_clean,"/country_", yyyy, "_simplified", ".parquet"))
+      sf_obj = temp_sf_simplified,
+      path = paste0(dir_clean,"/country_", yyyy, "_simplified", ".parquet")
+      )
     
     return(yyyy)
   }
