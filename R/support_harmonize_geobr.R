@@ -760,7 +760,7 @@ write_geobr_parquet <- function(sf_obj, path) {
     path = path, 
     crs = "EPSG:4674", 
     overwrite = T, 
-    parquet_compression = "ZSTD",
+    parquet_compression = "SNAPPY",
     quiet = TRUE
     )
   
