@@ -128,7 +128,6 @@ download_biomes <- function(year){ # year = 2019
 
 # Clean the data ----------------------------------
 
-# year <- tar_read("years_biomes")[1]
 # biomes_raw <- tar_read("biomes_raw",branches = 1)
 
 clean_biomes <- function(biomes_raw) {

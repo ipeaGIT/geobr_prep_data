@@ -1,6 +1,6 @@
 # files <- targets::tar_read(all_files, branch=1)
 # files <- list.files(path = "./data/", recursive = T, full.names = T)
-#
+#  files <- files[grepl("schools",files)]
 # versao_dados <- targets::tar_read(versao_dados)
 upload_arquivos <- function(files, versao_dados) {
   
@@ -14,7 +14,8 @@ upload_arquivos <- function(files, versao_dados) {
     files,
     repo = "ipea/geobr_prep_data",
     tag = versao_dados,
-    overwrite = "use_timestamps"
+    overwrite = "use_timestamps", 
+    show_progress = FALSE
   )
   
   # Error in rawConnection(raw(1000), open = "wb") :

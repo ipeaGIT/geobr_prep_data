@@ -250,6 +250,9 @@ download_schools_microdados <- function(year) {
   
   schools_raw$year <- year
   
+  if(nrow(schools_raw)==0){stop(paste0("Error downloading school data ", year))}
+  a <- 3+3
+  
   return(schools_raw)
 }
 
@@ -344,7 +347,7 @@ download_schools_githb <- function(year) {
 #' @return Character vector of output file paths
 #' 
 
-# schools_raw <- tar_read(schools_raw, 4)
+# schools_raw <- tar_read(schools_raw, 1)
 clean_schools <- function(schools_raw) {
 
   ## 0. Create output directory
